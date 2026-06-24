@@ -1,0 +1,252 @@
+{
+  "analysisDate": "2026-06-24",
+  "system": {
+    "name": "Marston Notice Processing System (NPS) + ApplyIQ Permit Application",
+    "url": "https://nps-backoffice-test-c9bxa6bgg0a7htfn.z01.azurefd.net/",
+    "organisation": "Wokingham Borough Council",
+    "contract": "AutomationApplyIQ",
+    "poweredBy": "Marston Holdings"
+  },
+  "loginFlow": {
+    "type": "Microsoft Azure AD OAuth (B2C)",
+    "steps": [
+      "1. Enter username/email on app login page (id: txt_username, class: signInBtn)",
+      "2. Redirected to login.microsoftonline.com - enter email",
+      "3. Enter Microsoft password",
+      "4. 'Let's keep your account secure' MFA prompt → click Next (input[type=submit])",
+      "5. mysignins.microsoft.com/register → wait ~7s for React → click 'Skip setup' button",
+      "6. SAS/ProcessAuth redirect chain → click Yes on 'Stay signed in?' (KMSI)",
+      "7. Redirected back to app"
+    ]
+  },
+  "npsNavigation": {
+    "description": "Top-level Marston NPS back-office navigation",
+    "menuItems": [
+      { "name": "Home", "description": "Lists Organisations (9) and Contracts (465) with search/filter" },
+      { "name": "Configuration", "subItems": ["Users","Templates","Zone","Location","Controlled Parking Zone","Vehicle Type","Contravention Codes","FAQ","Cancellation Reasons","Reject Reasons","CP Rep. Grounds","Hold","Geo Fencing Setup","Reporting"] },
+      { "name": "Client Setup", "subItems": ["Organisation","Contract","Branding","Prefix","Enforcement Agency","Purge"] },
+      { "name": "CR Configuration", "subItems": ["Pound Location","Cancellation Reasons","Priority Settings","Truck","Charge","Release Reasons"] },
+      { "name": "AIRA Configuration", "subItems": ["Reason Config","Question Master List","PCN Type Creation","Team Creation"] },
+      { "name": "ANPR Configuration", "subItems": ["ANPR Site","Task Reservation","Discard Reasons","Workflow"] },
+      { "name": "Print Admin", "url": "/printadmin", "tableColumns": ["Print Batch Type","Last Generated File","Batch Generated Quantity","Last Generated Date and Time","Status","Action"] },
+      { "name": "Monitoring", "url": "/monitoringconfig", "searchFields": ["Select Organisation","Select Contract"] },
+      { "name": "Case Lock", "url": "/caselock", "tableColumns": ["Organisation","Contract","Case Number","Stage","Status","Lock Type","Locked On"], "actions": ["Lock New Case"] }
+    ]
+  },
+  "applyIQSystem": {
+    "description": "ApplyIQ Permit Application Management Portal for Wokingham Borough Council",
+    "url": "/permissions/dashboard",
+    "accessPath": "Home → AutomationApplyIQ contract → Application",
+    "dashboard": {
+      "tabs": ["APPLICATIONS", "FINANCE"],
+      "applicationsSummary": {
+        "metrics": ["Suspension (count + % from last month)", "Permit (count + % from last month)", "Dispensation (count + % from last month)"],
+        "panels": [
+          { "name": "Approved", "filter": "Today/Date range", "shows": "List of approved applications" },
+          { "name": "Waiting for Approval", "shows": "Pending approval count" },
+          { "name": "Upcoming Renewals", "filter": "Next 7 Days / Date range" }
+        ]
+      },
+      "financeSummary": {
+        "metrics": ["Total Revenue (£)", "Net Revenue (£)", "Issued Refund (£)"],
+        "charts": ["Revenue by Permission Type", "Revenue by Payment method"],
+        "recentPayments": { "tableColumns": ["Ref. Number","Transaction ID","Permission Type","Applicant Name","Amount","Method"] }
+      }
+    },
+    "navigation": [
+      {
+        "name": "Applications",
+        "types": [
+          {
+            "name": "permit",
+            "description": "Standard parking permit applications",
+            "tableColumns": ["Ref.Number","Applicant Name","Permission Name","Permission Group","Address","Postcode"],
+            "searchField": "Search by Name or Ref Number"
+          },
+          {
+            "name": "Suspension",
+            "description": "Temporary suspension of parking spaces (e.g., for road works or events)",
+            "tableColumns": ["Ref.Number","Applicant Name","Permission Name","Permission Group","Address","Postcode"],
+            "searchField": "Search by Name or Ref Number"
+          },
+          {
+            "name": "Dispensation",
+            "description": "Permission to park despite restrictions, tied to a vehicle registration (VRM)",
+            "tableColumns": ["Ref.Number","Permission Name","Permission Group","VRM","Work Queue Status","Applicant Name"],
+            "searchField": "Search by Name or Ref Number"
+          }
+        ]
+      },
+      {
+        "name": "Users",
+        "subTabs": ["System Users", "Applicants", "Roles and Permissions"]
+      },
+      {
+        "name": "Permission Setup",
+        "description": "Configure permission types and groups"
+      },
+      {
+        "name": "Templates",
+        "subTabs": ["Emails", "Document Types", "Terms and Conditions"]
+      },
+      {
+        "name": "Print",
+        "description": "Print administration for permit documents"
+      },
+      {
+        "name": "Area",
+        "subItems": [
+          {
+            "name": "Streets",
+            "tableColumns": ["Street Name","No. Of Properties","Created On","Created By","Updated On","Updated By","Status","Actions"],
+            "tabs": ["WHITE LIST", "BLACK LIST STREET", "BLACK LIST PROPERTY"],
+            "actions": ["IMPORT", "+ NEW STREET"]
+          },
+          {
+            "name": "Zones",
+            "tableColumns": ["Zone Name","No. of Streets","Status","Actions"]
+          },
+          {
+            "name": "Locations",
+            "tableColumns": ["Location Name","No of Streets","No. of. properties","Actions"]
+          },
+          {
+            "name": "SpecialEvents",
+            "description": "Manage special event-based parking permissions"
+          }
+        ]
+      },
+      {
+        "name": "Reports",
+        "description": "Generate reports on permit applications and usage"
+      },
+      {
+        "name": "System Audits",
+        "tableColumns": ["Date & Time","Event Type/Name","Event Description","User Role","User Name"],
+        "searchField": "Search..."
+      },
+      {
+        "name": "Contract Settings",
+        "sections": [
+          {
+            "name": "Customer Settings",
+            "fields": ["Blue Badge (toggle)","Send Voucher (toggle)","DOB field mandatory (toggle)","Auto-activate users (toggle)"]
+          },
+          {
+            "name": "Purchase Quantity Limit",
+            "fields": ["Minimum Number Of Visitor Vouchers","Maximum Number Of Visitor Vouchers","Minimum Number Of Scratch Card","Maximum Number Of Scratch Card"]
+          },
+          {
+            "name": "Fees",
+            "fields": ["Admin fee for Permission (£)","Admin fee for Change Address (£)"]
+          },
+          {
+            "name": "Temporary Vehicle",
+            "description": "Settings for temporary vehicle registration"
+          },
+          {
+            "name": "Documents Expiration",
+            "description": "Configure document expiry settings"
+          },
+          {
+            "name": "Fields for Vehicles",
+            "fields": ["Make & Model (checkbox)","Fuel type (checkbox)"]
+          },
+          {
+            "name": "Permission Closure",
+            "description": "Rules for closing permissions"
+          },
+          {
+            "name": "Merchant Settings",
+            "description": "Payment merchant configuration"
+          },
+          {
+            "name": "Unique Reference Numbers",
+            "description": "Configuration for reference number generation"
+          },
+          {
+            "name": "Pricing Alert Configuration",
+            "description": "Alerts for pricing changes"
+          },
+          {
+            "name": "Suspension Settings",
+            "description": "Specific settings for suspension-type applications"
+          },
+          {
+            "name": "Dispensation Settings",
+            "description": "Specific settings for dispensation-type applications"
+          },
+          {
+            "name": "Others",
+            "description": "Miscellaneous contract settings"
+          }
+        ]
+      },
+      {
+        "name": "Vehicles",
+        "description": "Manage vehicle registrations linked to permits"
+      },
+      {
+        "name": "Notifications",
+        "description": "Email/notification configuration"
+      },
+      {
+        "name": "Apply Config",
+        "description": "Configuration for the ApplyIQ permit portal"
+      }
+    ]
+  },
+  "keyFindings": {
+    "applicationTypes": [
+      "Permit - Standard parking permits for residents/businesses",
+      "Suspension - Temporary suspension of parking bays",
+      "Dispensation - VRM-based exemptions from parking restrictions"
+    ],
+    "areaManagement": [
+      "Streets with whitelist/blacklist property management",
+      "Zones grouping multiple streets",
+      "Locations (named areas within zones)",
+      "Special Events for temporary area configurations"
+    ],
+    "contractConfiguration": [
+      "Blue Badge accessibility support",
+      "Visitor voucher and scratch card quantity limits",
+      "Fee configuration for permissions and address changes",
+      "Vehicle field requirements (make/model, fuel type)",
+      "Document expiration management",
+      "Payment merchant integration"
+    ],
+    "financialTracking": [
+      "Total Revenue tracking",
+      "Net Revenue calculation",
+      "Refund management",
+      "Revenue by Permission Type breakdown",
+      "Revenue by Payment method",
+      "Transaction audit trail with Ref.Number, Transaction ID"
+    ],
+    "userManagement": [
+      "System Users (back-office staff)",
+      "Applicants (public portal users)",
+      "Roles and Permissions"
+    ],
+    "auditCapability": [
+      "Full audit trail: Date & Time, Event Type, Event Description, User Role, User Name"
+    ]
+  },
+  "screenshots": {
+    "directory": "screenshots/",
+    "keyScreenshots": [
+      "screenshots/applyiq/dashboard_applications.png - Dashboard APPLICATIONS tab",
+      "screenshots/applyiq/dashboard_finance.png - Dashboard FINANCE tab",
+      "screenshots/applyiq/app_suspension.png - Suspension Applications list",
+      "screenshots/applyiq/app_dispensation.png - Dispensation Applications list",
+      "screenshots/applyiq/area_streets.png - Streets management with whitelist",
+      "screenshots/applyiq/area_zones.png - Zones management",
+      "screenshots/applyiq/area_locations.png - Locations management",
+      "screenshots/applyiq/contract_settings.png - Full Contract Settings",
+      "screenshots/applyiq/system_audits.png - System Audit log",
+      "screenshots/explore/home.png - NPS Home page",
+      "screenshots/explore/case_lock.png - Case Lock with PCN cases"
+    ]
+  }
+}

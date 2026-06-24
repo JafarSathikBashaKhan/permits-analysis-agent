@@ -1,0 +1,11 @@
+node_modules/
+screenshots/
+*.png
+permit_run_*.json
+exploration_report.json
+app_home_elements.json
+app_exploration.json
+exploration_full_report.json
+deep_exploration_report.json
+applyiq_full_report.json
+.env

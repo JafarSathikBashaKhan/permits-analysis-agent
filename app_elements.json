@@ -1,0 +1,57 @@
+[
+  {
+    "tag": "DIV",
+    "text": "NN",
+    "clickable": false
+  },
+  {
+    "tag": "DIV",
+    "text": "NoMFA NOMFA",
+    "clickable": false
+  },
+  {
+    "tag": "SPAN",
+    "text": "Home",
+    "clickable": true
+  },
+  {
+    "tag": "SPAN",
+    "text": "Configuration",
+    "clickable": true
+  },
+  {
+    "tag": "SPAN",
+    "text": "Client Setup",
+    "clickable": true
+  },
+  {
+    "tag": "SPAN",
+    "text": "CR Configuration",
+    "clickable": true
+  },
+  {
+    "tag": "SPAN",
+    "text": "AIRA Configuration",
+    "clickable": true
+  },
+  {
+    "tag": "SPAN",
+    "text": "ANPR Configuration",
+    "clickable": true
+  },
+  {
+    "tag": "SPAN",
+    "text": "Print Admin",
+    "clickable": true
+  },
+  {
+    "tag": "SPAN",
+    "text": "Monitoring",
+    "clickable": true
+  },
+  {
+    "tag": "SPAN",
+    "text": "Case Lock",
+    "clickable": true
+  }
+]

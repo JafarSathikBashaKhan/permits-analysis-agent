@@ -1,0 +1,185 @@
+{
+  "timestamp": "2026-06-24T11:03:29.939Z",
+  "appName": "Marston Notice Processing System",
+  "appUrl": "https://nps-backoffice-test-c9bxa6bgg0a7htfn.z01.azurefd.net/",
+  "loginSuccessful": true,
+  "summary": {
+    "totalPages": 1,
+    "pagesWithForms": 1,
+    "pagesWithTables": 0,
+    "allFormFields": [
+      "Quick Search",
+      "Filter"
+    ],
+    "allTableHeaders": [],
+    "navigationItems": [
+      "home"
+    ]
+  },
+  "pages": [
+    {
+      "name": "home",
+      "url": "https://nps-backoffice-test-c9bxa6bgg0a7htfn.z01.azurefd.net/",
+      "screenshot": "home.png",
+      "elements": [
+        {
+          "tag": "DIV",
+          "id": "userIcon",
+          "cls": "MuiAvatar-root MuiAvatar-circular MuiAvatar-colorDefault ava",
+          "text": "NN",
+          "href": "",
+          "clickable": false
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "cls": "usernamesection",
+          "text": "NoMFA NOMFA",
+          "href": "",
+          "clickable": false
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "cls": "MuiTypography-root MuiTypography-body1 MuiListItemText-prima",
+          "text": "Home",
+          "href": "",
+          "clickable": true
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "cls": "MuiTypography-root MuiTypography-body1 MuiListItemText-prima",
+          "text": "Configuration",
+          "href": "",
+          "clickable": true
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "cls": "MuiTypography-root MuiTypography-body1 MuiListItemText-prima",
+          "text": "Client Setup",
+          "href": "",
+          "clickable": true
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "cls": "MuiTypography-root MuiTypography-body1 MuiListItemText-prima",
+          "text": "CR Configuration",
+          "href": "",
+          "clickable": true
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "cls": "MuiTypography-root MuiTypography-body1 MuiListItemText-prima",
+          "text": "AIRA Configuration",
+          "href": "",
+          "clickable": true
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "cls": "MuiTypography-root MuiTypography-body1 MuiListItemText-prima",
+          "text": "ANPR Configuration",
+          "href": "",
+          "clickable": true
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "cls": "MuiTypography-root MuiTypography-body1 MuiListItemText-prima",
+          "text": "Print Admin",
+          "href": "",
+          "clickable": true
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "cls": "MuiTypography-root MuiTypography-body1 MuiListItemText-prima",
+          "text": "Monitoring",
+          "href": "",
+          "clickable": true
+        },
+        {
+          "tag": "SPAN",
+          "id": "",
+          "cls": "MuiTypography-root MuiTypography-body1 MuiListItemText-prima",
+          "text": "Case Lock",
+          "href": "",
+          "clickable": true
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "cls": "tabTitleButton text",
+          "text": "Organisation (9)",
+          "href": "",
+          "clickable": true
+        },
+        {
+          "tag": "DIV",
+          "id": "",
+          "cls": "tabTitleButton contained",
+          "text": "Contract (465)",
+          "href": "",
+          "clickable": true
+        },
+        {
+          "tag": "SPAN",
+          "id": "switchLabel_expandCountData",
+          "cls": "unstyle",
+          "text": "Expand",
+          "href": "",
+          "clickable": false
+        },
+        {
+          "tag": "P",
+          "id": "",
+          "cls": "MuiTypography-root MuiTypography-body1 accordionTitle css-fy",
+          "text": "Favourites (1)",
+          "href": "",
+          "clickable": true
+        },
+        {
+          "tag": "DIV",
+          "id": "contract_12134",
+          "cls": "cursorpointer",
+          "text": "AutomationApplyIQ",
+          "href": "",
+          "clickable": true
+        },
+        {
+          "tag": "DIV",
+          "id": "organisation_12134",
+          "cls": "cursorpointer",
+          "text": "Wokingham Borough Council",
+          "href": "",
+          "clickable": true
+        },
+        {
+          "tag": "P",
+          "id": "",
+          "cls": "MuiTypography-root MuiTypography-body1 accordionTitle css-fy",
+          "text": "All (465)",
+          "href": "",
+          "clickable": true
+        }
+      ],
+      "tables": [],
+      "forms": [
+        {
+          "type": "INPUT[text]",
+          "label": "Quick Search",
+          "name": ""
+        },
+        {
+          "type": "INPUT[text]",
+          "label": "Filter",
+          "name": ""
+        }
+      ]
+    }
+  ]
+}
