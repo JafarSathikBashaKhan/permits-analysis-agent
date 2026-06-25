@@ -20,6 +20,38 @@ You are an expert QA automation engineer who deeply understands the permit appli
 
 ## Module Structure
 ```
+Contract Settings Module:
+├── Toggles
+│   ├── USRN/UPRN (auto-generate street/property reference numbers)
+│   ├── DOB (make Date of Birth mandatory)
+│   ├── Diesel Surcharge (add surcharge to pricing)
+│   ├── Tier Pricing (enable multiple pricing tiers)
+│   ├── Blue Badge (enable blue badge limits)
+│   ├── Keep Tier Price at Original Rate
+│   ├── SMS Reminder
+│   ├── Experian (vehicle pass score)
+│   ├── Visitor Portal (per permission type)
+│   └── Redact Retention Period
+├── Configuration Fields
+│   ├── Blue Badge Limit (0-200)
+│   ├── Visitor Permit Min/Max (0-1000)
+│   ├── Scratch Card Books Min/Max (0-1000)
+│   ├── Vehicle Field Configuration (type, fuel, make, model, color, CO2, etc.)
+│   ├── Temporary Vehicle Validity (frequency + period)
+│   ├── Temporary Vehicle Add Limit (frequency + period + switches)
+│   ├── Permission Closure (Payment Failure Grace + Closure Period)
+│   ├── Support Evidence Closure (Grace Period + Closure Period)
+│   ├── Document Expiration (frequency + period)
+│   ├── Price Alert Configuration (2 reminders + email)
+│   ├── Version History Retention (1 week to 1 year)
+│   ├── Admin Fee for Permission (0-1000, 2 decimal places)
+│   ├── Merchant Settings (per permission type, BO + Customer)
+│   └── Experian Vehicle Pass Score (operator + score 1-1000)
+├── Policy URLs
+│   ├── Data Sharing Policy
+│   └── Cookie Policy
+└── Events/Audit (all changes logged)
+
 Area Module:
 ├── Streets
 │   ├── White List (CRUD: Create, View, Edit, Delete, Bulk Import)

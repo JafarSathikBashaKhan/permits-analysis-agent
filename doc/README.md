@@ -69,6 +69,32 @@ Dashboard
 | 178185 | [Bulk Import - Zone and Locations](./US-178185-bulk-import--zone-and-locations.md) | Done | Fully Complete |
 | 181541 | [Street - Property Blacklist](./US-181541-street--property-blacklist.md) | Done | new |
 
+### Contract Settings Module (21 stories)
+
+| Story ID | Title | State | Tags |
+|----------|-------|-------|------|
+| 113702 | [Blue Badge Limit & Visitor Permit Settings](./US-113702-blue-badge-limit--visitor-permit-settings.md) | Done | Fully Complete; LV |
+| 129426 | [USRN and UPRN Toggle Settings](./US-129426-usrn-and-uprn-toggle-settings.md) | Done | Fully Complete; LV |
+| 129427 | [DOB Toggle Settings](./US-129427-dob-date-of-birth-toggle-settings.md) | Done | Fully Complete |
+| 129428 | [Vehicle Fields Toggle Settings](./US-129428-vehicle-fields-toggle-settings.md) | Done | Fully Complete |
+| 129756 | [Data Sharing & Cookie Policy](./US-129756-data-sharing-policy--cookie-policy-fields---contract-.md) | Done | Fully Complete; LV |
+| 142892 | [Diesel Surcharge Toggle](./US-142892-diesel-surcharge--toggle.md) | Done | Fully Complete |
+| 142905 | [Tier Pricing Toggle](./US-142905-tier-pricing-toggle.md) | Done | Fully Complete |
+| 143071 | [Enable SMS Reminder](./US-143071-enable-sms-reminder---contract-settings.md) | Done | Fully Complete |
+| 151215 | [Configure Temporary Vehicle Days](./US-151215-configure-temporary-vehicle-days.md) | Done | Fully Complete |
+| 151422 | [Price Alert Configuration](./US-151422-contract-settings--apply--price-alert-configuration.md) | Done | Fully Complete |
+| 157592 | [Version History Retention Period](./US-157592-configure-version-history-retention-period.md) | Done | Fully Complete |
+| 161638 | [Expiration of Supporting Documentation](./US-161638-configure-expiration-of-supporting-documentation.md) | Done | Fully Complete |
+| 162363 | [Configure Permission Closure](./US-162363-configure-permission-closure.md) | Done | Fully Complete |
+| 162923 | [Keep Tier Pricing at Original Rate](./US-162923-keep-tier-pricing-at-original-rate.md) | Done | Fully Complete |
+| 162927 | [Enable Blue Badge Toggle](./US-162927-enable-blue-badge-toggle.md) | Done | Fully Complete |
+| 163196 | [Admin Fee Configuration](./US-163196-admin-fee-configuration-for-permission.md) | Done | Fully Complete |
+| 164270 | [Merchant Settings](./US-164270-merchant-settings.md) | Done | Fully Complete |
+| 165048 | [Experian Pass Score Setup](./US-165048-experian--pass-score-set-up.md) | Done | Fully Complete |
+| 173473 | [Permission Closure for Support Evidence](./US-173473-configure-permission-closure-for-support-evidence.md) | Done | - |
+| 179095 | [Visitor Portal Settings](./US-179095-visitor-portal-settings.md) | Done | - |
+| 179416 | [Redact Retention Period](./US-179416-redact-retention-period.md) | Done | - |
+
 ## Automation Scripts
 
 | Script | Purpose | Story Reference |
