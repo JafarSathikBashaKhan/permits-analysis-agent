@@ -5,8 +5,8 @@ const CONFIG = {
   baseUrl: 'https://nps-backoffice-test-c9bxa6bgg0a7htfn.z01.azurefd.net/',
   credentials: { email: 'freedomappsvc@itsvc.co.uk', password: 'H@rd4r!v3+' },
   newStreet: {
-    name: 'CopilotTestStreet_001',
-    // We'll discover the form fields dynamically
+    name: `CopilotStreet_${Date.now()}`,
+    usrn: `USR${Date.now().toString().slice(-8)}`,
   }
 };
 
@@ -125,36 +125,78 @@ async function main() {
     // 1. Street Name
     await page.click('input[placeholder="Enter Street Name"]');
     await sleep(200);
-    await reactFill('Enter Street Name', CONFIG.newStreet.name);
+    await page.fill('input[placeholder="Enter Street Name"]', CONFIG.newStreet.name);
     log('  ↳ Filled Street Name:', CONFIG.newStreet.name);
     await sleep(400);
 
     // 2. USRN
-    await reactFill('USRN', '12345678');
-    log('  ↳ Filled USRN: 12345678');
+    await page.click('input[placeholder="USRN"]');
+    await sleep(200);
+    await page.fill('input[placeholder="USRN"]', CONFIG.newStreet.usrn);
+    log('  ↳ Filled USRN:', CONFIG.newStreet.usrn);
     await sleep(300);
 
-    // 3. Town Name
-    await reactFill('Town Name', 'Wokingham');
-    log('  ↳ Filled Town Name: Wokingham');
+    // 3. Town Name (MUI Autocomplete — type and select from dropdown)
+    await page.click('input[placeholder="Town Name"]');
     await sleep(300);
+    await page.fill('input[placeholder="Town Name"]', 'Automation');
+    await sleep(1500);
+    // Select the first town option from dropdown
+    const townOption = page.locator('.town-option-label').first();
+    if (await townOption.isVisible({ timeout: 3000 })) {
+      const townText = await townOption.textContent();
+      await townOption.click();
+      log('  ↳ Selected Town:', townText);
+    } else {
+      // Fallback: press Enter to select first option
+      await page.press('input[placeholder="Town Name"]', 'ArrowDown');
+      await sleep(200);
+      await page.press('input[placeholder="Town Name"]', 'Enter');
+      log('  ↳ Selected Town via keyboard');
+    }
+    await sleep(500);
 
     // 4. Add property — type into the "Type and press enter" field then press Enter
     await page.click('input[placeholder="Type and press enter to add"]');
-    await sleep(200);
-    await reactFill('Type and press enter to add', '1-10');
-    await sleep(200);
+    await sleep(300);
+    await page.fill('input[placeholder="Type and press enter to add"]', 'Property_001');
+    await sleep(300);
     await page.press('input[placeholder="Type and press enter to add"]', 'Enter');
     await sleep(1500);
-    log('  ↳ Added property: 1-10');
+    log('  ↳ Added property: Property_001');
 
     // 5. Fill Postcode in the property row
     await page.waitForSelector('input[placeholder="Postcode"]', { timeout: 5000 });
     await page.click('input[placeholder="Postcode"]');
     await sleep(200);
-    await reactFill('Postcode', 'RG40 1BJ');
-    log('  ↳ Filled Postcode: RG40 1BJ');
+    await page.fill('input[placeholder="Postcode"]', 'RG40 1BJ');
+    await sleep(1000);
+    // Try selecting from dropdown if available
+    try {
+      const pcOption = page.locator('[role="option"]').first();
+      if (await pcOption.isVisible({ timeout: 2000 })) {
+        await pcOption.click();
+        log('  ↳ Selected Postcode from dropdown');
+      } else {
+        await page.press('input[placeholder="Postcode"]', 'Tab');
+        log('  ↳ Filled Postcode: RG40 1BJ');
+      }
+    } catch(_) {
+      await page.press('input[placeholder="Postcode"]', 'Tab');
+      log('  ↳ Filled Postcode: RG40 1BJ');
+    }
     await sleep(500);
+
+    // 6. Fill UPRN in the property row
+    const uprnField = page.locator('input[placeholder="UPRN"]');
+    if (await uprnField.isVisible({ timeout: 3000 })) {
+      await uprnField.click();
+      await sleep(200);
+      const uprn = `UPR${Date.now().toString().slice(-8)}`;
+      await uprnField.fill(uprn);
+      log('  ↳ Filled UPRN:', uprn);
+      await sleep(300);
+    }
 
     // Tab away to trigger all blur/validate events
     await page.keyboard.press('Tab');
