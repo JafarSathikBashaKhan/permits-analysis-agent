@@ -1,0 +1,1218 @@
+{
+  "contractName": "AutomationApplyIQ",
+  "contractId": 12134,
+  "probedAtUtc": "2026-06-26T04:53:51.6145609Z",
+  "apiBase": "https://test-permits-restapi.azurewebsites.net",
+  "environment": "QA",
+  "contractPermissionType_status": 200,
+  "contractPermissionType": [
+    {
+      "permissionTypeId": 4,
+      "permissionTypeName": "DMTest Permission"
+    },
+    {
+      "permissionTypeId": 1,
+      "permissionTypeName": "Road Permit"
+    },
+    {
+      "permissionTypeId": 3,
+      "permissionTypeName": "New Permission"
+    }
+  ],
+  "allGroups_status": 200,
+  "allGroups": {
+    "data": [
+      {
+        "groupType": "Zone",
+        "id": 232,
+        "contractId": 12134,
+        "name": "TestResidentGroup",
+        "permissionTypeId": 66,
+        "houseHoldLimit": 0,
+        "maximumNumberPerGroup": 0,
+        "isZoneRelated": true,
+        "isBackOfficeUse": false,
+        "legacySystemId": null,
+        "createdOn": "2026-05-21T12:31:38.287",
+        "createdBy": 1501,
+        "updatedOn": null,
+        "updatedBy": null,
+        "isDelete": false,
+        "permissionType": null
+      },
+      {
+        "groupType": "Zone",
+        "id": 231,
+        "contractId": 12134,
+        "name": " Resident Group",
+        "permissionTypeId": 1,
+        "houseHoldLimit": 0,
+        "maximumNumberPerGroup": 0,
+        "isZoneRelated": true,
+        "isBackOfficeUse": false,
+        "legacySystemId": null,
+        "createdOn": "2026-05-21T12:26:07.717",
+        "createdBy": 1501,
+        "updatedOn": "2026-05-22T06:01:18.763",
+        "updatedBy": 1500,
+        "isDelete": false,
+        "permissionType": null
+      }
+    ],
+    "totalCount": 2
+  },
+  "allBuilders_status": 200,
+  "allBuilders": {
+    "data": [
+      {
+        "id": 1625,
+        "permissionName": "AutoTest_Perm_20260626_091123",
+        "description": "Auto-test permission 2026-06-26 09:11:40",
+        "type": "Road Permit",
+        "group": " Resident Group",
+        "category": "Visitor",
+        "status": "Draft",
+        "isDraftAvailable": false,
+        "createdBy": 13055,
+        "createdOn": "2026-06-26T03:41:41.25",
+        "updatedBy": 0,
+        "updatedOn": null,
+        "permissionDraftJson": null,
+        "rulesDraftJson": null,
+        "applicationFormDraftJson": null
+      },
+      {
+        "id": 1493,
+        "permissionName": "Resident Permission",
+        "description": "Resident Permission",
+        "type": "Road Permit",
+        "group": " Resident Group",
+        "category": "Resident",
+        "status": "Published",
+        "isDraftAvailable": false,
+        "createdBy": 1500,
+        "createdOn": "2026-05-22T06:04:33.777",
+        "updatedBy": 1500,
+        "updatedOn": "2026-05-22T06:07:15.107",
+        "permissionDraftJson": null,
+        "rulesDraftJson": null,
+        "applicationFormDraftJson": null
+      }
+    ],
+    "totalCount": 2
+  },
+  "zones_status": 200,
+  "zones": {
+    "data": [
+      {
+        "id": 1676,
+        "name": "AutomationZone 20260623125628",
+        "streetCount": 1,
+        "status": "Draft",
+        "zoneStatusId": 0,
+        "isDelete": false,
+        "createdByUser": "freedomnps BO Manager",
+        "createdOn": "2026-06-23T07:28:00.193",
+        "updatedByUser": "",
+        "updatedOn": null,
+        "isBackOfficeUse": true
+      },
+      {
+        "id": 1675,
+        "name": "AutomationZone 20260623124405",
+        "streetCount": 1,
+        "status": "Draft",
+        "zoneStatusId": 0,
+        "isDelete": false,
+        "createdByUser": "freedomnps BO Manager",
+        "createdOn": "2026-06-23T07:15:51.283",
+        "updatedByUser": "",
+        "updatedOn": null,
+        "isBackOfficeUse": true
+      },
+      {
+        "id": 1674,
+        "name": "AutomationZone 20260623121410",
+        "streetCount": 1,
+        "status": "Draft",
+        "zoneStatusId": 0,
+        "isDelete": false,
+        "createdByUser": "freedomnps BO Manager",
+        "createdOn": "2026-06-23T06:45:43.223",
+        "updatedByUser": "",
+        "updatedOn": null,
+        "isBackOfficeUse": true
+      },
+      {
+        "id": 1673,
+        "name": "AutomationZone 20260623120352",
+        "streetCount": 1,
+        "status": "Draft",
+        "zoneStatusId": 0,
+        "isDelete": false,
+        "createdByUser": "freedomnps BO Manager",
+        "createdOn": "2026-06-23T06:36:00.997",
+        "updatedByUser": "",
+        "updatedOn": null,
+        "isBackOfficeUse": true
+      },
+      {
+        "id": 1671,
+        "name": "Resident Street",
+        "streetCount": 1,
+        "status": "Published",
+        "zoneStatusId": 0,
+        "isDelete": false,
+        "createdByUser": "Jafar Sathik Basha Khan",
+        "createdOn": "2026-05-21T12:54:06.573",
+        "updatedByUser": "Jafar Khan",
+        "updatedOn": "2026-05-22T06:07:12.807",
+        "isBackOfficeUse": false
+      }
+    ],
+    "totalCount": 5
+  },
+  "streets_status": 200,
+  "streets": [
+    {
+      "id": 13462,
+      "name": "AutomationStreet 20260623063528917",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T06:35:34.877",
+      "createdBy": 6,
+      "updatedOn": "2026-06-23T06:37:13.037",
+      "updatedBy": 6,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13463,
+      "name": "AutomationStreet 20260623064538756",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T06:45:39.933",
+      "createdBy": 6,
+      "updatedOn": "2026-06-23T06:45:52.273",
+      "updatedBy": 6,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13464,
+      "name": "AutomationStreet 20260623071547093",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T07:15:47.877",
+      "createdBy": 6,
+      "updatedOn": "2026-06-23T07:16:32.52",
+      "updatedBy": 6,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13465,
+      "name": "AutomationStreet 20260623072755049",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T07:27:55.877",
+      "createdBy": 6,
+      "updatedOn": "2026-06-23T07:28:19.66",
+      "updatedBy": 6,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13466,
+      "name": "AutomationStreet 20260623133302609",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T13:33:03.697",
+      "createdBy": 13055,
+      "updatedOn": null,
+      "updatedBy": null,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13467,
+      "name": "AutomationStreet 20260623133304289",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T13:33:04.453",
+      "createdBy": 13055,
+      "updatedOn": null,
+      "updatedBy": null,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13468,
+      "name": "AutomationStreet 20260623135528614",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T13:55:29.397",
+      "createdBy": 13055,
+      "updatedOn": "2026-06-23T13:55:37.807",
+      "updatedBy": 13055,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13469,
+      "name": "AutomationStreet 20260623135540663",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T13:55:41.377",
+      "createdBy": 13055,
+      "updatedOn": null,
+      "updatedBy": null,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13470,
+      "name": "AutomationStreet 20260623135554643",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T13:55:55.64",
+      "createdBy": 13055,
+      "updatedOn": "2026-06-23T13:56:09.44",
+      "updatedBy": 13055,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13471,
+      "name": "AutomationStreet 20260623135613654",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T13:56:14.583",
+      "createdBy": 13055,
+      "updatedOn": "2026-06-23T13:56:28.207",
+      "updatedBy": 13055,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13472,
+      "name": "AutomationStreet 20260623135631042",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T13:56:31.8",
+      "createdBy": 13055,
+      "updatedOn": null,
+      "updatedBy": null,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13473,
+      "name": "AutomationStreet 20260623135646231",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T13:56:46.98",
+      "createdBy": 13055,
+      "updatedOn": null,
+      "updatedBy": null,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13474,
+      "name": "AutomationStreet 20260623135654679",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T13:56:54.82",
+      "createdBy": 13055,
+      "updatedOn": null,
+      "updatedBy": null,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13475,
+      "name": "AutomationStreet 20260623140015278",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T14:00:16.027",
+      "createdBy": 13055,
+      "updatedOn": "2026-06-23T14:00:24.477",
+      "updatedBy": 13055,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13476,
+      "name": "AutomationStreet 20260623140027275",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T14:00:28.023",
+      "createdBy": 13055,
+      "updatedOn": "2026-06-23T14:00:48.56",
+      "updatedBy": 13055,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13477,
+      "name": "AutomationStreet 20260623140051376",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T14:00:52.09",
+      "createdBy": 13055,
+      "updatedOn": null,
+      "updatedBy": null,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13478,
+      "name": "AutomationStreet 20260623140106505",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T14:01:07.243",
+      "createdBy": 13055,
+      "updatedOn": null,
+      "updatedBy": null,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13479,
+      "name": "AutomationStreet 20260623140120254",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T14:01:21.057",
+      "createdBy": 13055,
+      "updatedOn": null,
+      "updatedBy": null,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13480,
+      "name": "AutomationStreet 20260623140133921",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T14:01:34.633",
+      "createdBy": 13055,
+      "updatedOn": null,
+      "updatedBy": null,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13481,
+      "name": "AutomationStreet 20260623141222927",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T14:12:23.8",
+      "createdBy": 13055,
+      "updatedOn": "2026-06-23T14:12:34.627",
+      "updatedBy": 13055,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13482,
+      "name": "AutomationStreet 20260623141442109",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T14:14:42.8",
+      "createdBy": 13055,
+      "updatedOn": "2026-06-23T14:14:52.737",
+      "updatedBy": 13055,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13483,
+      "name": "AutomationStreet 20260623141842609",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T14:18:43.353",
+      "createdBy": 13055,
+      "updatedOn": "2026-06-23T14:18:53.2",
+      "updatedBy": 13055,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13484,
+      "name": "AutomationStreet 20260623142359807",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T14:24:14.43",
+      "createdBy": 13055,
+      "updatedOn": null,
+      "updatedBy": null,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13487,
+      "name": "AutomationStreet 20260624055547190",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-24T05:55:52.1",
+      "createdBy": 13055,
+      "updatedOn": "2026-06-24T05:56:10.53",
+      "updatedBy": 13055,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13488,
+      "name": "AutomationStreet 20260624060531697",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-24T06:05:34.557",
+      "createdBy": 13055,
+      "updatedOn": "2026-06-24T06:05:45.723",
+      "updatedBy": 13055,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13491,
+      "name": "AutomationStreet 20260625123839596",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-25T12:38:40.36",
+      "createdBy": 13055,
+      "updatedOn": "2026-06-25T12:38:52.227",
+      "updatedBy": 13055,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13489,
+      "name": "CopilotStreet_1782365374114",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-25T05:30:44.26",
+      "createdBy": 13055,
+      "updatedOn": null,
+      "updatedBy": null,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13490,
+      "name": "CopilotStreet_1782365906179",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-25T05:39:39.14",
+      "createdBy": 13055,
+      "updatedOn": null,
+      "updatedBy": null,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13453,
+      "name": "Resident Street",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-05-21T12:38:36.503",
+      "createdBy": 1501,
+      "updatedOn": null,
+      "updatedBy": null,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13461,
+      "name": "TestCOntract",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-06-23T06:30:06.61",
+      "createdBy": 6,
+      "updatedOn": "2026-06-23T06:30:24.513",
+      "updatedBy": 6,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    },
+    {
+      "id": 13454,
+      "name": "TestResident",
+      "contractId": 12134,
+      "noOfProperties": null,
+      "createdOn": "2026-05-21T12:42:39.6",
+      "createdBy": 1501,
+      "updatedOn": "2026-06-23T06:30:30.093",
+      "updatedBy": 6,
+      "isActive": false,
+      "status": null,
+      "createdByUser": null,
+      "updatedByUser": null
+    }
+  ],
+  "towns_status": 200,
+  "towns": [
+    {
+      "id": 1270,
+      "name": "AutomationTown 20260623063528917",
+      "displayName": "AutomationTown 20260623063528917"
+    },
+    {
+      "id": 1271,
+      "name": "AutomationTown 20260623064538756",
+      "displayName": "AutomationTown 20260623064538756"
+    },
+    {
+      "id": 1272,
+      "name": "AutomationTown 20260623071547093",
+      "displayName": "AutomationTown 20260623071547093"
+    },
+    {
+      "id": 1273,
+      "name": "AutomationTown 20260623072755049",
+      "displayName": "AutomationTown 20260623072755049"
+    },
+    {
+      "id": 1274,
+      "name": "AutomationTown 20260623133302609",
+      "displayName": "AutomationTown 20260623133302609"
+    },
+    {
+      "id": 1275,
+      "name": "AutomationTown 20260623133304289",
+      "displayName": "AutomationTown 20260623133304289"
+    },
+    {
+      "id": 1276,
+      "name": "AutomationTown 20260623135528614",
+      "displayName": "AutomationTown 20260623135528614"
+    },
+    {
+      "id": 1277,
+      "name": "AutomationTown 20260623135540663",
+      "displayName": "AutomationTown 20260623135540663"
+    },
+    {
+      "id": 1278,
+      "name": "AutomationTown 20260623135554643",
+      "displayName": "AutomationTown 20260623135554643"
+    },
+    {
+      "id": 1279,
+      "name": "AutomationTown 20260623135613654",
+      "displayName": "AutomationTown 20260623135613654"
+    },
+    {
+      "id": 1280,
+      "name": "AutomationTown 20260623135631042",
+      "displayName": "AutomationTown 20260623135631042"
+    },
+    {
+      "id": 1281,
+      "name": "AutomationTown 20260623135646231",
+      "displayName": "AutomationTown 20260623135646231"
+    },
+    {
+      "id": 1282,
+      "name": "AutomationTown 20260623135654679",
+      "displayName": "AutomationTown 20260623135654679"
+    },
+    {
+      "id": 1283,
+      "name": "AutomationTown 20260623140015278",
+      "displayName": "AutomationTown 20260623140015278"
+    },
+    {
+      "id": 1284,
+      "name": "AutomationTown 20260623140027275",
+      "displayName": "AutomationTown 20260623140027275"
+    },
+    {
+      "id": 1285,
+      "name": "AutomationTown 20260623140051376",
+      "displayName": "AutomationTown 20260623140051376"
+    },
+    {
+      "id": 1286,
+      "name": "AutomationTown 20260623140106505",
+      "displayName": "AutomationTown 20260623140106505"
+    },
+    {
+      "id": 1287,
+      "name": "AutomationTown 20260623140120254",
+      "displayName": "AutomationTown 20260623140120254"
+    },
+    {
+      "id": 1288,
+      "name": "AutomationTown 20260623140133921",
+      "displayName": "AutomationTown 20260623140133921"
+    },
+    {
+      "id": 1289,
+      "name": "AutomationTown 20260623141222927",
+      "displayName": "AutomationTown 20260623141222927"
+    },
+    {
+      "id": 1290,
+      "name": "AutomationTown 20260623141442109",
+      "displayName": "AutomationTown 20260623141442109"
+    },
+    {
+      "id": 1291,
+      "name": "AutomationTown 20260623141842609",
+      "displayName": "AutomationTown 20260623141842609"
+    },
+    {
+      "id": 1292,
+      "name": "AutomationTown 20260623142359807",
+      "displayName": "AutomationTown 20260623142359807"
+    },
+    {
+      "id": 1295,
+      "name": "AutomationTown 20260624055547190",
+      "displayName": "AutomationTown 20260624055547190"
+    },
+    {
+      "id": 1296,
+      "name": "AutomationTown 20260624060531697",
+      "displayName": "AutomationTown 20260624060531697"
+    },
+    {
+      "id": 1297,
+      "name": "AutomationTown 20260625123839596",
+      "displayName": "AutomationTown 20260625123839596"
+    },
+    {
+      "id": 1265,
+      "name": "TATATOWN",
+      "displayName": "TATATOWN"
+    },
+    {
+      "id": 1269,
+      "name": "Test01",
+      "displayName": "Test01"
+    }
+  ],
+  "postCodes_status": 200,
+  "postCodes": [
+    {
+      "postCode": "123"
+    },
+    {
+      "postCode": "A654123"
+    },
+    {
+      "postCode": "AUT 1MN"
+    },
+    {
+      "postCode": "RG40 1BJ"
+    }
+  ],
+  "locationStreets_status": 200,
+  "locationStreets": [
+    {
+      "id": 13453,
+      "name": "Resident Street",
+      "usrn": "785412"
+    },
+    {
+      "id": 13466,
+      "name": "AutomationStreet 20260623133302609",
+      "usrn": "3133302609"
+    },
+    {
+      "id": 13467,
+      "name": "AutomationStreet 20260623133304289",
+      "usrn": "3133304289"
+    },
+    {
+      "id": 13469,
+      "name": "AutomationStreet 20260623135540663",
+      "usrn": "3135540663"
+    },
+    {
+      "id": 13472,
+      "name": "AutomationStreet 20260623135631042",
+      "usrn": "3135631042"
+    },
+    {
+      "id": 13473,
+      "name": "AutomationStreet 20260623135646231",
+      "usrn": "3135646231"
+    },
+    {
+      "id": 13474,
+      "name": "AutomationStreet 20260623135654679",
+      "usrn": "3135654679"
+    },
+    {
+      "id": 13477,
+      "name": "AutomationStreet 20260623140051376",
+      "usrn": "3140051376"
+    },
+    {
+      "id": 13478,
+      "name": "AutomationStreet 20260623140106505",
+      "usrn": "3140106505"
+    },
+    {
+      "id": 13479,
+      "name": "AutomationStreet 20260623140120254",
+      "usrn": "3140120254"
+    },
+    {
+      "id": 13480,
+      "name": "AutomationStreet 20260623140133921",
+      "usrn": "3140133921"
+    },
+    {
+      "id": 13484,
+      "name": "AutomationStreet 20260623142359807",
+      "usrn": "3142359807"
+    },
+    {
+      "id": 13489,
+      "name": "CopilotStreet_1782365374114",
+      "usrn": "USR65374114"
+    },
+    {
+      "id": 13490,
+      "name": "CopilotStreet_1782365906179",
+      "usrn": "USR65906179"
+    }
+  ],
+  "documentTypes_status": 200,
+  "documentTypes": [],
+  "documentCategories_status": 204,
+  "documentCategories": null,
+  "contractPermissionSetting_status": 200,
+  "contractPermissionSetting": {
+    "id": 99,
+    "contractId": 12134,
+    "isExperian": false,
+    "isPCNLookup": true,
+    "isAutoGuruEnabled": false,
+    "isPrinterPartnerEnabled": false,
+    "contactPhoneNumber": "9876543210",
+    "vatPercentage": 1.000,
+    "applyIllumin8Contract": "Southend-on-Sea",
+    "isCEOMappingEnabled": false,
+    "workItemContractId": null
+  },
+  "vehicleSettings_status": 200,
+  "vehicleSettings": {
+    "vehicleType": [
+      {
+        "id": 1,
+        "name": "Bus"
+      },
+      {
+        "id": 2,
+        "name": "Car"
+      },
+      {
+        "id": 3,
+        "name": "Heavy Goods Vehicle"
+      },
+      {
+        "id": 4,
+        "name": "Light Goods Vehicle"
+      },
+      {
+        "id": 5,
+        "name": "Motorcycle"
+      },
+      {
+        "id": 6,
+        "name": "Scooter"
+      },
+      {
+        "id": 7,
+        "name": "Van"
+      },
+      {
+        "id": 10,
+        "name": "LCV"
+      }
+    ],
+    "fuelType": [
+      {
+        "id": 1,
+        "name": "Petrol"
+      },
+      {
+        "id": 2,
+        "name": "Diesel"
+      },
+      {
+        "id": 3,
+        "name": "Diesel/Hybrid Electric"
+      },
+      {
+        "id": 4,
+        "name": "Electric"
+      },
+      {
+        "id": 5,
+        "name": "Electricity"
+      },
+      {
+        "id": 6,
+        "name": "Heavy Oil"
+      },
+      {
+        "id": 7,
+        "name": "LPG"
+      },
+      {
+        "id": 8,
+        "name": "Other"
+      },
+      {
+        "id": 9,
+        "name": "Petrol/Hybrid Electric"
+      },
+      {
+        "id": 10,
+        "name": "Petrol/LPG"
+      },
+      {
+        "id": 11,
+        "name": "HEAVY OIL"
+      },
+      {
+        "id": 12,
+        "name": "HYBRID ELECTRIC"
+      }
+    ],
+    "cO2Emission": [
+      {
+        "id": 1,
+        "name": "Type1"
+      },
+      {
+        "id": 2,
+        "name": "Type2"
+      },
+      {
+        "id": 3,
+        "name": "136"
+      },
+      {
+        "id": 4,
+        "name": "130"
+      },
+      {
+        "id": 5,
+        "name": "147"
+      },
+      {
+        "id": 6,
+        "name": "385"
+      },
+      {
+        "id": 7,
+        "name": "294"
+      },
+      {
+        "id": 8,
+        "name": "149"
+      },
+      {
+        "id": 9,
+        "name": "025"
+      },
+      {
+        "id": 10,
+        "name": "000"
+      },
+      {
+        "id": 11,
+        "name": "328"
+      },
+      {
+        "id": 12,
+        "name": "251"
+      },
+      {
+        "id": 13,
+        "name": "207"
+      },
+      {
+        "id": 16,
+        "name": "134"
+      },
+      {
+        "id": 17,
+        "name": "133"
+      },
+      {
+        "id": 18,
+        "name": "165"
+      },
+      {
+        "id": 19,
+        "name": "187"
+      },
+      {
+        "id": 20,
+        "name": "163"
+      },
+      {
+        "id": 21,
+        "name": "110"
+      },
+      {
+        "id": 22,
+        "name": "203"
+      },
+      {
+        "id": 23,
+        "name": "263"
+      },
+      {
+        "id": 24,
+        "name": "172"
+      },
+      {
+        "id": 25,
+        "name": "155"
+      },
+      {
+        "id": 26,
+        "name": "032"
+      },
+      {
+        "id": 27,
+        "name": "097"
+      },
+      {
+        "id": 28,
+        "name": "142"
+      },
+      {
+        "id": 29,
+        "name": "141"
+      },
+      {
+        "id": 30,
+        "name": "0"
+      },
+      {
+        "id": 31,
+        "name": "139"
+      },
+      {
+        "id": 32,
+        "name": "254"
+      },
+      {
+        "id": 33,
+        "name": "229"
+      },
+      {
+        "id": 34,
+        "name": "228"
+      },
+      {
+        "id": 35,
+        "name": "284"
+      },
+      {
+        "id": 36,
+        "name": "144"
+      },
+      {
+        "id": 37,
+        "name": "275"
+      },
+      {
+        "id": 38,
+        "name": "277"
+      },
+      {
+        "id": 39,
+        "name": "267"
+      },
+      {
+        "id": 40,
+        "name": "153"
+      },
+      {
+        "id": 41,
+        "name": "296"
+      },
+      {
+        "id": 42,
+        "name": "227"
+      },
+      {
+        "id": 43,
+        "name": "178"
+      },
+      {
+        "id": 44,
+        "name": "148"
+      },
+      {
+        "id": 45,
+        "name": "25"
+      },
+      {
+        "id": 46,
+        "name": "114"
+      },
+      {
+        "id": 47,
+        "name": "183"
+      },
+      {
+        "id": 48,
+        "name": "29"
+      },
+      {
+        "id": 49,
+        "name": "280"
+      },
+      {
+        "id": 50,
+        "name": "159"
+      },
+      {
+        "id": 51,
+        "name": "252"
+      },
+      {
+        "id": 52,
+        "name": "247"
+      },
+      {
+        "id": 53,
+        "name": "175"
+      },
+      {
+        "id": 54,
+        "name": "410"
+      },
+      {
+        "id": 55,
+        "name": "113"
+      },
+      {
+        "id": 56,
+        "name": "235"
+      },
+      {
+        "id": 57,
+        "name": "179"
+      },
+      {
+        "id": 58,
+        "name": "17"
+      }
+    ],
+    "engineSize": [
+      {
+        "id": 1,
+        "name": "1000 CC"
+      },
+      {
+        "id": 2,
+        "name": "1200 CC"
+      },
+      {
+        "id": 3,
+        "name": "1500 CC"
+      },
+      {
+        "id": 4,
+        "name": "1800 CC"
+      },
+      {
+        "id": 5,
+        "name": "2000 CC"
+      }
+    ],
+    "taxBand": [
+      {
+        "id": 1,
+        "name": "Tax Band A"
+      },
+      {
+        "id": 2,
+        "name": "Tax Band B"
+      },
+      {
+        "id": 3,
+        "name": "Tax Band C"
+      },
+      {
+        "id": 4,
+        "name": "Tax Band D"
+      },
+      {
+        "id": 5,
+        "name": "Tax Band E"
+      }
+    ]
+  }
+}
