@@ -1,0 +1,116 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\roleandpermission",
+    "scannedAt": "2026-06-26T11:22:41.093Z",
+    "fileCount": 3,
+    "elementCount": 8,
+    "componentCount": 2,
+    "components": [
+      {
+        "component": "NewUserRole",
+        "file": "NewUserRole.tsx",
+        "elementCount": 5,
+        "byKind": {
+          "id": 2,
+          "placeholder": 2,
+          "role": 1
+        },
+        "unique": 5,
+        "nonUnique": 0
+      },
+      {
+        "component": "RoleAndPermissionList",
+        "file": "RoleAndPermissionList.tsx",
+        "elementCount": 3,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 2
+        },
+        "unique": 3,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "NewUserRole.tsx",
+      "component": "NewUserRole",
+      "line": 427,
+      "kind": "id",
+      "value": "name",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "NewUserRole.tsx",
+      "component": "NewUserRole",
+      "line": 449,
+      "kind": "id",
+      "value": "description",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "NewUserRole.tsx",
+      "component": "NewUserRole",
+      "line": 426,
+      "kind": "placeholder",
+      "value": "Enter Role",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "NewUserRole.tsx",
+      "component": "NewUserRole",
+      "line": 447,
+      "kind": "placeholder",
+      "value": "Enter Description",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "NewUserRole.tsx",
+      "component": "NewUserRole",
+      "line": 92,
+      "kind": "role",
+      "value": "combobox",
+      "weight": 20,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "RoleAndPermissionList.tsx",
+      "component": "RoleAndPermissionList",
+      "line": 121,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "RoleAndPermissionList.tsx",
+      "component": "RoleAndPermissionList",
+      "line": 115,
+      "kind": "placeholder",
+      "value": "Search by Role",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "RoleAndPermissionList.tsx",
+      "component": "RoleAndPermissionList",
+      "line": 182,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

@@ -1,0 +1,280 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\zones",
+    "scannedAt": "2026-06-26T11:22:42.838Z",
+    "fileCount": 9,
+    "elementCount": 21,
+    "componentCount": 5,
+    "components": [
+      {
+        "component": "AddZone",
+        "file": "AddZone.tsx",
+        "elementCount": 8,
+        "byKind": {
+          "data-testid": 3,
+          "id": 2,
+          "name": 1,
+          "placeholder": 2
+        },
+        "unique": 8,
+        "nonUnique": 0
+      },
+      {
+        "component": "EditZonePermission",
+        "file": "(permissions)/EditZonePermission.tsx",
+        "elementCount": 6,
+        "byKind": {
+          "id": 5,
+          "placeholder": 1
+        },
+        "unique": 6,
+        "nonUnique": 0
+      },
+      {
+        "component": "ZonesList",
+        "file": "ZonesList.tsx",
+        "elementCount": 3,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 2
+        },
+        "unique": 3,
+        "nonUnique": 0
+      },
+      {
+        "component": "PermissionsList",
+        "file": "(permissions)/PermissionsList.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 1
+        },
+        "unique": 2,
+        "nonUnique": 0
+      },
+      {
+        "component": "StreetsList",
+        "file": "(streetslist)/StreetsList.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 1
+        },
+        "unique": 2,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "AddZone.tsx",
+      "component": "AddZone",
+      "line": 388,
+      "kind": "data-testid",
+      "value": "addAndEditLocation-gridData",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddZone.tsx",
+      "component": "AddZone",
+      "line": 727,
+      "kind": "data-testid",
+      "value": "DeleteIcon",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddZone.tsx",
+      "component": "AddZone",
+      "line": 746,
+      "kind": "data-testid",
+      "value": "CloseIcon",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddZone.tsx",
+      "component": "AddZone",
+      "line": 555,
+      "kind": "id",
+      "value": "current-active-panel",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddZone.tsx",
+      "component": "AddZone",
+      "line": 1341,
+      "kind": "id",
+      "value": "zoneName",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddZone.tsx",
+      "component": "AddZone",
+      "line": 1371,
+      "kind": "name",
+      "value": "backOfficeUse",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddZone.tsx",
+      "component": "AddZone",
+      "line": 593,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddZone.tsx",
+      "component": "AddZone",
+      "line": 1362,
+      "kind": "placeholder",
+      "value": "Type and select",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissions)/EditZonePermission.tsx",
+      "component": "EditZonePermission",
+      "line": 364,
+      "kind": "id",
+      "value": "zone",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissions)/EditZonePermission.tsx",
+      "component": "EditZonePermission",
+      "line": 419,
+      "kind": "id",
+      "value": "userZone",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissions)/EditZonePermission.tsx",
+      "component": "EditZonePermission",
+      "line": 474,
+      "kind": "id",
+      "value": "household",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissions)/EditZonePermission.tsx",
+      "component": "EditZonePermission",
+      "line": 529,
+      "kind": "id",
+      "value": "voucher",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissions)/EditZonePermission.tsx",
+      "component": "EditZonePermission",
+      "line": 583,
+      "kind": "id",
+      "value": "blueBadge",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissions)/EditZonePermission.tsx",
+      "component": "EditZonePermission",
+      "line": 362,
+      "kind": "placeholder",
+      "value": "Enter value",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissions)/PermissionsList.tsx",
+      "component": "PermissionsList",
+      "line": 111,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissions)/PermissionsList.tsx",
+      "component": "PermissionsList",
+      "line": 107,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(streetslist)/StreetsList.tsx",
+      "component": "StreetsList",
+      "line": 87,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(streetslist)/StreetsList.tsx",
+      "component": "StreetsList",
+      "line": 83,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ZonesList.tsx",
+      "component": "ZonesList",
+      "line": 144,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ZonesList.tsx",
+      "component": "ZonesList",
+      "line": 137,
+      "kind": "placeholder",
+      "value": "Search by Zone Name",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ZonesList.tsx",
+      "component": "ZonesList",
+      "line": 228,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

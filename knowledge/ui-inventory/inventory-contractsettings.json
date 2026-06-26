@@ -1,0 +1,756 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\contractsettings",
+    "scannedAt": "2026-06-26T11:22:38.241Z",
+    "fileCount": 2,
+    "elementCount": 72,
+    "componentCount": 2,
+    "components": [
+      {
+        "component": "ContractSettings",
+        "file": "ContractSettings.tsx",
+        "elementCount": 71,
+        "byKind": {
+          "data-testid": 2,
+          "id": 61,
+          "placeholder": 7,
+          "h-text": 1
+        },
+        "unique": 71,
+        "nonUnique": 0
+      },
+      {
+        "component": "page",
+        "file": "page.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "h-text": 1
+        },
+        "unique": 1,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5841,
+      "kind": "data-testid",
+      "value": "unsaved-dialog-close",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3730,
+      "kind": "data-testid",
+      "value": "expirationDurationPeriodId",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3238,
+      "kind": "id",
+      "value": "customer-settings",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3252,
+      "kind": "id",
+      "value": "isBlueBadge",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3290,
+      "kind": "id",
+      "value": "blueBadgeLimit",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3307,
+      "kind": "id",
+      "value": "isDOBMandatoryApplicant",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3332,
+      "kind": "id",
+      "value": "isUsersAutoActivate",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3353,
+      "kind": "id",
+      "value": "visitor-permit",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3370,
+      "kind": "id",
+      "value": "minimumNumberOfVisitorVouchers",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3391,
+      "kind": "id",
+      "value": "maximumNumberOfVisitorVouchers",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3410,
+      "kind": "id",
+      "value": "minimumNumberOfScratchCardBooks",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3434,
+      "kind": "id",
+      "value": "maximumNumberOfScratchCardBooks",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3444,
+      "kind": "id",
+      "value": "fees",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3463,
+      "kind": "id",
+      "value": "adminFee",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3483,
+      "kind": "id",
+      "value": "temporary-vehicle",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3505,
+      "kind": "id",
+      "value": "temporaryVehicleValidityFrequency",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3578,
+      "kind": "id",
+      "value": "temporaryVehicleAddLimitFrequency",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3666,
+      "kind": "id",
+      "value": "numberOfTemporarySwitches",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3676,
+      "kind": "id",
+      "value": "documents-expiration",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3698,
+      "kind": "id",
+      "value": "expirationDurationFrequency",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3738,
+      "kind": "id",
+      "value": "fields-for-vehicles",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3754,
+      "kind": "id",
+      "value": "isVehicleTypeEnabled",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3783,
+      "kind": "id",
+      "value": "isFuelTypeEnabled",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3813,
+      "kind": "id",
+      "value": "isVehicleMakeEnabled",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3842,
+      "kind": "id",
+      "value": "isVehicleModelEnabled",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3872,
+      "kind": "id",
+      "value": "isVehicleColorEnabled",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3902,
+      "kind": "id",
+      "value": "isCo2EmissionEnabled",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3932,
+      "kind": "id",
+      "value": "isEuroStandardEnabled",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3961,
+      "kind": "id",
+      "value": "isEngineSizeEnabled",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3993,
+      "kind": "id",
+      "value": "isNumberPlateTaxBandEnabled",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 4016,
+      "kind": "id",
+      "value": "isNumberOfSeatsEnabled",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 4038,
+      "kind": "id",
+      "value": "isFirstDateOfRegistration",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 4053,
+      "kind": "id",
+      "value": "permission-closure",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 4078,
+      "kind": "id",
+      "value": "paymentFailureGracePeriodFrequency",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 4147,
+      "kind": "id",
+      "value": "closurePermissionPeriodFrequency",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 4230,
+      "kind": "id",
+      "value": "supportEvidenceGracePeriodFrequency",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 4306,
+      "kind": "id",
+      "value": "supportClosurePermissionPeriodFrequency",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 4366,
+      "kind": "id",
+      "value": "merchant-settings",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 4728,
+      "kind": "id",
+      "value": "unique-reference-numbers",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 4739,
+      "kind": "id",
+      "value": "usrn",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 4761,
+      "kind": "id",
+      "value": "uprn",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 4778,
+      "kind": "id",
+      "value": "pricing-alert-configuration",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 4808,
+      "kind": "id",
+      "value": "firstFrequency",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 4887,
+      "kind": "id",
+      "value": "secondFrequency",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 4985,
+      "kind": "id",
+      "value": "visitor-portal-settings",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5040,
+      "kind": "id",
+      "value": "suspension-settings",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5063,
+      "kind": "id",
+      "value": "suspensionTownField",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5097,
+      "kind": "id",
+      "value": "isMaxSuspensionsPerStreetEnabled",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5142,
+      "kind": "id",
+      "value": "suspensionsLimit",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5222,
+      "kind": "id",
+      "value": "dispensation-settings",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5243,
+      "kind": "id",
+      "value": "isDispensationTownFieldEnabled",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5268,
+      "kind": "id",
+      "value": "isMaxDispensationsPerStreetEnabled",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5315,
+      "kind": "id",
+      "value": "dispensationsLimit",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5387,
+      "kind": "id",
+      "value": "others",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5402,
+      "kind": "id",
+      "value": "isSMSReminder",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5431,
+      "kind": "id",
+      "value": "isEmailCommunication",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5459,
+      "kind": "id",
+      "value": "isDieselSurcharge",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5485,
+      "kind": "id",
+      "value": "isTierPricing",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5514,
+      "kind": "id",
+      "value": "iskeepTierPriceAtOriginalRate",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5542,
+      "kind": "id",
+      "value": "isAddressChallengeEnabled",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5597,
+      "kind": "id",
+      "value": "isRedactRetentionPeriod",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5625,
+      "kind": "id",
+      "value": "redactRetentionReminderFrequency",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5742,
+      "kind": "id",
+      "value": "experianOperatesText",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3461,
+      "kind": "placeholder",
+      "value": "Enter fee amount",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3504,
+      "kind": "placeholder",
+      "value": "Enter frequency",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5626,
+      "kind": "placeholder",
+      "value": "Frequency",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5771,
+      "kind": "placeholder",
+      "value": "0",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3530,
+      "kind": "placeholder",
+      "value": "Select Period",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5673,
+      "kind": "placeholder",
+      "value": "Period",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 5731,
+      "kind": "placeholder",
+      "value": "Select",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ContractSettings.tsx",
+      "component": "ContractSettings",
+      "line": 3195,
+      "kind": "h-text",
+      "value": "Contract Settings",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 11,
+      "kind": "h-text",
+      "value": "Contract Settings",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

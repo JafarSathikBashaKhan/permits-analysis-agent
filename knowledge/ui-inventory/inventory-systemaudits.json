@@ -1,0 +1,33 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\systemaudits",
+    "scannedAt": "2026-06-26T11:22:41.950Z",
+    "fileCount": 2,
+    "elementCount": 1,
+    "componentCount": 1,
+    "components": [
+      {
+        "component": "SystemAuditListPage",
+        "file": "SystemAuditListPage.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "h-text": 1
+        },
+        "unique": 1,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "SystemAuditListPage.tsx",
+      "component": "SystemAuditListPage",
+      "line": 516,
+      "kind": "h-text",
+      "value": "System Audits",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\purchasereason",
+    "scannedAt": "2026-06-26T11:22:40.686Z",
+    "fileCount": 4,
+    "elementCount": 14,
+    "componentCount": 3,
+    "components": [
+      {
+        "component": "AddEditPurchaseReason",
+        "file": "AddEditPurchaseReason.tsx",
+        "elementCount": 12,
+        "byKind": {
+          "id": 1,
+          "aria-label": 3,
+          "placeholder": 6,
+          "h-text": 2
+        },
+        "unique": 12,
+        "nonUnique": 0
+      },
+      {
+        "component": "page",
+        "file": "page.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "h-text": 1
+        },
+        "unique": 1,
+        "nonUnique": 0
+      },
+      {
+        "component": "PurchaseReasonList",
+        "file": "PurchaseReasonList.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "aria-label": 1
+        },
+        "unique": 1,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "AddEditPurchaseReason.tsx",
+      "component": "AddEditPurchaseReason",
+      "line": 700,
+      "kind": "id",
+      "value": "pr-name-input",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddEditPurchaseReason.tsx",
+      "component": "AddEditPurchaseReason",
+      "line": 165,
+      "kind": "aria-label",
+      "value": "Remove field",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddEditPurchaseReason.tsx",
+      "component": "AddEditPurchaseReason",
+      "line": 293,
+      "kind": "aria-label",
+      "value": "Remove option",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddEditPurchaseReason.tsx",
+      "component": "AddEditPurchaseReason",
+      "line": 371,
+      "kind": "aria-label",
+      "value": "Edit",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddEditPurchaseReason.tsx",
+      "component": "AddEditPurchaseReason",
+      "line": 176,
+      "kind": "placeholder",
+      "value": "e.g. License Number",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddEditPurchaseReason.tsx",
+      "component": "AddEditPurchaseReason",
+      "line": 224,
+      "kind": "placeholder",
+      "value": "e.g. Enter license number",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddEditPurchaseReason.tsx",
+      "component": "AddEditPurchaseReason",
+      "line": 235,
+      "kind": "placeholder",
+      "value": "e.g. Enter weight in kg",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddEditPurchaseReason.tsx",
+      "component": "AddEditPurchaseReason",
+      "line": 249,
+      "kind": "placeholder",
+      "value": "0",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddEditPurchaseReason.tsx",
+      "component": "AddEditPurchaseReason",
+      "line": 262,
+      "kind": "placeholder",
+      "value": "9999",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddEditPurchaseReason.tsx",
+      "component": "AddEditPurchaseReason",
+      "line": 707,
+      "kind": "placeholder",
+      "value": "Enter purchase reason",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddEditPurchaseReason.tsx",
+      "component": "AddEditPurchaseReason",
+      "line": 365,
+      "kind": "h-text",
+      "value": "Overview",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddEditPurchaseReason.tsx",
+      "component": "AddEditPurchaseReason",
+      "line": 754,
+      "kind": "h-text",
+      "value": "Additional Fields",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 221,
+      "kind": "h-text",
+      "value": "Purchase Reasons",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PurchaseReasonList.tsx",
+      "component": "PurchaseReasonList",
+      "line": 338,
+      "kind": "aria-label",
+      "value": "Delete",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

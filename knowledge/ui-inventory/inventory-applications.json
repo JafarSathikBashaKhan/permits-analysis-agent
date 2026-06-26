@@ -1,0 +1,1613 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\applications",
+    "scannedAt": "2026-06-26T11:22:37.500Z",
+    "fileCount": 27,
+    "elementCount": 135,
+    "componentCount": 22,
+    "components": [
+      {
+        "component": "ApplicationActionSendEmail",
+        "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+        "elementCount": 34,
+        "byKind": {
+          "data-testid": 1,
+          "id": 14,
+          "placeholder": 17,
+          "h-text": 2
+        },
+        "unique": 26,
+        "nonUnique": 8
+      },
+      {
+        "component": "ApplicationVehicle",
+        "file": "ApplicationVehicle/ApplicationVehicle.tsx",
+        "elementCount": 16,
+        "byKind": {
+          "data-testid": 8,
+          "id": 2,
+          "aria-label": 1,
+          "placeholder": 3,
+          "h-text": 1,
+          "role": 1
+        },
+        "unique": 14,
+        "nonUnique": 2
+      },
+      {
+        "component": "VisitorVoucherPermit",
+        "file": "VoucherPermit/VisitorVoucherPermit.tsx",
+        "elementCount": 15,
+        "byKind": {
+          "data-testid": 1,
+          "id": 7,
+          "name": 2,
+          "placeholder": 2,
+          "h-text": 3
+        },
+        "unique": 15,
+        "nonUnique": 0
+      },
+      {
+        "component": "AddAddressAssign",
+        "file": "AddAddressAssign/AddAddressAssign.tsx",
+        "elementCount": 12,
+        "byKind": {
+          "id": 7,
+          "placeholder": 3,
+          "h-text": 2
+        },
+        "unique": 5,
+        "nonUnique": 7
+      },
+      {
+        "component": "ApplicationVehicleEdit",
+        "file": "ApplicationVehicle/ApplicationVehicleEdit.tsx",
+        "elementCount": 9,
+        "byKind": {
+          "id": 1,
+          "aria-label": 1,
+          "placeholder": 7
+        },
+        "unique": 9,
+        "nonUnique": 0
+      },
+      {
+        "component": "ApplicationPaymentHistory",
+        "file": "ApplicationPaymentHistory/ApplicationPaymentHistory.tsx",
+        "elementCount": 8,
+        "byKind": {
+          "data-testid": 2,
+          "id": 3,
+          "placeholder": 3
+        },
+        "unique": 7,
+        "nonUnique": 1
+      },
+      {
+        "component": "ApplicationSendEmail",
+        "file": "ApplicationEmailList/ApplicationSendEmail/ApplicationSendEmail.tsx",
+        "elementCount": 8,
+        "byKind": {
+          "data-testid": 1,
+          "id": 3,
+          "placeholder": 4
+        },
+        "unique": 5,
+        "nonUnique": 3
+      },
+      {
+        "component": "AssignTaskToCEO",
+        "file": "AssignTaskToCEO/AssignTaskToCEO.tsx",
+        "elementCount": 7,
+        "byKind": {
+          "id": 4,
+          "placeholder": 3
+        },
+        "unique": 7,
+        "nonUnique": 0
+      },
+      {
+        "component": "VoucherPermitHistory",
+        "file": "VoucherPermit/VoucherPermitHistory.tsx",
+        "elementCount": 4,
+        "byKind": {
+          "id": 1,
+          "menuitem-text": 1,
+          "placeholder": 1,
+          "h-text": 1
+        },
+        "unique": 3,
+        "nonUnique": 1
+      },
+      {
+        "component": "ApplicationOverView",
+        "file": "ApplicationOverView/ApplicationOverView.tsx",
+        "elementCount": 3,
+        "byKind": {
+          "data-testid": 2,
+          "placeholder": 1
+        },
+        "unique": 3,
+        "nonUnique": 0
+      },
+      {
+        "component": "RenewalDocumentUpload",
+        "file": "RenewalDocumentUpload/RenewalDocumentUpload.tsx",
+        "elementCount": 3,
+        "byKind": {
+          "data-testid": 1,
+          "aria-label": 1,
+          "h-text": 1
+        },
+        "unique": 2,
+        "nonUnique": 1
+      },
+      {
+        "component": "RenewalSummary",
+        "file": "RenewalSummary/RenewalSummary.tsx",
+        "elementCount": 3,
+        "byKind": {
+          "h-text": 3
+        },
+        "unique": 3,
+        "nonUnique": 0
+      },
+      {
+        "component": "ApplicationAuditLog",
+        "file": "ApplicationAuditLog/ApplicationAuditLog.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 1
+        },
+        "unique": 2,
+        "nonUnique": 0
+      },
+      {
+        "component": "ExtendDurationSlider",
+        "file": "ExtendDurationSlider.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "id": 1,
+          "placeholder": 1
+        },
+        "unique": 2,
+        "nonUnique": 0
+      },
+      {
+        "component": "PermissionsDetailsList",
+        "file": "PermissionsDetailsList.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 1
+        },
+        "unique": 2,
+        "nonUnique": 0
+      },
+      {
+        "component": "ApplicationApplicant",
+        "file": "ApplicationApplicant/ApplicationApplicant.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "data-testid": 1
+        },
+        "unique": 1,
+        "nonUnique": 0
+      },
+      {
+        "component": "ApplicationApplicantFpnTable",
+        "file": "ApplicationApplicant/ApplicationApplicantFpnTable.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "data-testid": 1
+        },
+        "unique": 1,
+        "nonUnique": 0
+      },
+      {
+        "component": "ApplicationDocument",
+        "file": "ApplicationDocument/ApplicationDocument.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "data-testid": 1
+        },
+        "unique": 0,
+        "nonUnique": 1
+      },
+      {
+        "component": "ApplicationEmailList",
+        "file": "ApplicationEmailList/ApplicationEmailList.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "role": 1
+        },
+        "unique": 1,
+        "nonUnique": 0
+      },
+      {
+        "component": "ApplicationVehicleDetail",
+        "file": "ApplicationVehicle/ApplicationVehicleDetail.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "data-testid": 1
+        },
+        "unique": 0,
+        "nonUnique": 1
+      },
+      {
+        "component": "page",
+        "file": "page.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "data-testid": 1
+        },
+        "unique": 1,
+        "nonUnique": 0
+      },
+      {
+        "component": "VoucherPermitOverView",
+        "file": "VoucherPermit/VoucherPermitOverView.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "role": 1
+        },
+        "unique": 1,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "AddAddressAssign/AddAddressAssign.tsx",
+      "component": "AddAddressAssign",
+      "line": 209,
+      "kind": "id",
+      "value": "search",
+      "weight": 80,
+      "globalCount": 5,
+      "isUnique": false
+    },
+    {
+      "file": "AddAddressAssign/AddAddressAssign.tsx",
+      "component": "AddAddressAssign",
+      "line": 551,
+      "kind": "id",
+      "value": "postcode",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "AddAddressAssign/AddAddressAssign.tsx",
+      "component": "AddAddressAssign",
+      "line": 563,
+      "kind": "id",
+      "value": "property",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "AddAddressAssign/AddAddressAssign.tsx",
+      "component": "AddAddressAssign",
+      "line": 573,
+      "kind": "id",
+      "value": "street",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "AddAddressAssign/AddAddressAssign.tsx",
+      "component": "AddAddressAssign",
+      "line": 584,
+      "kind": "id",
+      "value": "uprn",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "AddAddressAssign/AddAddressAssign.tsx",
+      "component": "AddAddressAssign",
+      "line": 591,
+      "kind": "id",
+      "value": "usrn",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "AddAddressAssign/AddAddressAssign.tsx",
+      "component": "AddAddressAssign",
+      "line": 630,
+      "kind": "id",
+      "value": "subject",
+      "weight": 80,
+      "globalCount": 3,
+      "isUnique": false
+    },
+    {
+      "file": "AddAddressAssign/AddAddressAssign.tsx",
+      "component": "AddAddressAssign",
+      "line": 208,
+      "kind": "placeholder",
+      "value": "Search",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddAddressAssign/AddAddressAssign.tsx",
+      "component": "AddAddressAssign",
+      "line": 543,
+      "kind": "placeholder",
+      "value": "Select zone",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddAddressAssign/AddAddressAssign.tsx",
+      "component": "AddAddressAssign",
+      "line": 615,
+      "kind": "placeholder",
+      "value": "Select town",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddAddressAssign/AddAddressAssign.tsx",
+      "component": "AddAddressAssign",
+      "line": 497,
+      "kind": "h-text",
+      "value": "Given Address",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddAddressAssign/AddAddressAssign.tsx",
+      "component": "AddAddressAssign",
+      "line": 523,
+      "kind": "h-text",
+      "value": "Map Address",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 4169,
+      "kind": "data-testid",
+      "value": "vehicle-logo",
+      "weight": 100,
+      "globalCount": 7,
+      "isUnique": false
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 2550,
+      "kind": "id",
+      "value": "search",
+      "weight": 80,
+      "globalCount": 5,
+      "isUnique": false
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 2926,
+      "kind": "id",
+      "value": "otherReason",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 2994,
+      "kind": "id",
+      "value": "otherRejectionReason",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 3018,
+      "kind": "id",
+      "value": "suspendReason",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 3059,
+      "kind": "id",
+      "value": "otherSuspendReason",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 3139,
+      "kind": "id",
+      "value": "otherOnHoldReason",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 3403,
+      "kind": "id",
+      "value": "discount",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 3558,
+      "kind": "id",
+      "value": "townDetails",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 4002,
+      "kind": "id",
+      "value": "postcode",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 4019,
+      "kind": "id",
+      "value": "property",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 4031,
+      "kind": "id",
+      "value": "street",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 4044,
+      "kind": "id",
+      "value": "uprn",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 4054,
+      "kind": "id",
+      "value": "usrn",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 4094,
+      "kind": "id",
+      "value": "subject",
+      "weight": 80,
+      "globalCount": 3,
+      "isUnique": false
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 2549,
+      "kind": "placeholder",
+      "value": "Search",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 2924,
+      "kind": "placeholder",
+      "value": "Write Reason",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 2993,
+      "kind": "placeholder",
+      "value": "Enter other rejection reason",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 3016,
+      "kind": "placeholder",
+      "value": "Enter suspend reason",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 3057,
+      "kind": "placeholder",
+      "value": "Enter other suspend reason",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 3137,
+      "kind": "placeholder",
+      "value": "Enter other reason",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 4092,
+      "kind": "placeholder",
+      "value": "Enter Subject",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 2904,
+      "kind": "placeholder",
+      "value": "Select cancellation reason",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 2974,
+      "kind": "placeholder",
+      "value": "Select rejection reason",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 3041,
+      "kind": "placeholder",
+      "value": "Select suspend reason",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 3100,
+      "kind": "placeholder",
+      "value": "Select on-hold reason",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 3163,
+      "kind": "placeholder",
+      "value": "Select",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 3202,
+      "kind": "placeholder",
+      "value": "Select zone",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 3464,
+      "kind": "placeholder",
+      "value": "Select postcode",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 3502,
+      "kind": "placeholder",
+      "value": "Select property",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 3542,
+      "kind": "placeholder",
+      "value": "Select street",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 4072,
+      "kind": "placeholder",
+      "value": "Select town",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 3938,
+      "kind": "h-text",
+      "value": "Given Address",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+      "component": "ApplicationActionSendEmail",
+      "line": 3972,
+      "kind": "h-text",
+      "value": "Map Address",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationApplicant/ApplicationApplicant.tsx",
+      "component": "ApplicationApplicant",
+      "line": 199,
+      "kind": "data-testid",
+      "value": "header-content",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationApplicant/ApplicationApplicantFpnTable.tsx",
+      "component": "ApplicationApplicantFpnTable",
+      "line": 486,
+      "kind": "data-testid",
+      "value": "fpn-table",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationAuditLog/ApplicationAuditLog.tsx",
+      "component": "ApplicationAuditLog",
+      "line": 98,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationAuditLog/ApplicationAuditLog.tsx",
+      "component": "ApplicationAuditLog",
+      "line": 94,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationDocument/ApplicationDocument.tsx",
+      "component": "ApplicationDocument",
+      "line": 542,
+      "kind": "data-testid",
+      "value": "vehicle-logo",
+      "weight": 100,
+      "globalCount": 7,
+      "isUnique": false
+    },
+    {
+      "file": "ApplicationEmailList/ApplicationEmailList.tsx",
+      "component": "ApplicationEmailList",
+      "line": 105,
+      "kind": "role",
+      "value": "button",
+      "weight": 20,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationOverView/ApplicationOverView.tsx",
+      "component": "ApplicationOverView",
+      "line": 1707,
+      "kind": "data-testid",
+      "value": "mwl-date-time-picker-start",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationOverView/ApplicationOverView.tsx",
+      "component": "ApplicationOverView",
+      "line": 1793,
+      "kind": "data-testid",
+      "value": "mwl-date-time-picker-end",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationOverView/ApplicationOverView.tsx",
+      "component": "ApplicationOverView",
+      "line": 1332,
+      "kind": "placeholder",
+      "value": "Enter serial number",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationPaymentHistory/ApplicationPaymentHistory.tsx",
+      "component": "ApplicationPaymentHistory",
+      "line": 981,
+      "kind": "data-testid",
+      "value": "vehicle-logo",
+      "weight": 100,
+      "globalCount": 7,
+      "isUnique": false
+    },
+    {
+      "file": "ApplicationPaymentHistory/ApplicationPaymentHistory.tsx",
+      "component": "ApplicationPaymentHistory",
+      "line": 857,
+      "kind": "data-testid",
+      "value": "mwl-date-time-picker",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationPaymentHistory/ApplicationPaymentHistory.tsx",
+      "component": "ApplicationPaymentHistory",
+      "line": 867,
+      "kind": "id",
+      "value": "amountPaid",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationPaymentHistory/ApplicationPaymentHistory.tsx",
+      "component": "ApplicationPaymentHistory",
+      "line": 888,
+      "kind": "id",
+      "value": "paymentReference",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationPaymentHistory/ApplicationPaymentHistory.tsx",
+      "component": "ApplicationPaymentHistory",
+      "line": 907,
+      "kind": "id",
+      "value": "invoiceNumber",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationPaymentHistory/ApplicationPaymentHistory.tsx",
+      "component": "ApplicationPaymentHistory",
+      "line": 864,
+      "kind": "placeholder",
+      "value": "Enter Amount Paid",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationPaymentHistory/ApplicationPaymentHistory.tsx",
+      "component": "ApplicationPaymentHistory",
+      "line": 886,
+      "kind": "placeholder",
+      "value": "Enter Payment Reference no",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationPaymentHistory/ApplicationPaymentHistory.tsx",
+      "component": "ApplicationPaymentHistory",
+      "line": 905,
+      "kind": "placeholder",
+      "value": "Enter Invoice Number",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationEmailList/ApplicationSendEmail/ApplicationSendEmail.tsx",
+      "component": "ApplicationSendEmail",
+      "line": 815,
+      "kind": "data-testid",
+      "value": "vehicle-logo",
+      "weight": 100,
+      "globalCount": 7,
+      "isUnique": false
+    },
+    {
+      "file": "ApplicationEmailList/ApplicationSendEmail/ApplicationSendEmail.tsx",
+      "component": "ApplicationSendEmail",
+      "line": 648,
+      "kind": "id",
+      "value": "search",
+      "weight": 80,
+      "globalCount": 5,
+      "isUnique": false
+    },
+    {
+      "file": "ApplicationEmailList/ApplicationSendEmail/ApplicationSendEmail.tsx",
+      "component": "ApplicationSendEmail",
+      "line": 691,
+      "kind": "id",
+      "value": "receiverEmail",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationEmailList/ApplicationSendEmail/ApplicationSendEmail.tsx",
+      "component": "ApplicationSendEmail",
+      "line": 769,
+      "kind": "id",
+      "value": "subject",
+      "weight": 80,
+      "globalCount": 3,
+      "isUnique": false
+    },
+    {
+      "file": "ApplicationEmailList/ApplicationSendEmail/ApplicationSendEmail.tsx",
+      "component": "ApplicationSendEmail",
+      "line": 647,
+      "kind": "placeholder",
+      "value": "Search",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationEmailList/ApplicationSendEmail/ApplicationSendEmail.tsx",
+      "component": "ApplicationSendEmail",
+      "line": 688,
+      "kind": "placeholder",
+      "value": "Receiver Email",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationEmailList/ApplicationSendEmail/ApplicationSendEmail.tsx",
+      "component": "ApplicationSendEmail",
+      "line": 768,
+      "kind": "placeholder",
+      "value": "Enter Subject",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationEmailList/ApplicationSendEmail/ApplicationSendEmail.tsx",
+      "component": "ApplicationSendEmail",
+      "line": 732,
+      "kind": "placeholder",
+      "value": "Select",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicle.tsx",
+      "component": "ApplicationVehicle",
+      "line": 801,
+      "kind": "data-testid",
+      "value": "DeleteIcon",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicle.tsx",
+      "component": "ApplicationVehicle",
+      "line": 998,
+      "kind": "data-testid",
+      "value": "suspension-vrm-container",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicle.tsx",
+      "component": "ApplicationVehicle",
+      "line": 1013,
+      "kind": "data-testid",
+      "value": "addIcon",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicle.tsx",
+      "component": "ApplicationVehicle",
+      "line": 1014,
+      "kind": "data-testid",
+      "value": "add-vrm-button",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicle.tsx",
+      "component": "ApplicationVehicle",
+      "line": 1019,
+      "kind": "data-testid",
+      "value": "suspension-vrm-info",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicle.tsx",
+      "component": "ApplicationVehicle",
+      "line": 1157,
+      "kind": "data-testid",
+      "value": "suspension-vrm-empty",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicle.tsx",
+      "component": "ApplicationVehicle",
+      "line": 1272,
+      "kind": "data-testid",
+      "value": "star-icon",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicle.tsx",
+      "component": "ApplicationVehicle",
+      "line": 1461,
+      "kind": "data-testid",
+      "value": "vehicle-logo",
+      "weight": 100,
+      "globalCount": 7,
+      "isUnique": false
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicle.tsx",
+      "component": "ApplicationVehicle",
+      "line": 1192,
+      "kind": "id",
+      "value": "vrm-drawer-input",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicle.tsx",
+      "component": "ApplicationVehicle",
+      "line": 1438,
+      "kind": "id",
+      "value": "search",
+      "weight": 80,
+      "globalCount": 5,
+      "isUnique": false
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicle.tsx",
+      "component": "ApplicationVehicle",
+      "line": 990,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicle.tsx",
+      "component": "ApplicationVehicle",
+      "line": 975,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicle.tsx",
+      "component": "ApplicationVehicle",
+      "line": 1190,
+      "kind": "placeholder",
+      "value": "e.g. AB12 CDE",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicle.tsx",
+      "component": "ApplicationVehicle",
+      "line": 1437,
+      "kind": "placeholder",
+      "value": "Search",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicle.tsx",
+      "component": "ApplicationVehicle",
+      "line": 1000,
+      "kind": "h-text",
+      "value": "Vehicle Registration Marks",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicle.tsx",
+      "component": "ApplicationVehicle",
+      "line": 1252,
+      "kind": "role",
+      "value": "button",
+      "weight": 20,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicleDetail.tsx",
+      "component": "ApplicationVehicleDetail",
+      "line": 269,
+      "kind": "data-testid",
+      "value": "vehicle-logo",
+      "weight": 100,
+      "globalCount": 7,
+      "isUnique": false
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicleEdit.tsx",
+      "component": "ApplicationVehicleEdit",
+      "line": 468,
+      "kind": "id",
+      "value": "registrationNumber",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicleEdit.tsx",
+      "component": "ApplicationVehicleEdit",
+      "line": 822,
+      "kind": "aria-label",
+      "value": "Remove file",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicleEdit.tsx",
+      "component": "ApplicationVehicleEdit",
+      "line": 470,
+      "kind": "placeholder",
+      "value": "Enter VRM",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicleEdit.tsx",
+      "component": "ApplicationVehicleEdit",
+      "line": 588,
+      "kind": "placeholder",
+      "value": "Select vehicle category",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicleEdit.tsx",
+      "component": "ApplicationVehicleEdit",
+      "line": 616,
+      "kind": "placeholder",
+      "value": "Select make",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicleEdit.tsx",
+      "component": "ApplicationVehicleEdit",
+      "line": 643,
+      "kind": "placeholder",
+      "value": "Select model",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicleEdit.tsx",
+      "component": "ApplicationVehicleEdit",
+      "line": 671,
+      "kind": "placeholder",
+      "value": "Select color",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicleEdit.tsx",
+      "component": "ApplicationVehicleEdit",
+      "line": 698,
+      "kind": "placeholder",
+      "value": "Select fuel type",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ApplicationVehicle/ApplicationVehicleEdit.tsx",
+      "component": "ApplicationVehicleEdit",
+      "line": 725,
+      "kind": "placeholder",
+      "value": "Select CO2 emission",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AssignTaskToCEO/AssignTaskToCEO.tsx",
+      "component": "AssignTaskToCEO",
+      "line": 97,
+      "kind": "id",
+      "value": "assignTaskTitle",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AssignTaskToCEO/AssignTaskToCEO.tsx",
+      "component": "AssignTaskToCEO",
+      "line": 111,
+      "kind": "id",
+      "value": "assignTaskCategory",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AssignTaskToCEO/AssignTaskToCEO.tsx",
+      "component": "AssignTaskToCEO",
+      "line": 125,
+      "kind": "id",
+      "value": "assignTaskLocation",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AssignTaskToCEO/AssignTaskToCEO.tsx",
+      "component": "AssignTaskToCEO",
+      "line": 140,
+      "kind": "id",
+      "value": "assignTaskComments",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AssignTaskToCEO/AssignTaskToCEO.tsx",
+      "component": "AssignTaskToCEO",
+      "line": 106,
+      "kind": "placeholder",
+      "value": "Title",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AssignTaskToCEO/AssignTaskToCEO.tsx",
+      "component": "AssignTaskToCEO",
+      "line": 121,
+      "kind": "placeholder",
+      "value": "Category",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AssignTaskToCEO/AssignTaskToCEO.tsx",
+      "component": "AssignTaskToCEO",
+      "line": 136,
+      "kind": "placeholder",
+      "value": "Location",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ExtendDurationSlider.tsx",
+      "component": "ExtendDurationSlider",
+      "line": 110,
+      "kind": "id",
+      "value": "current-postpone-date",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ExtendDurationSlider.tsx",
+      "component": "ExtendDurationSlider",
+      "line": 113,
+      "kind": "placeholder",
+      "value": "DD/MM/YYYY",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 313,
+      "kind": "data-testid",
+      "value": "ExpandLessIcon",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PermissionsDetailsList.tsx",
+      "component": "PermissionsDetailsList",
+      "line": 301,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PermissionsDetailsList.tsx",
+      "component": "PermissionsDetailsList",
+      "line": 468,
+      "kind": "placeholder",
+      "value": "Searchâ€¦",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "RenewalDocumentUpload/RenewalDocumentUpload.tsx",
+      "component": "RenewalDocumentUpload",
+      "line": 725,
+      "kind": "data-testid",
+      "value": "vehicle-logo",
+      "weight": 100,
+      "globalCount": 7,
+      "isUnique": false
+    },
+    {
+      "file": "RenewalDocumentUpload/RenewalDocumentUpload.tsx",
+      "component": "RenewalDocumentUpload",
+      "line": 782,
+      "kind": "aria-label",
+      "value": "Remove file",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "RenewalDocumentUpload/RenewalDocumentUpload.tsx",
+      "component": "RenewalDocumentUpload",
+      "line": 645,
+      "kind": "h-text",
+      "value": "Upload required document for renew",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "RenewalSummary/RenewalSummary.tsx",
+      "component": "RenewalSummary",
+      "line": 114,
+      "kind": "h-text",
+      "value": "Overview",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "RenewalSummary/RenewalSummary.tsx",
+      "component": "RenewalSummary",
+      "line": 138,
+      "kind": "h-text",
+      "value": "Documents",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "RenewalSummary/RenewalSummary.tsx",
+      "component": "RenewalSummary",
+      "line": 165,
+      "kind": "h-text",
+      "value": "Pricing",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VoucherPermit/VisitorVoucherPermit.tsx",
+      "component": "VisitorVoucherPermit",
+      "line": 1298,
+      "kind": "data-testid",
+      "value": "activate-voucher-start-datetime",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VoucherPermit/VisitorVoucherPermit.tsx",
+      "component": "VisitorVoucherPermit",
+      "line": 938,
+      "kind": "id",
+      "value": "send-voucher-quantity",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VoucherPermit/VisitorVoucherPermit.tsx",
+      "component": "VisitorVoucherPermit",
+      "line": 960,
+      "kind": "id",
+      "value": "send-voucher-id",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VoucherPermit/VisitorVoucherPermit.tsx",
+      "component": "VisitorVoucherPermit",
+      "line": 972,
+      "kind": "id",
+      "value": "send-email",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VoucherPermit/VisitorVoucherPermit.tsx",
+      "component": "VisitorVoucherPermit",
+      "line": 989,
+      "kind": "id",
+      "value": "send-confirm-email",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VoucherPermit/VisitorVoucherPermit.tsx",
+      "component": "VisitorVoucherPermit",
+      "line": 1085,
+      "kind": "id",
+      "value": "activate-voucher-quantity",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VoucherPermit/VisitorVoucherPermit.tsx",
+      "component": "VisitorVoucherPermit",
+      "line": 1122,
+      "kind": "id",
+      "value": "activate-voucher-id",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VoucherPermit/VisitorVoucherPermit.tsx",
+      "component": "VisitorVoucherPermit",
+      "line": 1331,
+      "kind": "id",
+      "value": "activate-vehicle-nickname",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VoucherPermit/VisitorVoucherPermit.tsx",
+      "component": "VisitorVoucherPermit",
+      "line": 1264,
+      "kind": "name",
+      "value": "activationType",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VoucherPermit/VisitorVoucherPermit.tsx",
+      "component": "VisitorVoucherPermit",
+      "line": 1309,
+      "kind": "name",
+      "value": "favoriteVehicle",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VoucherPermit/VisitorVoucherPermit.tsx",
+      "component": "VisitorVoucherPermit",
+      "line": 981,
+      "kind": "placeholder",
+      "value": "sample@email.com",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VoucherPermit/VisitorVoucherPermit.tsx",
+      "component": "VisitorVoucherPermit",
+      "line": 1251,
+      "kind": "placeholder",
+      "value": "Select Vehicle",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VoucherPermit/VisitorVoucherPermit.tsx",
+      "component": "VisitorVoucherPermit",
+      "line": 907,
+      "kind": "h-text",
+      "value": "Send Visitor Voucher",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VoucherPermit/VisitorVoucherPermit.tsx",
+      "component": "VisitorVoucherPermit",
+      "line": 1028,
+      "kind": "h-text",
+      "value": "Visitor Voucher Activation",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VoucherPermit/VisitorVoucherPermit.tsx",
+      "component": "VisitorVoucherPermit",
+      "line": 1392,
+      "kind": "h-text",
+      "value": "Non-enforceable hours overlapping",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VoucherPermit/VoucherPermitHistory.tsx",
+      "component": "VoucherPermitHistory",
+      "line": 289,
+      "kind": "id",
+      "value": "search",
+      "weight": 80,
+      "globalCount": 5,
+      "isUnique": false
+    },
+    {
+      "file": "VoucherPermit/VoucherPermitHistory.tsx",
+      "component": "VoucherPermitHistory",
+      "line": 316,
+      "kind": "menuitem-text",
+      "value": "All",
+      "weight": 50,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VoucherPermit/VoucherPermitHistory.tsx",
+      "component": "VoucherPermitHistory",
+      "line": 288,
+      "kind": "placeholder",
+      "value": "Search Voucher",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VoucherPermit/VoucherPermitHistory.tsx",
+      "component": "VoucherPermitHistory",
+      "line": 279,
+      "kind": "h-text",
+      "value": "Voucher History",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VoucherPermit/VoucherPermitOverView.tsx",
+      "component": "VoucherPermitOverView",
+      "line": 137,
+      "kind": "role",
+      "value": "button",
+      "weight": 20,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

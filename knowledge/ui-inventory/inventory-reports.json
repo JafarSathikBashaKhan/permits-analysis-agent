@@ -1,0 +1,73 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\reports",
+    "scannedAt": "2026-06-26T11:22:40.880Z",
+    "fileCount": 5,
+    "elementCount": 5,
+    "componentCount": 1,
+    "components": [
+      {
+        "component": "page",
+        "file": "address/page.tsx",
+        "elementCount": 5,
+        "byKind": {
+          "h-text": 5
+        },
+        "unique": 5,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "address/page.tsx",
+      "component": "page",
+      "line": 31,
+      "kind": "h-text",
+      "value": "Address Report",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "application/page.tsx",
+      "component": "page",
+      "line": 145,
+      "kind": "h-text",
+      "value": "Application Reports",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "financial/page.tsx",
+      "component": "page",
+      "line": 111,
+      "kind": "h-text",
+      "value": "Financial Reports",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "print/page.tsx",
+      "component": "page",
+      "line": 89,
+      "kind": "h-text",
+      "value": "Print Reports",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "voucher/page.tsx",
+      "component": "page",
+      "line": 91,
+      "kind": "h-text",
+      "value": "Voucher Reports",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

@@ -1,0 +1,116 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\alertsandtooltips",
+    "scannedAt": "2026-06-26T11:22:36.982Z",
+    "fileCount": 1,
+    "elementCount": 9,
+    "componentCount": 1,
+    "components": [
+      {
+        "component": "page",
+        "file": "page.tsx",
+        "elementCount": 9,
+        "byKind": {
+          "data-testid": 4,
+          "id": 2,
+          "placeholder": 2,
+          "h-text": 1
+        },
+        "unique": 9,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 512,
+      "kind": "data-testid",
+      "value": "unsaved-dialog-close",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 318,
+      "kind": "data-testid",
+      "value": "experianMessageInput",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 375,
+      "kind": "data-testid",
+      "value": "correspondenceAddressInput",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 394,
+      "kind": "data-testid",
+      "value": "customerNotificationSwitch",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 303,
+      "kind": "id",
+      "value": "experianMessage",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 357,
+      "kind": "id",
+      "value": "correspondenceAddress",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 316,
+      "kind": "placeholder",
+      "value": "Enter Experian Message",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 373,
+      "kind": "placeholder",
+      "value": "Enter Address",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 457,
+      "kind": "h-text",
+      "value": "Alerts And Tooltips",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

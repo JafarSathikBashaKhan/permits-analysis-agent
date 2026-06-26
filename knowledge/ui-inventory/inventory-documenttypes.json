@@ -1,0 +1,135 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\documenttypes",
+    "scannedAt": "2026-06-26T11:22:38.687Z",
+    "fileCount": 4,
+    "elementCount": 10,
+    "componentCount": 2,
+    "components": [
+      {
+        "component": "AddAndEditDocumentType",
+        "file": "(addandeditdocumenttype)/AddAndEditDocumentType.tsx",
+        "elementCount": 7,
+        "byKind": {
+          "id": 3,
+          "placeholder": 4
+        },
+        "unique": 7,
+        "nonUnique": 0
+      },
+      {
+        "component": "DocumentTypesList",
+        "file": "DocumentTypesList.tsx",
+        "elementCount": 3,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 2
+        },
+        "unique": 3,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "(addandeditdocumenttype)/AddAndEditDocumentType.tsx",
+      "component": "AddAndEditDocumentType",
+      "line": 400,
+      "kind": "id",
+      "value": "documentType",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(addandeditdocumenttype)/AddAndEditDocumentType.tsx",
+      "component": "AddAndEditDocumentType",
+      "line": 417,
+      "kind": "id",
+      "value": "expirationFrequency",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(addandeditdocumenttype)/AddAndEditDocumentType.tsx",
+      "component": "AddAndEditDocumentType",
+      "line": 472,
+      "kind": "id",
+      "value": "subTypeInput",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(addandeditdocumenttype)/AddAndEditDocumentType.tsx",
+      "component": "AddAndEditDocumentType",
+      "line": 400,
+      "kind": "placeholder",
+      "value": "Enter document type",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(addandeditdocumenttype)/AddAndEditDocumentType.tsx",
+      "component": "AddAndEditDocumentType",
+      "line": 418,
+      "kind": "placeholder",
+      "value": "Enter Frequency",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(addandeditdocumenttype)/AddAndEditDocumentType.tsx",
+      "component": "AddAndEditDocumentType",
+      "line": 471,
+      "kind": "placeholder",
+      "value": "Type and press enter to add",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(addandeditdocumenttype)/AddAndEditDocumentType.tsx",
+      "component": "AddAndEditDocumentType",
+      "line": 439,
+      "kind": "placeholder",
+      "value": "Select Period",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "DocumentTypesList.tsx",
+      "component": "DocumentTypesList",
+      "line": 136,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "DocumentTypesList.tsx",
+      "component": "DocumentTypesList",
+      "line": 129,
+      "kind": "placeholder",
+      "value": "Search by Document Type",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "DocumentTypesList.tsx",
+      "component": "DocumentTypesList",
+      "line": 144,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

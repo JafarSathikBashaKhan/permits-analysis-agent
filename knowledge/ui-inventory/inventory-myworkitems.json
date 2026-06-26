@@ -1,0 +1,180 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\myworkitems",
+    "scannedAt": "2026-06-26T11:22:39.968Z",
+    "fileCount": 5,
+    "elementCount": 13,
+    "componentCount": 3,
+    "components": [
+      {
+        "component": "WaitingListGrid",
+        "file": "WaitingListGrid.tsx",
+        "elementCount": 7,
+        "byKind": {
+          "data-testid": 4,
+          "id": 1,
+          "aria-label": 1,
+          "placeholder": 1
+        },
+        "unique": 7,
+        "nonUnique": 0
+      },
+      {
+        "component": "AssignedGrid",
+        "file": "AssignedGrid.tsx",
+        "elementCount": 3,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 1,
+          "h-text": 1
+        },
+        "unique": 3,
+        "nonUnique": 0
+      },
+      {
+        "component": "UnassignedGrid",
+        "file": "UnassignedGrid.tsx",
+        "elementCount": 3,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 1,
+          "h-text": 1
+        },
+        "unique": 3,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "AssignedGrid.tsx",
+      "component": "AssignedGrid",
+      "line": 109,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AssignedGrid.tsx",
+      "component": "AssignedGrid",
+      "line": 104,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AssignedGrid.tsx",
+      "component": "AssignedGrid",
+      "line": 620,
+      "kind": "h-text",
+      "value": "Re Assign Work Items",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "UnassignedGrid.tsx",
+      "component": "UnassignedGrid",
+      "line": 107,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "UnassignedGrid.tsx",
+      "component": "UnassignedGrid",
+      "line": 103,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "UnassignedGrid.tsx",
+      "component": "UnassignedGrid",
+      "line": 534,
+      "kind": "h-text",
+      "value": "Assign Work Items",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "WaitingListGrid.tsx",
+      "component": "WaitingListGrid",
+      "line": 538,
+      "kind": "data-testid",
+      "value": "WaitingListGrid-gridData",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "WaitingListGrid.tsx",
+      "component": "WaitingListGrid",
+      "line": 718,
+      "kind": "data-testid",
+      "value": "DeleteIcon",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "WaitingListGrid.tsx",
+      "component": "WaitingListGrid",
+      "line": 737,
+      "kind": "data-testid",
+      "value": "CloseIcon",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "WaitingListGrid.tsx",
+      "component": "WaitingListGrid",
+      "line": 769,
+      "kind": "data-testid",
+      "value": "waitingListGrid-container",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "WaitingListGrid.tsx",
+      "component": "WaitingListGrid",
+      "line": 587,
+      "kind": "id",
+      "value": "current-active-panel",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "WaitingListGrid.tsx",
+      "component": "WaitingListGrid",
+      "line": 644,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "WaitingListGrid.tsx",
+      "component": "WaitingListGrid",
+      "line": 628,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

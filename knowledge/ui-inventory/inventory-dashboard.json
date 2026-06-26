@@ -1,0 +1,54 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\dashboard",
+    "scannedAt": "2026-06-26T11:22:38.455Z",
+    "fileCount": 1,
+    "elementCount": 3,
+    "componentCount": 1,
+    "components": [
+      {
+        "component": "page",
+        "file": "page.tsx",
+        "elementCount": 3,
+        "byKind": {
+          "tab-text": 2,
+          "h-text": 1
+        },
+        "unique": 3,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 24,
+      "kind": "tab-text",
+      "value": "APPLICATIONS",
+      "weight": 50,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 25,
+      "kind": "tab-text",
+      "value": "FINANCIAL",
+      "weight": 50,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 21,
+      "kind": "h-text",
+      "value": "Dashboard",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}
