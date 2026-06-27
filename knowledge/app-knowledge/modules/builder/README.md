@@ -28,7 +28,7 @@ The Builder detail screen has **4 inner top tabs**:
 | # | Sub-section | Documented |
 | --- | --- | --- |
 | 1 | Basic Information | ✅ [basic-information.md](permissions/basic-information.md) |
-| 2 | General Settings | ⏳ |
+| 2 | General Settings | ✅ [general-settings.md](permissions/general-settings.md) |
 | 3 | Permission Label | ⏳ |
 | 4 | Payment Settings | ⏳ |
 | 5 | Discount Settings | ⏳ |
