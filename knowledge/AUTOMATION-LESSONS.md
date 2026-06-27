@@ -171,4 +171,95 @@ await flow.DismissOpenPoppersAsync();
 
 ---
 
+## L-007: Unsaved-changes popup blocks navigation — always check after a menu click
+
+**Mistake:** Test clicks a side-menu item to navigate away from an Edit screen
+with dirty fields. The app intercepts with a modal: *"Your work is unsaved.
+Are you sure want to cancel?"* with **No** / **Yes** buttons. The page does
+NOT navigate until **Yes** is clicked. The test then fails further on,
+looking for elements on the destination page that never loaded — the real
+cause (the blocking modal) is invisible in the failure message.
+
+**Fix:** After ANY navigation click that leaves an editable form, check for
+the unsaved-changes dialog and confirm it:
+
+```csharp
+// Helper — put on a base / shared workflow class
+public async Task ConfirmUnsavedChangesIfPresentAsync()
+{
+    var dialog = _page.Locator(
+        "xpath=//*[@role='dialog'][.//*[contains(normalize-space(),'unsaved') " +
+        "or contains(normalize-space(),'Unsaved') " +
+        "or contains(normalize-space(),'discard') " +
+        "or contains(normalize-space(),'Discard')]]"
+    ).First;
+
+    if (await dialog.CountAsync() > 0 && await dialog.IsVisibleAsync())
+    {
+        var yesBtn = dialog.Locator(
+            "xpath=.//button[normalize-space()='Yes' " +
+            "or normalize-space()='Discard' " +
+            "or normalize-space()='Leave' " +
+            "or normalize-space()='Confirm']"
+        ).First;
+        await yesBtn.ClickAsync();
+        await _page.WaitForTimeoutAsync(500);
+    }
+}
+```
+
+Call it immediately after any menu/breadcrumb/tab click from an Edit screen.
+
+**Why:** The dialog is application-wide (Permission Builder, Contract Setup,
+Applications, etc.). Without this helper, ~30% of cross-page tests fail
+intermittently depending on whether the previous test left a dirty form.
+
+---
+
+## L-008: Page headings are NOT consistent — verify navigation differently
+
+**Mistake:** Asserting page navigation via the page heading: each screen uses
+a different element (`<h1>`, `<h2>`, `<div class="page-title">`,
+`<span class="header-title">`, breadcrumb text only, sometimes no heading
+at all). Tests that depend on heading text break the moment a new module
+is added with yet another heading style.
+
+**Fix:** Don't trust headings to confirm "we arrived". Use one of:
+
+| Signal | How |
+| --- | --- |
+| **URL fragment** | `await page.WaitForURLAsync(new Regex(".*/builder$"), new() { Timeout = 10_000 });` |
+| **A known-unique element on the destination page** | `await Assertions.Expect(ui.ListSearchInput).ToBeVisibleAsync(new() { Timeout = 10_000 });` |
+| **API call settled** | `await page.WaitForLoadStateAsync(LoadState.NetworkIdle, new() { Timeout = 15_000 });` |
+| **Heading — only as a soft check after the above** | Use a tolerant selector that ORs several heading kinds |
+
+The **best** signal is a unique element from the inventory
+(`knowledge/ui-inventory/`) — e.g. `[data-testid='generalSettings-container']`
+for the Builder edit screen. It's both unique AND interactable, so it doubles
+as a readiness check.
+
+**Why:** Heading text + heading tag both change frequently. URLs and core
+content elements change far less often. The inventory tells you which
+container-level testids are most stable.
+
+**Example (wrong → right):**
+```csharp
+// Wrong — brittle: breaks when h1 becomes h2 or a div
+await Assertions.Expect(page.Locator("h1:has-text('Builder')")).ToBeVisibleAsync();
+
+// Right — wait for a known content element + URL
+await page.WaitForURLAsync(new Regex(".*/builder.*"), new() { Timeout = 10_000 });
+await Assertions.Expect(ui.ListSearchInput).ToBeVisibleAsync(new() { Timeout = 10_000 });
+```
+
+**Combined recipe for any navigation from an Edit screen:**
+```csharp
+await someMenuItem.ClickAsync();
+await flow.ConfirmUnsavedChangesIfPresentAsync();          // L-007
+await page.WaitForURLAsync(new Regex(".*/destination.*")); // L-008
+await Assertions.Expect(destinationAnchor).ToBeVisibleAsync(new() { Timeout = 10_000 });
+```
+
+---
+
 <!-- Append new lessons below this line — keep them numbered sequentially -->
