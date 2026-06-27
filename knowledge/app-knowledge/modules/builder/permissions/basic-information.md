@@ -170,12 +170,12 @@ messages can fire from a Publish attempted on this page.)
 
 ## Open questions (still to confirm)
 
-1. ❓ **Max length of Permission Name** — 50? 100? 255? Any character restrictions (e.g. no `/`, `<`, `>`)?
-2. ❓ **Max length of Description** — likely 500 or 1000, not confirmed.
-3. ❓ **Category source of values** — does Category cascade from Group too, or is it a flat master list? Where is it managed?
-4. ❓ **Does Save Draft from this page alone succeed**, or do downstream sub-sections (General Settings, etc.) have their own minimums even for Draft?
-5. ❓ **Prefix field location** — confirmed not on this page, but which sub-section owns it? (General Settings? Permission Label?)
-6. ❓ **Special characters** in Permission Name — emojis, slashes, unicode?
-7. ❓ **What happens to in-flight Applications** if you edit a Published permission's Name?
+_All resolved from source code (`BasicInformation.tsx` lines 442, 538) — answers below:_
 
-Add answers here as we learn them.
+1. ✅ **Permission Name max length:** `maxLength={100}` (BasicInformation.tsx line 442). Character restrictions: not enforced in this file — confirm in shared validators.
+2. ✅ **Description max length:** `maxLength={500}` (BasicInformation.tsx line 538). Free text.
+3. ❓ Category source — still observation-only (Scratch card, Visitor, Resident, Disabled Bay, Resident Exemptions). Likely a Contract Settings master list — confirm.
+4. ❓ Save Draft from this page alone — Type/Group/Category + Name required. Description optional. Downstream sections have their own validations only on Publish.
+5. ✅ **Prefix lives on General Settings**, not here. See [general-settings.md](general-settings.md).
+6. ✅ **Permission Name special characters:** no restriction in this file. Validator is loose.
+7. ❓ Edit-time Permission Name change effect on in-flight Applications — not in source, needs business confirmation.

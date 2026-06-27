@@ -333,4 +333,47 @@ Fixed sleeps either slow the suite (when 200ms would do) or aren't enough
 
 ---
 
+## L-010: Always check source code before asking the user a field-spec question
+
+**Mistake:** When documenting a page, asked the user about max lengths,
+validation rules, defaults, dropdown options — all of which were already
+in the React source (`*.tsx` files in `MNPS-Permission-UI`). Wasted the
+user's time and made the agent look amateur.
+
+**Fix:** Before asking ANY of these question types, grep the corresponding
+source file:
+
+| Question | Where to look in source |
+| --- | --- |
+| Max length / min length | `maxLength={...}`, `minLength={...}`, `inputProps={{ maxLength: ... }}` |
+| Numeric min/max | `if (numericValue >= X && numericValue <= Y)`, `min={X} max={Y}` |
+| Default values | The initial state object (`useState({ ... })`) or `defaultProps` |
+| Validation regex | `/regex/.test(value)`, `RegExp(...)` |
+| Required vs optional | `errorText='This field is required'`, label `*(optional)*` |
+| Dropdown source | `APIEndPoints.*.url`, look for `gatewayRequest(...)` calls |
+| Tooltip exact text | `Tooltip` or `staticValue.*Tooltip` constants |
+| Conditional reveals | `{state === 'enable' && <SubComponent />}` patterns |
+
+**Source path:** `C:\Users\jafar.s\Automation_Codes\ApplyIQ\Developers_Source_Code\MNPS-Permission-UI\src\app\(pages)\<module>\...\<Component>.tsx`
+
+**Workflow when documenting a page:**
+1. Read the screenshot for layout + observed values
+2. Open the matching `.tsx` and grep for the field names you saw
+3. Capture **every** rule from source verbatim with the line number
+4. Only THEN ask the user for things source can't tell you:
+   - Business intent ("why does this field exist?")
+   - Cross-module behaviour ("does X actually hide from Buy Now?")
+   - Test environment specifics ("which contract should we use?")
+
+**Why:** The 12 open questions in `general-settings.md` were 9-out-of-12
+answerable from one 30-second grep. We had the source the whole time.
+
+**Example:** Prefix in General Settings —
+- Asked user: "max length? character rules?"
+- Source (1 grep) answered both: `maxLength={10}` line 1105,
+  regex `/^[a-zA-Z][a-zA-Z0-9]*$/` line 704, plus the exact tooltip text
+  *"Enter a unique alphanumeric prefix up to 10 characters..."* line 266.
+
+---
+
 <!-- Append new lessons below this line — keep them numbered sequentially -->

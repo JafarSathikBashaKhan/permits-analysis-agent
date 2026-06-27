@@ -26,21 +26,21 @@
 | # | Field | UI Label | Type | Default | Required? |
 | --- | --- | --- | --- | --- | --- |
 | 1 | Special Event | **Special Event** | Radio: Enable / Disable | Disable | ✅ |
-| 2 | Start Date Policy | **Start Date Policy** | Dropdown | — (placeholder: `Select`) | ❓ (likely required) |
+| 2 | Start Date Policy | **Start Date Policy** | Dropdown (API-driven) | — (placeholder: `Select`) | ✅ Required (loaded from `permissionBuilder.GetStartDatePolicy` API) |
 | 3 | Permit Days Selection | **Permit Days Selection** | Radio: Enable / Disable | Disable | ✅ |
-| 4 | Retention Period Expired Permits | **Retention Period Expired Permits** ⓘ | Number + `Days` suffix | `7` | ✅ |
-| 5 | Prefix | **Prefix** ⓘ | Text input | — (placeholder: `Enter Prefix`) | ✅ (must be unique on publish — see Basic Information validation messages) |
-| 6 | Terms and Conditions | **Terms and Conditions** | Dropdown | — (placeholder: `Select`) | ❓ (likely required) |
-| 7 | Display Description | **Display Description** *(optional)* | Textarea | `Purchase your permission with ease` | ⬜ Optional |
-| 8 | Permit Mode | **Permit Mode** | Radio: Virtual Permit / Physical Permit / Both | none | ✅ |
-| 9 | Back Office Use | **Back Office Use** | Checkbox | unchecked | ⬜ |
-| 10 | VAT Applicable | **VAT Applicable** | Checkbox | unchecked | ⬜ |
-| 11 | Hours of Operation | **Hours of Operation** | Checkbox | unchecked | ⬜ |
-| 12 | Enable Experian Check | **Other Settings** *(optional)* → Enable Experian Check | Checkbox | unchecked | ⬜ |
-| 13 | Business Name | **Other Settings** *(optional)* → Business Name | Checkbox | unchecked | ⬜ |
-| 14 | Business Address | **Other Settings** *(optional)* → Business Address | Checkbox | unchecked | ⬜ |
-| 15 | Comment Box | **Comment Box** | Checkbox | unchecked | ⬜ |
-| 16 | Admin fee for Permission | **Admin fee for Permission** *(optional)* | £ Number input | — (placeholder: `Enter Admin Fee`) | ⬜ Optional |
+| 4 | Retention Period Expired Permits | **Retention Period Expired Permits** ⓘ | Number + `Days` suffix | `90` (NOT 7 — code default; screenshot showed an edited state) | ✅ Must be ≥ 0 |
+| 5 | Prefix | **Prefix** ⓘ | Text input | — (placeholder: `Enter Prefix`) | ✅ Required on Publish (not on Save Draft — per Sprint 9 decision, line 597) |
+| 6 | Terms and Conditions | **Terms and Conditions** | Dropdown (loaded from `templates.termsAndConditionTemplateRetrival` API) | — (placeholder: `Select`) | ✅ Required |
+| 7 | Display Description | **Display Description** *(optional)* | Textarea, **max 1000 chars** | `Purchase your permission with ease` | ⬜ Optional |
+| 8 | Permit Mode | **Permit Mode** | Radio: Virtual Permit / Physical Permit / Both | none (`defaultPermitMode`) | ✅ Required |
+| 9 | Back Office Use | **Back Office Use** | Checkbox | `false` | ⬜ |
+| 10 | VAT Applicable | **VAT Applicable** | Checkbox | `false` | ⬜ |
+| 11 | Hours of Operation | **Hours of Operation** | Checkbox | `false` | ⬜ |
+| 12 | Enable Experian Check | **Other Settings** *(optional)* → Enable Experian Check | Checkbox | `false` | ⬜ |
+| 13 | Business Name | **Other Settings** *(optional)* → Business Name | Checkbox | `false` | ⬜ |
+| 14 | Business Address | **Other Settings** *(optional)* → Business Address | Checkbox | `false` | ⬜ |
+| 15 | Comment Box | **Comment Box** | Checkbox | `false` | ⬜ |
+| 16 | Admin fee for Permission | **Admin fee for Permission** *(optional)* | £ Number input, **max 1000, 2 decimals** | `0.00` | ⬜ Optional |
 
 ### Field-level notes (from observation + earlier research)
 
@@ -118,16 +118,56 @@ Cancel / SAVE DRAFT / PUBLISH / kebab. Same unsaved-changes confirmation if dirt
 
 ---
 
-## Validation messages
+## Validation messages (all source-verified from `GeneralSettings.tsx`)
 
-| Trigger | Message |
-| --- | --- |
-| Required field empty on save | `This field is required.` |
-| Prefix not unique on Publish | `Prefix cannot be duplicate` |
-| Prefix + Name + Special Events all duplicate | `"Permission Name, Prefix and Special Events" cannot be duplicate.` |
-| Retention Period = 0 or negative | ❓ to confirm |
-| Admin Fee > 1000 | ❓ to confirm (rule says 0–1000) |
-| Admin Fee with non-numeric | ❓ to confirm |
+| Trigger | Message | Source line |
+| --- | --- | --- |
+| Any required field empty on Save Draft / Publish | `This field is required` | 877, 898, 917, 961, 983, 1060, 1109, 1137, 1154, 1188, 1240 |
+| Prefix contains non-alphanumeric / starts with digit | `Alphanumeric only allowed` | 556, 729 |
+| Prefix not unique on Publish | `Prefix cannot be duplicate` | (cross-validated server-side) |
+| Prefix + Name + Special Events all duplicate | `"Permission Name, Prefix and Special Events" cannot be duplicate.` | (server-side) |
+| Admin Fee > 1000 or < 0 | `Amount must be between 0 and 1000.` | 471, 491 |
+| Display Description > 1000 chars | (input is blocked at 1000) | 566 |
+
+### Prefix rules (source-verified)
+- **Tooltip text:** *"Enter a unique alphanumeric prefix up to 10 characters. This prefix will appear at the start of the application number (e.g., 'RP' in RP-8XF93Z2K)."* (line 266)
+- **Max length:** 10 chars (`maxLength={10}` line 1105)
+- **Regex:** `/^[a-zA-Z][a-zA-Z0-9]*$/` — must **start with a letter**, then letters/digits only (line 704)
+- **Trimmed** on input (line 544)
+- **Save Draft skips Prefix required check** (Sprint 9 decision — line 597 comment) — only Publish enforces
+
+### Retention Period rules (source-verified)
+- **Tooltip text:** *"Enter the number of days expired permits should remain visible after their expiry date. For example, if set to 7, expired permits will be displayed for 7 days before being hidden from the system view. Enter 0 to hide them immediately upon expiry."* (line 264)
+- **Default value:** `90` days (line 70 + 192). Screenshot showed `7` which was an edited state.
+- **Min:** 0 (0 = hide immediately)
+- **Max:** no explicit cap
+
+### Admin Fee rules (source-verified)
+- **Default:** `0.00` (line 74)
+- **Range:** 0–1000 inclusive
+- **Decimals:** max 2 (auto-truncated, line 483)
+- **Non-numeric input is silently ignored** (no error, line 500 comment)
+
+### Display Description rules (source-verified)
+- **Default:** `'Purchase your permission with ease'` (matches screenshot)
+- **Max length:** 1000 chars (input blocked at 1001, line 1155)
+- **Optional** — explicitly labelled `(optional)` in UI
+
+### Start Date Policy (source-verified)
+- **API-driven:** options loaded from `APIEndPoints.permissionBuilder.GetStartDatePolicy` (line 271)
+- The actual values come from the server — to enumerate them in tests, hit that API or capture once during recording
+
+### Terms and Conditions dropdown (source-verified)
+- **API-driven:** options loaded from `APIEndPoints.templates.termsAndConditionTemplateRetrival` (line 232)
+- Sourced from the Templates module (Templates → Terms & Conditions)
+
+### Special Event (source-verified)
+- Default: `'disable'` (line 88)
+- When `'enable'`, a separate Special Event dropdown is revealed — values managed in Contract Settings → Special Events
+
+### Permit Days Selection (source-verified)
+- State key: `isDaysSelectionEnabled` (default `'disable'`, line 92)
+- When `'enable'`, day-of-week selectors are revealed (need source dive into the conditional block to confirm exact UI)
 
 ---
 
@@ -158,17 +198,19 @@ Cancel / SAVE DRAFT / PUBLISH / kebab. Same unsaved-changes confirmation if dirt
 
 ---
 
-## Open questions (please confirm)
+## Open questions (mostly source-verified — only behavioural ones remain)
 
-1. ❓ Is **Start Date Policy** required? What are its options? (e.g. "From application date", "From approval date", "Fixed date"?)
-2. ❓ Is **Terms and Conditions** required? Where are the T&C templates managed? (Templates → Terms and Conditions?)
-3. ❓ When **Special Event = Enable**, where do the Special Event options come from? (Contract Settings → Special Events configuration?)
-4. ❓ When **Permit Days Selection = Enable**, what gets revealed exactly? (7 day-of-week checkboxes? A range picker?)
-5. ❓ When **Hours of Operation** is checked, what UI appears? (Start/end time picker per day? Single global window?)
-6. ❓ **Back Office Use** — does checking it actually hide the permission from Buy Now / Customer Portal?
-7. ❓ **VAT Applicable** — where is the VAT rate set? (Contract Settings? Hardcoded?)
-8. ❓ **Comment Box** — what does the applicant see? (Free text "Comments" field on Buy Now Documents tab? Application form?)
-9. ❓ **Admin Fee** — exact min/max (0–1000?), decimals allowed?
-10. ❓ **Prefix** — max length? Character restrictions (letters only? letters+digits?)
-11. ❓ **Retention Period** — max value? What does it actually retain after expiry (data? PII? document?)
-12. ❓ **Display Description** — max length? Where is it shown to the applicant?
+_Source-verified answers above; only true business/behavioural questions remain here:_
+
+1. ✅ **Start Date Policy** — required, options from `permissionBuilder.GetStartDatePolicy` API. Enumerate by hitting the API.
+2. ✅ **Terms and Conditions** — required, options from `templates.termsAndConditionTemplateRetrival` API (Templates module owns them).
+3. ❓ **Special Event Enable dropdown source** — likely Contract Settings → Special Events. Need DOM/API confirm.
+4. ❓ **Permit Days Selection Enable reveals what exactly** — code key `isDaysSelectionEnabled` toggles; need the conditional render block to confirm UI (probably 7 day-of-week checkboxes).
+5. ❓ **Hours of Operation checkbox reveals what** — likely a time-window editor; needs source dive into the conditional block.
+6. ❓ **Back Office Use** — does checking it actually hide the permission from Buy Now / Customer Portal? (business behaviour)
+7. ❓ **VAT Applicable** — where is VAT % set? (Contract Settings? Hardcoded?)
+8. ❓ **Comment Box** — what does the applicant see and where?
+9. ✅ **Admin Fee:** 0–1000 inclusive, 2 decimals, default 0.00. (source-verified)
+10. ✅ **Prefix:** max 10 chars, must start with letter, alphanumeric only, trimmed, required on Publish (not Save Draft). (source-verified)
+11. ✅ **Retention Period:** default 90 days, min 0 (0 = hide immediately on expiry). No explicit max. (source-verified)
+12. ✅ **Display Description:** max 1000 chars, default `'Purchase your permission with ease'`. (source-verified)
