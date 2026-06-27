@@ -135,4 +135,40 @@ public ILocator PermissionNameInput => _container.Locator("#permissionName");
 
 ---
 
+## L-006: NEVER `page.ReloadAsync()` after login — it logs you out
+
+**Mistake:** Calling `page.ReloadAsync()`, `page.GotoAsync(baseUrl)` to the root,
+or pressing F5 mid-test to "recover" from a stuck UI. The app's auth token
+lives in memory / session storage and a hard refresh tears down the
+Microsoft OAuth session. You land on
+`login.microsoftonline.com/.../logoutsession` ("You signed out of your
+account") and every subsequent action times out trying to find an app
+element on a Microsoft sign-out page.
+
+**Fix:** Never reload. To recover UI state:
+- Navigate **within** the SPA by clicking a menu item / breadcrumb / link
+- Use `flow.DismissOpenPoppersAsync()` to clear stuck overlays
+- Use `page.GoBackAsync()` only if you know the previous page is in the app
+- If you genuinely need a fresh page, sign in again from the start of the test
+
+If you absolutely must reload (debugging only), re-run the login flow
+immediately after.
+
+**Why:** Auth in this app is Microsoft OAuth + MFA-skip. A reload triggers
+`logoutsession` because the token is short-lived and not in a long-lived
+cookie. The screenshot the user shared shows the exact landing page.
+
+**Example (wrong → right):**
+```csharp
+// Wrong — kicks you to login.microsoftonline.com/.../logoutsession
+await page.ReloadAsync();
+await page.Locator("button:has-text('Save Draft')").ClickAsync(); // 30s timeout
+
+// Right — navigate inside the SPA
+await flow.NavigateToBuilderListAsync(TargetContractName);
+await flow.DismissOpenPoppersAsync();
+```
+
+---
+
 <!-- Append new lessons below this line — keep them numbered sequentially -->
