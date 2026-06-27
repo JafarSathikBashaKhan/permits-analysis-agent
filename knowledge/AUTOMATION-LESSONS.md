@@ -262,4 +262,75 @@ await Assertions.Expect(destinationAnchor).ToBeVisibleAsync(new() { Timeout = 10
 
 ---
 
+## L-009: Wait for the **second** page render before clicking
+
+**Mistake:** Page navigates / popup closes → destination renders immediately
+→ test clicks the next button. But ~1–2 seconds later the app re-renders
+(secondary API call returns, lazy-loaded component mounts, MUI skeleton
+swaps to real content). The click either misses, hits the wrong element,
+or triggers Playwright's "element changed during action" retry — which
+often resolves to a stale node and the test fails.
+
+**Fix:** After arriving on any page, wait for **all three** signals before
+the first interaction:
+
+1. **Network is idle** — the secondary API has returned
+2. **Loading skeletons are gone** — MUI `MuiSkeleton-root` / app spinners removed
+3. **Target element is stable** — not just visible, but `Enabled` and not animating
+
+```csharp
+public async Task WaitForPageStableAsync(ILocator anchor, int timeoutMs = 15_000)
+{
+    // 1. Wait for network to settle (catches the "second load")
+    await _page.WaitForLoadStateAsync(LoadState.NetworkIdle, new() { Timeout = timeoutMs });
+
+    // 2. Wait for any MUI skeleton / app spinner to disappear
+    var skeleton = _page.Locator(
+        ".MuiSkeleton-root, .MuiCircularProgress-root, [data-testid='loader'], .app-spinner"
+    );
+    var count = await skeleton.CountAsync();
+    if (count > 0)
+    {
+        await skeleton.First.WaitForAsync(new()
+        {
+            State = WaitForSelectorState.Hidden,
+            Timeout = timeoutMs
+        });
+    }
+
+    // 3. Anchor must be visible AND enabled (not the disabled skeleton placeholder)
+    await Assertions.Expect(anchor).ToBeVisibleAsync(new() { Timeout = timeoutMs });
+    await Assertions.Expect(anchor).ToBeEnabledAsync(new() { Timeout = timeoutMs });
+}
+```
+
+Call it after every navigation, dialog confirm, or tab switch.
+
+**Why:** The NPS Backoffice does an initial render with stale/placeholder
+data, then a second render after the real API call returns. Clicking
+during the gap is a classic source of "works locally, fails in CI"
+flake — local runs are slow enough that humans never see the gap.
+
+**Example (wrong → right):**
+```csharp
+// Wrong — clicks during the gap between first render and API refresh
+await menuItem.ClickAsync();
+await ui.NewButton.ClickAsync();   // 30s timeout — button re-renders mid-click
+
+// Right
+await menuItem.ClickAsync();
+await flow.ConfirmUnsavedChangesIfPresentAsync();           // L-007
+await flow.WaitForPageStableAsync(ui.NewButton);            // L-009
+await ui.NewButton.ClickAsync();
+```
+
+**Anti-pattern to avoid:**
+```csharp
+await page.WaitForTimeoutAsync(2000);   // Don't sleep — wait for an actual signal
+```
+Fixed sleeps either slow the suite (when 200ms would do) or aren't enough
+(when the API takes 3s). Always wait for a condition, never a clock.
+
+---
+
 <!-- Append new lessons below this line — keep them numbered sequentially -->
