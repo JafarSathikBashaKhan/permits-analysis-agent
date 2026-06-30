@@ -1,0 +1,295 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\streets",
+    "scannedAt": "2026-06-26T11:22:41.552Z",
+    "fileCount": 7,
+    "elementCount": 23,
+    "componentCount": 5,
+    "components": [
+      {
+        "component": "StreetsSliderPage",
+        "file": "StreetsSliderPage.tsx",
+        "elementCount": 15,
+        "byKind": {
+          "id": 7,
+          "placeholder": 8
+        },
+        "unique": 15,
+        "nonUnique": 0
+      },
+      {
+        "component": "page",
+        "file": "page.tsx",
+        "elementCount": 3,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 2
+        },
+        "unique": 3,
+        "nonUnique": 0
+      },
+      {
+        "component": "BlackListProperty",
+        "file": "BlackListProperty.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "placeholder": 2
+        },
+        "unique": 2,
+        "nonUnique": 0
+      },
+      {
+        "component": "WhiteList",
+        "file": "WhiteList.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "placeholder": 2
+        },
+        "unique": 2,
+        "nonUnique": 0
+      },
+      {
+        "component": "BlackList",
+        "file": "BlackList.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "placeholder": 1
+        },
+        "unique": 1,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "BlackList.tsx",
+      "component": "BlackList",
+      "line": 272,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "BlackListProperty.tsx",
+      "component": "BlackListProperty",
+      "line": 235,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "BlackListProperty.tsx",
+      "component": "BlackListProperty",
+      "line": 810,
+      "kind": "placeholder",
+      "value": "Select Range",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 701,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 699,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 820,
+      "kind": "placeholder",
+      "value": "Select Range",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "StreetsSliderPage.tsx",
+      "component": "StreetsSliderPage",
+      "line": 617,
+      "kind": "id",
+      "value": "steetName",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "StreetsSliderPage.tsx",
+      "component": "StreetsSliderPage",
+      "line": 636,
+      "kind": "id",
+      "value": "usrn",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "StreetsSliderPage.tsx",
+      "component": "StreetsSliderPage",
+      "line": 744,
+      "kind": "id",
+      "value": "firstName",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "StreetsSliderPage.tsx",
+      "component": "StreetsSliderPage",
+      "line": 790,
+      "kind": "id",
+      "value": "propertyName",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "StreetsSliderPage.tsx",
+      "component": "StreetsSliderPage",
+      "line": 822,
+      "kind": "id",
+      "value": "postcode",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "StreetsSliderPage.tsx",
+      "component": "StreetsSliderPage",
+      "line": 838,
+      "kind": "id",
+      "value": "uprn",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "StreetsSliderPage.tsx",
+      "component": "StreetsSliderPage",
+      "line": 874,
+      "kind": "id",
+      "value": "permissionLimit",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "StreetsSliderPage.tsx",
+      "component": "StreetsSliderPage",
+      "line": 611,
+      "kind": "placeholder",
+      "value": "Enter Street Name",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "StreetsSliderPage.tsx",
+      "component": "StreetsSliderPage",
+      "line": 635,
+      "kind": "placeholder",
+      "value": "USRN",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "StreetsSliderPage.tsx",
+      "component": "StreetsSliderPage",
+      "line": 729,
+      "kind": "placeholder",
+      "value": "Town Name",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "StreetsSliderPage.tsx",
+      "component": "StreetsSliderPage",
+      "line": 744,
+      "kind": "placeholder",
+      "value": "Type and press enter to add",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "StreetsSliderPage.tsx",
+      "component": "StreetsSliderPage",
+      "line": 792,
+      "kind": "placeholder",
+      "value": "Property Name/NO",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "StreetsSliderPage.tsx",
+      "component": "StreetsSliderPage",
+      "line": 824,
+      "kind": "placeholder",
+      "value": "Postcode",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "StreetsSliderPage.tsx",
+      "component": "StreetsSliderPage",
+      "line": 839,
+      "kind": "placeholder",
+      "value": "UPRN",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "StreetsSliderPage.tsx",
+      "component": "StreetsSliderPage",
+      "line": 880,
+      "kind": "placeholder",
+      "value": "Permission Limit",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "WhiteList.tsx",
+      "component": "WhiteList",
+      "line": 303,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "WhiteList.tsx",
+      "component": "WhiteList",
+      "line": 803,
+      "kind": "placeholder",
+      "value": "Select Range",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

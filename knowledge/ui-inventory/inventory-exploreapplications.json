@@ -1,0 +1,44 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\exploreapplications",
+    "scannedAt": "2026-06-26T11:22:39.151Z",
+    "fileCount": 2,
+    "elementCount": 2,
+    "componentCount": 1,
+    "components": [
+      {
+        "component": "Explore",
+        "file": "Explore.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "menuitem-text": 1,
+          "placeholder": 1
+        },
+        "unique": 2,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "Explore.tsx",
+      "component": "Explore",
+      "line": 405,
+      "kind": "menuitem-text",
+      "value": "All",
+      "weight": 50,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "Explore.tsx",
+      "component": "Explore",
+      "line": 385,
+      "kind": "placeholder",
+      "value": "Search",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

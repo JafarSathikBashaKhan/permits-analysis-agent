@@ -1,0 +1,54 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\emails",
+    "scannedAt": "2026-06-26T11:22:38.934Z",
+    "fileCount": 3,
+    "elementCount": 3,
+    "componentCount": 1,
+    "components": [
+      {
+        "component": "TemplatesEmailsList",
+        "file": "TemplatesEmailsList.tsx",
+        "elementCount": 3,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 2
+        },
+        "unique": 3,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "TemplatesEmailsList.tsx",
+      "component": "TemplatesEmailsList",
+      "line": 120,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "TemplatesEmailsList.tsx",
+      "component": "TemplatesEmailsList",
+      "line": 113,
+      "kind": "placeholder",
+      "value": "Search by Template Name, Permission Type",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "TemplatesEmailsList.tsx",
+      "component": "TemplatesEmailsList",
+      "line": 205,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

@@ -1,0 +1,315 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\pricing",
+    "scannedAt": "2026-06-26T11:22:40.479Z",
+    "fileCount": 8,
+    "elementCount": 25,
+    "componentCount": 5,
+    "components": [
+      {
+        "component": "PricingDetailScreen",
+        "file": "PricingDetailScreen.tsx",
+        "elementCount": 21,
+        "byKind": {
+          "data-testid": 7,
+          "id": 5,
+          "placeholder": 9
+        },
+        "unique": 21,
+        "nonUnique": 0
+      },
+      {
+        "component": "NonZonalList",
+        "file": "NonZonalList.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "placeholder": 1
+        },
+        "unique": 1,
+        "nonUnique": 0
+      },
+      {
+        "component": "page",
+        "file": "page.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "data-testid": 1
+        },
+        "unique": 1,
+        "nonUnique": 0
+      },
+      {
+        "component": "RuleBasedNonZonalList",
+        "file": "RuleBasedNonZonalList.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "placeholder": 1
+        },
+        "unique": 1,
+        "nonUnique": 0
+      },
+      {
+        "component": "ZonalList",
+        "file": "ZonalList.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "placeholder": 1
+        },
+        "unique": 1,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "NonZonalList.tsx",
+      "component": "NonZonalList",
+      "line": 393,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 1130,
+      "kind": "data-testid",
+      "value": "unsaved-dialog-close",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 2678,
+      "kind": "data-testid",
+      "value": "Duplicate",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 2691,
+      "kind": "data-testid",
+      "value": "Remove",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 1704,
+      "kind": "data-testid",
+      "value": "pricingTextInput",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 2606,
+      "kind": "data-testid",
+      "value": "durationFrequencyInput",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 2922,
+      "kind": "data-testid",
+      "value": "noOfPagesPerBookInput",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 2965,
+      "kind": "data-testid",
+      "value": "bandPriceInput",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 3006,
+      "kind": "data-testid",
+      "value": "dieselSurchargeInput",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 1687,
+      "kind": "id",
+      "value": "pricing-text",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 2585,
+      "kind": "id",
+      "value": "duration-frequency",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 2896,
+      "kind": "id",
+      "value": "no-of-pages-per-book",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 2930,
+      "kind": "id",
+      "value": "band-price",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 2977,
+      "kind": "id",
+      "value": "diesel-surcharge",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 1702,
+      "kind": "placeholder",
+      "value": "Enter Pricing Name",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 2604,
+      "kind": "placeholder",
+      "value": "Enter frequency",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 2756,
+      "kind": "placeholder",
+      "value": "Enter no of voucher(s) per book",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 2784,
+      "kind": "placeholder",
+      "value": "Enter band price",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 2844,
+      "kind": "placeholder",
+      "value": "Enter diesel surcharge",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 2918,
+      "kind": "placeholder",
+      "value": "Enter number of voucher(s) per book",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 1740,
+      "kind": "placeholder",
+      "value": "Select Permission Type",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 1783,
+      "kind": "placeholder",
+      "value": "Select Sub Type",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "PricingDetailScreen.tsx",
+      "component": "PricingDetailScreen",
+      "line": 2629,
+      "kind": "placeholder",
+      "value": "Select period",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "RuleBasedNonZonalList.tsx",
+      "component": "RuleBasedNonZonalList",
+      "line": 396,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ZonalList.tsx",
+      "component": "ZonalList",
+      "line": 439,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

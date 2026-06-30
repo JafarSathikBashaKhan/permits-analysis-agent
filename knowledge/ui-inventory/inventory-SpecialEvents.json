@@ -1,0 +1,280 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\SpecialEvents",
+    "scannedAt": "2026-06-26T11:22:41.307Z",
+    "fileCount": 7,
+    "elementCount": 21,
+    "componentCount": 5,
+    "components": [
+      {
+        "component": "AddSpecialEvent",
+        "file": "AddSpecialEvent.tsx",
+        "elementCount": 7,
+        "byKind": {
+          "data-testid": 3,
+          "id": 2,
+          "placeholder": 2
+        },
+        "unique": 6,
+        "nonUnique": 1
+      },
+      {
+        "component": "EditZonePermission",
+        "file": "(permissions)/EditZonePermission.tsx",
+        "elementCount": 5,
+        "byKind": {
+          "id": 4,
+          "placeholder": 1
+        },
+        "unique": 5,
+        "nonUnique": 0
+      },
+      {
+        "component": "page",
+        "file": "page.tsx",
+        "elementCount": 5,
+        "byKind": {
+          "data-testid": 1,
+          "id": 2,
+          "placeholder": 2
+        },
+        "unique": 4,
+        "nonUnique": 1
+      },
+      {
+        "component": "PermissionsList",
+        "file": "(permissions)/PermissionsList.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 1
+        },
+        "unique": 2,
+        "nonUnique": 0
+      },
+      {
+        "component": "SpecialEventList",
+        "file": "SpecialEventList.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 1
+        },
+        "unique": 2,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "AddSpecialEvent.tsx",
+      "component": "AddSpecialEvent",
+      "line": 423,
+      "kind": "data-testid",
+      "value": "addAndEditLocation-gridData",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddSpecialEvent.tsx",
+      "component": "AddSpecialEvent",
+      "line": 650,
+      "kind": "data-testid",
+      "value": "DeleteIcon",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddSpecialEvent.tsx",
+      "component": "AddSpecialEvent",
+      "line": 668,
+      "kind": "data-testid",
+      "value": "CloseIcon",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddSpecialEvent.tsx",
+      "component": "AddSpecialEvent",
+      "line": 474,
+      "kind": "id",
+      "value": "current-active-panel",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "AddSpecialEvent.tsx",
+      "component": "AddSpecialEvent",
+      "line": 1266,
+      "kind": "id",
+      "value": "eventName",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddSpecialEvent.tsx",
+      "component": "AddSpecialEvent",
+      "line": 512,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddSpecialEvent.tsx",
+      "component": "AddSpecialEvent",
+      "line": 1290,
+      "kind": "placeholder",
+      "value": "Type and select",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissions)/EditZonePermission.tsx",
+      "component": "EditZonePermission",
+      "line": 327,
+      "kind": "id",
+      "value": "zone",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissions)/EditZonePermission.tsx",
+      "component": "EditZonePermission",
+      "line": 381,
+      "kind": "id",
+      "value": "userZone",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissions)/EditZonePermission.tsx",
+      "component": "EditZonePermission",
+      "line": 436,
+      "kind": "id",
+      "value": "voucher",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissions)/EditZonePermission.tsx",
+      "component": "EditZonePermission",
+      "line": 489,
+      "kind": "id",
+      "value": "blueBadge",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissions)/EditZonePermission.tsx",
+      "component": "EditZonePermission",
+      "line": 325,
+      "kind": "placeholder",
+      "value": "Enter value",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 944,
+      "kind": "data-testid",
+      "value": "viewSpecialEventsList-gridData",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 909,
+      "kind": "id",
+      "value": "search",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 999,
+      "kind": "id",
+      "value": "current-active-panel",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 270,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 908,
+      "kind": "placeholder",
+      "value": "Search",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissions)/PermissionsList.tsx",
+      "component": "PermissionsList",
+      "line": 92,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissions)/PermissionsList.tsx",
+      "component": "PermissionsList",
+      "line": 88,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "SpecialEventList.tsx",
+      "component": "SpecialEventList",
+      "line": 115,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "SpecialEventList.tsx",
+      "component": "SpecialEventList",
+      "line": 110,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

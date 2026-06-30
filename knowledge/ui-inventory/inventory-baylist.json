@@ -1,0 +1,118 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\baylist",
+    "scannedAt": "2026-06-26T11:22:37.718Z",
+    "fileCount": 4,
+    "elementCount": 8,
+    "componentCount": 2,
+    "components": [
+      {
+        "component": "BayList",
+        "file": "BayList.tsx",
+        "elementCount": 5,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 2,
+          "h-text": 1,
+          "role": 1
+        },
+        "unique": 5,
+        "nonUnique": 0
+      },
+      {
+        "component": "AddBayListDialog",
+        "file": "AddBayListDialog.tsx",
+        "elementCount": 3,
+        "byKind": {
+          "id": 1,
+          "aria-label": 1,
+          "placeholder": 1
+        },
+        "unique": 3,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "AddBayListDialog.tsx",
+      "component": "AddBayListDialog",
+      "line": 304,
+      "kind": "id",
+      "value": "bayListName",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddBayListDialog.tsx",
+      "component": "AddBayListDialog",
+      "line": 286,
+      "kind": "aria-label",
+      "value": "Edit Bay List",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddBayListDialog.tsx",
+      "component": "AddBayListDialog",
+      "line": 306,
+      "kind": "placeholder",
+      "value": "Enter bay type name",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "BayList.tsx",
+      "component": "BayList",
+      "line": 353,
+      "kind": "aria-label",
+      "value": "Delete",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "BayList.tsx",
+      "component": "BayList",
+      "line": 123,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "BayList.tsx",
+      "component": "BayList",
+      "line": 128,
+      "kind": "placeholder",
+      "value": "Search",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "BayList.tsx",
+      "component": "BayList",
+      "line": 474,
+      "kind": "h-text",
+      "value": "Bay List",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "BayList.tsx",
+      "component": "BayList",
+      "line": 339,
+      "kind": "role",
+      "value": "link",
+      "weight": 20,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

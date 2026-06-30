@@ -1,0 +1,1756 @@
+{
+  "scannedAt": "2026-06-26T11:22:42.868Z",
+  "totals": {
+    "files": 182,
+    "components": 121,
+    "elements": 679,
+    "byKind": {
+      "data-testid": 126,
+      "id": 216,
+      "placeholder": 223,
+      "aria-label": 43,
+      "name": 25,
+      "h-text": 36,
+      "role": 6,
+      "menuitem-text": 2,
+      "tab-text": 2
+    }
+  },
+  "modules": [
+    {
+      "module": "builder",
+      "files": 34,
+      "components": 28,
+      "elements": 159,
+      "byKind": {
+        "data-testid": 49,
+        "id": 45,
+        "placeholder": 41,
+        "aria-label": 7,
+        "name": 17
+      },
+      "componentsDetail": [
+        {
+          "component": "MerchantSettings",
+          "file": "(permissionBuilder)/MerchantSettings.tsx",
+          "elementCount": 22,
+          "byKind": {
+            "data-testid": 7,
+            "id": 6,
+            "aria-label": 6,
+            "placeholder": 3
+          },
+          "unique": 22,
+          "nonUnique": 0
+        },
+        {
+          "component": "GeneralSettings",
+          "file": "(permissionBuilder)/GeneralSettings.tsx",
+          "elementCount": 17,
+          "byKind": {
+            "data-testid": 1,
+            "id": 5,
+            "name": 4,
+            "placeholder": 7
+          },
+          "unique": 16,
+          "nonUnique": 1
+        },
+        {
+          "component": "VehicleSettings",
+          "file": "(permissionBuilder)/VehicleSettings.tsx",
+          "elementCount": 13,
+          "byKind": {
+            "data-testid": 5,
+            "id": 5,
+            "name": 1,
+            "placeholder": 2
+          },
+          "unique": 5,
+          "nonUnique": 8
+        },
+        {
+          "component": "MinIncrementalPricing",
+          "file": "(permissionBuilder)/MinIncrementalPricing.tsx",
+          "elementCount": 12,
+          "byKind": {
+            "data-testid": 5,
+            "id": 4,
+            "name": 1,
+            "placeholder": 2
+          },
+          "unique": 4,
+          "nonUnique": 8
+        },
+        {
+          "component": "StandardPricing",
+          "file": "(permissionBuilder)/StandardPricing.tsx",
+          "elementCount": 11,
+          "byKind": {
+            "data-testid": 5,
+            "id": 4,
+            "name": 1,
+            "placeholder": 1
+          },
+          "unique": 3,
+          "nonUnique": 8
+        },
+        {
+          "component": "BasicInformation",
+          "file": "(permissionBuilder)/BasicInformation.tsx",
+          "elementCount": 9,
+          "byKind": {
+            "data-testid": 4,
+            "id": 2,
+            "placeholder": 3
+          },
+          "unique": 6,
+          "nonUnique": 3
+        },
+        {
+          "component": "VisitorPortalSettings",
+          "file": "(permissionBuilder)/VisitorPortalSettings.tsx",
+          "elementCount": 9,
+          "byKind": {
+            "data-testid": 1,
+            "id": 2,
+            "name": 5,
+            "placeholder": 1
+          },
+          "unique": 9,
+          "nonUnique": 0
+        },
+        {
+          "component": "SuspensionSettings",
+          "file": "(permissionBuilder)/SuspensionSettings.tsx",
+          "elementCount": 8,
+          "byKind": {
+            "data-testid": 1,
+            "id": 2,
+            "name": 3,
+            "placeholder": 2
+          },
+          "unique": 8,
+          "nonUnique": 0
+        },
+        {
+          "component": "PhysicalPermissionPrint",
+          "file": "(permissionBuilder)/PhysicalPermissionPrint.tsx",
+          "elementCount": 6,
+          "byKind": {
+            "data-testid": 4,
+            "id": 1,
+            "placeholder": 1
+          },
+          "unique": 5,
+          "nonUnique": 1
+        },
+        {
+          "component": "DiscountSettings",
+          "file": "(permissionBuilder)/DiscountSettings.tsx",
+          "elementCount": 5,
+          "byKind": {
+            "data-testid": 1,
+            "id": 3,
+            "placeholder": 1
+          },
+          "unique": 4,
+          "nonUnique": 1
+        },
+        {
+          "component": "PermissionBuilderForm",
+          "file": "(permissionBuilder)/PermissionBuilderForm.tsx",
+          "elementCount": 5,
+          "byKind": {
+            "id": 2,
+            "placeholder": 3
+          },
+          "unique": 3,
+          "nonUnique": 2
+        },
+        {
+          "component": "RenewalsAndReminders",
+          "file": "(permissionBuilder)/RenewalsAndReminders.tsx",
+          "elementCount": 5,
+          "byKind": {
+            "data-testid": 1,
+            "id": 1,
+            "name": 1,
+            "placeholder": 2
+          },
+          "unique": 5,
+          "nonUnique": 0
+        },
+        {
+          "component": "WhiteMailReminderEditor",
+          "file": "(permissionBuilder)/WhiteMailReminderEditor.tsx",
+          "elementCount": 5,
+          "byKind": {
+            "data-testid": 2,
+            "id": 1,
+            "placeholder": 2
+          },
+          "unique": 4,
+          "nonUnique": 1
+        },
+        {
+          "component": "EmailTemplates",
+          "file": "(permissionBuilder)/EmailTemplates.tsx",
+          "elementCount": 4,
+          "byKind": {
+            "data-testid": 1,
+            "id": 1,
+            "placeholder": 2
+          },
+          "unique": 4,
+          "nonUnique": 0
+        },
+        {
+          "component": "FixedDurationPricing",
+          "file": "(permissionBuilder)/FixedDurationPricing.tsx",
+          "elementCount": 4,
+          "byKind": {
+            "id": 1,
+            "name": 1,
+            "placeholder": 2
+          },
+          "unique": 2,
+          "nonUnique": 2
+        },
+        {
+          "component": "BuilderList",
+          "file": "BuilderList.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 2
+          },
+          "unique": 3,
+          "nonUnique": 0
+        },
+        {
+          "component": "FormBuilderPage",
+          "file": "(dynamicformbuilder)/FormBuilderPage.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "id": 1,
+            "placeholder": 2
+          },
+          "unique": 3,
+          "nonUnique": 0
+        },
+        {
+          "component": "PaymentSettings",
+          "file": "(permissionBuilder)/PaymentSettings.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "data-testid": 1,
+            "id": 1,
+            "placeholder": 1
+          },
+          "unique": 1,
+          "nonUnique": 2
+        },
+        {
+          "component": "EditPermissionBuilderForm",
+          "file": "(permissionBuilder)/EditPermissionBuilderForm.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "data-testid": 2
+          },
+          "unique": 1,
+          "nonUnique": 1
+        },
+        {
+          "component": "EditPermissionsBuilderForm",
+          "file": "(permissionBuilder)/EditPermissionsBuilderForm.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "data-testid": 1,
+            "id": 1
+          },
+          "unique": 1,
+          "nonUnique": 1
+        },
+        {
+          "component": "PermissionLimit",
+          "file": "(permissionBuilder)/PermissionLimit.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "data-testid": 1,
+            "id": 1
+          },
+          "unique": 2,
+          "nonUnique": 0
+        },
+        {
+          "component": "RefundSettings",
+          "file": "(permissionBuilder)/RefundSettings.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "data-testid": 1,
+            "id": 1
+          },
+          "unique": 2,
+          "nonUnique": 0
+        },
+        {
+          "component": "SpecialEvents",
+          "file": "(permissionBuilder)/SpecialEvents.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "data-testid": 1,
+            "placeholder": 1
+          },
+          "unique": 2,
+          "nonUnique": 0
+        },
+        {
+          "component": "AutoApprovalSettings",
+          "file": "(permissionBuilder)/AutoApprovalSettings.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "data-testid": 1
+          },
+          "unique": 0,
+          "nonUnique": 1
+        },
+        {
+          "component": "page",
+          "file": "page.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "data-testid": 1
+          },
+          "unique": 1,
+          "nonUnique": 0
+        },
+        {
+          "component": "SpecialEventPropertiesMapping",
+          "file": "(permissionBuilder)/SpecialEventPropertiesMapping.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "placeholder": 1
+          },
+          "unique": 1,
+          "nonUnique": 0
+        },
+        {
+          "component": "TemplateSettings",
+          "file": "(permissionBuilder)/TemplateSettings.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "data-testid": 1
+          },
+          "unique": 1,
+          "nonUnique": 0
+        },
+        {
+          "component": "ZoneMapping",
+          "file": "(permissionBuilder)/ZoneMapping.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "data-testid": 1
+          },
+          "unique": 1,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "applications",
+      "files": 27,
+      "components": 22,
+      "elements": 135,
+      "byKind": {
+        "id": 43,
+        "placeholder": 47,
+        "h-text": 13,
+        "data-testid": 21,
+        "aria-label": 5,
+        "role": 3,
+        "name": 2,
+        "menuitem-text": 1
+      },
+      "componentsDetail": [
+        {
+          "component": "ApplicationActionSendEmail",
+          "file": "ApplicationActionSendEmail/ApplicationActionSendEmail.tsx",
+          "elementCount": 34,
+          "byKind": {
+            "data-testid": 1,
+            "id": 14,
+            "placeholder": 17,
+            "h-text": 2
+          },
+          "unique": 26,
+          "nonUnique": 8
+        },
+        {
+          "component": "ApplicationVehicle",
+          "file": "ApplicationVehicle/ApplicationVehicle.tsx",
+          "elementCount": 16,
+          "byKind": {
+            "data-testid": 8,
+            "id": 2,
+            "aria-label": 1,
+            "placeholder": 3,
+            "h-text": 1,
+            "role": 1
+          },
+          "unique": 14,
+          "nonUnique": 2
+        },
+        {
+          "component": "VisitorVoucherPermit",
+          "file": "VoucherPermit/VisitorVoucherPermit.tsx",
+          "elementCount": 15,
+          "byKind": {
+            "data-testid": 1,
+            "id": 7,
+            "name": 2,
+            "placeholder": 2,
+            "h-text": 3
+          },
+          "unique": 15,
+          "nonUnique": 0
+        },
+        {
+          "component": "AddAddressAssign",
+          "file": "AddAddressAssign/AddAddressAssign.tsx",
+          "elementCount": 12,
+          "byKind": {
+            "id": 7,
+            "placeholder": 3,
+            "h-text": 2
+          },
+          "unique": 5,
+          "nonUnique": 7
+        },
+        {
+          "component": "ApplicationVehicleEdit",
+          "file": "ApplicationVehicle/ApplicationVehicleEdit.tsx",
+          "elementCount": 9,
+          "byKind": {
+            "id": 1,
+            "aria-label": 1,
+            "placeholder": 7
+          },
+          "unique": 9,
+          "nonUnique": 0
+        },
+        {
+          "component": "ApplicationPaymentHistory",
+          "file": "ApplicationPaymentHistory/ApplicationPaymentHistory.tsx",
+          "elementCount": 8,
+          "byKind": {
+            "data-testid": 2,
+            "id": 3,
+            "placeholder": 3
+          },
+          "unique": 7,
+          "nonUnique": 1
+        },
+        {
+          "component": "ApplicationSendEmail",
+          "file": "ApplicationEmailList/ApplicationSendEmail/ApplicationSendEmail.tsx",
+          "elementCount": 8,
+          "byKind": {
+            "data-testid": 1,
+            "id": 3,
+            "placeholder": 4
+          },
+          "unique": 5,
+          "nonUnique": 3
+        },
+        {
+          "component": "AssignTaskToCEO",
+          "file": "AssignTaskToCEO/AssignTaskToCEO.tsx",
+          "elementCount": 7,
+          "byKind": {
+            "id": 4,
+            "placeholder": 3
+          },
+          "unique": 7,
+          "nonUnique": 0
+        },
+        {
+          "component": "VoucherPermitHistory",
+          "file": "VoucherPermit/VoucherPermitHistory.tsx",
+          "elementCount": 4,
+          "byKind": {
+            "id": 1,
+            "menuitem-text": 1,
+            "placeholder": 1,
+            "h-text": 1
+          },
+          "unique": 3,
+          "nonUnique": 1
+        },
+        {
+          "component": "ApplicationOverView",
+          "file": "ApplicationOverView/ApplicationOverView.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "data-testid": 2,
+            "placeholder": 1
+          },
+          "unique": 3,
+          "nonUnique": 0
+        },
+        {
+          "component": "RenewalDocumentUpload",
+          "file": "RenewalDocumentUpload/RenewalDocumentUpload.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "data-testid": 1,
+            "aria-label": 1,
+            "h-text": 1
+          },
+          "unique": 2,
+          "nonUnique": 1
+        },
+        {
+          "component": "RenewalSummary",
+          "file": "RenewalSummary/RenewalSummary.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "h-text": 3
+          },
+          "unique": 3,
+          "nonUnique": 0
+        },
+        {
+          "component": "ApplicationAuditLog",
+          "file": "ApplicationAuditLog/ApplicationAuditLog.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 1
+          },
+          "unique": 2,
+          "nonUnique": 0
+        },
+        {
+          "component": "ExtendDurationSlider",
+          "file": "ExtendDurationSlider.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "id": 1,
+            "placeholder": 1
+          },
+          "unique": 2,
+          "nonUnique": 0
+        },
+        {
+          "component": "PermissionsDetailsList",
+          "file": "PermissionsDetailsList.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 1
+          },
+          "unique": 2,
+          "nonUnique": 0
+        },
+        {
+          "component": "ApplicationApplicant",
+          "file": "ApplicationApplicant/ApplicationApplicant.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "data-testid": 1
+          },
+          "unique": 1,
+          "nonUnique": 0
+        },
+        {
+          "component": "ApplicationApplicantFpnTable",
+          "file": "ApplicationApplicant/ApplicationApplicantFpnTable.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "data-testid": 1
+          },
+          "unique": 1,
+          "nonUnique": 0
+        },
+        {
+          "component": "ApplicationDocument",
+          "file": "ApplicationDocument/ApplicationDocument.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "data-testid": 1
+          },
+          "unique": 0,
+          "nonUnique": 1
+        },
+        {
+          "component": "ApplicationEmailList",
+          "file": "ApplicationEmailList/ApplicationEmailList.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "role": 1
+          },
+          "unique": 1,
+          "nonUnique": 0
+        },
+        {
+          "component": "ApplicationVehicleDetail",
+          "file": "ApplicationVehicle/ApplicationVehicleDetail.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "data-testid": 1
+          },
+          "unique": 0,
+          "nonUnique": 1
+        },
+        {
+          "component": "page",
+          "file": "page.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "data-testid": 1
+          },
+          "unique": 1,
+          "nonUnique": 0
+        },
+        {
+          "component": "VoucherPermitOverView",
+          "file": "VoucherPermit/VoucherPermitOverView.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "role": 1
+          },
+          "unique": 1,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "applicants",
+      "files": 26,
+      "components": 18,
+      "elements": 79,
+      "byKind": {
+        "id": 16,
+        "placeholder": 30,
+        "data-testid": 19,
+        "name": 4,
+        "aria-label": 5,
+        "h-text": 5
+      },
+      "componentsDetail": [
+        {
+          "component": "AddVehicle",
+          "file": "(vechicle)/AddVehicle.tsx",
+          "elementCount": 15,
+          "byKind": {
+            "data-testid": 1,
+            "id": 2,
+            "name": 4,
+            "placeholder": 8
+          },
+          "unique": 13,
+          "nonUnique": 2
+        },
+        {
+          "component": "AddApplicants",
+          "file": "AddApplicants.tsx",
+          "elementCount": 13,
+          "byKind": {
+            "id": 6,
+            "placeholder": 7
+          },
+          "unique": 13,
+          "nonUnique": 0
+        },
+        {
+          "component": "ViewApplicantsList",
+          "file": "ViewApplicantsList.tsx",
+          "elementCount": 8,
+          "byKind": {
+            "data-testid": 5,
+            "id": 1,
+            "aria-label": 1,
+            "placeholder": 1
+          },
+          "unique": 8,
+          "nonUnique": 0
+        },
+        {
+          "component": "ApplicantSendEmail",
+          "file": "(applicantemail)/applicantsendemail/ApplicantSendEmail.tsx",
+          "elementCount": 7,
+          "byKind": {
+            "data-testid": 1,
+            "id": 2,
+            "placeholder": 4
+          },
+          "unique": 5,
+          "nonUnique": 2
+        },
+        {
+          "component": "ApplicantEmailBroadcasting",
+          "file": "(applicantemailbroadcasting)/ApplicantEmailBroadcasting.tsx",
+          "elementCount": 6,
+          "byKind": {
+            "data-testid": 1,
+            "id": 2,
+            "placeholder": 3
+          },
+          "unique": 3,
+          "nonUnique": 3
+        },
+        {
+          "component": "VehiclesList",
+          "file": "VehiclesList.tsx",
+          "elementCount": 6,
+          "byKind": {
+            "data-testid": 4,
+            "aria-label": 1,
+            "placeholder": 1
+          },
+          "unique": 4,
+          "nonUnique": 2
+        },
+        {
+          "component": "PermitVehicle",
+          "file": "(permitvehicle)/PermitVehicle.tsx",
+          "elementCount": 4,
+          "byKind": {
+            "data-testid": 2,
+            "id": 1,
+            "placeholder": 1
+          },
+          "unique": 1,
+          "nonUnique": 3
+        },
+        {
+          "component": "AddBlueBadge",
+          "file": "AddBlueBadge.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "data-testid": 1,
+            "id": 1,
+            "placeholder": 1
+          },
+          "unique": 2,
+          "nonUnique": 1
+        },
+        {
+          "component": "DocumentList",
+          "file": "(document)/DocumentList.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "data-testid": 1,
+            "aria-label": 1,
+            "placeholder": 1
+          },
+          "unique": 2,
+          "nonUnique": 1
+        },
+        {
+          "component": "ApplicantEmailList",
+          "file": "(applicantemail)/ApplicantEmailList.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 1
+          },
+          "unique": 2,
+          "nonUnique": 0
+        },
+        {
+          "component": "AuditLogList",
+          "file": "auditlog/AuditLogList.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 1
+          },
+          "unique": 2,
+          "nonUnique": 0
+        },
+        {
+          "component": "EditApplicants",
+          "file": "EditApplicants.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "h-text": 2
+          },
+          "unique": 2,
+          "nonUnique": 0
+        },
+        {
+          "component": "page",
+          "file": "page.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "h-text": 2
+          },
+          "unique": 2,
+          "nonUnique": 0
+        },
+        {
+          "component": "TemporaryVehiclePanel",
+          "file": "(vechicle)/TemporaryVehiclePanel.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "id": 1,
+            "placeholder": 1
+          },
+          "unique": 1,
+          "nonUnique": 1
+        },
+        {
+          "component": "DraftApplicationsList",
+          "file": "DraftApplicationsList.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "h-text": 1
+          },
+          "unique": 1,
+          "nonUnique": 0
+        },
+        {
+          "component": "EditVehicle",
+          "file": "(vechicle)/EditVehicle.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "data-testid": 1
+          },
+          "unique": 0,
+          "nonUnique": 1
+        },
+        {
+          "component": "FileCard",
+          "file": "(applicantemail)/FileCard.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "data-testid": 1
+          },
+          "unique": 0,
+          "nonUnique": 1
+        },
+        {
+          "component": "PermitDocument",
+          "file": "(permitdocument)/PermitDocument.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "data-testid": 1
+          },
+          "unique": 0,
+          "nonUnique": 1
+        }
+      ]
+    },
+    {
+      "module": "contractsettings",
+      "files": 2,
+      "components": 2,
+      "elements": 72,
+      "byKind": {
+        "data-testid": 2,
+        "id": 61,
+        "placeholder": 7,
+        "h-text": 2
+      },
+      "componentsDetail": [
+        {
+          "component": "ContractSettings",
+          "file": "ContractSettings.tsx",
+          "elementCount": 71,
+          "byKind": {
+            "data-testid": 2,
+            "id": 61,
+            "placeholder": 7,
+            "h-text": 1
+          },
+          "unique": 71,
+          "nonUnique": 0
+        },
+        {
+          "component": "page",
+          "file": "page.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "h-text": 1
+          },
+          "unique": 1,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "pricing",
+      "files": 8,
+      "components": 5,
+      "elements": 25,
+      "byKind": {
+        "placeholder": 12,
+        "data-testid": 8,
+        "id": 5
+      },
+      "componentsDetail": [
+        {
+          "component": "PricingDetailScreen",
+          "file": "PricingDetailScreen.tsx",
+          "elementCount": 21,
+          "byKind": {
+            "data-testid": 7,
+            "id": 5,
+            "placeholder": 9
+          },
+          "unique": 21,
+          "nonUnique": 0
+        },
+        {
+          "component": "NonZonalList",
+          "file": "NonZonalList.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "placeholder": 1
+          },
+          "unique": 1,
+          "nonUnique": 0
+        },
+        {
+          "component": "page",
+          "file": "page.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "data-testid": 1
+          },
+          "unique": 1,
+          "nonUnique": 0
+        },
+        {
+          "component": "RuleBasedNonZonalList",
+          "file": "RuleBasedNonZonalList.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "placeholder": 1
+          },
+          "unique": 1,
+          "nonUnique": 0
+        },
+        {
+          "component": "ZonalList",
+          "file": "ZonalList.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "placeholder": 1
+          },
+          "unique": 1,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "streets",
+      "files": 7,
+      "components": 5,
+      "elements": 23,
+      "byKind": {
+        "placeholder": 15,
+        "aria-label": 1,
+        "id": 7
+      },
+      "componentsDetail": [
+        {
+          "component": "StreetsSliderPage",
+          "file": "StreetsSliderPage.tsx",
+          "elementCount": 15,
+          "byKind": {
+            "id": 7,
+            "placeholder": 8
+          },
+          "unique": 15,
+          "nonUnique": 0
+        },
+        {
+          "component": "page",
+          "file": "page.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 2
+          },
+          "unique": 3,
+          "nonUnique": 0
+        },
+        {
+          "component": "BlackListProperty",
+          "file": "BlackListProperty.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "placeholder": 2
+          },
+          "unique": 2,
+          "nonUnique": 0
+        },
+        {
+          "component": "WhiteList",
+          "file": "WhiteList.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "placeholder": 2
+          },
+          "unique": 2,
+          "nonUnique": 0
+        },
+        {
+          "component": "BlackList",
+          "file": "BlackList.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "placeholder": 1
+          },
+          "unique": 1,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "locations",
+      "files": 5,
+      "components": 3,
+      "elements": 22,
+      "byKind": {
+        "data-testid": 9,
+        "id": 4,
+        "placeholder": 7,
+        "aria-label": 2
+      },
+      "componentsDetail": [
+        {
+          "component": "AddAndEditLocation",
+          "file": "AddAndEditLocation.tsx",
+          "elementCount": 9,
+          "byKind": {
+            "data-testid": 4,
+            "id": 2,
+            "placeholder": 3
+          },
+          "unique": 6,
+          "nonUnique": 3
+        },
+        {
+          "component": "ViewLocationsList",
+          "file": "(viewlocations)/ViewLocationsList.tsx",
+          "elementCount": 9,
+          "byKind": {
+            "data-testid": 4,
+            "id": 2,
+            "aria-label": 1,
+            "placeholder": 2
+          },
+          "unique": 6,
+          "nonUnique": 3
+        },
+        {
+          "component": "LocationsList",
+          "file": "LocationsList.tsx",
+          "elementCount": 4,
+          "byKind": {
+            "data-testid": 1,
+            "aria-label": 1,
+            "placeholder": 2
+          },
+          "unique": 4,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "SpecialEvents",
+      "files": 7,
+      "components": 5,
+      "elements": 21,
+      "byKind": {
+        "data-testid": 4,
+        "id": 8,
+        "placeholder": 7,
+        "aria-label": 2
+      },
+      "componentsDetail": [
+        {
+          "component": "AddSpecialEvent",
+          "file": "AddSpecialEvent.tsx",
+          "elementCount": 7,
+          "byKind": {
+            "data-testid": 3,
+            "id": 2,
+            "placeholder": 2
+          },
+          "unique": 6,
+          "nonUnique": 1
+        },
+        {
+          "component": "EditZonePermission",
+          "file": "(permissions)/EditZonePermission.tsx",
+          "elementCount": 5,
+          "byKind": {
+            "id": 4,
+            "placeholder": 1
+          },
+          "unique": 5,
+          "nonUnique": 0
+        },
+        {
+          "component": "page",
+          "file": "page.tsx",
+          "elementCount": 5,
+          "byKind": {
+            "data-testid": 1,
+            "id": 2,
+            "placeholder": 2
+          },
+          "unique": 4,
+          "nonUnique": 1
+        },
+        {
+          "component": "PermissionsList",
+          "file": "(permissions)/PermissionsList.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 1
+          },
+          "unique": 2,
+          "nonUnique": 0
+        },
+        {
+          "component": "SpecialEventList",
+          "file": "SpecialEventList.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 1
+          },
+          "unique": 2,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "zones",
+      "files": 9,
+      "components": 5,
+      "elements": 21,
+      "byKind": {
+        "data-testid": 3,
+        "id": 7,
+        "name": 1,
+        "placeholder": 7,
+        "aria-label": 3
+      },
+      "componentsDetail": [
+        {
+          "component": "AddZone",
+          "file": "AddZone.tsx",
+          "elementCount": 8,
+          "byKind": {
+            "data-testid": 3,
+            "id": 2,
+            "name": 1,
+            "placeholder": 2
+          },
+          "unique": 8,
+          "nonUnique": 0
+        },
+        {
+          "component": "EditZonePermission",
+          "file": "(permissions)/EditZonePermission.tsx",
+          "elementCount": 6,
+          "byKind": {
+            "id": 5,
+            "placeholder": 1
+          },
+          "unique": 6,
+          "nonUnique": 0
+        },
+        {
+          "component": "ZonesList",
+          "file": "ZonesList.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 2
+          },
+          "unique": 3,
+          "nonUnique": 0
+        },
+        {
+          "component": "PermissionsList",
+          "file": "(permissions)/PermissionsList.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 1
+          },
+          "unique": 2,
+          "nonUnique": 0
+        },
+        {
+          "component": "StreetsList",
+          "file": "(streetslist)/StreetsList.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 1
+          },
+          "unique": 2,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "systemusers",
+      "files": 8,
+      "components": 3,
+      "elements": 18,
+      "byKind": {
+        "id": 6,
+        "placeholder": 10,
+        "aria-label": 2
+      },
+      "componentsDetail": [
+        {
+          "component": "AddSystemUser",
+          "file": "AddSystemUser.tsx",
+          "elementCount": 13,
+          "byKind": {
+            "id": 6,
+            "placeholder": 7
+          },
+          "unique": 13,
+          "nonUnique": 0
+        },
+        {
+          "component": "SystemUsersList",
+          "file": "SystemUsersList.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 2
+          },
+          "unique": 3,
+          "nonUnique": 0
+        },
+        {
+          "component": "SystemUserAuditLogList",
+          "file": "(systemuserauditloglist)/SystemUserAuditLogList.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 1
+          },
+          "unique": 2,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "purchasereason",
+      "files": 4,
+      "components": 3,
+      "elements": 14,
+      "byKind": {
+        "id": 1,
+        "aria-label": 4,
+        "placeholder": 6,
+        "h-text": 3
+      },
+      "componentsDetail": [
+        {
+          "component": "AddEditPurchaseReason",
+          "file": "AddEditPurchaseReason.tsx",
+          "elementCount": 12,
+          "byKind": {
+            "id": 1,
+            "aria-label": 3,
+            "placeholder": 6,
+            "h-text": 2
+          },
+          "unique": 12,
+          "nonUnique": 0
+        },
+        {
+          "component": "page",
+          "file": "page.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "h-text": 1
+          },
+          "unique": 1,
+          "nonUnique": 0
+        },
+        {
+          "component": "PurchaseReasonList",
+          "file": "PurchaseReasonList.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "aria-label": 1
+          },
+          "unique": 1,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "myworkitems",
+      "files": 5,
+      "components": 3,
+      "elements": 13,
+      "byKind": {
+        "aria-label": 3,
+        "placeholder": 3,
+        "h-text": 2,
+        "data-testid": 4,
+        "id": 1
+      },
+      "componentsDetail": [
+        {
+          "component": "WaitingListGrid",
+          "file": "WaitingListGrid.tsx",
+          "elementCount": 7,
+          "byKind": {
+            "data-testid": 4,
+            "id": 1,
+            "aria-label": 1,
+            "placeholder": 1
+          },
+          "unique": 7,
+          "nonUnique": 0
+        },
+        {
+          "component": "AssignedGrid",
+          "file": "AssignedGrid.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 1,
+            "h-text": 1
+          },
+          "unique": 3,
+          "nonUnique": 0
+        },
+        {
+          "component": "UnassignedGrid",
+          "file": "UnassignedGrid.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 1,
+            "h-text": 1
+          },
+          "unique": 3,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "groups",
+      "files": 4,
+      "components": 2,
+      "elements": 12,
+      "byKind": {
+        "aria-label": 1,
+        "placeholder": 6,
+        "data-testid": 1,
+        "id": 3,
+        "name": 1
+      },
+      "componentsDetail": [
+        {
+          "component": "PermissionGroupForm",
+          "file": "(permissionGroup)/PermissionGroupForm.tsx",
+          "elementCount": 9,
+          "byKind": {
+            "data-testid": 1,
+            "id": 3,
+            "name": 1,
+            "placeholder": 4
+          },
+          "unique": 9,
+          "nonUnique": 0
+        },
+        {
+          "component": "GroupList",
+          "file": "GroupList.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 2
+          },
+          "unique": 3,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "documenttypes",
+      "files": 4,
+      "components": 2,
+      "elements": 10,
+      "byKind": {
+        "id": 3,
+        "placeholder": 6,
+        "aria-label": 1
+      },
+      "componentsDetail": [
+        {
+          "component": "AddAndEditDocumentType",
+          "file": "(addandeditdocumenttype)/AddAndEditDocumentType.tsx",
+          "elementCount": 7,
+          "byKind": {
+            "id": 3,
+            "placeholder": 4
+          },
+          "unique": 7,
+          "nonUnique": 0
+        },
+        {
+          "component": "DocumentTypesList",
+          "file": "DocumentTypesList.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 2
+          },
+          "unique": 3,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "alertsandtooltips",
+      "files": 1,
+      "components": 1,
+      "elements": 9,
+      "byKind": {
+        "data-testid": 4,
+        "id": 2,
+        "placeholder": 2,
+        "h-text": 1
+      },
+      "componentsDetail": [
+        {
+          "component": "page",
+          "file": "page.tsx",
+          "elementCount": 9,
+          "byKind": {
+            "data-testid": 4,
+            "id": 2,
+            "placeholder": 2,
+            "h-text": 1
+          },
+          "unique": 9,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "baylist",
+      "files": 4,
+      "components": 2,
+      "elements": 8,
+      "byKind": {
+        "id": 1,
+        "aria-label": 2,
+        "placeholder": 3,
+        "h-text": 1,
+        "role": 1
+      },
+      "componentsDetail": [
+        {
+          "component": "BayList",
+          "file": "BayList.tsx",
+          "elementCount": 5,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 2,
+            "h-text": 1,
+            "role": 1
+          },
+          "unique": 5,
+          "nonUnique": 0
+        },
+        {
+          "component": "AddBayListDialog",
+          "file": "AddBayListDialog.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "id": 1,
+            "aria-label": 1,
+            "placeholder": 1
+          },
+          "unique": 3,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "roleandpermission",
+      "files": 3,
+      "components": 2,
+      "elements": 8,
+      "byKind": {
+        "id": 2,
+        "placeholder": 4,
+        "role": 1,
+        "aria-label": 1
+      },
+      "componentsDetail": [
+        {
+          "component": "NewUserRole",
+          "file": "NewUserRole.tsx",
+          "elementCount": 5,
+          "byKind": {
+            "id": 2,
+            "placeholder": 2,
+            "role": 1
+          },
+          "unique": 5,
+          "nonUnique": 0
+        },
+        {
+          "component": "RoleAndPermissionList",
+          "file": "RoleAndPermissionList.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 2
+          },
+          "unique": 3,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "termsandcondition",
+      "files": 4,
+      "components": 2,
+      "elements": 6,
+      "byKind": {
+        "data-testid": 2,
+        "id": 1,
+        "placeholder": 3
+      },
+      "componentsDetail": [
+        {
+          "component": "CreateTemplate",
+          "file": "(termsAndConditionBuilder)/CreateTemplate.tsx",
+          "elementCount": 5,
+          "byKind": {
+            "data-testid": 2,
+            "id": 1,
+            "placeholder": 2
+          },
+          "unique": 5,
+          "nonUnique": 0
+        },
+        {
+          "component": "TermsAndConditionList",
+          "file": "TermsAndConditionList.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "placeholder": 1
+          },
+          "unique": 1,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "reports",
+      "files": 5,
+      "components": 1,
+      "elements": 5,
+      "byKind": {
+        "h-text": 5
+      },
+      "componentsDetail": [
+        {
+          "component": "page",
+          "file": "address/page.tsx",
+          "elementCount": 5,
+          "byKind": {
+            "h-text": 5
+          },
+          "unique": 5,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "suspensions",
+      "files": 1,
+      "components": 1,
+      "elements": 4,
+      "byKind": {
+        "aria-label": 1,
+        "h-text": 2,
+        "role": 1
+      },
+      "componentsDetail": [
+        {
+          "component": "CeoTaskHistory",
+          "file": "CeoTask/CeoTaskHistory.tsx",
+          "elementCount": 4,
+          "byKind": {
+            "aria-label": 1,
+            "h-text": 2,
+            "role": 1
+          },
+          "unique": 4,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "dashboard",
+      "files": 1,
+      "components": 1,
+      "elements": 3,
+      "byKind": {
+        "tab-text": 2,
+        "h-text": 1
+      },
+      "componentsDetail": [
+        {
+          "component": "page",
+          "file": "page.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "tab-text": 2,
+            "h-text": 1
+          },
+          "unique": 3,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "emails",
+      "files": 3,
+      "components": 1,
+      "elements": 3,
+      "byKind": {
+        "aria-label": 1,
+        "placeholder": 2
+      },
+      "componentsDetail": [
+        {
+          "component": "TemplatesEmailsList",
+          "file": "TemplatesEmailsList.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 2
+          },
+          "unique": 3,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "physicalpermission",
+      "files": 2,
+      "components": 1,
+      "elements": 3,
+      "byKind": {
+        "aria-label": 1,
+        "placeholder": 2
+      },
+      "componentsDetail": [
+        {
+          "component": "PhysicalPermissionList",
+          "file": "PhysicalPermissionList.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 2
+          },
+          "unique": 3,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "whitemailremainder",
+      "files": 2,
+      "components": 1,
+      "elements": 3,
+      "byKind": {
+        "aria-label": 1,
+        "placeholder": 2
+      },
+      "componentsDetail": [
+        {
+          "component": "WhiteMailReminderList",
+          "file": "WhiteMailReminderList.tsx",
+          "elementCount": 3,
+          "byKind": {
+            "aria-label": 1,
+            "placeholder": 2
+          },
+          "unique": 3,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "exploreapplications",
+      "files": 2,
+      "components": 1,
+      "elements": 2,
+      "byKind": {
+        "menuitem-text": 1,
+        "placeholder": 1
+      },
+      "componentsDetail": [
+        {
+          "component": "Explore",
+          "file": "Explore.tsx",
+          "elementCount": 2,
+          "byKind": {
+            "menuitem-text": 1,
+            "placeholder": 1
+          },
+          "unique": 2,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "systemaudits",
+      "files": 2,
+      "components": 1,
+      "elements": 1,
+      "byKind": {
+        "h-text": 1
+      },
+      "componentsDetail": [
+        {
+          "component": "SystemAuditListPage",
+          "file": "SystemAuditListPage.tsx",
+          "elementCount": 1,
+          "byKind": {
+            "h-text": 1
+          },
+          "unique": 1,
+          "nonUnique": 0
+        }
+      ]
+    },
+    {
+      "module": "formbuilder",
+      "files": 2,
+      "components": 0,
+      "elements": 0,
+      "byKind": {},
+      "componentsDetail": []
+    }
+  ]
+}

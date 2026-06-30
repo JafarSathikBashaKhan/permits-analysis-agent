@@ -1,0 +1,1928 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\builder",
+    "scannedAt": "2026-06-26T11:22:38.026Z",
+    "fileCount": 34,
+    "elementCount": 159,
+    "componentCount": 28,
+    "components": [
+      {
+        "component": "MerchantSettings",
+        "file": "(permissionBuilder)/MerchantSettings.tsx",
+        "elementCount": 22,
+        "byKind": {
+          "data-testid": 7,
+          "id": 6,
+          "aria-label": 6,
+          "placeholder": 3
+        },
+        "unique": 22,
+        "nonUnique": 0
+      },
+      {
+        "component": "GeneralSettings",
+        "file": "(permissionBuilder)/GeneralSettings.tsx",
+        "elementCount": 17,
+        "byKind": {
+          "data-testid": 1,
+          "id": 5,
+          "name": 4,
+          "placeholder": 7
+        },
+        "unique": 16,
+        "nonUnique": 1
+      },
+      {
+        "component": "VehicleSettings",
+        "file": "(permissionBuilder)/VehicleSettings.tsx",
+        "elementCount": 13,
+        "byKind": {
+          "data-testid": 5,
+          "id": 5,
+          "name": 1,
+          "placeholder": 2
+        },
+        "unique": 5,
+        "nonUnique": 8
+      },
+      {
+        "component": "MinIncrementalPricing",
+        "file": "(permissionBuilder)/MinIncrementalPricing.tsx",
+        "elementCount": 12,
+        "byKind": {
+          "data-testid": 5,
+          "id": 4,
+          "name": 1,
+          "placeholder": 2
+        },
+        "unique": 4,
+        "nonUnique": 8
+      },
+      {
+        "component": "StandardPricing",
+        "file": "(permissionBuilder)/StandardPricing.tsx",
+        "elementCount": 11,
+        "byKind": {
+          "data-testid": 5,
+          "id": 4,
+          "name": 1,
+          "placeholder": 1
+        },
+        "unique": 3,
+        "nonUnique": 8
+      },
+      {
+        "component": "BasicInformation",
+        "file": "(permissionBuilder)/BasicInformation.tsx",
+        "elementCount": 9,
+        "byKind": {
+          "data-testid": 4,
+          "id": 2,
+          "placeholder": 3
+        },
+        "unique": 6,
+        "nonUnique": 3
+      },
+      {
+        "component": "VisitorPortalSettings",
+        "file": "(permissionBuilder)/VisitorPortalSettings.tsx",
+        "elementCount": 9,
+        "byKind": {
+          "data-testid": 1,
+          "id": 2,
+          "name": 5,
+          "placeholder": 1
+        },
+        "unique": 9,
+        "nonUnique": 0
+      },
+      {
+        "component": "SuspensionSettings",
+        "file": "(permissionBuilder)/SuspensionSettings.tsx",
+        "elementCount": 8,
+        "byKind": {
+          "data-testid": 1,
+          "id": 2,
+          "name": 3,
+          "placeholder": 2
+        },
+        "unique": 8,
+        "nonUnique": 0
+      },
+      {
+        "component": "PhysicalPermissionPrint",
+        "file": "(permissionBuilder)/PhysicalPermissionPrint.tsx",
+        "elementCount": 6,
+        "byKind": {
+          "data-testid": 4,
+          "id": 1,
+          "placeholder": 1
+        },
+        "unique": 5,
+        "nonUnique": 1
+      },
+      {
+        "component": "DiscountSettings",
+        "file": "(permissionBuilder)/DiscountSettings.tsx",
+        "elementCount": 5,
+        "byKind": {
+          "data-testid": 1,
+          "id": 3,
+          "placeholder": 1
+        },
+        "unique": 4,
+        "nonUnique": 1
+      },
+      {
+        "component": "PermissionBuilderForm",
+        "file": "(permissionBuilder)/PermissionBuilderForm.tsx",
+        "elementCount": 5,
+        "byKind": {
+          "id": 2,
+          "placeholder": 3
+        },
+        "unique": 3,
+        "nonUnique": 2
+      },
+      {
+        "component": "RenewalsAndReminders",
+        "file": "(permissionBuilder)/RenewalsAndReminders.tsx",
+        "elementCount": 5,
+        "byKind": {
+          "data-testid": 1,
+          "id": 1,
+          "name": 1,
+          "placeholder": 2
+        },
+        "unique": 5,
+        "nonUnique": 0
+      },
+      {
+        "component": "WhiteMailReminderEditor",
+        "file": "(permissionBuilder)/WhiteMailReminderEditor.tsx",
+        "elementCount": 5,
+        "byKind": {
+          "data-testid": 2,
+          "id": 1,
+          "placeholder": 2
+        },
+        "unique": 4,
+        "nonUnique": 1
+      },
+      {
+        "component": "EmailTemplates",
+        "file": "(permissionBuilder)/EmailTemplates.tsx",
+        "elementCount": 4,
+        "byKind": {
+          "data-testid": 1,
+          "id": 1,
+          "placeholder": 2
+        },
+        "unique": 4,
+        "nonUnique": 0
+      },
+      {
+        "component": "FixedDurationPricing",
+        "file": "(permissionBuilder)/FixedDurationPricing.tsx",
+        "elementCount": 4,
+        "byKind": {
+          "id": 1,
+          "name": 1,
+          "placeholder": 2
+        },
+        "unique": 2,
+        "nonUnique": 2
+      },
+      {
+        "component": "BuilderList",
+        "file": "BuilderList.tsx",
+        "elementCount": 3,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 2
+        },
+        "unique": 3,
+        "nonUnique": 0
+      },
+      {
+        "component": "FormBuilderPage",
+        "file": "(dynamicformbuilder)/FormBuilderPage.tsx",
+        "elementCount": 3,
+        "byKind": {
+          "id": 1,
+          "placeholder": 2
+        },
+        "unique": 3,
+        "nonUnique": 0
+      },
+      {
+        "component": "PaymentSettings",
+        "file": "(permissionBuilder)/PaymentSettings.tsx",
+        "elementCount": 3,
+        "byKind": {
+          "data-testid": 1,
+          "id": 1,
+          "placeholder": 1
+        },
+        "unique": 1,
+        "nonUnique": 2
+      },
+      {
+        "component": "EditPermissionBuilderForm",
+        "file": "(permissionBuilder)/EditPermissionBuilderForm.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "data-testid": 2
+        },
+        "unique": 1,
+        "nonUnique": 1
+      },
+      {
+        "component": "EditPermissionsBuilderForm",
+        "file": "(permissionBuilder)/EditPermissionsBuilderForm.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "data-testid": 1,
+          "id": 1
+        },
+        "unique": 1,
+        "nonUnique": 1
+      },
+      {
+        "component": "PermissionLimit",
+        "file": "(permissionBuilder)/PermissionLimit.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "data-testid": 1,
+          "id": 1
+        },
+        "unique": 2,
+        "nonUnique": 0
+      },
+      {
+        "component": "RefundSettings",
+        "file": "(permissionBuilder)/RefundSettings.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "data-testid": 1,
+          "id": 1
+        },
+        "unique": 2,
+        "nonUnique": 0
+      },
+      {
+        "component": "SpecialEvents",
+        "file": "(permissionBuilder)/SpecialEvents.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "data-testid": 1,
+          "placeholder": 1
+        },
+        "unique": 2,
+        "nonUnique": 0
+      },
+      {
+        "component": "AutoApprovalSettings",
+        "file": "(permissionBuilder)/AutoApprovalSettings.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "data-testid": 1
+        },
+        "unique": 0,
+        "nonUnique": 1
+      },
+      {
+        "component": "page",
+        "file": "page.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "data-testid": 1
+        },
+        "unique": 1,
+        "nonUnique": 0
+      },
+      {
+        "component": "SpecialEventPropertiesMapping",
+        "file": "(permissionBuilder)/SpecialEventPropertiesMapping.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "placeholder": 1
+        },
+        "unique": 1,
+        "nonUnique": 0
+      },
+      {
+        "component": "TemplateSettings",
+        "file": "(permissionBuilder)/TemplateSettings.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "data-testid": 1
+        },
+        "unique": 1,
+        "nonUnique": 0
+      },
+      {
+        "component": "ZoneMapping",
+        "file": "(permissionBuilder)/ZoneMapping.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "data-testid": 1
+        },
+        "unique": 1,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "(permissionBuilder)/AutoApprovalSettings.tsx",
+      "component": "AutoApprovalSettings",
+      "line": 120,
+      "kind": "data-testid",
+      "value": "paymentSettings-container",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/BasicInformation.tsx",
+      "component": "BasicInformation",
+      "line": 431,
+      "kind": "data-testid",
+      "value": "generalSettings-container",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/BasicInformation.tsx",
+      "component": "BasicInformation",
+      "line": 482,
+      "kind": "data-testid",
+      "value": "permissionTypeAutoComplete",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/BasicInformation.tsx",
+      "component": "BasicInformation",
+      "line": 507,
+      "kind": "data-testid",
+      "value": "permissionGroupAutoComplete",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/BasicInformation.tsx",
+      "component": "BasicInformation",
+      "line": 531,
+      "kind": "data-testid",
+      "value": "permissionCategoryAutoComplete",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/BasicInformation.tsx",
+      "component": "BasicInformation",
+      "line": 445,
+      "kind": "id",
+      "value": "permissionName",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/BasicInformation.tsx",
+      "component": "BasicInformation",
+      "line": 544,
+      "kind": "id",
+      "value": "description",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/BasicInformation.tsx",
+      "component": "BasicInformation",
+      "line": 444,
+      "kind": "placeholder",
+      "value": "Enter Permission Name",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/BasicInformation.tsx",
+      "component": "BasicInformation",
+      "line": 543,
+      "kind": "placeholder",
+      "value": "Enter Description",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/BasicInformation.tsx",
+      "component": "BasicInformation",
+      "line": 476,
+      "kind": "placeholder",
+      "value": "Select",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "BuilderList.tsx",
+      "component": "BuilderList",
+      "line": 165,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "BuilderList.tsx",
+      "component": "BuilderList",
+      "line": 147,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "BuilderList.tsx",
+      "component": "BuilderList",
+      "line": 158,
+      "kind": "placeholder",
+      "value": "Permission name/Type/Group",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/DiscountSettings.tsx",
+      "component": "DiscountSettings",
+      "line": 326,
+      "kind": "data-testid",
+      "value": "discountSettings-container",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/DiscountSettings.tsx",
+      "component": "DiscountSettings",
+      "line": 348,
+      "kind": "id",
+      "value": "blueBatchDiscountValue",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/DiscountSettings.tsx",
+      "component": "DiscountSettings",
+      "line": 486,
+      "kind": "id",
+      "value": "pensionDiscountValue",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/DiscountSettings.tsx",
+      "component": "DiscountSettings",
+      "line": 624,
+      "kind": "id",
+      "value": "paymentSettingsHelperText",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/DiscountSettings.tsx",
+      "component": "DiscountSettings",
+      "line": 624,
+      "kind": "placeholder",
+      "value": "Enter help description",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/EditPermissionBuilderForm.tsx",
+      "component": "EditPermissionBuilderForm",
+      "line": 71,
+      "kind": "data-testid",
+      "value": "edit-permission-builder-form-gridData",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/EditPermissionBuilderForm.tsx",
+      "component": "EditPermissionBuilderForm",
+      "line": 124,
+      "kind": "data-testid",
+      "value": "edit-permission-builder-form-container",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/EditPermissionsBuilderForm.tsx",
+      "component": "EditPermissionsBuilderForm",
+      "line": 1326,
+      "kind": "data-testid",
+      "value": "edit-permission-builder-form-container",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/EditPermissionsBuilderForm.tsx",
+      "component": "EditPermissionsBuilderForm",
+      "line": 854,
+      "kind": "id",
+      "value": "permissionCategoryHeader",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/EmailTemplates.tsx",
+      "component": "EmailTemplates",
+      "line": 298,
+      "kind": "data-testid",
+      "value": "emailTemplates-container",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/EmailTemplates.tsx",
+      "component": "EmailTemplates",
+      "line": 382,
+      "kind": "id",
+      "value": "emailEventData",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/EmailTemplates.tsx",
+      "component": "EmailTemplates",
+      "line": 380,
+      "kind": "placeholder",
+      "value": "Search Events",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/EmailTemplates.tsx",
+      "component": "EmailTemplates",
+      "line": 362,
+      "kind": "placeholder",
+      "value": "Select a title",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/FixedDurationPricing.tsx",
+      "component": "FixedDurationPricing",
+      "line": 312,
+      "kind": "id",
+      "value": "fixedPrice",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/FixedDurationPricing.tsx",
+      "component": "FixedDurationPricing",
+      "line": 295,
+      "kind": "name",
+      "value": "fixedPrice",
+      "weight": 70,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/FixedDurationPricing.tsx",
+      "component": "FixedDurationPricing",
+      "line": 314,
+      "kind": "placeholder",
+      "value": "0.00",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/FixedDurationPricing.tsx",
+      "component": "FixedDurationPricing",
+      "line": 357,
+      "kind": "placeholder",
+      "value": "e.g. 10",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(dynamicformbuilder)/FormBuilderPage.tsx",
+      "component": "FormBuilderPage",
+      "line": 764,
+      "kind": "id",
+      "value": "formName",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(dynamicformbuilder)/FormBuilderPage.tsx",
+      "component": "FormBuilderPage",
+      "line": 762,
+      "kind": "placeholder",
+      "value": "Enter location",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(dynamicformbuilder)/FormBuilderPage.tsx",
+      "component": "FormBuilderPage",
+      "line": 614,
+      "kind": "placeholder",
+      "value": "Type and select",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/GeneralSettings.tsx",
+      "component": "GeneralSettings",
+      "line": 868,
+      "kind": "data-testid",
+      "value": "generalSettings-container",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/GeneralSettings.tsx",
+      "component": "GeneralSettings",
+      "line": 999,
+      "kind": "id",
+      "value": "startDateDelay",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/GeneralSettings.tsx",
+      "component": "GeneralSettings",
+      "line": 1085,
+      "kind": "id",
+      "value": "retentionPeriod",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/GeneralSettings.tsx",
+      "component": "GeneralSettings",
+      "line": 1126,
+      "kind": "id",
+      "value": "prefix",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/GeneralSettings.tsx",
+      "component": "GeneralSettings",
+      "line": 1174,
+      "kind": "id",
+      "value": "displayDescription",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/GeneralSettings.tsx",
+      "component": "GeneralSettings",
+      "line": 1262,
+      "kind": "id",
+      "value": "adminFeeForPermission",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/GeneralSettings.tsx",
+      "component": "GeneralSettings",
+      "line": 881,
+      "kind": "name",
+      "value": "specialEvent",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/GeneralSettings.tsx",
+      "component": "GeneralSettings",
+      "line": 904,
+      "kind": "name",
+      "value": "isScratchCardEnabled",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/GeneralSettings.tsx",
+      "component": "GeneralSettings",
+      "line": 948,
+      "kind": "name",
+      "value": "isDaysSelectionEnabled",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/GeneralSettings.tsx",
+      "component": "GeneralSettings",
+      "line": 1199,
+      "kind": "name",
+      "value": "permitMode",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/GeneralSettings.tsx",
+      "component": "GeneralSettings",
+      "line": 997,
+      "kind": "placeholder",
+      "value": "Select Start Date Delay",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/GeneralSettings.tsx",
+      "component": "GeneralSettings",
+      "line": 1081,
+      "kind": "placeholder",
+      "value": "Select Retention Period",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/GeneralSettings.tsx",
+      "component": "GeneralSettings",
+      "line": 1125,
+      "kind": "placeholder",
+      "value": "Enter Prefix",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/GeneralSettings.tsx",
+      "component": "GeneralSettings",
+      "line": 1171,
+      "kind": "placeholder",
+      "value": "Enter Display Description",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/GeneralSettings.tsx",
+      "component": "GeneralSettings",
+      "line": 1262,
+      "kind": "placeholder",
+      "value": "Enter Admin Fee",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/GeneralSettings.tsx",
+      "component": "GeneralSettings",
+      "line": 932,
+      "kind": "placeholder",
+      "value": "Select",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/GeneralSettings.tsx",
+      "component": "GeneralSettings",
+      "line": 978,
+      "kind": "placeholder",
+      "value": "Select days",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 262,
+      "kind": "data-testid",
+      "value": "merchantSettings-container",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 287,
+      "kind": "data-testid",
+      "value": "boMerchantIdTextField",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 310,
+      "kind": "data-testid",
+      "value": "boMerchantUserTextField",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 337,
+      "kind": "data-testid",
+      "value": "boMerchantPasswordTextField",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 364,
+      "kind": "data-testid",
+      "value": "customerMerchantIdTextField",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 385,
+      "kind": "data-testid",
+      "value": "customerMerchantUserTextField",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 418,
+      "kind": "data-testid",
+      "value": "customerMerchantPasswordTextField",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 278,
+      "kind": "id",
+      "value": "boMerchantId",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 301,
+      "kind": "id",
+      "value": "boMerchantUser",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 324,
+      "kind": "id",
+      "value": "boMerchantPassword",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 353,
+      "kind": "id",
+      "value": "customerMerchantId",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 377,
+      "kind": "id",
+      "value": "customerMerchantUser",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 400,
+      "kind": "id",
+      "value": "customerMerchantPassword",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 290,
+      "kind": "aria-label",
+      "value": "Back Office Merchant ID",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 311,
+      "kind": "aria-label",
+      "value": "Back Office Merchant User",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 338,
+      "kind": "aria-label",
+      "value": "Back Office Merchant Password",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 366,
+      "kind": "aria-label",
+      "value": "Customer Merchant ID",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 388,
+      "kind": "aria-label",
+      "value": "Customer Merchant User",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 418,
+      "kind": "aria-label",
+      "value": "Customer Merchant Password",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 275,
+      "kind": "placeholder",
+      "value": "Enter Merchant ID",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 298,
+      "kind": "placeholder",
+      "value": "Enter Merchant User Name",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MerchantSettings.tsx",
+      "component": "MerchantSettings",
+      "line": 322,
+      "kind": "placeholder",
+      "value": "Enter Merchant Password",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MinIncrementalPricing.tsx",
+      "component": "MinIncrementalPricing",
+      "line": 504,
+      "kind": "data-testid",
+      "value": "min-incremental-config",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MinIncrementalPricing.tsx",
+      "component": "MinIncrementalPricing",
+      "line": 679,
+      "kind": "data-testid",
+      "value": "flat-hourly-rate",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/MinIncrementalPricing.tsx",
+      "component": "MinIncrementalPricing",
+      "line": 700,
+      "kind": "data-testid",
+      "value": "flat-daily-rate",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/MinIncrementalPricing.tsx",
+      "component": "MinIncrementalPricing",
+      "line": 721,
+      "kind": "data-testid",
+      "value": "flat-weekly-rate",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/MinIncrementalPricing.tsx",
+      "component": "MinIncrementalPricing",
+      "line": 743,
+      "kind": "data-testid",
+      "value": "flat-monthly-rate",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/MinIncrementalPricing.tsx",
+      "component": "MinIncrementalPricing",
+      "line": 666,
+      "kind": "id",
+      "value": "flat-hourly-rate",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/MinIncrementalPricing.tsx",
+      "component": "MinIncrementalPricing",
+      "line": 688,
+      "kind": "id",
+      "value": "flat-daily-rate",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/MinIncrementalPricing.tsx",
+      "component": "MinIncrementalPricing",
+      "line": 709,
+      "kind": "id",
+      "value": "flat-weekly-rate",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/MinIncrementalPricing.tsx",
+      "component": "MinIncrementalPricing",
+      "line": 730,
+      "kind": "id",
+      "value": "flat-monthly-rate",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/MinIncrementalPricing.tsx",
+      "component": "MinIncrementalPricing",
+      "line": 629,
+      "kind": "name",
+      "value": "flatBayPrice",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MinIncrementalPricing.tsx",
+      "component": "MinIncrementalPricing",
+      "line": 561,
+      "kind": "placeholder",
+      "value": "Optional",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/MinIncrementalPricing.tsx",
+      "component": "MinIncrementalPricing",
+      "line": 673,
+      "kind": "placeholder",
+      "value": "0.00",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 3266,
+      "kind": "data-testid",
+      "value": "unsaved-dialog-close",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/PaymentSettings.tsx",
+      "component": "PaymentSettings",
+      "line": 203,
+      "kind": "data-testid",
+      "value": "paymentSettings-container",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/PaymentSettings.tsx",
+      "component": "PaymentSettings",
+      "line": 276,
+      "kind": "id",
+      "value": "paymentSettingsHelperText",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/PaymentSettings.tsx",
+      "component": "PaymentSettings",
+      "line": 286,
+      "kind": "placeholder",
+      "value": "Enter help description",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/PermissionBuilderForm.tsx",
+      "component": "PermissionBuilderForm",
+      "line": 329,
+      "kind": "id",
+      "value": "permissionName",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/PermissionBuilderForm.tsx",
+      "component": "PermissionBuilderForm",
+      "line": 416,
+      "kind": "id",
+      "value": "description",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/PermissionBuilderForm.tsx",
+      "component": "PermissionBuilderForm",
+      "line": 327,
+      "kind": "placeholder",
+      "value": "Enter Permission Name",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/PermissionBuilderForm.tsx",
+      "component": "PermissionBuilderForm",
+      "line": 415,
+      "kind": "placeholder",
+      "value": "Enter Description",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/PermissionBuilderForm.tsx",
+      "component": "PermissionBuilderForm",
+      "line": 366,
+      "kind": "placeholder",
+      "value": "Select",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/PermissionLimit.tsx",
+      "component": "PermissionLimit",
+      "line": 103,
+      "kind": "data-testid",
+      "value": "permissionLimits-container",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/PermissionLimit.tsx",
+      "component": "PermissionLimit",
+      "line": 147,
+      "kind": "id",
+      "value": "limitCount",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/PhysicalPermissionPrint.tsx",
+      "component": "PhysicalPermissionPrint",
+      "line": 789,
+      "kind": "data-testid",
+      "value": "physicalPermitDocumentContainer",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/PhysicalPermissionPrint.tsx",
+      "component": "PhysicalPermissionPrint",
+      "line": 954,
+      "kind": "data-testid",
+      "value": "physicalPermitDocumentFileUploadDialog-close",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/PhysicalPermissionPrint.tsx",
+      "component": "PhysicalPermissionPrint",
+      "line": 1009,
+      "kind": "data-testid",
+      "value": "confimrationDialog-close",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/PhysicalPermissionPrint.tsx",
+      "component": "PhysicalPermissionPrint",
+      "line": 1086,
+      "kind": "data-testid",
+      "value": "preview-close-icon",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/PhysicalPermissionPrint.tsx",
+      "component": "PhysicalPermissionPrint",
+      "line": 870,
+      "kind": "id",
+      "value": "physicalDocumentEditorSearchField",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/PhysicalPermissionPrint.tsx",
+      "component": "PhysicalPermissionPrint",
+      "line": 876,
+      "kind": "placeholder",
+      "value": "Search",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/RefundSettings.tsx",
+      "component": "RefundSettings",
+      "line": 164,
+      "kind": "data-testid",
+      "value": "refundSettings-container",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/RefundSettings.tsx",
+      "component": "RefundSettings",
+      "line": 229,
+      "kind": "id",
+      "value": "cancellationCharge",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/RenewalsAndReminders.tsx",
+      "component": "RenewalsAndReminders",
+      "line": 1313,
+      "kind": "data-testid",
+      "value": "paper-period-autocomplete",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/RenewalsAndReminders.tsx",
+      "component": "RenewalsAndReminders",
+      "line": 1241,
+      "kind": "id",
+      "value": "paper-frequency",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/RenewalsAndReminders.tsx",
+      "component": "RenewalsAndReminders",
+      "line": 1321,
+      "kind": "name",
+      "value": "renewal-radio",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/RenewalsAndReminders.tsx",
+      "component": "RenewalsAndReminders",
+      "line": 1100,
+      "kind": "placeholder",
+      "value": "Enter frequency",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/RenewalsAndReminders.tsx",
+      "component": "RenewalsAndReminders",
+      "line": 1169,
+      "kind": "placeholder",
+      "value": "Select period",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/SpecialEventPropertiesMapping.tsx",
+      "component": "SpecialEventPropertiesMapping",
+      "line": 177,
+      "kind": "placeholder",
+      "value": "Select Street",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/SpecialEvents.tsx",
+      "component": "SpecialEvents",
+      "line": 573,
+      "kind": "data-testid",
+      "value": "custom-autocomplete",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/SpecialEvents.tsx",
+      "component": "SpecialEvents",
+      "line": 552,
+      "kind": "placeholder",
+      "value": "Select Days",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/StandardPricing.tsx",
+      "component": "StandardPricing",
+      "line": 412,
+      "kind": "data-testid",
+      "value": "standard-pricing-config",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/StandardPricing.tsx",
+      "component": "StandardPricing",
+      "line": 508,
+      "kind": "data-testid",
+      "value": "standard-flat-hourly-rate",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/StandardPricing.tsx",
+      "component": "StandardPricing",
+      "line": 530,
+      "kind": "data-testid",
+      "value": "standard-flat-daily-rate",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/StandardPricing.tsx",
+      "component": "StandardPricing",
+      "line": 551,
+      "kind": "data-testid",
+      "value": "standard-flat-weekly-rate",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/StandardPricing.tsx",
+      "component": "StandardPricing",
+      "line": 573,
+      "kind": "data-testid",
+      "value": "standard-flat-monthly-rate",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/StandardPricing.tsx",
+      "component": "StandardPricing",
+      "line": 496,
+      "kind": "id",
+      "value": "standard-flat-hourly-rate",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/StandardPricing.tsx",
+      "component": "StandardPricing",
+      "line": 517,
+      "kind": "id",
+      "value": "standard-flat-daily-rate",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/StandardPricing.tsx",
+      "component": "StandardPricing",
+      "line": 538,
+      "kind": "id",
+      "value": "standard-flat-weekly-rate",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/StandardPricing.tsx",
+      "component": "StandardPricing",
+      "line": 560,
+      "kind": "id",
+      "value": "standard-flat-monthly-rate",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/StandardPricing.tsx",
+      "component": "StandardPricing",
+      "line": 455,
+      "kind": "name",
+      "value": "standardFlatBayPrice",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/StandardPricing.tsx",
+      "component": "StandardPricing",
+      "line": 503,
+      "kind": "placeholder",
+      "value": "0.00",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/SuspensionSettings.tsx",
+      "component": "SuspensionSettings",
+      "line": 489,
+      "kind": "data-testid",
+      "value": "suspensionSettings-container",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/SuspensionSettings.tsx",
+      "component": "SuspensionSettings",
+      "line": 512,
+      "kind": "id",
+      "value": "shortNoticeLeadTimeFrequency",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/SuspensionSettings.tsx",
+      "component": "SuspensionSettings",
+      "line": 550,
+      "kind": "id",
+      "value": "shortNoticeSuspensionFee",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/SuspensionSettings.tsx",
+      "component": "SuspensionSettings",
+      "line": 500,
+      "kind": "name",
+      "value": "shortNotice",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/SuspensionSettings.tsx",
+      "component": "SuspensionSettings",
+      "line": 586,
+      "kind": "name",
+      "value": "extendSuspension",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/SuspensionSettings.tsx",
+      "component": "SuspensionSettings",
+      "line": 613,
+      "kind": "name",
+      "value": "multipleBaySelection",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/SuspensionSettings.tsx",
+      "component": "SuspensionSettings",
+      "line": 516,
+      "kind": "placeholder",
+      "value": "0",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/SuspensionSettings.tsx",
+      "component": "SuspensionSettings",
+      "line": 556,
+      "kind": "placeholder",
+      "value": "Enter suspension fee",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/TemplateSettings.tsx",
+      "component": "TemplateSettings",
+      "line": 37,
+      "kind": "data-testid",
+      "value": "templateSettings-container",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/VehicleSettings.tsx",
+      "component": "VehicleSettings",
+      "line": 420,
+      "kind": "data-testid",
+      "value": "vehicleSettings-container",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/VehicleSettings.tsx",
+      "component": "VehicleSettings",
+      "line": 434,
+      "kind": "data-testid",
+      "value": "numberPlateChangeLimit",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/VehicleSettings.tsx",
+      "component": "VehicleSettings",
+      "line": 561,
+      "kind": "data-testid",
+      "value": "allowedVehicleCount",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/VehicleSettings.tsx",
+      "component": "VehicleSettings",
+      "line": 689,
+      "kind": "data-testid",
+      "value": "numberOfSeats",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/VehicleSettings.tsx",
+      "component": "VehicleSettings",
+      "line": 792,
+      "kind": "data-testid",
+      "value": "euroStandard",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/VehicleSettings.tsx",
+      "component": "VehicleSettings",
+      "line": 430,
+      "kind": "id",
+      "value": "numberPlateChangeLimit",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/VehicleSettings.tsx",
+      "component": "VehicleSettings",
+      "line": 487,
+      "kind": "id",
+      "value": "score",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/VehicleSettings.tsx",
+      "component": "VehicleSettings",
+      "line": 558,
+      "kind": "id",
+      "value": "allowedVehicleCount",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/VehicleSettings.tsx",
+      "component": "VehicleSettings",
+      "line": 681,
+      "kind": "id",
+      "value": "numberOfSeats",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/VehicleSettings.tsx",
+      "component": "VehicleSettings",
+      "line": 792,
+      "kind": "id",
+      "value": "euroStandard",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/VehicleSettings.tsx",
+      "component": "VehicleSettings",
+      "line": 536,
+      "kind": "name",
+      "value": "multipleVehiclesAllowed",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/VehicleSettings.tsx",
+      "component": "VehicleSettings",
+      "line": 559,
+      "kind": "placeholder",
+      "value": "Enter Vehicle Count",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/VehicleSettings.tsx",
+      "component": "VehicleSettings",
+      "line": 478,
+      "kind": "placeholder",
+      "value": "Select",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/VisitorPortalSettings.tsx",
+      "component": "VisitorPortalSettings",
+      "line": 165,
+      "kind": "data-testid",
+      "value": "visitor-portal-settings-container",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/VisitorPortalSettings.tsx",
+      "component": "VisitorPortalSettings",
+      "line": 190,
+      "kind": "id",
+      "value": "visitorPortalLinkExpirationDays",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/VisitorPortalSettings.tsx",
+      "component": "VisitorPortalSettings",
+      "line": 218,
+      "kind": "id",
+      "value": "backDaysLimit",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/VisitorPortalSettings.tsx",
+      "component": "VisitorPortalSettings",
+      "line": 174,
+      "kind": "name",
+      "value": "vrnOnly",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/VisitorPortalSettings.tsx",
+      "component": "VisitorPortalSettings",
+      "line": 203,
+      "kind": "name",
+      "value": "allowBackDates",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/VisitorPortalSettings.tsx",
+      "component": "VisitorPortalSettings",
+      "line": 243,
+      "kind": "name",
+      "value": "startSessionEOD",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/VisitorPortalSettings.tsx",
+      "component": "VisitorPortalSettings",
+      "line": 254,
+      "kind": "name",
+      "value": "endSessionEOD",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/VisitorPortalSettings.tsx",
+      "component": "VisitorPortalSettings",
+      "line": 265,
+      "kind": "name",
+      "value": "isPriceByBookEnabled",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/VisitorPortalSettings.tsx",
+      "component": "VisitorPortalSettings",
+      "line": 192,
+      "kind": "placeholder",
+      "value": "Enter expiration days",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/WhiteMailReminderEditor.tsx",
+      "component": "WhiteMailReminderEditor",
+      "line": 342,
+      "kind": "data-testid",
+      "value": "whiteMailReminderEditorContainer",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/WhiteMailReminderEditor.tsx",
+      "component": "WhiteMailReminderEditor",
+      "line": 375,
+      "kind": "data-testid",
+      "value": "whiteMailReminderSelect",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/WhiteMailReminderEditor.tsx",
+      "component": "WhiteMailReminderEditor",
+      "line": 396,
+      "kind": "id",
+      "value": "physicalDocumentEditorSearchField",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permissionBuilder)/WhiteMailReminderEditor.tsx",
+      "component": "WhiteMailReminderEditor",
+      "line": 399,
+      "kind": "placeholder",
+      "value": "Search",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/WhiteMailReminderEditor.tsx",
+      "component": "WhiteMailReminderEditor",
+      "line": 355,
+      "kind": "placeholder",
+      "value": "Select Reminder Type",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionBuilder)/ZoneMapping.tsx",
+      "component": "ZoneMapping",
+      "line": 393,
+      "kind": "data-testid",
+      "value": "zoneMapping-container",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

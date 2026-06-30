@@ -1,0 +1,226 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\systemusers",
+    "scannedAt": "2026-06-26T11:22:42.154Z",
+    "fileCount": 8,
+    "elementCount": 18,
+    "componentCount": 3,
+    "components": [
+      {
+        "component": "AddSystemUser",
+        "file": "AddSystemUser.tsx",
+        "elementCount": 13,
+        "byKind": {
+          "id": 6,
+          "placeholder": 7
+        },
+        "unique": 13,
+        "nonUnique": 0
+      },
+      {
+        "component": "SystemUsersList",
+        "file": "SystemUsersList.tsx",
+        "elementCount": 3,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 2
+        },
+        "unique": 3,
+        "nonUnique": 0
+      },
+      {
+        "component": "SystemUserAuditLogList",
+        "file": "(systemuserauditloglist)/SystemUserAuditLogList.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 1
+        },
+        "unique": 2,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "AddSystemUser.tsx",
+      "component": "AddSystemUser",
+      "line": 694,
+      "kind": "id",
+      "value": "firstName",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddSystemUser.tsx",
+      "component": "AddSystemUser",
+      "line": 722,
+      "kind": "id",
+      "value": "lastName",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddSystemUser.tsx",
+      "component": "AddSystemUser",
+      "line": 749,
+      "kind": "id",
+      "value": "emailAddress",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddSystemUser.tsx",
+      "component": "AddSystemUser",
+      "line": 796,
+      "kind": "id",
+      "value": "mobileNumber",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddSystemUser.tsx",
+      "component": "AddSystemUser",
+      "line": 874,
+      "kind": "id",
+      "value": "ddi",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddSystemUser.tsx",
+      "component": "AddSystemUser",
+      "line": 902,
+      "kind": "id",
+      "value": "pin",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddSystemUser.tsx",
+      "component": "AddSystemUser",
+      "line": 690,
+      "kind": "placeholder",
+      "value": "Enter First Name",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddSystemUser.tsx",
+      "component": "AddSystemUser",
+      "line": 720,
+      "kind": "placeholder",
+      "value": "Enter Last Name",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddSystemUser.tsx",
+      "component": "AddSystemUser",
+      "line": 747,
+      "kind": "placeholder",
+      "value": "Enter Email",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddSystemUser.tsx",
+      "component": "AddSystemUser",
+      "line": 795,
+      "kind": "placeholder",
+      "value": "Contact Number",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddSystemUser.tsx",
+      "component": "AddSystemUser",
+      "line": 873,
+      "kind": "placeholder",
+      "value": "Enter DDI Number",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddSystemUser.tsx",
+      "component": "AddSystemUser",
+      "line": 899,
+      "kind": "placeholder",
+      "value": "Enter PIN",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddSystemUser.tsx",
+      "component": "AddSystemUser",
+      "line": 778,
+      "kind": "placeholder",
+      "value": "Select",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(systemuserauditloglist)/SystemUserAuditLogList.tsx",
+      "component": "SystemUserAuditLogList",
+      "line": 105,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(systemuserauditloglist)/SystemUserAuditLogList.tsx",
+      "component": "SystemUserAuditLogList",
+      "line": 102,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "SystemUsersList.tsx",
+      "component": "SystemUsersList",
+      "line": 98,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "SystemUsersList.tsx",
+      "component": "SystemUsersList",
+      "line": 94,
+      "kind": "placeholder",
+      "value": "Search by First Name, Last Name",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "SystemUsersList.tsx",
+      "component": "SystemUsersList",
+      "line": 158,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

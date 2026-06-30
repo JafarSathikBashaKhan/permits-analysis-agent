@@ -1,0 +1,270 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\locations",
+    "scannedAt": "2026-06-26T11:22:39.774Z",
+    "fileCount": 5,
+    "elementCount": 22,
+    "componentCount": 3,
+    "components": [
+      {
+        "component": "AddAndEditLocation",
+        "file": "AddAndEditLocation.tsx",
+        "elementCount": 9,
+        "byKind": {
+          "data-testid": 4,
+          "id": 2,
+          "placeholder": 3
+        },
+        "unique": 6,
+        "nonUnique": 3
+      },
+      {
+        "component": "ViewLocationsList",
+        "file": "(viewlocations)/ViewLocationsList.tsx",
+        "elementCount": 9,
+        "byKind": {
+          "data-testid": 4,
+          "id": 2,
+          "aria-label": 1,
+          "placeholder": 2
+        },
+        "unique": 6,
+        "nonUnique": 3
+      },
+      {
+        "component": "LocationsList",
+        "file": "LocationsList.tsx",
+        "elementCount": 4,
+        "byKind": {
+          "data-testid": 1,
+          "aria-label": 1,
+          "placeholder": 2
+        },
+        "unique": 4,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "AddAndEditLocation.tsx",
+      "component": "AddAndEditLocation",
+      "line": 338,
+      "kind": "data-testid",
+      "value": "addAndEditLocation-gridData",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddAndEditLocation.tsx",
+      "component": "AddAndEditLocation",
+      "line": 550,
+      "kind": "data-testid",
+      "value": "DeleteIcon",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "AddAndEditLocation.tsx",
+      "component": "AddAndEditLocation",
+      "line": 568,
+      "kind": "data-testid",
+      "value": "CloseIcon",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "AddAndEditLocation.tsx",
+      "component": "AddAndEditLocation",
+      "line": 820,
+      "kind": "data-testid",
+      "value": "addAndEditLocation-container",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddAndEditLocation.tsx",
+      "component": "AddAndEditLocation",
+      "line": 395,
+      "kind": "id",
+      "value": "current-active-panel",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "AddAndEditLocation.tsx",
+      "component": "AddAndEditLocation",
+      "line": 828,
+      "kind": "id",
+      "value": "locationName",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddAndEditLocation.tsx",
+      "component": "AddAndEditLocation",
+      "line": 438,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddAndEditLocation.tsx",
+      "component": "AddAndEditLocation",
+      "line": 826,
+      "kind": "placeholder",
+      "value": "Enter location",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddAndEditLocation.tsx",
+      "component": "AddAndEditLocation",
+      "line": 850,
+      "kind": "placeholder",
+      "value": "Type and select",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "LocationsList.tsx",
+      "component": "LocationsList",
+      "line": 633,
+      "kind": "data-testid",
+      "value": "close-dialog",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "LocationsList.tsx",
+      "component": "LocationsList",
+      "line": 137,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "LocationsList.tsx",
+      "component": "LocationsList",
+      "line": 130,
+      "kind": "placeholder",
+      "value": "Search by Location Name",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "LocationsList.tsx",
+      "component": "LocationsList",
+      "line": 144,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(viewlocations)/ViewLocationsList.tsx",
+      "component": "ViewLocationsList",
+      "line": 157,
+      "kind": "data-testid",
+      "value": "viewLocationsList-gridData",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(viewlocations)/ViewLocationsList.tsx",
+      "component": "ViewLocationsList",
+      "line": 319,
+      "kind": "data-testid",
+      "value": "DeleteIcon",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(viewlocations)/ViewLocationsList.tsx",
+      "component": "ViewLocationsList",
+      "line": 337,
+      "kind": "data-testid",
+      "value": "CloseIcon",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(viewlocations)/ViewLocationsList.tsx",
+      "component": "ViewLocationsList",
+      "line": 400,
+      "kind": "data-testid",
+      "value": "viewLocationsList-container",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(viewlocations)/ViewLocationsList.tsx",
+      "component": "ViewLocationsList",
+      "line": 192,
+      "kind": "id",
+      "value": "current-active-panel",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(viewlocations)/ViewLocationsList.tsx",
+      "component": "ViewLocationsList",
+      "line": 408,
+      "kind": "id",
+      "value": "search",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(viewlocations)/ViewLocationsList.tsx",
+      "component": "ViewLocationsList",
+      "line": 250,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(viewlocations)/ViewLocationsList.tsx",
+      "component": "ViewLocationsList",
+      "line": 233,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(viewlocations)/ViewLocationsList.tsx",
+      "component": "ViewLocationsList",
+      "line": 406,
+      "kind": "placeholder",
+      "value": "Search",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

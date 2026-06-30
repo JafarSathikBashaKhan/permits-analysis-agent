@@ -1,0 +1,95 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\termsandcondition",
+    "scannedAt": "2026-06-26T11:22:42.407Z",
+    "fileCount": 4,
+    "elementCount": 6,
+    "componentCount": 2,
+    "components": [
+      {
+        "component": "CreateTemplate",
+        "file": "(termsAndConditionBuilder)/CreateTemplate.tsx",
+        "elementCount": 5,
+        "byKind": {
+          "data-testid": 2,
+          "id": 1,
+          "placeholder": 2
+        },
+        "unique": 5,
+        "nonUnique": 0
+      },
+      {
+        "component": "TermsAndConditionList",
+        "file": "TermsAndConditionList.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "placeholder": 1
+        },
+        "unique": 1,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "(termsAndConditionBuilder)/CreateTemplate.tsx",
+      "component": "CreateTemplate",
+      "line": 200,
+      "kind": "data-testid",
+      "value": "templateNameInput",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(termsAndConditionBuilder)/CreateTemplate.tsx",
+      "component": "CreateTemplate",
+      "line": 225,
+      "kind": "data-testid",
+      "value": "permissionTypeIdAutoComplete",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(termsAndConditionBuilder)/CreateTemplate.tsx",
+      "component": "CreateTemplate",
+      "line": 194,
+      "kind": "id",
+      "value": "templateName",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(termsAndConditionBuilder)/CreateTemplate.tsx",
+      "component": "CreateTemplate",
+      "line": 191,
+      "kind": "placeholder",
+      "value": "Enter Template Name",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(termsAndConditionBuilder)/CreateTemplate.tsx",
+      "component": "CreateTemplate",
+      "line": 220,
+      "kind": "placeholder",
+      "value": "Select Permission Type",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "TermsAndConditionList.tsx",
+      "component": "TermsAndConditionList",
+      "line": 266,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

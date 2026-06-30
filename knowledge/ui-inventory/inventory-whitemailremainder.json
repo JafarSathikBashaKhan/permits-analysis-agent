@@ -1,0 +1,54 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\whitemailremainder",
+    "scannedAt": "2026-06-26T11:22:42.624Z",
+    "fileCount": 2,
+    "elementCount": 3,
+    "componentCount": 1,
+    "components": [
+      {
+        "component": "WhiteMailReminderList",
+        "file": "WhiteMailReminderList.tsx",
+        "elementCount": 3,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 2
+        },
+        "unique": 3,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "WhiteMailReminderList.tsx",
+      "component": "WhiteMailReminderList",
+      "line": 493,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "WhiteMailReminderList.tsx",
+      "component": "WhiteMailReminderList",
+      "line": 488,
+      "kind": "placeholder",
+      "value": "Search by Reference Number, Applicant Name",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "WhiteMailReminderList.tsx",
+      "component": "WhiteMailReminderList",
+      "line": 613,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

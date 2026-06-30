@@ -1,0 +1,65 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\suspensions",
+    "scannedAt": "2026-06-26T11:22:41.744Z",
+    "fileCount": 1,
+    "elementCount": 4,
+    "componentCount": 1,
+    "components": [
+      {
+        "component": "CeoTaskHistory",
+        "file": "CeoTask/CeoTaskHistory.tsx",
+        "elementCount": 4,
+        "byKind": {
+          "aria-label": 1,
+          "h-text": 2,
+          "role": 1
+        },
+        "unique": 4,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "CeoTask/CeoTaskHistory.tsx",
+      "component": "CeoTaskHistory",
+      "line": 160,
+      "kind": "aria-label",
+      "value": "Close",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "CeoTask/CeoTaskHistory.tsx",
+      "component": "CeoTaskHistory",
+      "line": 156,
+      "kind": "h-text",
+      "value": "CEO Completion Evidence",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "CeoTask/CeoTaskHistory.tsx",
+      "component": "CeoTaskHistory",
+      "line": 558,
+      "kind": "h-text",
+      "value": "CEO Task History",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "CeoTask/CeoTaskHistory.tsx",
+      "component": "CeoTaskHistory",
+      "line": 153,
+      "kind": "role",
+      "value": "dialog",
+      "weight": 20,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

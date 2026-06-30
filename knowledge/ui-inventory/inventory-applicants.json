@@ -1,0 +1,1005 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\applicants",
+    "scannedAt": "2026-06-26T11:22:37.240Z",
+    "fileCount": 26,
+    "elementCount": 79,
+    "componentCount": 18,
+    "components": [
+      {
+        "component": "AddVehicle",
+        "file": "(vechicle)/AddVehicle.tsx",
+        "elementCount": 15,
+        "byKind": {
+          "data-testid": 1,
+          "id": 2,
+          "name": 4,
+          "placeholder": 8
+        },
+        "unique": 13,
+        "nonUnique": 2
+      },
+      {
+        "component": "AddApplicants",
+        "file": "AddApplicants.tsx",
+        "elementCount": 13,
+        "byKind": {
+          "id": 6,
+          "placeholder": 7
+        },
+        "unique": 13,
+        "nonUnique": 0
+      },
+      {
+        "component": "ViewApplicantsList",
+        "file": "ViewApplicantsList.tsx",
+        "elementCount": 8,
+        "byKind": {
+          "data-testid": 5,
+          "id": 1,
+          "aria-label": 1,
+          "placeholder": 1
+        },
+        "unique": 8,
+        "nonUnique": 0
+      },
+      {
+        "component": "ApplicantSendEmail",
+        "file": "(applicantemail)/applicantsendemail/ApplicantSendEmail.tsx",
+        "elementCount": 7,
+        "byKind": {
+          "data-testid": 1,
+          "id": 2,
+          "placeholder": 4
+        },
+        "unique": 5,
+        "nonUnique": 2
+      },
+      {
+        "component": "ApplicantEmailBroadcasting",
+        "file": "(applicantemailbroadcasting)/ApplicantEmailBroadcasting.tsx",
+        "elementCount": 6,
+        "byKind": {
+          "data-testid": 1,
+          "id": 2,
+          "placeholder": 3
+        },
+        "unique": 3,
+        "nonUnique": 3
+      },
+      {
+        "component": "VehiclesList",
+        "file": "VehiclesList.tsx",
+        "elementCount": 6,
+        "byKind": {
+          "data-testid": 4,
+          "aria-label": 1,
+          "placeholder": 1
+        },
+        "unique": 4,
+        "nonUnique": 2
+      },
+      {
+        "component": "PermitVehicle",
+        "file": "(permitvehicle)/PermitVehicle.tsx",
+        "elementCount": 4,
+        "byKind": {
+          "data-testid": 2,
+          "id": 1,
+          "placeholder": 1
+        },
+        "unique": 1,
+        "nonUnique": 3
+      },
+      {
+        "component": "AddBlueBadge",
+        "file": "AddBlueBadge.tsx",
+        "elementCount": 3,
+        "byKind": {
+          "data-testid": 1,
+          "id": 1,
+          "placeholder": 1
+        },
+        "unique": 2,
+        "nonUnique": 1
+      },
+      {
+        "component": "DocumentList",
+        "file": "(document)/DocumentList.tsx",
+        "elementCount": 3,
+        "byKind": {
+          "data-testid": 1,
+          "aria-label": 1,
+          "placeholder": 1
+        },
+        "unique": 2,
+        "nonUnique": 1
+      },
+      {
+        "component": "ApplicantEmailList",
+        "file": "(applicantemail)/ApplicantEmailList.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 1
+        },
+        "unique": 2,
+        "nonUnique": 0
+      },
+      {
+        "component": "AuditLogList",
+        "file": "auditlog/AuditLogList.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 1
+        },
+        "unique": 2,
+        "nonUnique": 0
+      },
+      {
+        "component": "EditApplicants",
+        "file": "EditApplicants.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "h-text": 2
+        },
+        "unique": 2,
+        "nonUnique": 0
+      },
+      {
+        "component": "page",
+        "file": "page.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "h-text": 2
+        },
+        "unique": 2,
+        "nonUnique": 0
+      },
+      {
+        "component": "TemporaryVehiclePanel",
+        "file": "(vechicle)/TemporaryVehiclePanel.tsx",
+        "elementCount": 2,
+        "byKind": {
+          "id": 1,
+          "placeholder": 1
+        },
+        "unique": 1,
+        "nonUnique": 1
+      },
+      {
+        "component": "DraftApplicationsList",
+        "file": "DraftApplicationsList.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "h-text": 1
+        },
+        "unique": 1,
+        "nonUnique": 0
+      },
+      {
+        "component": "EditVehicle",
+        "file": "(vechicle)/EditVehicle.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "data-testid": 1
+        },
+        "unique": 0,
+        "nonUnique": 1
+      },
+      {
+        "component": "FileCard",
+        "file": "(applicantemail)/FileCard.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "data-testid": 1
+        },
+        "unique": 0,
+        "nonUnique": 1
+      },
+      {
+        "component": "PermitDocument",
+        "file": "(permitdocument)/PermitDocument.tsx",
+        "elementCount": 1,
+        "byKind": {
+          "data-testid": 1
+        },
+        "unique": 0,
+        "nonUnique": 1
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "AddApplicants.tsx",
+      "component": "AddApplicants",
+      "line": 398,
+      "kind": "id",
+      "value": "firstName",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddApplicants.tsx",
+      "component": "AddApplicants",
+      "line": 422,
+      "kind": "id",
+      "value": "lastName",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddApplicants.tsx",
+      "component": "AddApplicants",
+      "line": 452,
+      "kind": "id",
+      "value": "userName",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddApplicants.tsx",
+      "component": "AddApplicants",
+      "line": 469,
+      "kind": "id",
+      "value": "emailAddress",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddApplicants.tsx",
+      "component": "AddApplicants",
+      "line": 527,
+      "kind": "id",
+      "value": "mobileNumber",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddApplicants.tsx",
+      "component": "AddApplicants",
+      "line": 580,
+      "kind": "id",
+      "value": "alternateNumber",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddApplicants.tsx",
+      "component": "AddApplicants",
+      "line": 397,
+      "kind": "placeholder",
+      "value": "Enter First Name",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddApplicants.tsx",
+      "component": "AddApplicants",
+      "line": 421,
+      "kind": "placeholder",
+      "value": "Enter Last Name",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddApplicants.tsx",
+      "component": "AddApplicants",
+      "line": 450,
+      "kind": "placeholder",
+      "value": "Enter User Name",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddApplicants.tsx",
+      "component": "AddApplicants",
+      "line": 467,
+      "kind": "placeholder",
+      "value": "Enter Email",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddApplicants.tsx",
+      "component": "AddApplicants",
+      "line": 524,
+      "kind": "placeholder",
+      "value": "Mobile Number",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddApplicants.tsx",
+      "component": "AddApplicants",
+      "line": 577,
+      "kind": "placeholder",
+      "value": "Alternate Number",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddApplicants.tsx",
+      "component": "AddApplicants",
+      "line": 385,
+      "kind": "placeholder",
+      "value": "Select a title",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddBlueBadge.tsx",
+      "component": "AddBlueBadge",
+      "line": 191,
+      "kind": "data-testid",
+      "value": "vehicle-logo",
+      "weight": 100,
+      "globalCount": 10,
+      "isUnique": false
+    },
+    {
+      "file": "AddBlueBadge.tsx",
+      "component": "AddBlueBadge",
+      "line": 145,
+      "kind": "id",
+      "value": "blueBadgeNumber",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "AddBlueBadge.tsx",
+      "component": "AddBlueBadge",
+      "line": 144,
+      "kind": "placeholder",
+      "value": "Enter Blue Badge Number",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(vechicle)/AddVehicle.tsx",
+      "component": "AddVehicle",
+      "line": 1192,
+      "kind": "data-testid",
+      "value": "vehicle-logo",
+      "weight": 100,
+      "globalCount": 10,
+      "isUnique": false
+    },
+    {
+      "file": "(vechicle)/AddVehicle.tsx",
+      "component": "AddVehicle",
+      "line": 829,
+      "kind": "id",
+      "value": "registrationNumber",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(vechicle)/AddVehicle.tsx",
+      "component": "AddVehicle",
+      "line": 1251,
+      "kind": "id",
+      "value": "nickName",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(vechicle)/AddVehicle.tsx",
+      "component": "AddVehicle",
+      "line": 804,
+      "kind": "name",
+      "value": "VehicleType",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(vechicle)/AddVehicle.tsx",
+      "component": "AddVehicle",
+      "line": 1109,
+      "kind": "name",
+      "value": "isEuroStandard",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(vechicle)/AddVehicle.tsx",
+      "component": "AddVehicle",
+      "line": 1129,
+      "kind": "name",
+      "value": "isregisteredKeeper",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(vechicle)/AddVehicle.tsx",
+      "component": "AddVehicle",
+      "line": 1267,
+      "kind": "name",
+      "value": "isfavoriteVehicle",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(vechicle)/AddVehicle.tsx",
+      "component": "AddVehicle",
+      "line": 830,
+      "kind": "placeholder",
+      "value": "Enter VRM",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(vechicle)/AddVehicle.tsx",
+      "component": "AddVehicle",
+      "line": 1252,
+      "kind": "placeholder",
+      "value": "Enter Nick Name",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(vechicle)/AddVehicle.tsx",
+      "component": "AddVehicle",
+      "line": 923,
+      "kind": "placeholder",
+      "value": "Select vehicle category",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(vechicle)/AddVehicle.tsx",
+      "component": "AddVehicle",
+      "line": 957,
+      "kind": "placeholder",
+      "value": "Select fuel type",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(vechicle)/AddVehicle.tsx",
+      "component": "AddVehicle",
+      "line": 990,
+      "kind": "placeholder",
+      "value": "Select make",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(vechicle)/AddVehicle.tsx",
+      "component": "AddVehicle",
+      "line": 1022,
+      "kind": "placeholder",
+      "value": "Select model",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(vechicle)/AddVehicle.tsx",
+      "component": "AddVehicle",
+      "line": 1054,
+      "kind": "placeholder",
+      "value": "Select color",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(vechicle)/AddVehicle.tsx",
+      "component": "AddVehicle",
+      "line": 1086,
+      "kind": "placeholder",
+      "value": "Select CO2 emission",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(applicantemailbroadcasting)/ApplicantEmailBroadcasting.tsx",
+      "component": "ApplicantEmailBroadcasting",
+      "line": 943,
+      "kind": "data-testid",
+      "value": "vehicle-logo",
+      "weight": 100,
+      "globalCount": 10,
+      "isUnique": false
+    },
+    {
+      "file": "(applicantemailbroadcasting)/ApplicantEmailBroadcasting.tsx",
+      "component": "ApplicantEmailBroadcasting",
+      "line": 717,
+      "kind": "id",
+      "value": "search",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(applicantemailbroadcasting)/ApplicantEmailBroadcasting.tsx",
+      "component": "ApplicantEmailBroadcasting",
+      "line": 897,
+      "kind": "id",
+      "value": "subject",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(applicantemailbroadcasting)/ApplicantEmailBroadcasting.tsx",
+      "component": "ApplicantEmailBroadcasting",
+      "line": 714,
+      "kind": "placeholder",
+      "value": "Search",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(applicantemailbroadcasting)/ApplicantEmailBroadcasting.tsx",
+      "component": "ApplicantEmailBroadcasting",
+      "line": 896,
+      "kind": "placeholder",
+      "value": "Enter Subject",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(applicantemailbroadcasting)/ApplicantEmailBroadcasting.tsx",
+      "component": "ApplicantEmailBroadcasting",
+      "line": 860,
+      "kind": "placeholder",
+      "value": "Select",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(applicantemail)/ApplicantEmailList.tsx",
+      "component": "ApplicantEmailList",
+      "line": 121,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(applicantemail)/ApplicantEmailList.tsx",
+      "component": "ApplicantEmailList",
+      "line": 115,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(applicantemail)/applicantsendemail/ApplicantSendEmail.tsx",
+      "component": "ApplicantSendEmail",
+      "line": 691,
+      "kind": "data-testid",
+      "value": "vehicle-logo",
+      "weight": 100,
+      "globalCount": 10,
+      "isUnique": false
+    },
+    {
+      "file": "(applicantemail)/applicantsendemail/ApplicantSendEmail.tsx",
+      "component": "ApplicantSendEmail",
+      "line": 568,
+      "kind": "id",
+      "value": "receiverEmail",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(applicantemail)/applicantsendemail/ApplicantSendEmail.tsx",
+      "component": "ApplicantSendEmail",
+      "line": 649,
+      "kind": "id",
+      "value": "subject",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(applicantemail)/applicantsendemail/ApplicantSendEmail.tsx",
+      "component": "ApplicantSendEmail",
+      "line": 567,
+      "kind": "placeholder",
+      "value": "Receiver Email",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(applicantemail)/applicantsendemail/ApplicantSendEmail.tsx",
+      "component": "ApplicantSendEmail",
+      "line": 646,
+      "kind": "placeholder",
+      "value": "Enter Subject",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(applicantemail)/applicantsendemail/ApplicantSendEmail.tsx",
+      "component": "ApplicantSendEmail",
+      "line": 612,
+      "kind": "placeholder",
+      "value": "Select sender email",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(applicantemail)/applicantsendemail/ApplicantSendEmail.tsx",
+      "component": "ApplicantSendEmail",
+      "line": 633,
+      "kind": "placeholder",
+      "value": "Select template",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "auditlog/AuditLogList.tsx",
+      "component": "AuditLogList",
+      "line": 126,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "auditlog/AuditLogList.tsx",
+      "component": "AuditLogList",
+      "line": 120,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(document)/DocumentList.tsx",
+      "component": "DocumentList",
+      "line": 402,
+      "kind": "data-testid",
+      "value": "vehicle-logo",
+      "weight": 100,
+      "globalCount": 10,
+      "isUnique": false
+    },
+    {
+      "file": "(document)/DocumentList.tsx",
+      "component": "DocumentList",
+      "line": 244,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(document)/DocumentList.tsx",
+      "component": "DocumentList",
+      "line": 241,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "DraftApplicationsList.tsx",
+      "component": "DraftApplicationsList",
+      "line": 141,
+      "kind": "h-text",
+      "value": "No Draft Applications",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "EditApplicants.tsx",
+      "component": "EditApplicants",
+      "line": 269,
+      "kind": "h-text",
+      "value": "General",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "EditApplicants.tsx",
+      "component": "EditApplicants",
+      "line": 374,
+      "kind": "h-text",
+      "value": "Blue Badge",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(vechicle)/EditVehicle.tsx",
+      "component": "EditVehicle",
+      "line": 289,
+      "kind": "data-testid",
+      "value": "vehicle-logo",
+      "weight": 100,
+      "globalCount": 10,
+      "isUnique": false
+    },
+    {
+      "file": "(applicantemail)/FileCard.tsx",
+      "component": "FileCard",
+      "line": 62,
+      "kind": "data-testid",
+      "value": "vehicle-logo",
+      "weight": 100,
+      "globalCount": 10,
+      "isUnique": false
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 282,
+      "kind": "h-text",
+      "value": "Purchase Status",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "page.tsx",
+      "component": "page",
+      "line": 297,
+      "kind": "h-text",
+      "value": "New Application",
+      "weight": 30,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permitdocument)/PermitDocument.tsx",
+      "component": "PermitDocument",
+      "line": 546,
+      "kind": "data-testid",
+      "value": "vehicle-logo",
+      "weight": 100,
+      "globalCount": 10,
+      "isUnique": false
+    },
+    {
+      "file": "(permitvehicle)/PermitVehicle.tsx",
+      "component": "PermitVehicle",
+      "line": 284,
+      "kind": "data-testid",
+      "value": "vehicle-logo",
+      "weight": 100,
+      "globalCount": 10,
+      "isUnique": false
+    },
+    {
+      "file": "(permitvehicle)/PermitVehicle.tsx",
+      "component": "PermitVehicle",
+      "line": 463,
+      "kind": "data-testid",
+      "value": "star-icon",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permitvehicle)/PermitVehicle.tsx",
+      "component": "PermitVehicle",
+      "line": 401,
+      "kind": "id",
+      "value": "search",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(permitvehicle)/PermitVehicle.tsx",
+      "component": "PermitVehicle",
+      "line": 400,
+      "kind": "placeholder",
+      "value": "Search",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(vechicle)/TemporaryVehiclePanel.tsx",
+      "component": "TemporaryVehiclePanel",
+      "line": 123,
+      "kind": "id",
+      "value": "registrationNumber",
+      "weight": 80,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "(vechicle)/TemporaryVehiclePanel.tsx",
+      "component": "TemporaryVehiclePanel",
+      "line": 123,
+      "kind": "placeholder",
+      "value": "Enter VRM",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VehiclesList.tsx",
+      "component": "VehiclesList",
+      "line": 301,
+      "kind": "data-testid",
+      "value": "vehicle-logo",
+      "weight": 100,
+      "globalCount": 10,
+      "isUnique": false
+    },
+    {
+      "file": "VehiclesList.tsx",
+      "component": "VehiclesList",
+      "line": 316,
+      "kind": "data-testid",
+      "value": "star-icon",
+      "weight": 100,
+      "globalCount": 2,
+      "isUnique": false
+    },
+    {
+      "file": "VehiclesList.tsx",
+      "component": "VehiclesList",
+      "line": 921,
+      "kind": "data-testid",
+      "value": "vehicles-list-page",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VehiclesList.tsx",
+      "component": "VehiclesList",
+      "line": 981,
+      "kind": "data-testid",
+      "value": "vehicles-list-grid",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VehiclesList.tsx",
+      "component": "VehiclesList",
+      "line": 187,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "VehiclesList.tsx",
+      "component": "VehiclesList",
+      "line": 182,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ViewApplicantsList.tsx",
+      "component": "ViewApplicantsList",
+      "line": 331,
+      "kind": "data-testid",
+      "value": "viewApplicantsListTab-gridData",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ViewApplicantsList.tsx",
+      "component": "ViewApplicantsList",
+      "line": 485,
+      "kind": "data-testid",
+      "value": "DeleteIcon",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ViewApplicantsList.tsx",
+      "component": "ViewApplicantsList",
+      "line": 503,
+      "kind": "data-testid",
+      "value": "CloseIcon",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ViewApplicantsList.tsx",
+      "component": "ViewApplicantsList",
+      "line": 555,
+      "kind": "data-testid",
+      "value": "viewApplicantsListTab-container",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ViewApplicantsList.tsx",
+      "component": "ViewApplicantsList",
+      "line": 577,
+      "kind": "data-testid",
+      "value": "viewApplicantsListTab-container-slidingPanel",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ViewApplicantsList.tsx",
+      "component": "ViewApplicantsList",
+      "line": 373,
+      "kind": "id",
+      "value": "current-active-panel",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ViewApplicantsList.tsx",
+      "component": "ViewApplicantsList",
+      "line": 416,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "ViewApplicantsList.tsx",
+      "component": "ViewApplicantsList",
+      "line": 413,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

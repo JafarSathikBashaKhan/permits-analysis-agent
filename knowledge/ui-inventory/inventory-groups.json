@@ -1,0 +1,157 @@
+{
+  "summary": {
+    "moduleFolder": "C:\\Users\\jafar.s\\Automation_Codes\\ApplyIQ\\Developers_Source_Code\\MNPS-Permission-UI\\src\\app\\(pages)\\groups",
+    "scannedAt": "2026-06-26T11:22:39.558Z",
+    "fileCount": 4,
+    "elementCount": 12,
+    "componentCount": 2,
+    "components": [
+      {
+        "component": "PermissionGroupForm",
+        "file": "(permissionGroup)/PermissionGroupForm.tsx",
+        "elementCount": 9,
+        "byKind": {
+          "data-testid": 1,
+          "id": 3,
+          "name": 1,
+          "placeholder": 4
+        },
+        "unique": 9,
+        "nonUnique": 0
+      },
+      {
+        "component": "GroupList",
+        "file": "GroupList.tsx",
+        "elementCount": 3,
+        "byKind": {
+          "aria-label": 1,
+          "placeholder": 2
+        },
+        "unique": 3,
+        "nonUnique": 0
+      }
+    ]
+  },
+  "elements": [
+    {
+      "file": "GroupList.tsx",
+      "component": "GroupList",
+      "line": 137,
+      "kind": "aria-label",
+      "value": "Clear",
+      "weight": 60,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "GroupList.tsx",
+      "component": "GroupList",
+      "line": 129,
+      "kind": "placeholder",
+      "value": "Search by Group Name",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "GroupList.tsx",
+      "component": "GroupList",
+      "line": 145,
+      "kind": "placeholder",
+      "value": "Search…",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionGroup)/PermissionGroupForm.tsx",
+      "component": "PermissionGroupForm",
+      "line": 575,
+      "kind": "data-testid",
+      "value": "mwlswitch",
+      "weight": 100,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionGroup)/PermissionGroupForm.tsx",
+      "component": "PermissionGroupForm",
+      "line": 362,
+      "kind": "id",
+      "value": "groupName",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionGroup)/PermissionGroupForm.tsx",
+      "component": "PermissionGroupForm",
+      "line": 419,
+      "kind": "id",
+      "value": "houseHoldLimit",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionGroup)/PermissionGroupForm.tsx",
+      "component": "PermissionGroupForm",
+      "line": 493,
+      "kind": "id",
+      "value": "maximumNumberPerGroup",
+      "weight": 80,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionGroup)/PermissionGroupForm.tsx",
+      "component": "PermissionGroupForm",
+      "line": 545,
+      "kind": "name",
+      "value": "exampleRadio",
+      "weight": 70,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionGroup)/PermissionGroupForm.tsx",
+      "component": "PermissionGroupForm",
+      "line": 360,
+      "kind": "placeholder",
+      "value": "Enter Group Name",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionGroup)/PermissionGroupForm.tsx",
+      "component": "PermissionGroupForm",
+      "line": 416,
+      "kind": "placeholder",
+      "value": "Enter House hold limit",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionGroup)/PermissionGroupForm.tsx",
+      "component": "PermissionGroupForm",
+      "line": 492,
+      "kind": "placeholder",
+      "value": "Enter Max vouchers books per household",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    },
+    {
+      "file": "(permissionGroup)/PermissionGroupForm.tsx",
+      "component": "PermissionGroupForm",
+      "line": 395,
+      "kind": "placeholder",
+      "value": "Select",
+      "weight": 40,
+      "globalCount": 1,
+      "isUnique": true
+    }
+  ]
+}

@@ -9,3 +9,8 @@ exploration_full_report.json
 deep_exploration_report.json
 applyiq_full_report.json
 .env
+knowledge/ui-inventory/node_modules/
+knowledge/ui-inventory/ui-inventory.sqlite
+knowledge/ui-inventory/package-lock.json
+knowledge/ui-inventory/package.json
+
