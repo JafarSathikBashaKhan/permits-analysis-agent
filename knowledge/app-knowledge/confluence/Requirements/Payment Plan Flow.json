@@ -1,0 +1,31 @@
+{
+  "id": "2032599118",
+  "title": "Payment Plan Flow",
+  "version": 13,
+  "lastUpdated": "2026-06-10T12:48:04.797Z",
+  "author": "Prathiba K",
+  "labels": [],
+  "ancestors": [
+    {
+      "id": "6062342",
+      "title": "Freedom"
+    },
+    {
+      "id": "8323127",
+      "title": "🏛Architecture"
+    },
+    {
+      "id": "9175041",
+      "title": "Architecture Documentation"
+    },
+    {
+      "id": "1049722900",
+      "title": "Permissions Documentation"
+    },
+    {
+      "id": "1850900496",
+      "title": "Requirements"
+    }
+  ],
+  "url": "https://marston.atlassian.net/wiki/spaces/FF/pages/2032599118/Payment+Plan+Flow"
+}

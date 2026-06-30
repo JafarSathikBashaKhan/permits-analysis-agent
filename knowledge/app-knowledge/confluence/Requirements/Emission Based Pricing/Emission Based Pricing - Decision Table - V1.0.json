@@ -1,0 +1,35 @@
+{
+  "id": "2010742794",
+  "title": "Emission Based Pricing - Decision Table - V1.0",
+  "version": 4,
+  "lastUpdated": "2026-06-16T06:47:01.666Z",
+  "author": "Prathiba K",
+  "labels": [],
+  "ancestors": [
+    {
+      "id": "6062342",
+      "title": "Freedom"
+    },
+    {
+      "id": "8323127",
+      "title": "🏛Architecture"
+    },
+    {
+      "id": "9175041",
+      "title": "Architecture Documentation"
+    },
+    {
+      "id": "1049722900",
+      "title": "Permissions Documentation"
+    },
+    {
+      "id": "1850900496",
+      "title": "Requirements"
+    },
+    {
+      "id": "1992196119",
+      "title": "Emission Based Pricing"
+    }
+  ],
+  "url": "https://marston.atlassian.net/wiki/spaces/FF/pages/2010742794/Emission+Based+Pricing+-+Decision+Table+-+V1.0"
+}

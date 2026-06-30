@@ -1,0 +1,35 @@
+{
+  "id": "1789919275",
+  "title": "ApplyIQ_Dispensation_BRD_V1.0_18032026",
+  "version": 6,
+  "lastUpdated": "2026-04-01T10:39:07.132Z",
+  "author": "Natarajan Arumugam",
+  "labels": [],
+  "ancestors": [
+    {
+      "id": "6062342",
+      "title": "Freedom"
+    },
+    {
+      "id": "8323127",
+      "title": "🏛Architecture"
+    },
+    {
+      "id": "9175041",
+      "title": "Architecture Documentation"
+    },
+    {
+      "id": "1049722900",
+      "title": "Permissions Documentation"
+    },
+    {
+      "id": "1850900496",
+      "title": "Requirements"
+    },
+    {
+      "id": "1850277975",
+      "title": "Dispensation"
+    }
+  ],
+  "url": "https://marston.atlassian.net/wiki/spaces/FF/pages/1789919275/ApplyIQ_Dispensation_BRD_V1.0_18032026"
+}

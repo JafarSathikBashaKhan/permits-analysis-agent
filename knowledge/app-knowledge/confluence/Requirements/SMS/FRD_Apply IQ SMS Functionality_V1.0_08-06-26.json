@@ -1,0 +1,35 @@
+{
+  "id": "2029617163",
+  "title": "FRD_Apply IQ SMS Functionality_V1.0_08-06-26",
+  "version": 6,
+  "lastUpdated": "2026-06-15T10:42:39.649Z",
+  "author": "Prathiba K",
+  "labels": [],
+  "ancestors": [
+    {
+      "id": "6062342",
+      "title": "Freedom"
+    },
+    {
+      "id": "8323127",
+      "title": "🏛Architecture"
+    },
+    {
+      "id": "9175041",
+      "title": "Architecture Documentation"
+    },
+    {
+      "id": "1049722900",
+      "title": "Permissions Documentation"
+    },
+    {
+      "id": "1850900496",
+      "title": "Requirements"
+    },
+    {
+      "id": "2019590172",
+      "title": "SMS"
+    }
+  ],
+  "url": "https://marston.atlassian.net/wiki/spaces/FF/pages/2029617163/FRD_Apply+IQ+SMS+Functionality_V1.0_08-06-26"
+}

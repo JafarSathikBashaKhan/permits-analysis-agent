@@ -1,0 +1,27 @@
+{
+  "id": "1134985265",
+  "title": "Detailed Architecture Document",
+  "version": 31,
+  "lastUpdated": "2025-08-20T11:35:25.443Z",
+  "author": "Vinoth Thangaraj",
+  "labels": [],
+  "ancestors": [
+    {
+      "id": "6062342",
+      "title": "Freedom"
+    },
+    {
+      "id": "8323127",
+      "title": "🏛Architecture"
+    },
+    {
+      "id": "9175041",
+      "title": "Architecture Documentation"
+    },
+    {
+      "id": "1049722900",
+      "title": "Permissions Documentation"
+    }
+  ],
+  "url": "https://marston.atlassian.net/wiki/spaces/FF/pages/1134985265/Detailed+Architecture+Document"
+}

@@ -1,0 +1,27 @@
+{
+  "id": "1188757518",
+  "title": "PERMITS - Decision Log",
+  "version": 70,
+  "lastUpdated": "2026-06-29T13:36:33.569Z",
+  "author": "Mohamed Anash",
+  "labels": [],
+  "ancestors": [
+    {
+      "id": "6062342",
+      "title": "Freedom"
+    },
+    {
+      "id": "8323127",
+      "title": "🏛Architecture"
+    },
+    {
+      "id": "9175041",
+      "title": "Architecture Documentation"
+    },
+    {
+      "id": "1049722900",
+      "title": "Permissions Documentation"
+    }
+  ],
+  "url": "https://marston.atlassian.net/wiki/spaces/FF/pages/1188757518/PERMITS+-+Decision+Log"
+}

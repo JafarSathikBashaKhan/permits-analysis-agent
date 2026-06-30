@@ -1,0 +1,35 @@
+{
+  "id": "1910603779",
+  "title": "(Initial Discussion ) Staff Parking System",
+  "version": 1,
+  "lastUpdated": "2026-04-24T08:42:56.019Z",
+  "author": "Natarajan Arumugam",
+  "labels": [],
+  "ancestors": [
+    {
+      "id": "6062342",
+      "title": "Freedom"
+    },
+    {
+      "id": "8323127",
+      "title": "🏛Architecture"
+    },
+    {
+      "id": "9175041",
+      "title": "Architecture Documentation"
+    },
+    {
+      "id": "1049722900",
+      "title": "Permissions Documentation"
+    },
+    {
+      "id": "1850900496",
+      "title": "Requirements"
+    },
+    {
+      "id": "1910669314",
+      "title": "Staff Parking"
+    }
+  ],
+  "url": "https://marston.atlassian.net/wiki/spaces/FF/pages/1910603779/Initial+Discussion+Staff+Parking+System"
+}

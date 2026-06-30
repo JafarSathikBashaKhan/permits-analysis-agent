@@ -1,0 +1,35 @@
+{
+  "id": "1869283381",
+  "title": "BRD_Apply IQ_Off Street Vehicle Parking_V1.0_13-04-2026",
+  "version": 7,
+  "lastUpdated": "2026-04-16T09:22:18.724Z",
+  "author": "Prathiba K",
+  "labels": [],
+  "ancestors": [
+    {
+      "id": "6062342",
+      "title": "Freedom"
+    },
+    {
+      "id": "8323127",
+      "title": "🏛Architecture"
+    },
+    {
+      "id": "9175041",
+      "title": "Architecture Documentation"
+    },
+    {
+      "id": "1049722900",
+      "title": "Permissions Documentation"
+    },
+    {
+      "id": "1850900496",
+      "title": "Requirements"
+    },
+    {
+      "id": "1869283380",
+      "title": "Off Street Vehicle Parking"
+    }
+  ],
+  "url": "https://marston.atlassian.net/wiki/spaces/FF/pages/1869283381/BRD_Apply+IQ_Off+Street+Vehicle+Parking_V1.0_13-04-2026"
+}

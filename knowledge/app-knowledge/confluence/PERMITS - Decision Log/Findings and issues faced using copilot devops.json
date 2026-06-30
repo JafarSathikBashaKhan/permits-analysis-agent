@@ -1,0 +1,31 @@
+{
+  "id": "1831010312",
+  "title": "Findings and issues faced using copilot devops",
+  "version": 4,
+  "lastUpdated": "2026-04-02T06:31:18.887Z",
+  "author": "Jayakumar U",
+  "labels": [],
+  "ancestors": [
+    {
+      "id": "6062342",
+      "title": "Freedom"
+    },
+    {
+      "id": "8323127",
+      "title": "🏛Architecture"
+    },
+    {
+      "id": "9175041",
+      "title": "Architecture Documentation"
+    },
+    {
+      "id": "1049722900",
+      "title": "Permissions Documentation"
+    },
+    {
+      "id": "1188757518",
+      "title": "PERMITS - Decision Log"
+    }
+  ],
+  "url": "https://marston.atlassian.net/wiki/spaces/FF/pages/1831010312/Findings+and+issues+faced+using+copilot+devops"
+}

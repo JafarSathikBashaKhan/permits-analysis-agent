@@ -1,0 +1,39 @@
+{
+  "id": "1987117081",
+  "title": "ApplyIQ_Dispensation using Suspension template _Review BO flow",
+  "version": 3,
+  "lastUpdated": "2026-05-26T05:03:18.575Z",
+  "author": "Natarajan Arumugam",
+  "labels": [],
+  "ancestors": [
+    {
+      "id": "6062342",
+      "title": "Freedom"
+    },
+    {
+      "id": "8323127",
+      "title": "🏛Architecture"
+    },
+    {
+      "id": "9175041",
+      "title": "Architecture Documentation"
+    },
+    {
+      "id": "1049722900",
+      "title": "Permissions Documentation"
+    },
+    {
+      "id": "1850900496",
+      "title": "Requirements"
+    },
+    {
+      "id": "1850277975",
+      "title": "Dispensation"
+    },
+    {
+      "id": "1986953226",
+      "title": "ApplyIQ_Dispensation (Carpark & Dispensation template) Review flow"
+    }
+  ],
+  "url": "https://marston.atlassian.net/wiki/spaces/FF/pages/1987117081/ApplyIQ_Dispensation+using+Suspension+template+_Review+BO+flow"
+}

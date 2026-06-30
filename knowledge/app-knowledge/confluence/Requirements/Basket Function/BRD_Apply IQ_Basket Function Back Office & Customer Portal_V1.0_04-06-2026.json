@@ -1,0 +1,35 @@
+{
+  "id": "1850900501",
+  "title": "BRD_Apply IQ_Basket Function Back Office & Customer Portal_V1.0_04-06-2026",
+  "version": 18,
+  "lastUpdated": "2026-04-28T06:52:18.104Z",
+  "author": "Prathiba K",
+  "labels": [],
+  "ancestors": [
+    {
+      "id": "6062342",
+      "title": "Freedom"
+    },
+    {
+      "id": "8323127",
+      "title": "🏛Architecture"
+    },
+    {
+      "id": "9175041",
+      "title": "Architecture Documentation"
+    },
+    {
+      "id": "1049722900",
+      "title": "Permissions Documentation"
+    },
+    {
+      "id": "1850900496",
+      "title": "Requirements"
+    },
+    {
+      "id": "1852538913",
+      "title": "Basket Function"
+    }
+  ],
+  "url": "https://marston.atlassian.net/wiki/spaces/FF/pages/1850900501/BRD_Apply+IQ_Basket+Function+Back+Office+Customer+Portal_V1.0_04-06-2026"
+}

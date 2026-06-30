@@ -1,0 +1,35 @@
+{
+  "id": "2055045121",
+  "title": "FRD_Apply IQ_Emission_Based_Pricing_V1.0_16-06-26",
+  "version": 5,
+  "lastUpdated": "2026-06-16T10:27:24.638Z",
+  "author": "Prathiba K",
+  "labels": [],
+  "ancestors": [
+    {
+      "id": "6062342",
+      "title": "Freedom"
+    },
+    {
+      "id": "8323127",
+      "title": "🏛Architecture"
+    },
+    {
+      "id": "9175041",
+      "title": "Architecture Documentation"
+    },
+    {
+      "id": "1049722900",
+      "title": "Permissions Documentation"
+    },
+    {
+      "id": "1850900496",
+      "title": "Requirements"
+    },
+    {
+      "id": "1992196119",
+      "title": "Emission Based Pricing"
+    }
+  ],
+  "url": "https://marston.atlassian.net/wiki/spaces/FF/pages/2055045121/FRD_Apply+IQ_Emission_Based_Pricing_V1.0_16-06-26"
+}
