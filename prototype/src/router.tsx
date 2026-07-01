@@ -18,30 +18,39 @@ import { ContractSettingsPage } from './modules/contractsettings/ContractSetting
 import { PrintQueuePage } from './modules/print/PrintQueuePage';
 import { ReportsPage } from './modules/reports/ReportsPage';
 
-export const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <AppLayout />,
-    children: [
-      { index: true, element: <HomePage /> },
-      { path: 'home', element: <Navigate to="/" replace /> },
-      { path: 'builder', element: <BuilderListPage /> },
-      { path: 'builder/groups', element: <BuilderGroupsPage /> },
-      { path: 'builder/:id', element: <BuilderDesignPage /> },
-      { path: 'builder/:id/:tab', element: <BuilderDesignPage /> },
-      { path: 'applications', element: <ApplicationsListPage /> },
-      { path: 'applications/:id', element: <ApplicationDetailPage /> },
-      { path: 'users', element: <UsersLandingPage /> },
-      { path: 'users/roles', element: <RolesPage /> },
-      { path: 'users/system', element: <SystemUsersPage /> },
-      { path: 'users/applicants', element: <ApplicantsPage /> },
-      { path: 'area/streets', element: <StreetsPage /> },
-      { path: 'area/zones', element: <ZonesPage /> },
-      { path: 'area/locations', element: <LocationsPage /> },
-      { path: 'area/special-events', element: <SpecialEventsPage /> },
-      { path: 'contract-settings', element: <ContractSettingsPage /> },
-      { path: 'print', element: <PrintQueuePage /> },
-      { path: 'reports', element: <ReportsPage /> },
-    ],
-  },
-]);
+// Router basename follows the Vite base path so the app works both at the
+// site root (dev) and under a sub-path (e.g. /permits001 on Azure).
+const rawBase = ((import.meta as any).env?.BASE_URL as string) || '/';
+const basename = rawBase.replace(/\/$/, '') || '/';
+
+export const router = createBrowserRouter(
+  [
+    {
+      path: '/',
+      element: <AppLayout />,
+      children: [
+        { index: true, element: <HomePage /> },
+        { path: 'home', element: <Navigate to="/" replace /> },
+        { path: 'builder', element: <BuilderListPage /> },
+        { path: 'builder/groups', element: <BuilderGroupsPage /> },
+        { path: 'builder/:id', element: <BuilderDesignPage /> },
+        { path: 'builder/:id/:tab', element: <BuilderDesignPage /> },
+        { path: 'applications', element: <ApplicationsListPage /> },
+        { path: 'applications/:id', element: <ApplicationDetailPage /> },
+        { path: 'users', element: <UsersLandingPage /> },
+        { path: 'users/roles', element: <RolesPage /> },
+        { path: 'users/system', element: <SystemUsersPage /> },
+        { path: 'users/applicants', element: <ApplicantsPage /> },
+        { path: 'area/streets', element: <StreetsPage /> },
+        { path: 'area/zones', element: <ZonesPage /> },
+        { path: 'area/locations', element: <LocationsPage /> },
+        { path: 'area/special-events', element: <SpecialEventsPage /> },
+        { path: 'contract-settings', element: <ContractSettingsPage /> },
+        { path: 'print', element: <PrintQueuePage /> },
+        { path: 'reports', element: <ReportsPage /> },
+      ],
+    },
+  ],
+  { basename }
+);
+
