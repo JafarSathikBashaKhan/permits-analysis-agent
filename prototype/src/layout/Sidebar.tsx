@@ -27,8 +27,23 @@ type NavItem = {
 
 const items: NavItem[] = [
   { label: 'Home', to: '/', icon: <HomeOutlined /> },
-  { label: 'Builder', to: '/builder', icon: <ConstructionOutlined /> },
-  { label: 'Applications', to: '/applications', icon: <DescriptionOutlined /> },
+  {
+    label: 'Builder', to: '/builder', icon: <ConstructionOutlined />,
+    children: [
+      { label: 'Permissions', to: '/builder', icon: <LocalActivityOutlined /> },
+      { label: 'Groups', to: '/builder/groups', icon: <LocalActivityOutlined /> },
+    ],
+  },
+  {
+    label: 'Applications', to: '/applications', icon: <DescriptionOutlined />,
+    children: [
+      { label: 'All', to: '/applications', icon: <LocalActivityOutlined /> },
+      { label: 'Permit', to: '/applications?type=permit', icon: <LocalActivityOutlined /> },
+      { label: 'Suspension', to: '/applications?type=suspension', icon: <LocalActivityOutlined /> },
+      { label: 'Dispensation', to: '/applications?type=dispensation', icon: <LocalActivityOutlined /> },
+      { label: 'Exemption', to: '/applications?type=exemption', icon: <LocalActivityOutlined /> },
+    ],
+  },
   {
     label: 'Users', icon: <PeopleOutlineOutlined />,
     children: [
@@ -43,6 +58,7 @@ const items: NavItem[] = [
       { label: 'Streets', to: '/area/streets', icon: <LocalActivityOutlined /> },
       { label: 'Zones', to: '/area/zones', icon: <LocalActivityOutlined /> },
       { label: 'Locations', to: '/area/locations', icon: <LocalActivityOutlined /> },
+      { label: 'Special Events', to: '/area/special-events', icon: <LocalActivityOutlined /> },
     ],
   },
   { label: 'Contract Settings', to: '/contract-settings', icon: <SettingsOutlined /> },
@@ -60,7 +76,7 @@ function useIsActive() {
 }
 
 export function Sidebar() {
-  const [openGroup, setOpenGroup] = useState<Record<string, boolean>>({ Users: true, Area: true });
+  const [openGroup, setOpenGroup] = useState<Record<string, boolean>>({ Users: true, Area: true, Applications: true, Builder: true });
   const isActive = useIsActive();
 
   return (
@@ -90,13 +106,24 @@ export function Sidebar() {
         {items.map((it) => {
           if (it.children) {
             const open = !!openGroup[it.label];
+            const parentActive = it.to ? isActive(it.to) : false;
             return (
               <Box key={it.label}>
                 <ListItemButton
-                  onClick={() => setOpenGroup((g) => ({ ...g, [it.label]: !g[it.label] }))}
-                  sx={{ mx: 1.5, borderRadius: 1, color: 'inherit', py: 0.85 }}
+                  {...(it.to ? { component: NavLink, to: it.to, end: it.to === '/' } as any : {})}
+                  onClick={(e: any) => {
+                    // If parent has no route, just toggle. Otherwise let NavLink navigate
+                    // and additionally open the group.
+                    if (!it.to) e.preventDefault?.();
+                    setOpenGroup((g) => ({ ...g, [it.label]: !g[it.label] }));
+                  }}
+                  sx={{
+                    mx: 1.5, borderRadius: 1, color: 'inherit', py: 0.85,
+                    '&.active': { bgcolor: 'rgba(231,126,8,0.16)', color: '#FFFFFF', boxShadow: 'inset 3px 0 0 ' + tokens.ORANGE },
+                    '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' },
+                  }}
                 >
-                  <ListItemIcon sx={{ minWidth: 34, color: 'inherit' }}>{it.icon}</ListItemIcon>
+                  <ListItemIcon sx={{ minWidth: 34, color: parentActive ? tokens.ORANGE_SOFT : 'inherit' }}>{it.icon}</ListItemIcon>
                   <ListItemText primary={it.label} primaryTypographyProps={{ fontSize: '0.875rem', fontWeight: 500 }} />
                   {open ? <ExpandLess fontSize="small" /> : <ExpandMore fontSize="small" />}
                 </ListItemButton>
@@ -107,8 +134,9 @@ export function Sidebar() {
                         key={c.to}
                         component={NavLink}
                         to={c.to!}
+                        end={c.to === it.to}
                         sx={{
-                          pl: 6, mx: 1.5, borderRadius: 1, color: 'inherit', py: 0.6,
+                          pl: 6, mx: 1.5, borderRadius: 1, color: 'inherit', py: 0.5,
                           '&.active': { bgcolor: 'rgba(231,126,8,0.15)', color: '#FFFFFF' },
                           '&:hover': { bgcolor: 'rgba(255,255,255,0.04)' },
                         }}

@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AppLayout } from './layout/AppLayout';
 import { HomePage } from './modules/home/HomePage';
 import { BuilderListPage } from './modules/builder/BuilderListPage';
+import { BuilderGroupsPage } from './modules/builder/BuilderGroupsPage';
 import { BuilderDesignPage } from './modules/builder/BuilderDesignPage';
 import { ApplicationsListPage } from './modules/applications/ApplicationsListPage';
 import { ApplicationDetailPage } from './modules/applications/ApplicationDetailPage';
@@ -12,6 +13,7 @@ import { ApplicantsPage } from './modules/users/ApplicantsPage';
 import { StreetsPage } from './modules/area/StreetsPage';
 import { ZonesPage } from './modules/area/ZonesPage';
 import { LocationsPage } from './modules/area/LocationsPage';
+import { SpecialEventsPage } from './modules/area/SpecialEventsPage';
 import { ContractSettingsPage } from './modules/contractsettings/ContractSettingsPage';
 import { PrintQueuePage } from './modules/print/PrintQueuePage';
 import { ReportsPage } from './modules/reports/ReportsPage';
@@ -24,6 +26,7 @@ export const router = createBrowserRouter([
       { index: true, element: <HomePage /> },
       { path: 'home', element: <Navigate to="/" replace /> },
       { path: 'builder', element: <BuilderListPage /> },
+      { path: 'builder/groups', element: <BuilderGroupsPage /> },
       { path: 'builder/:id', element: <BuilderDesignPage /> },
       { path: 'builder/:id/:tab', element: <BuilderDesignPage /> },
       { path: 'applications', element: <ApplicationsListPage /> },
@@ -35,6 +38,7 @@ export const router = createBrowserRouter([
       { path: 'area/streets', element: <StreetsPage /> },
       { path: 'area/zones', element: <ZonesPage /> },
       { path: 'area/locations', element: <LocationsPage /> },
+      { path: 'area/special-events', element: <SpecialEventsPage /> },
       { path: 'contract-settings', element: <ContractSettingsPage /> },
       { path: 'print', element: <PrintQueuePage /> },
       { path: 'reports', element: <ReportsPage /> },

@@ -2,25 +2,37 @@ import { Box, Button, InputAdornment, MenuItem, Paper, Stack, TextField } from '
 import { Add, Search } from '@mui/icons-material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PageHeader } from '../../shared/PageHeader';
 import { StatusChip } from '../../shared/StatusChip';
 import { applications } from '../../data/mock';
 
+const TYPE_LABELS: Record<string, string> = {
+  permit: 'Permit',
+  suspension: 'Suspension',
+  dispensation: 'Dispensation',
+  exemption: 'Exemption',
+};
+
 export function ApplicationsListPage() {
   const nav = useNavigate();
+  const [params] = useSearchParams();
+  const typeParam = (params.get('type') ?? '').toLowerCase();
+  const typeLabel = TYPE_LABELS[typeParam];
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('All');
 
   const rows = useMemo(() => applications.filter((a) =>
+    (!typeLabel || a.type === typeLabel) &&
     (status === 'All' || a.status === status) &&
     (q === '' || a.ref.toLowerCase().includes(q.toLowerCase()) || a.applicant.toLowerCase().includes(q.toLowerCase()))
-  ), [q, status]);
+  ), [q, status, typeLabel]);
 
   const cols: GridColDef[] = [
     { field: 'ref', headerName: 'Reference', width: 160 },
     { field: 'applicant', headerName: 'Applicant', flex: 1, minWidth: 180 },
     { field: 'permission', headerName: 'Permission', flex: 1.4, minWidth: 220 },
+    { field: 'type', headerName: 'Type', width: 130 },
     { field: 'zone', headerName: 'Zone', width: 160 },
     { field: 'submitted', headerName: 'Submitted', width: 130 },
     { field: 'amount', headerName: 'Amount', width: 100, valueFormatter: (v) => `£${v}` },
@@ -31,9 +43,11 @@ export function ApplicationsListPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Back Office"
-        title="Applications"
-        description="Review, action and progress permit applications from all channels."
+        eyebrow={typeLabel ? `Back Office · ${typeLabel}` : 'Back Office'}
+        title={typeLabel ? `${typeLabel} applications` : 'Applications'}
+        description={typeLabel
+          ? `Review, action and progress ${typeLabel.toLowerCase()} applications.`
+          : 'Review, action and progress permit applications from all channels.'}
         actions={<Button variant="contained" startIcon={<Add />}>New application</Button>}
       />
       <Paper sx={{ p: 2, mb: 2 }}>

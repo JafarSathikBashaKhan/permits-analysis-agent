@@ -38,11 +38,13 @@ export const groupsByType: Record<string, string[]> = {
 export const categories = ['Scratch card', 'Visitor', 'Resident', 'Disabled Bay', 'Resident Exemptions'] as const;
 
 // -------- Applications --------
+export type ApplicationType = 'Permit' | 'Suspension' | 'Dispensation' | 'Exemption';
 export type Application = {
   id: string;
   ref: string;
   applicant: string;
   permission: string;
+  type: ApplicationType;
   submitted: string;
   status: 'Pending Approval' | 'In Progress' | 'Under Review' | 'Approved' | 'Active' | 'Rejected' | 'Cancelled' | 'Suspended' | 'On Hold' | 'Awaiting Payment' | 'Payment Failed' | 'Expired' | 'Closed' | 'NFI';
   amount: number;
@@ -54,6 +56,8 @@ const APPLICANTS = ['Alice Whittaker','Ben Turner','Cheryl Iyer','Danny O\'Neill
 const STATUSES = ['Pending Approval','In Progress','Under Review','Approved','Active','Rejected','Cancelled','Suspended','On Hold','Awaiting Payment','Payment Failed','Expired','Closed','NFI'] as const;
 const ZONES = ['Z01 City Centre','Z02 Northgate','Z03 Southbank','Z04 Riverside','Z05 Kingsway'];
 
+const APP_TYPES: ApplicationType[] = ['Permit', 'Permit', 'Permit', 'Suspension', 'Dispensation', 'Exemption', 'Permit', 'Permit'];
+
 export const applications: Application[] = Array.from({ length: 32 }).map((_, i) => {
   const perm = permissions[i % permissions.length];
   return {
@@ -61,6 +65,7 @@ export const applications: Application[] = Array.from({ length: 32 }).map((_, i)
     ref: `AP-${(2026).toString()}-${(1000 + i).toString().padStart(4, '0')}`,
     applicant: APPLICANTS[i % APPLICANTS.length],
     permission: perm.name,
+    type: APP_TYPES[i % APP_TYPES.length],
     submitted: `2026-0${1 + (i % 6)}-${String(1 + (i % 27)).padStart(2, '0')}`,
     status: STATUSES[i % STATUSES.length],
     amount: perm.price,
