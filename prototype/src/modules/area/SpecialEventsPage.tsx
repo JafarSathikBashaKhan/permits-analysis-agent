@@ -26,7 +26,7 @@ export function SpecialEventsPage() {
                 <Stack direction="row" spacing={1.5}>
                   <Event color="primary" />
                   <div>
-                    <Typography sx={{ fontFamily: '"Roboto Slab", Georgia, serif', fontSize: '1.15rem', fontWeight: 600 }}>{e.name}</Typography>
+                    <Typography sx={{ fontFamily: '"Open Sans", Georgia, serif', fontSize: '1.15rem', fontWeight: 600 }}>{e.name}</Typography>
                     <Typography variant="body2" color="text.secondary">{e.from} → {e.to}</Typography>
                   </div>
                 </Stack>
@@ -35,11 +35,11 @@ export function SpecialEventsPage() {
               <Stack direction="row" spacing={3} sx={{ mt: 2 }}>
                 <div>
                   <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>Permissions</Typography>
-                  <Typography sx={{ fontFamily: '"Roboto Slab", Georgia, serif', fontSize: '1.4rem', fontWeight: 600 }}>{e.permissions}</Typography>
+                  <Typography sx={{ fontFamily: '"Open Sans", Georgia, serif', fontSize: '1.4rem', fontWeight: 600 }}>{e.permissions}</Typography>
                 </div>
                 <div>
                   <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>Zones</Typography>
-                  <Typography sx={{ fontFamily: '"Roboto Slab", Georgia, serif', fontSize: '1.4rem', fontWeight: 600 }}>{e.zones}</Typography>
+                  <Typography sx={{ fontFamily: '"Open Sans", Georgia, serif', fontSize: '1.4rem', fontWeight: 600 }}>{e.zones}</Typography>
                 </div>
               </Stack>
               <Stack direction="row" spacing={1} sx={{ mt: 2 }}>

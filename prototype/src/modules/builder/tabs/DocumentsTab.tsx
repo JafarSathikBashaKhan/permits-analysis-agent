@@ -17,7 +17,7 @@ export function DocumentsTab() {
 
   return (
     <>
-      <Alert severity="info" sx={{ mb: 3, background: '#FFF7EC', border: '1px solid #E1E4E8', color: 'text.primary' }}>
+      <Alert severity="info" sx={{ mb: 3, background: '#FFF7EC', border: '1px solid #EDEFF3', color: 'text.primary' }}>
         Required documents are enforced at the Documents step in Buy Now and appear on the Back Office application review page.
       </Alert>
 

@@ -15,18 +15,18 @@ export function ZonesPage() {
               <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
                 <div>
                   <Typography variant="body2" color="text.secondary">{z.code}</Typography>
-                  <Typography sx={{ fontFamily: '"Roboto Slab", Georgia, serif', fontSize: '1.2rem', fontWeight: 600, mt: 0.5 }}>{z.name}</Typography>
+                  <Typography sx={{ fontFamily: '"Open Sans", Georgia, serif', fontSize: '1.2rem', fontWeight: 600, mt: 0.5 }}>{z.name}</Typography>
                 </div>
                 <Chip label={z.published ? 'Published' : 'Draft'} size="small" color={z.published ? 'success' : 'default'} />
               </Stack>
               <Stack direction="row" spacing={3} sx={{ mt: 2 }}>
                 <div>
                   <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>Streets</Typography>
-                  <Typography sx={{ fontFamily: '"Roboto Slab", Georgia, serif', fontSize: '1.5rem', fontWeight: 600 }}>{z.streets}</Typography>
+                  <Typography sx={{ fontFamily: '"Open Sans", Georgia, serif', fontSize: '1.5rem', fontWeight: 600 }}>{z.streets}</Typography>
                 </div>
                 <div>
                   <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>Permissions</Typography>
-                  <Typography sx={{ fontFamily: '"Roboto Slab", Georgia, serif', fontSize: '1.5rem', fontWeight: 600 }}>{z.permissions}</Typography>
+                  <Typography sx={{ fontFamily: '"Open Sans", Georgia, serif', fontSize: '1.5rem', fontWeight: 600 }}>{z.permissions}</Typography>
                 </div>
               </Stack>
               <Stack direction="row" spacing={1} sx={{ mt: 2 }}>

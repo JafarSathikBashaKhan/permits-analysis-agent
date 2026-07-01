@@ -64,7 +64,7 @@ export function ContractSettingsPage() {
           <Grid container spacing={1.5}>
             {g.toggles.map((t) => (
               <Grid item xs={12} md={6} key={t.key}>
-                <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 1.5, border: '1px solid #E1E4E8', borderRadius: 1, background: '#FFFFFF' }}>
+                <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 1.5, border: '1px solid #EDEFF3', borderRadius: 1, background: '#FFFFFF' }}>
                   <div>
                     <Typography variant="body2" fontWeight={600}>{t.label}<FieldHint text={t.hint} /></Typography>
                   </div>

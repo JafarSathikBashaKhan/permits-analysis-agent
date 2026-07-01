@@ -18,9 +18,9 @@ export function UsersLandingPage() {
           <Grid item xs={12} md={4} key={c.to}>
             <Paper component={Link} to={c.to} sx={{ p: 3, display: 'block', textDecoration: 'none', color: 'inherit', height: '100%', '&:hover': { borderColor: 'primary.main' } }}>
               <Stack direction="row" spacing={2} alignItems="flex-start">
-                <div style={{ color: '#162B48' }}>{c.icon}</div>
+                <div style={{ color: '#266798' }}>{c.icon}</div>
                 <div>
-                  <Typography sx={{ fontFamily: '"Roboto Slab", Georgia, serif', fontSize: '1.35rem', fontWeight: 600 }}>{c.title}</Typography>
+                  <Typography sx={{ fontFamily: '"Open Sans", Georgia, serif', fontSize: '1.35rem', fontWeight: 600 }}>{c.title}</Typography>
                   <Typography variant="body2" color="text.secondary" mt={0.5}>{c.desc}</Typography>
                   <Typography variant="body2" color="primary" mt={2} fontWeight={600}>{c.count} →</Typography>
                 </div>

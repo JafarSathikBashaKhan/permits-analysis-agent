@@ -21,7 +21,7 @@ function KpiCard({ icon, label, value, delta, tone = 'info' }: { icon: React.Rea
         )}
       </Stack>
       <Typography variant="caption" sx={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>{label}</Typography>
-      <Typography sx={{ fontFamily: '"Roboto Slab", Georgia, serif', fontSize: '2rem', fontWeight: 600, lineHeight: 1.1, mt: 0.5 }}>{value}</Typography>
+      <Typography sx={{ fontFamily: '"Open Sans", Georgia, serif', fontSize: '2rem', fontWeight: 600, lineHeight: 1.1, mt: 0.5 }}>{value}</Typography>
     </Paper>
   );
 }

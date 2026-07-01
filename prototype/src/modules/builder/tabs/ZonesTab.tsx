@@ -10,7 +10,7 @@ export function ZonesTab() {
 
   return (
     <>
-      <Alert severity="info" sx={{ mb: 3, background: '#FFF7EC', border: '1px solid #E1E4E8', color: 'text.primary' }}>
+      <Alert severity="info" sx={{ mb: 3, background: '#FFF7EC', border: '1px solid #EDEFF3', color: 'text.primary' }}>
         Map the zones where this permission is valid. Only <b>published</b> zones can be selected.
       </Alert>
 
@@ -25,7 +25,7 @@ export function ZonesTab() {
                   sx={{
                     p: 2,
                     cursor: 'pointer',
-                    borderColor: isSelected ? 'primary.main' : '#E1E4E8',
+                    borderColor: isSelected ? 'primary.main' : '#EDEFF3',
                     borderWidth: isSelected ? 2 : 1,
                     background: isSelected ? '#EEF2F8' : '#FFFFFF',
                     transition: 'all 120ms',
@@ -34,7 +34,7 @@ export function ZonesTab() {
                   <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
                     <div>
                       <Typography variant="body2" color="text.secondary">{z.code}</Typography>
-                      <Typography sx={{ fontFamily: '"Roboto Slab", Georgia, serif', fontSize: '1.1rem', fontWeight: 600 }}>{z.name}</Typography>
+                      <Typography sx={{ fontFamily: '"Open Sans", Georgia, serif', fontSize: '1.1rem', fontWeight: 600 }}>{z.name}</Typography>
                       <Typography variant="body2" color="text.secondary" mt={0.5}>{z.streets} streets · {z.permissions} permissions</Typography>
                     </div>
                     {isSelected && <CheckCircle color="primary" fontSize="small" />}

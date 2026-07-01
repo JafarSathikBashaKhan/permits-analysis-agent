@@ -1,50 +1,53 @@
 import { createTheme, alpha } from '@mui/material/styles';
 
-// Marston Holdings brand palette (extracted from marstonholdings.co.uk
-// Elementor globals: primary #162B48 navy, accent #E77E08 orange,
-// text greys #54595F / #7A7A7A). Typography: Roboto Slab for headings,
-// Roboto for body.
-const NAVY        = '#162B48';   // Marston brand navy (primary)
-const NAVY_SOFT   = '#243D63';
-const NAVY_INK    = '#0B172A';
-const ORANGE      = '#E77E08';   // Marston brand orange (accent)
-const ORANGE_SOFT = '#F49B37';
-const ORANGE_DARK = '#B4610A';
-const BG          = '#F5F6F8';   // cool off-white background
+// NoticeIQ palette (extracted from lvuxportal.z33.web.core.windows.net/noticeiq bundle):
+// primary #266798, deep navy #01448D, sidebar ink #0B162B, light accent #6EC1E4,
+// page bg #F4F6F9, soft blue tint #E3ECF7, line #EDEFF3.
+// Fonts: Open Sans (primary UI/headings), Roboto (secondary/body).
+const NAVY        = '#266798';   // primary brand blue
+const NAVY_SOFT   = '#3D82B5';
+const NAVY_INK    = '#01448D';   // deep navy for headers, hover
+const SIDEBAR     = '#0B162B';   // sidebar / dark chrome
+const ACCENT      = '#6EC1E4';   // Elementor-style highlight
+const ACCENT_SOFT = '#B8E0F2';
+const BG          = '#F4F6F9';   // page background
 const PAPER       = '#FFFFFF';
-const INK         = '#1F2A3A';
-const TEXT        = '#54595F';   // Marston secondary text
-const MUTED       = '#5F6570';   // WCAG AA compliant on both BG and paper (was #7A7A7A: 3.97:1 → now 5.42:1)
-const LINE        = '#E1E4E8';
+const TINT_BLUE   = '#E3ECF7';   // soft blue backgrounds
+const INK         = '#1A1A1A';
+const TEXT        = 'rgba(0, 0, 0, 0.87)';
+const MUTED       = 'rgba(0, 0, 0, 0.6)';
+const LINE        = '#EDEFF3';
 
-const HEADING = '"Roboto Slab", Georgia, serif';
-const BODY    = '"Roboto", "Helvetica Neue", Arial, sans-serif';
+// NoticeIQ uses Open Sans for UI + Roboto as secondary
+const HEADING = '"Open Sans", "Helvetica Neue", Arial, sans-serif';
+const BODY    = '"Open Sans", "Roboto", "Helvetica Neue", Arial, sans-serif';
 
 export const theme = createTheme({
   palette: {
     mode: 'light',
     primary:   { main: NAVY, light: NAVY_SOFT, dark: NAVY_INK, contrastText: '#FFFFFF' },
-    secondary: { main: ORANGE, light: ORANGE_SOFT, dark: ORANGE_DARK, contrastText: '#FFFFFF' },
-    success: { main: '#2E7D50' },
-    warning: { main: ORANGE },
-    error:   { main: '#C0392B' },
-    info:    { main: NAVY_SOFT },
+    secondary: { main: ACCENT, light: ACCENT_SOFT, dark: NAVY_INK, contrastText: '#0B162B' },
+    success: { main: '#2E7D32' },
+    warning: { main: '#ED6C02' },
+    error:   { main: '#C62828' },
+    info:    { main: NAVY },
     background: { default: BG, paper: PAPER },
-    text: { primary: INK, secondary: TEXT },
+    text: { primary: TEXT, secondary: MUTED },
     divider: LINE,
   },
   shape: { borderRadius: 4 },
   typography: {
     fontFamily: BODY,
-    h1: { fontFamily: HEADING, fontWeight: 600, fontSize: '2.25rem', letterSpacing: '-0.01em', lineHeight: 1.2 },
-    h2: { fontFamily: HEADING, fontWeight: 600, fontSize: '1.625rem', letterSpacing: '-0.005em', lineHeight: 1.25 },
-    h3: { fontFamily: HEADING, fontWeight: 600, fontSize: '1.35rem', lineHeight: 1.3 },
-    h4: { fontFamily: HEADING, fontWeight: 600, fontSize: '1.15rem' },
-    h5: { fontFamily: BODY, fontWeight: 600, fontSize: '1rem' },
-    h6: { fontFamily: BODY, fontWeight: 600, fontSize: '0.8125rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: MUTED },
-    body1: { fontSize: '0.9375rem', lineHeight: 1.55 },
-    body2: { fontSize: '0.8125rem', lineHeight: 1.55, color: TEXT },
-    button: { textTransform: 'none', fontWeight: 500, letterSpacing: 0, fontSize: '0.875rem' },
+    fontSize: 14,
+    h1: { fontFamily: HEADING, fontWeight: 700, fontSize: '2rem', letterSpacing: '-0.005em', lineHeight: 1.25 },
+    h2: { fontFamily: HEADING, fontWeight: 700, fontSize: '1.5rem', lineHeight: 1.3 },
+    h3: { fontFamily: HEADING, fontWeight: 600, fontSize: '1.25rem', lineHeight: 1.35 },
+    h4: { fontFamily: HEADING, fontWeight: 600, fontSize: '1.125rem' },
+    h5: { fontFamily: HEADING, fontWeight: 600, fontSize: '1rem' },
+    h6: { fontFamily: HEADING, fontWeight: 600, fontSize: '0.8125rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: MUTED },
+    body1: { fontSize: '0.875rem', lineHeight: 1.5 },
+    body2: { fontSize: '0.8125rem', lineHeight: 1.5, color: MUTED },
+    button: { textTransform: 'none', fontWeight: 600, letterSpacing: '0.02em', fontSize: '0.875rem' },
     caption: { fontSize: '0.75rem', color: MUTED },
   },
   components: {
@@ -52,7 +55,7 @@ export const theme = createTheme({
       styleOverrides: {
         body: { backgroundColor: BG },
         '*::-webkit-scrollbar': { width: 10, height: 10 },
-        '*::-webkit-scrollbar-thumb': { background: alpha(NAVY, 0.2), borderRadius: 4 },
+        '*::-webkit-scrollbar-thumb': { background: alpha(NAVY, 0.25), borderRadius: 4 },
       },
     },
     MuiPaper: {
@@ -64,22 +67,22 @@ export const theme = createTheme({
     MuiButton: {
       defaultProps: { disableElevation: true },
       styleOverrides: {
-        root: { borderRadius: 3, paddingInline: 16, paddingBlock: 7 },
+        root: { borderRadius: 4, paddingInline: 16, paddingBlock: 6 },
         containedPrimary: {
           background: NAVY,
-          '&:hover': { background: NAVY_SOFT },
+          '&:hover': { background: NAVY_INK },
         },
         containedSecondary: {
-          background: ORANGE,
-          color: '#FFFFFF',
-          '&:hover': { background: ORANGE_DARK },
+          background: ACCENT,
+          color: SIDEBAR,
+          '&:hover': { background: NAVY, color: '#FFFFFF' },
         },
-        outlinedPrimary: { borderColor: alpha(NAVY, 0.35), '&:hover': { borderColor: NAVY, background: alpha(NAVY, 0.04) } },
+        outlinedPrimary: { borderColor: alpha(NAVY, 0.4), '&:hover': { borderColor: NAVY, background: alpha(NAVY, 0.06) } },
       },
     },
     MuiChip: {
       styleOverrides: {
-        root: { borderRadius: 3, fontWeight: 500, fontSize: '0.75rem', letterSpacing: '0.02em' },
+        root: { borderRadius: 4, fontWeight: 600, fontSize: '0.75rem', letterSpacing: '0.02em' },
       },
     },
     MuiTextField: {
@@ -87,24 +90,27 @@ export const theme = createTheme({
     },
     MuiOutlinedInput: {
       styleOverrides: {
-        root: { background: PAPER, '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: NAVY, borderWidth: 1 } },
+        root: {
+          background: PAPER,
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: NAVY, borderWidth: 1 },
+        },
       },
     },
     MuiTab: {
       styleOverrides: {
         root: {
           textTransform: 'none',
-          fontWeight: 500,
+          fontWeight: 600,
           fontSize: '0.875rem',
           minHeight: 44,
           color: MUTED,
-          '&.Mui-selected': { color: NAVY, fontWeight: 600 },
+          '&.Mui-selected': { color: NAVY, fontWeight: 700 },
         },
       },
     },
     MuiTabs: {
       styleOverrides: {
-        indicator: { height: 3, background: ORANGE },
+        indicator: { height: 3, background: NAVY },
       },
     },
     MuiAppBar: {
@@ -114,7 +120,7 @@ export const theme = createTheme({
     },
     MuiTableCell: {
       styleOverrides: {
-        head: { fontWeight: 600, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: TEXT, background: alpha(NAVY, 0.03) },
+        head: { fontWeight: 700, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: MUTED, background: TINT_BLUE },
       },
     },
     MuiLink: {
@@ -123,4 +129,25 @@ export const theme = createTheme({
   },
 });
 
-export const tokens = { NAVY, NAVY_SOFT, NAVY_INK, ORANGE, ORANGE_SOFT, ORANGE_DARK, BG, PAPER, INK, TEXT, MUTED, LINE, HEADING, BODY };
+// Back-compat exports: legacy pages reference ORANGE / ORANGE_SOFT / ORANGE_DARK.
+// Map them to NoticeIQ's accent so existing components keep working without churn.
+export const tokens = {
+  NAVY,
+  NAVY_SOFT,
+  NAVY_INK,
+  SIDEBAR,
+  ACCENT,
+  ACCENT_SOFT,
+  ORANGE: NAVY,          // legacy alias → primary
+  ORANGE_SOFT: ACCENT,   // legacy alias → light accent
+  ORANGE_DARK: NAVY_INK, // legacy alias → deep navy
+  BG,
+  PAPER,
+  TINT_BLUE,
+  INK,
+  TEXT,
+  MUTED,
+  LINE,
+  HEADING,
+  BODY,
+};

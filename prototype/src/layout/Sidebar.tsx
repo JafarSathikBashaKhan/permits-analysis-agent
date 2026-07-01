@@ -85,7 +85,7 @@ export function Sidebar() {
         position: 'fixed',
         top: 0, left: 0, bottom: 0,
         width: SIDEBAR_WIDTH,
-        bgcolor: tokens.NAVY,
+        bgcolor: tokens.SIDEBAR,
         color: '#DFE6EE',
         display: 'flex',
         flexDirection: 'column',
@@ -93,7 +93,7 @@ export function Sidebar() {
       }}
     >
       <Box sx={{ px: 3, py: 3 }}>
-        <Typography variant="h4" sx={{ color: '#FFFFFF', fontFamily: '"Roboto Slab", Georgia, serif', letterSpacing: '0.02em', fontSize: '1.35rem' }}>
+        <Typography variant="h4" sx={{ color: '#FFFFFF', fontFamily: '"Open Sans", Georgia, serif', letterSpacing: '0.02em', fontSize: '1.35rem' }}>
           Marston
         </Typography>
         <Typography variant="caption" sx={{ color: tokens.ORANGE_SOFT, letterSpacing: '0.15em', textTransform: 'uppercase', fontSize: '0.65rem' }}>
