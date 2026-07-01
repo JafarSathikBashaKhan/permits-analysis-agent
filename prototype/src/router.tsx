@@ -1,0 +1,43 @@
+import { createBrowserRouter, Navigate } from 'react-router-dom';
+import { AppLayout } from './layout/AppLayout';
+import { HomePage } from './modules/home/HomePage';
+import { BuilderListPage } from './modules/builder/BuilderListPage';
+import { BuilderDesignPage } from './modules/builder/BuilderDesignPage';
+import { ApplicationsListPage } from './modules/applications/ApplicationsListPage';
+import { ApplicationDetailPage } from './modules/applications/ApplicationDetailPage';
+import { UsersLandingPage } from './modules/users/UsersLandingPage';
+import { RolesPage } from './modules/users/RolesPage';
+import { SystemUsersPage } from './modules/users/SystemUsersPage';
+import { ApplicantsPage } from './modules/users/ApplicantsPage';
+import { StreetsPage } from './modules/area/StreetsPage';
+import { ZonesPage } from './modules/area/ZonesPage';
+import { LocationsPage } from './modules/area/LocationsPage';
+import { ContractSettingsPage } from './modules/contractsettings/ContractSettingsPage';
+import { PrintQueuePage } from './modules/print/PrintQueuePage';
+import { ReportsPage } from './modules/reports/ReportsPage';
+
+export const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <AppLayout />,
+    children: [
+      { index: true, element: <HomePage /> },
+      { path: 'home', element: <Navigate to="/" replace /> },
+      { path: 'builder', element: <BuilderListPage /> },
+      { path: 'builder/:id', element: <BuilderDesignPage /> },
+      { path: 'builder/:id/:tab', element: <BuilderDesignPage /> },
+      { path: 'applications', element: <ApplicationsListPage /> },
+      { path: 'applications/:id', element: <ApplicationDetailPage /> },
+      { path: 'users', element: <UsersLandingPage /> },
+      { path: 'users/roles', element: <RolesPage /> },
+      { path: 'users/system', element: <SystemUsersPage /> },
+      { path: 'users/applicants', element: <ApplicantsPage /> },
+      { path: 'area/streets', element: <StreetsPage /> },
+      { path: 'area/zones', element: <ZonesPage /> },
+      { path: 'area/locations', element: <LocationsPage /> },
+      { path: 'contract-settings', element: <ContractSettingsPage /> },
+      { path: 'print', element: <PrintQueuePage /> },
+      { path: 'reports', element: <ReportsPage /> },
+    ],
+  },
+]);
