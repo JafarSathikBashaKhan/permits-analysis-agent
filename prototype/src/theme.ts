@@ -14,7 +14,7 @@ const BG          = '#F5F6F8';   // cool off-white background
 const PAPER       = '#FFFFFF';
 const INK         = '#1F2A3A';
 const TEXT        = '#54595F';   // Marston secondary text
-const MUTED       = '#7A7A7A';   // Marston text grey
+const MUTED       = '#5F6570';   // WCAG AA compliant on both BG and paper (was #7A7A7A: 3.97:1 → now 5.42:1)
 const LINE        = '#E1E4E8';
 
 const HEADING = '"Roboto Slab", Georgia, serif';
