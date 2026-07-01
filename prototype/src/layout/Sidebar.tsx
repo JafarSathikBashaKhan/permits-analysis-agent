@@ -218,7 +218,7 @@ export function Sidebar() {
                         </ListItemIcon>
                         <ListItemText
                           primary={it.label}
-                          primaryTypographyProps={{ fontSize: '0.875rem', fontWeight: 600, fontFamily: tokens.HEADING }}
+                          primaryTypographyProps={{ fontSize: '0.875rem', fontWeight: 600, fontFamily: tokens.HEADING, color: 'inherit' }}
                         />
                         {open ? <ExpandLess fontSize="small" sx={{ color: MUTED_TEXT }} /> : <ExpandMore fontSize="small" sx={{ color: MUTED_TEXT }} />}
                       </ListItemButton>
@@ -250,7 +250,7 @@ export function Sidebar() {
                                   </ListItemIcon>
                                   <ListItemText
                                     primary={c.label}
-                                    primaryTypographyProps={{ fontSize: '0.8125rem', fontWeight: active ? 600 : 500 }}
+                                    primaryTypographyProps={{ fontSize: '0.8125rem', fontWeight: active ? 600 : 500, color: 'inherit' }}
                                   />
                                 </ListItemButton>
                               );
@@ -280,7 +280,7 @@ export function Sidebar() {
                     <ListItemIcon sx={{ minWidth: 32, color: active ? '#FFFFFF' : IDLE_TEXT }}>{it.icon}</ListItemIcon>
                     <ListItemText
                       primary={it.label}
-                      primaryTypographyProps={{ fontSize: '0.875rem', fontWeight: 600, fontFamily: tokens.HEADING }}
+                      primaryTypographyProps={{ fontSize: '0.875rem', fontWeight: 600, fontFamily: tokens.HEADING, color: 'inherit' }}
                     />
                   </ListItemButton>
                 );
