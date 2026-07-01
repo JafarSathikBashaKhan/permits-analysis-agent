@@ -17,8 +17,8 @@ export function ReportsPage() {
           <Grid item xs={12} md={4} key={r.title}>
             <Paper sx={{ p: 3, height: '100%' }}>
               <Stack spacing={1.5} height="100%">
-                <div style={{ color: '#B08A2E' }}>{r.icon}</div>
-                <Typography sx={{ fontFamily: '"Fraunces", Georgia, serif', fontSize: '1.3rem', fontWeight: 600 }}>{r.title}</Typography>
+                <div style={{ color: '#E77E08' }}>{r.icon}</div>
+                <Typography sx={{ fontFamily: '"Roboto Slab", Georgia, serif', fontSize: '1.3rem', fontWeight: 600 }}>{r.title}</Typography>
                 <Typography variant="body2" color="text.secondary" flex={1}>{r.desc}</Typography>
                 <Typography variant="caption" color="text.secondary">{r.frequency}</Typography>
                 <Stack direction="row" spacing={1}>

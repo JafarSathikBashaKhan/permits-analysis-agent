@@ -18,7 +18,7 @@ export function BasicInformationTab({ permission }: { permission?: Permission })
 
   return (
     <>
-      <Alert severity="info" sx={{ mb: 3, background: '#F4F1E8', border: '1px solid #E4E1D8', color: 'text.primary' }}>
+      <Alert severity="info" sx={{ mb: 3, background: '#FFF7EC', border: '1px solid #E1E4E8', color: 'text.primary' }}>
         Basic information identifies this permission. The <b>Name</b> is shown to applicants; <b>Type</b>, <b>Group</b> and <b>Category</b> determine where it appears in the Back Office and the Buy Now flow.
       </Alert>
 
@@ -112,9 +112,9 @@ export function BasicInformationTab({ permission }: { permission?: Permission })
 
 function PreviewCard({ title, body, sub }: { title: string; body: string; sub: string }) {
   return (
-    <div style={{ flex: '1 1 300px', border: '1px solid #E4E1D8', padding: 16, borderRadius: 6, background: '#FFFFFF' }}>
+    <div style={{ flex: '1 1 300px', border: '1px solid #E1E4E8', padding: 16, borderRadius: 6, background: '#FFFFFF' }}>
       <Typography variant="caption" color="text.secondary" sx={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>{title}</Typography>
-      <Typography sx={{ fontFamily: '"Fraunces", Georgia, serif', fontSize: '1.15rem', fontWeight: 600, mt: 0.75 }}>{body}</Typography>
+      <Typography sx={{ fontFamily: '"Roboto Slab", Georgia, serif', fontSize: '1.15rem', fontWeight: 600, mt: 0.75 }}>{body}</Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{sub}</Typography>
     </div>
   );

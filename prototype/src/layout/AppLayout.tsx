@@ -6,7 +6,7 @@ import { tokens } from '../theme';
 
 export function AppLayout() {
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', background: tokens.CREAM }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', background: tokens.BG }}>
       <Sidebar />
       <Box sx={{ flex: 1, ml: `${SIDEBAR_WIDTH}px`, display: 'flex', flexDirection: 'column' }}>
         <Topbar />

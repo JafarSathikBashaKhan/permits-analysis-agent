@@ -13,7 +13,7 @@ export function SpecialEventsTab() {
 
   return (
     <>
-      <Alert severity="info" sx={{ mb: 3, background: '#F4F1E8', border: '1px solid #E4E1D8', color: 'text.primary' }}>
+      <Alert severity="info" sx={{ mb: 3, background: '#FFF7EC', border: '1px solid #E1E4E8', color: 'text.primary' }}>
         Configure the calendar of event dates on which this permission is valid. Only used when the <b>Special Event</b> toggle is enabled in General Settings.
       </Alert>
 

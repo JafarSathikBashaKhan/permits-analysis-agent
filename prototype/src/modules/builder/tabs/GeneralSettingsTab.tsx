@@ -25,7 +25,7 @@ export function GeneralSettingsTab({ permission }: { permission?: Permission }) 
 
   return (
     <>
-      <Alert severity="info" sx={{ mb: 3, background: '#F4F1E8', border: '1px solid #E4E1D8', color: 'text.primary' }}>
+      <Alert severity="info" sx={{ mb: 3, background: '#FFF7EC', border: '1px solid #E1E4E8', color: 'text.primary' }}>
         Configure the general parameters used across the applicant portal and Back Office. Toggles marked with an <b>info</b> icon inherit from Contract Settings unless overridden.
       </Alert>
 
@@ -151,7 +151,7 @@ export function GeneralSettingsTab({ permission }: { permission?: Permission }) 
 
 function ToggleRow({ label, hint, value, onChange }: { label: string; hint: string; value: boolean; onChange: (v: boolean) => void }) {
   return (
-    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 1.5, border: '1px solid #E4E1D8', borderRadius: 1, background: '#FFFFFF' }}>
+    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ p: 1.5, border: '1px solid #E1E4E8', borderRadius: 1, background: '#FFFFFF' }}>
       <div>
         <Typography variant="body2" fontWeight={600}>{label}<FieldHint text={hint} /></Typography>
       </div>

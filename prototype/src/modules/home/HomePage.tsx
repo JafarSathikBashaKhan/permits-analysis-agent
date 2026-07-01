@@ -21,7 +21,7 @@ function KpiCard({ icon, label, value, delta, tone = 'info' }: { icon: React.Rea
         )}
       </Stack>
       <Typography variant="caption" sx={{ textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>{label}</Typography>
-      <Typography sx={{ fontFamily: '"Fraunces", Georgia, serif', fontSize: '2rem', fontWeight: 600, lineHeight: 1.1, mt: 0.5 }}>{value}</Typography>
+      <Typography sx={{ fontFamily: '"Roboto Slab", Georgia, serif', fontSize: '2rem', fontWeight: 600, lineHeight: 1.1, mt: 0.5 }}>{value}</Typography>
     </Paper>
   );
 }
@@ -107,7 +107,7 @@ export function HomePage() {
                   <Typography variant="body2">{r.label}</Typography>
                   <Typography variant="body2" color="text.secondary">{r.value} / {r.cap}</Typography>
                 </Stack>
-                <LinearProgress variant="determinate" value={(r.value / r.cap) * 100} sx={{ height: 6, borderRadius: 3, bgcolor: `${tokens.NAVY}10`, '& .MuiLinearProgress-bar': { bgcolor: tokens.GOLD } }} />
+                <LinearProgress variant="determinate" value={(r.value / r.cap) * 100} sx={{ height: 6, borderRadius: 3, bgcolor: `${tokens.NAVY}10`, '& .MuiLinearProgress-bar': { bgcolor: tokens.ORANGE } }} />
               </Box>
             ))}
           </Paper>
