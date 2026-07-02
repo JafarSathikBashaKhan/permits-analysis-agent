@@ -18,6 +18,7 @@ import { ContractSettingsPage } from './modules/contractsettings/ContractSetting
 import { PrintQueuePage } from './modules/print/PrintQueuePage';
 import { ReportsPage } from './modules/reports/ReportsPage';
 import { DashboardPage } from './modules/dashboard/DashboardPage';
+import { PlaceholderPage } from './shared/PlaceholderPage';
 
 // Router basename follows the Vite base path so the app works both at the
 // site root (dev) and under a sub-path (e.g. /permits001 on Azure).
@@ -50,6 +51,17 @@ export const router = createBrowserRouter(
         { path: 'print', element: <PrintQueuePage /> },
         { path: 'reports', element: <ReportsPage /> },
         { path: 'dashboard', element: <DashboardPage /> },
+        { path: 'templates', element: <PlaceholderPage eyebrow="Configuration" title="Templates" description="Document types, terms & conditions, alerts and tooltips." /> },
+        { path: 'templates/documents', element: <PlaceholderPage eyebrow="Templates" title="Document Types" /> },
+        { path: 'templates/terms', element: <PlaceholderPage eyebrow="Templates" title="Terms & Conditions" /> },
+        { path: 'templates/alerts', element: <PlaceholderPage eyebrow="Templates" title="Alerts & Tooltips" /> },
+        { path: 'system-audits', element: <PlaceholderPage eyebrow="Governance" title="System Audits" description="Filterable audit log across all modules." /> },
+        { path: 'vehicles', element: <PlaceholderPage eyebrow="Operations" title="Vehicles" description="Vehicles registered against applicants (VRM, make, model, colour, CO₂)." /> },
+        { path: 'notifications', element: <PlaceholderPage eyebrow="Operations" title="Notifications" description="System notifications and message centre." /> },
+        { path: 'apply-config', element: <PlaceholderPage eyebrow="Configuration" title="Apply Config" description="MNPS contract-level configuration and toggles." /> },
+        { path: 'apply-config/settings', element: <PlaceholderPage eyebrow="Apply Config" title="Apply Settings" /> },
+        { path: 'apply-config/toggles', element: <PlaceholderPage eyebrow="Apply Config" title="Toggles" /> },
+        { path: 'apply-config/reject-reasons', element: <PlaceholderPage eyebrow="Apply Config" title="Reject Reasons" /> },
       ],
     },
   ],
