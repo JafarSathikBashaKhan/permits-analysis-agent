@@ -1,8 +1,9 @@
 import {
   Box, Button, IconButton, MenuItem, Paper, Select, Stack, Tab, Tabs, TextField, Typography, Divider, Menu, Link as MuiLink,
+  Radio, RadioGroup, FormControlLabel, Checkbox, InputAdornment, Tooltip,
 } from '@mui/material';
 import {
-  SaveOutlined, UploadOutlined, MoreVertOutlined, ChevronRight,
+  SaveOutlined, UploadOutlined, MoreVertOutlined, ChevronRight, ErrorOutlineOutlined,
 } from '@mui/icons-material';
 import { useMemo, useState, MouseEvent } from 'react';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
@@ -14,6 +15,7 @@ type TopTab = 'permissions' | 'rules' | 'pricing' | 'application-form';
 const PERMISSION_SUBS = [
   'Basic Information',
   'General Settings',
+  'Zone Mapping',
   'Permission Label',
   'Payment Settings',
   'Discount Settings',
@@ -21,6 +23,7 @@ const PERMISSION_SUBS = [
   'Merchant Settings',
   'Renewals and Reminders',
   'Email Templates',
+  'Visitor Portal Settings',
 ] as const;
 type PermissionSub = typeof PERMISSION_SUBS[number];
 
@@ -43,6 +46,27 @@ export function BuilderDesignPage() {
   const [group, setGroup] = useState<string>(perm?.group ?? '');
   const [category, setCategory] = useState<string>(perm?.category ?? '');
   const [description, setDescription] = useState('');
+
+  // Form state (General Settings)
+  const [gs, setGs] = useState({
+    specialEvent: 'disable',
+    startDatePolicy: '',
+    permitDaysSelection: 'disable',
+    retentionDays: '90',
+    prefix: '',
+    termsAndConditions: '',
+    displayDescription: '',
+    permitMode: 'both',
+    backOfficeUse: false,
+    vatApplicable: false,
+    hoursOfOperation: false,
+    enableExperianCheck: false,
+    businessName: false,
+    businessAddress: false,
+    commentBox: false,
+    adminFee: '',
+  });
+  const gsSet = <K extends keyof typeof gs>(k: K, v: (typeof gs)[K]) => setGs((p) => ({ ...p, [k]: v }));
 
   const availableGroups = type ? (groupsByType[type] ?? []) : Object.values(groupsByType).flat();
 
@@ -176,8 +200,130 @@ export function BuilderDesignPage() {
                 </>
               )}
 
-              {sub !== 'Basic Information' && (
+              {sub !== 'Basic Information' && sub !== 'General Settings' && (
                 <PlaceholderSection title={sub} />
+              )}
+
+              {sub === 'General Settings' && (
+                <>
+                  <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1.15rem', color: tokens.INK }}>
+                    General Settings
+                  </Typography>
+                  <Divider sx={{ my: 2 }} />
+
+                  <FormRow label="Special Event">
+                    <RadioGroup row value={gs.specialEvent} onChange={(e) => gsSet('specialEvent', e.target.value)}>
+                      <FormControlLabel value="enable" control={<Radio />} label="Enable" sx={{ mr: 5 }} />
+                      <FormControlLabel value="disable" control={<Radio />} label="Disable" />
+                    </RadioGroup>
+                  </FormRow>
+
+                  <FormRow label="Start Date Policy">
+                    <Select displayEmpty value={gs.startDatePolicy} onChange={(e) => gsSet('startDatePolicy', e.target.value)} fullWidth>
+                      <MenuItem value=""><em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select</em></MenuItem>
+                      <MenuItem value="immediate">Immediate</MenuItem>
+                      <MenuItem value="next-day">Next Day</MenuItem>
+                      <MenuItem value="custom">Custom Date</MenuItem>
+                    </Select>
+                  </FormRow>
+
+                  <FormRow label="Permit Days Selection">
+                    <RadioGroup row value={gs.permitDaysSelection} onChange={(e) => gsSet('permitDaysSelection', e.target.value)}>
+                      <FormControlLabel value="enable" control={<Radio />} label="Enable" sx={{ mr: 5 }} />
+                      <FormControlLabel value="disable" control={<Radio />} label="Disable" />
+                    </RadioGroup>
+                  </FormRow>
+
+                  <FormRow label="Retention Period Expired Permits" info="Number of days expired permits are retained before archival.">
+                    <Stack direction="row" alignItems="center" spacing={2}>
+                      <TextField
+                        type="number"
+                        value={gs.retentionDays}
+                        onChange={(e) => gsSet('retentionDays', e.target.value)}
+                        sx={{ width: 200 }}
+                      />
+                      <Typography sx={{ color: tokens.INK }}>Days</Typography>
+                    </Stack>
+                  </FormRow>
+
+                  <FormRow label="Prefix" info="Prefix will be prepended to every permit number.">
+                    <TextField placeholder="Enter Prefix" value={gs.prefix} onChange={(e) => gsSet('prefix', e.target.value)} />
+                  </FormRow>
+
+                  <FormRow label="Terms and Conditions">
+                    <Select displayEmpty value={gs.termsAndConditions} onChange={(e) => gsSet('termsAndConditions', e.target.value)} fullWidth>
+                      <MenuItem value=""><em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select</em></MenuItem>
+                      <MenuItem value="standard">Standard T&C v1</MenuItem>
+                      <MenuItem value="visitor">Visitor T&C v2</MenuItem>
+                      <MenuItem value="business">Business T&C v1</MenuItem>
+                    </Select>
+                  </FormRow>
+
+                  <FormRow label="Display Description" optional>
+                    <TextField
+                      placeholder="Enter Display Description"
+                      value={gs.displayDescription}
+                      onChange={(e) => gsSet('displayDescription', e.target.value)}
+                      multiline minRows={3}
+                    />
+                  </FormRow>
+
+                  <FormRow label="Permit Mode">
+                    <Stack spacing={1}>
+                      <RadioGroup row value={gs.permitMode} onChange={(e) => gsSet('permitMode', e.target.value)}>
+                        <FormControlLabel value="virtual" control={<Radio />} label="Virtual Permit" sx={{ mr: 4 }} />
+                        <FormControlLabel value="physical" control={<Radio />} label="Physical Permit" sx={{ mr: 4 }} />
+                        <FormControlLabel value="both" control={<Radio />} label="Both" />
+                      </RadioGroup>
+                      <Stack direction="row" spacing={4}>
+                        <FormControlLabel
+                          control={<Checkbox checked={gs.backOfficeUse} onChange={(e) => gsSet('backOfficeUse', e.target.checked)} />}
+                          label="Back Office Use"
+                        />
+                        <FormControlLabel
+                          control={<Checkbox checked={gs.vatApplicable} onChange={(e) => gsSet('vatApplicable', e.target.checked)} />}
+                          label="VAT Applicable"
+                        />
+                        <FormControlLabel
+                          control={<Checkbox checked={gs.hoursOfOperation} onChange={(e) => gsSet('hoursOfOperation', e.target.checked)} />}
+                          label="Hours of Operation"
+                        />
+                      </Stack>
+                    </Stack>
+                  </FormRow>
+
+                  <FormRow label="Other Settings" optional>
+                    <Stack spacing={1}>
+                      <Stack direction="row" spacing={4}>
+                        <FormControlLabel
+                          control={<Checkbox checked={gs.enableExperianCheck} onChange={(e) => gsSet('enableExperianCheck', e.target.checked)} />}
+                          label="Enable Experian Check"
+                        />
+                        <FormControlLabel
+                          control={<Checkbox checked={gs.businessName} onChange={(e) => gsSet('businessName', e.target.checked)} />}
+                          label="Business Name"
+                        />
+                        <FormControlLabel
+                          control={<Checkbox checked={gs.businessAddress} onChange={(e) => gsSet('businessAddress', e.target.checked)} />}
+                          label="Business Address"
+                        />
+                      </Stack>
+                      <FormControlLabel
+                        control={<Checkbox checked={gs.commentBox} onChange={(e) => gsSet('commentBox', e.target.checked)} />}
+                        label="Comment Box"
+                      />
+                    </Stack>
+                  </FormRow>
+
+                  <FormRow label="Admin fee for Permission" optional>
+                    <TextField
+                      placeholder="Enter Admin Fee"
+                      value={gs.adminFee}
+                      onChange={(e) => gsSet('adminFee', e.target.value)}
+                      InputProps={{ startAdornment: <InputAdornment position="start">£</InputAdornment> }}
+                    />
+                  </FormRow>
+                </>
               )}
             </Paper>
           </Stack>
@@ -199,14 +345,21 @@ const topTabSx = {
   minHeight: 48,
 };
 
-function FormRow({ label, children, optional }: { label: string; children: React.ReactNode; optional?: boolean }) {
+function FormRow({ label, children, optional, info }: { label: string; children: React.ReactNode; optional?: boolean; info?: string }) {
   return (
     <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'flex-start' }} sx={{ mb: 2.5 }}>
-      <Box sx={{ width: { md: 180 }, pt: { md: 1 } }}>
-        <Typography sx={{ fontSize: '0.95rem', color: tokens.INK, fontWeight: 500 }}>
-          {label}
-          {optional && <Typography component="span" sx={{ color: tokens.MUTED, fontSize: '0.8rem', ml: 0.75 }}>(optional)</Typography>}
-        </Typography>
+      <Box sx={{ width: { md: 220 }, pt: { md: 1 } }}>
+        <Stack direction="row" alignItems="center" spacing={0.75}>
+          <Typography sx={{ fontSize: '0.95rem', color: tokens.INK, fontWeight: 500 }}>
+            {label}
+            {optional && <Typography component="span" sx={{ color: tokens.MUTED, fontSize: '0.8rem', ml: 0.75 }}>(optional)</Typography>}
+          </Typography>
+          {info && (
+            <Tooltip title={info} arrow>
+              <ErrorOutlineOutlined sx={{ fontSize: 16, color: '#E9A400' }} />
+            </Tooltip>
+          )}
+        </Stack>
       </Box>
       <Box sx={{ flex: 1 }}>{children}</Box>
     </Stack>
