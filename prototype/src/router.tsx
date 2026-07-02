@@ -62,6 +62,7 @@ export const router = createBrowserRouter(
         { path: 'apply-config/settings', element: <PlaceholderPage eyebrow="Apply Config" title="Apply Settings" /> },
         { path: 'apply-config/toggles', element: <PlaceholderPage eyebrow="Apply Config" title="Toggles" /> },
         { path: 'apply-config/reject-reasons', element: <PlaceholderPage eyebrow="Apply Config" title="Reject Reasons" /> },
+        { path: 'pricing', element: <PlaceholderPage eyebrow="Permission Setup" title="Pricing" description="Standard, tiered and diesel-surcharge pricing across permission types." /> },
       ],
     },
   ],

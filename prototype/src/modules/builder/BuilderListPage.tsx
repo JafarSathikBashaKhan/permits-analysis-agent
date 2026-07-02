@@ -1,103 +1,197 @@
-import { Box, Button, Chip, InputAdornment, MenuItem, Paper, Stack, TextField, Typography, IconButton, Tooltip } from '@mui/material';
-import { Add, Search, FilterListOutlined, MoreVertOutlined, VisibilityOutlined, ContentCopyOutlined, PublishedWithChangesOutlined } from '@mui/icons-material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { useMemo, useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { PageHeader } from '../../shared/PageHeader';
-import { StatusChip } from '../../shared/StatusChip';
-import { permissions, permissionTypes } from '../../data/mock';
+import {
+  Box, Button, Chip, IconButton, InputAdornment, Menu, MenuItem, Paper,
+  Stack, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow,
+  TextField, Typography, Checkbox, Tooltip, Link,
+} from '@mui/material';
+import {
+  Add, Search, FilterListOutlined, ViewColumnOutlined, MoreVertOutlined,
+  VisibilityOutlined, ContentCopyOutlined, PublishedWithChangesOutlined, DeleteOutline,
+} from '@mui/icons-material';
+import { useMemo, useState, MouseEvent } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
+import { permissions } from '../../data/mock';
+import { tokens } from '../../theme';
 
 export function BuilderListPage() {
-  const nav = useNavigate();
   const [q, setQ] = useState('');
-  const [type, setType] = useState<string>('All');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const rows = useMemo(() => permissions.filter((p) => {
-    const okQ = q === '' || p.name.toLowerCase().includes(q.toLowerCase()) || (p.prefix ?? '').toLowerCase().includes(q.toLowerCase());
-    const okT = type === 'All' || p.type === type;
-    return okQ && okT;
-  }), [q, type]);
+    if (!q.trim()) return true;
+    const s = q.toLowerCase();
+    return p.name.toLowerCase().includes(s) || p.type.toLowerCase().includes(s) || p.group.toLowerCase().includes(s);
+  }), [q]);
 
-  const cols: GridColDef[] = [
-    {
-      field: 'name', headerName: 'Permission', flex: 1.4, minWidth: 220,
-      renderCell: (p) => (
-        <Box>
-          <Typography variant="body2" sx={{ fontWeight: 600 }}>{p.value}</Typography>
-          <Typography variant="caption" color="text.secondary">{p.row.prefix} · v{p.row.version}</Typography>
-        </Box>
-      ),
-    },
-    { field: 'type', headerName: 'Type', width: 110 },
-    { field: 'group', headerName: 'Group', width: 130 },
-    { field: 'category', headerName: 'Category', width: 150 },
-    {
-      field: 'price', headerName: 'Price', width: 90, align: 'right', headerAlign: 'right',
-      valueFormatter: (v) => `£${v}`,
-    },
-    { field: 'zones', headerName: 'Zones', width: 80, align: 'right', headerAlign: 'right' },
-    {
-      field: 'status', headerName: 'Status', width: 130,
-      renderCell: (p) => <StatusChip status={p.value} />,
-    },
-    { field: 'lastUpdated', headerName: 'Updated', width: 120 },
-    {
-      field: 'actions', headerName: '', width: 130, sortable: false, filterable: false, align: 'right', headerAlign: 'right',
-      renderCell: (p) => (
-        <Stack direction="row">
-          <Tooltip title="Open"><IconButton size="small" onClick={() => nav(`/builder/${p.id}`)}><VisibilityOutlined fontSize="small" /></IconButton></Tooltip>
-          <Tooltip title="Clone"><IconButton size="small"><ContentCopyOutlined fontSize="small" /></IconButton></Tooltip>
-          <Tooltip title={p.row.status === 'Draft' ? 'Publish' : 'Unpublish'}>
-            <IconButton size="small"><PublishedWithChangesOutlined fontSize="small" /></IconButton>
-          </Tooltip>
-        </Stack>
-      ),
-    },
-  ];
+  const visible = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const allSelected = visible.length > 0 && visible.every((r) => selected.has(r.id));
+  const someSelected = visible.some((r) => selected.has(r.id)) && !allSelected;
+
+  const toggleAll = () => {
+    const s = new Set(selected);
+    if (allSelected) visible.forEach((r) => s.delete(r.id));
+    else visible.forEach((r) => s.add(r.id));
+    setSelected(s);
+  };
+  const toggleOne = (id: string) => {
+    const s = new Set(selected);
+    if (s.has(id)) s.delete(id); else s.add(id);
+    setSelected(s);
+  };
 
   return (
     <>
-      <PageHeader
-        eyebrow="Builder"
-        title="Permission templates"
-        description="Create and manage the permission types available to applicants and back-office staff."
-        actions={
-          <>
-            <Button variant="outlined" color="primary" startIcon={<FilterListOutlined />}>Filters</Button>
-            <Button variant="contained" color="primary" startIcon={<Add />} component={RouterLink} to="/builder/new">Create permission</Button>
-          </>
-        }
-      />
+      {/* Header row */}
+      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2.5 }}>
+        <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1.75rem', color: tokens.INK }}>
+          Builder
+        </Typography>
+        <Button
+          variant="contained"
+          startIcon={<Add />}
+          component={RouterLink}
+          to="/builder/new"
+          sx={{ px: 2.5, py: 1, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}
+        >
+          New Permission
+        </Button>
+      </Stack>
 
-      <Paper sx={{ p: 2, mb: 2 }}>
-        <Stack direction="row" spacing={2} alignItems="center">
+      <Paper sx={{ overflow: 'hidden' }}>
+        {/* Search + column/filter icons */}
+        <Stack direction="row" alignItems="center" sx={{ px: 3, py: 2, borderBottom: `1px solid ${tokens.LINE}` }}>
           <TextField
-            placeholder="Search by name or prefix…"
+            placeholder="Search by Permission Name, Ty..."
             value={q}
-            onChange={(e) => setQ(e.target.value)}
-            sx={{ maxWidth: 320 }}
-            InputProps={{ startAdornment: (<InputAdornment position="start"><Search fontSize="small" /></InputAdornment>) }}
+            onChange={(e) => { setQ(e.target.value); setPage(0); }}
+            variant="standard"
+            InputProps={{
+              disableUnderline: true,
+              startAdornment: (<InputAdornment position="start"><Search sx={{ color: tokens.MUTED }} /></InputAdornment>),
+            }}
+            sx={{ flex: 1, maxWidth: 540 }}
           />
-          <TextField select value={type} onChange={(e) => setType(e.target.value)} sx={{ width: 200 }} label="Type">
-            <MenuItem value="All">All types</MenuItem>
-            {permissionTypes.map((t) => <MenuItem key={t} value={t}>{t}</MenuItem>)}
-          </TextField>
           <Box sx={{ flex: 1 }} />
-          <Typography variant="body2" color="text.secondary">{rows.length} of {permissions.length}</Typography>
+          <Tooltip title="Columns"><IconButton sx={{ color: tokens.NAVY }}><ViewColumnOutlined /></IconButton></Tooltip>
+          <Tooltip title="Filter"><IconButton sx={{ color: tokens.NAVY }}><FilterListOutlined /></IconButton></Tooltip>
         </Stack>
-      </Paper>
 
-      <Paper sx={{ p: 0, overflow: 'hidden' }}>
-        <DataGrid
-          rows={rows}
-          columns={cols}
-          autoHeight
-          disableRowSelectionOnClick
-          pageSizeOptions={[10, 25, 50]}
-          initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
-          sx={{ '& .MuiDataGrid-cell': { py: 1.5 } }}
+        <TableContainer>
+          <Table sx={{ '& .MuiTableCell-root': { borderBottom: `1px solid ${tokens.LINE}` } }}>
+            <TableHead>
+              <TableRow>
+                <TableCell padding="checkbox" sx={{ bgcolor: '#FFF' }}>
+                  <Checkbox
+                    indeterminate={someSelected}
+                    checked={allSelected}
+                    onChange={toggleAll}
+                  />
+                </TableCell>
+                <HeadCell>Permission Name</HeadCell>
+                <HeadCell>Description</HeadCell>
+                <HeadCell>Type</HeadCell>
+                <HeadCell>Group</HeadCell>
+                <HeadCell>Status</HeadCell>
+                <HeadCell align="right">Actions</HeadCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {visible.map((p) => (
+                <PermissionRow
+                  key={p.id}
+                  row={p}
+                  checked={selected.has(p.id)}
+                  onToggle={() => toggleOne(p.id)}
+                />
+              ))}
+              {visible.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={7} align="center" sx={{ py: 8, color: tokens.MUTED }}>
+                    No permissions match your search.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        <TablePagination
+          component="div"
+          count={rows.length}
+          page={page}
+          onPageChange={(_, p) => setPage(p)}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
+          rowsPerPageOptions={[10, 25, 50]}
+          labelRowsPerPage="Rows per page:"
         />
       </Paper>
     </>
+  );
+}
+
+function HeadCell({ children, align }: { children: React.ReactNode; align?: 'left' | 'right' }) {
+  return (
+    <TableCell align={align} sx={{
+      bgcolor: '#FFF', color: tokens.INK, fontWeight: 700, fontSize: '0.85rem',
+      textTransform: 'none', letterSpacing: 0, py: 1.5,
+    }}>
+      {children}
+    </TableCell>
+  );
+}
+
+function PermissionRow({ row, checked, onToggle }: {
+  row: typeof permissions[number]; checked: boolean; onToggle: () => void;
+}) {
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null);
+  const description = row.category === 'Resident' ? 'Resident Permission'
+    : row.category === 'Visitor' ? 'Visitor Permission'
+    : row.category === 'Disabled Bay' ? 'Disabled Bay Permission'
+    : row.category === 'Scratch card' ? 'Scratch card Permission'
+    : row.name;
+
+  const openMenu = (e: MouseEvent<HTMLElement>) => setAnchor(e.currentTarget);
+  const closeMenu = () => setAnchor(null);
+
+  return (
+    <TableRow hover selected={checked} sx={{ '& .MuiTableCell-root': { py: 1.5 } }}>
+      <TableCell padding="checkbox"><Checkbox checked={checked} onChange={onToggle} /></TableCell>
+      <TableCell>
+        <Link
+          component={RouterLink}
+          to={`/builder/${row.id}`}
+          underline="hover"
+          sx={{ color: tokens.NAVY, fontWeight: 500 }}
+        >
+          {row.name}
+        </Link>
+      </TableCell>
+      <TableCell sx={{ color: tokens.INK }}>{description}</TableCell>
+      <TableCell sx={{ color: tokens.INK }}>{row.type}</TableCell>
+      <TableCell sx={{ color: tokens.INK }}>{row.group}</TableCell>
+      <TableCell>
+        <Chip
+          label={row.status}
+          size="small"
+          variant="outlined"
+          sx={{
+            borderColor: row.status === 'Draft' ? tokens.LINE : '#C8E6C9',
+            color: row.status === 'Draft' ? tokens.INK : '#2E7D32',
+            bgcolor: '#FFF', fontWeight: 500, borderRadius: '999px',
+          }}
+        />
+      </TableCell>
+      <TableCell align="right">
+        <IconButton size="small" onClick={openMenu}><MoreVertOutlined /></IconButton>
+        <Menu anchorEl={anchor} open={!!anchor} onClose={closeMenu}>
+          <MenuItem onClick={closeMenu}><VisibilityOutlined fontSize="small" style={{ marginRight: 8 }} />Open</MenuItem>
+          <MenuItem onClick={closeMenu}><ContentCopyOutlined fontSize="small" style={{ marginRight: 8 }} />Clone</MenuItem>
+          <MenuItem onClick={closeMenu}><PublishedWithChangesOutlined fontSize="small" style={{ marginRight: 8 }} />{row.status === 'Draft' ? 'Publish' : 'Unpublish'}</MenuItem>
+          <MenuItem onClick={closeMenu} sx={{ color: '#C62828' }}><DeleteOutline fontSize="small" style={{ marginRight: 8 }} />Delete</MenuItem>
+        </Menu>
+      </TableCell>
+    </TableRow>
   );
 }

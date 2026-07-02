@@ -70,7 +70,8 @@ const items: NavItem[] = [
   {
     label: 'Permission Setup', to: '/builder', icon: <ConstructionOutlined fontSize="small" />,
     children: [
-      { label: 'Permissions', to: '/builder', icon: <CategoryOutlined fontSize="small" /> },
+      { label: 'Pricing', to: '/pricing', icon: <CategoryOutlined fontSize="small" /> },
+      { label: 'Builder', to: '/builder', icon: <ConstructionOutlined fontSize="small" /> },
       { label: 'Groups', to: '/builder/groups', icon: <GroupWorkOutlined fontSize="small" /> },
     ],
   },
