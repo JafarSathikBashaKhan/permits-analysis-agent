@@ -17,6 +17,7 @@ import { SpecialEventsPage } from './modules/area/SpecialEventsPage';
 import { ContractSettingsPage } from './modules/contractsettings/ContractSettingsPage';
 import { PrintQueuePage } from './modules/print/PrintQueuePage';
 import { ReportsPage } from './modules/reports/ReportsPage';
+import { DashboardPage } from './modules/dashboard/DashboardPage';
 
 // Router basename follows the Vite base path so the app works both at the
 // site root (dev) and under a sub-path (e.g. /permits001 on Azure).
@@ -48,6 +49,7 @@ export const router = createBrowserRouter(
         { path: 'contract-settings', element: <ContractSettingsPage /> },
         { path: 'print', element: <PrintQueuePage /> },
         { path: 'reports', element: <ReportsPage /> },
+        { path: 'dashboard', element: <DashboardPage /> },
       ],
     },
   ],
