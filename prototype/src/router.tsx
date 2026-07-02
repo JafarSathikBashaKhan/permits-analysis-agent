@@ -34,6 +34,7 @@ export const router = createBrowserRouter(
         { index: true, element: <HomePage /> },
         { path: 'home', element: <Navigate to="/" replace /> },
         { path: 'builder', element: <BuilderListPage /> },
+        { path: 'builder/new', element: <BuilderDesignPage /> },
         { path: 'builder/groups', element: <BuilderGroupsPage /> },
         { path: 'builder/:id', element: <BuilderDesignPage /> },
         { path: 'builder/:id/:tab', element: <BuilderDesignPage /> },
