@@ -1,5 +1,5 @@
 import {
-  Box, Button, Dialog, DialogContent, DialogTitle, Divider, Grid,
+  Box, Button, Drawer, Divider, Grid,
   IconButton, InputAdornment, Paper, Stack, Tab, Tabs, TextField, Typography, Chip,
 } from '@mui/material';
 import { Add, Upload, Close, Cancel } from '@mui/icons-material';
@@ -78,24 +78,23 @@ function NewStreetDialog({ open, onClose }: { open: boolean; onClose: () => void
   const canSubmit = streetName.trim() && usrn.trim() && town.trim();
 
   return (
-    <Dialog
+    <Drawer
+      anchor="right"
       open={open}
       onClose={handleClose}
-      maxWidth="md"
-      fullWidth
-      PaperProps={{ sx: { minHeight: 640, borderRadius: 1 } }}
+      PaperProps={{ sx: { width: { xs: '100%', sm: 560, md: 640 }, display: 'flex', flexDirection: 'column' } }}
     >
-      <DialogTitle sx={{ px: 3, py: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', textTransform: 'none', letterSpacing: 0 }}>
-        <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1.25rem', textTransform: 'none', letterSpacing: 0, color: tokens.INK }}>
+      <Box sx={{ px: 3, py: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1.25rem', color: tokens.INK }}>
           New Street
         </Typography>
         <IconButton onClick={handleClose} size="small" edge="end">
           <Close />
         </IconButton>
-      </DialogTitle>
+      </Box>
       <Divider />
 
-      <DialogContent sx={{ px: 3, py: 3, flex: 1 }}>
+      <Box sx={{ px: 3, py: 3, flex: 1, overflowY: 'auto' }}>
         <Grid container spacing={2.5}>
           <Grid item xs={12} md={6}>
             <FieldLabel>Street Name</FieldLabel>
@@ -153,7 +152,7 @@ function NewStreetDialog({ open, onClose }: { open: boolean; onClose: () => void
             )}
           </Grid>
         </Grid>
-      </DialogContent>
+      </Box>
 
       <Divider />
       <Box sx={{ px: 3, py: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -174,7 +173,7 @@ function NewStreetDialog({ open, onClose }: { open: boolean; onClose: () => void
           </Button>
         </Stack>
       </Box>
-    </Dialog>
+    </Drawer>
   );
 }
 
