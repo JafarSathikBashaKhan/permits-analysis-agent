@@ -1,9 +1,9 @@
 import {
   Box, Button, IconButton, MenuItem, Paper, Select, Stack, Tab, Tabs, TextField, Typography, Divider, Menu, Link as MuiLink,
-  Radio, RadioGroup, FormControlLabel, Checkbox, InputAdornment, Tooltip,
+  Radio, RadioGroup, FormControlLabel, Checkbox, InputAdornment, Tooltip, Alert,
 } from '@mui/material';
 import {
-  SaveOutlined, UploadOutlined, MoreVertOutlined, ChevronRight, ErrorOutlineOutlined,
+  SaveOutlined, UploadOutlined, MoreVertOutlined, ChevronRight, ErrorOutlineOutlined, AddOutlined,
 } from '@mui/icons-material';
 import { useMemo, useState, MouseEvent } from 'react';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
@@ -200,8 +200,38 @@ export function BuilderDesignPage() {
                 </>
               )}
 
-              {sub !== 'Basic Information' && sub !== 'General Settings' && (
+              {sub !== 'Basic Information' && sub !== 'General Settings' && sub !== 'Zone Mapping' && (
                 <PlaceholderSection title={sub} />
+              )}
+
+              {sub === 'Zone Mapping' && (
+                <>
+                  <Stack direction="row" alignItems="center" justifyContent="space-between">
+                    <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1.15rem', color: tokens.INK }}>
+                      Zone Mapping
+                    </Typography>
+                    <Button
+                      variant="outlined"
+                      startIcon={<AddOutlined />}
+                      sx={{ fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}
+                    >
+                      New Zone Set
+                    </Button>
+                  </Stack>
+                  <Divider sx={{ my: 2 }} />
+                  <Alert
+                    severity="info"
+                    icon={<ErrorOutlineOutlined sx={{ color: tokens.NAVY }} />}
+                    sx={{
+                      bgcolor: '#E3ECF7',
+                      color: tokens.INK,
+                      border: `1px solid #C7D6EA`,
+                      '& .MuiAlert-icon': { color: tokens.NAVY, alignItems: 'center' },
+                    }}
+                  >
+                    Zone limits for this permission are set to <strong>No Limit</strong> by default. If required, they can be configured by saving the permission as Draft.
+                  </Alert>
+                </>
               )}
 
               {sub === 'General Settings' && (
