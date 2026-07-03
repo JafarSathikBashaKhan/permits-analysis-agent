@@ -2,8 +2,10 @@ import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { AppLayout } from './layout/AppLayout';
 import { HomePage } from './modules/home/HomePage';
 import { BuilderListPage } from './modules/builder/BuilderListPage';
-import { BuilderGroupsPage } from './modules/builder/BuilderGroupsPage';
+import { GroupsPage } from './modules/builder/GroupsPage';
 import { BuilderDesignPage } from './modules/builder/BuilderDesignPage';
+import { PricingPage } from './modules/pricing/PricingPage';
+import { PurchaseReasonPage } from './modules/purchasereason/PurchaseReasonPage';
 import { ApplicationsListPage } from './modules/applications/ApplicationsListPage';
 import { ApplicationDetailPage } from './modules/applications/ApplicationDetailPage';
 import { RolesPage } from './modules/users/RolesPage';
@@ -56,9 +58,9 @@ export const router = createBrowserRouter(
         { path: 'builder/new', element: <BuilderDesignPage /> },
         { path: 'builder/:id', element: <BuilderDesignPage /> },
         { path: 'builder/:id/:tab', element: <BuilderDesignPage /> },
-        { path: 'groups', element: <BuilderGroupsPage /> },
-        { path: 'pricing', element: <PlaceholderPage eyebrow="Permission Setup" title="Pricing" description="Standard, Min-Incremental, Fixed Duration and Import pricing tabs." /> },
-        { path: 'purchasereason', element: <PlaceholderPage eyebrow="Permission Setup" title="Purchase Reason" description="Reason codes for permit purchase (list + import)." /> },
+        { path: 'groups', element: <GroupsPage /> },
+        { path: 'pricing', element: <PricingPage /> },
+        { path: 'purchasereason', element: <PurchaseReasonPage /> },
 
         // Templates
         { path: 'documenttypes', element: <PlaceholderPage eyebrow="Templates" title="Document Types" description="Document types + preview." /> },

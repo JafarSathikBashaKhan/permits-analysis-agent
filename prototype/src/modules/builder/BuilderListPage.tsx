@@ -89,10 +89,12 @@ export function BuilderListPage() {
                   />
                 </TableCell>
                 <HeadCell>Permission Name</HeadCell>
-                <HeadCell>Description</HeadCell>
-                <HeadCell>Type</HeadCell>
+                <HeadCell>Permission Type</HeadCell>
                 <HeadCell>Group</HeadCell>
+                <HeadCell>Scope</HeadCell>
                 <HeadCell>Status</HeadCell>
+                <HeadCell>Created On</HeadCell>
+                <HeadCell>Created By</HeadCell>
                 <HeadCell align="right">Actions</HeadCell>
               </TableRow>
             </TableHead>
@@ -107,7 +109,7 @@ export function BuilderListPage() {
               ))}
               {visible.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 8, color: tokens.MUTED }}>
+                  <TableCell colSpan={9} align="center" sx={{ py: 8, color: tokens.MUTED }}>
                     No permissions match your search.
                   </TableCell>
                 </TableRow>
@@ -146,11 +148,9 @@ function PermissionRow({ row, checked, onToggle }: {
   row: typeof permissions[number]; checked: boolean; onToggle: () => void;
 }) {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
-  const description = row.category === 'Resident' ? 'Resident Permission'
-    : row.category === 'Visitor' ? 'Visitor Permission'
-    : row.category === 'Disabled Bay' ? 'Disabled Bay Permission'
-    : row.category === 'Scratch card' ? 'Scratch card Permission'
-    : row.name;
+  const scope = row.category === 'Visitor' || row.category === 'Scratch card' ? 'Non-Zonal' : 'Zonal';
+  const createdOn = '2025-09-14';
+  const createdBy = 'admin.user';
 
   const openMenu = (e: MouseEvent<HTMLElement>) => setAnchor(e.currentTarget);
   const closeMenu = () => setAnchor(null);
@@ -168,9 +168,9 @@ function PermissionRow({ row, checked, onToggle }: {
           {row.name}
         </Link>
       </TableCell>
-      <TableCell sx={{ color: tokens.INK }}>{description}</TableCell>
       <TableCell sx={{ color: tokens.INK }}>{row.type}</TableCell>
       <TableCell sx={{ color: tokens.INK }}>{row.group}</TableCell>
+      <TableCell sx={{ color: tokens.INK }}>{scope}</TableCell>
       <TableCell>
         <Chip
           label={row.status}
@@ -183,6 +183,8 @@ function PermissionRow({ row, checked, onToggle }: {
           }}
         />
       </TableCell>
+      <TableCell sx={{ color: tokens.INK }}>{createdOn}</TableCell>
+      <TableCell sx={{ color: tokens.INK }}>{createdBy}</TableCell>
       <TableCell align="right">
         <IconButton size="small" onClick={openMenu}><MoreVertOutlined /></IconButton>
         <Menu anchorEl={anchor} open={!!anchor} onClose={closeMenu}>
