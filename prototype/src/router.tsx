@@ -17,6 +17,10 @@ import { LocationsPage } from './modules/area/LocationsPage';
 import { SpecialEventsPage } from './modules/area/SpecialEventsPage';
 import { BayListPage } from './modules/area/BayListPage';
 import { ContractSettingsPage } from './modules/contractsettings/ContractSettingsPage';
+import { DocumentTypesPage } from './modules/templates/DocumentTypesPage';
+import { TermsAndConditionPage } from './modules/templates/TermsAndConditionPage';
+import { AlertsAndTooltipsPage } from './modules/templates/AlertsAndTooltipsPage';
+import { EmailsPage } from './modules/templates/EmailsPage';
 import { ReportsPage } from './modules/reports/ReportsPage';
 import { DashboardPage } from './modules/dashboard/DashboardPage';
 import { PlaceholderPage } from './shared/PlaceholderPage';
@@ -63,10 +67,10 @@ export const router = createBrowserRouter(
         { path: 'purchasereason', element: <PurchaseReasonPage /> },
 
         // Templates
-        { path: 'documenttypes', element: <PlaceholderPage eyebrow="Templates" title="Document Types" description="Document types + preview." /> },
-        { path: 'termsandcondition', element: <PlaceholderPage eyebrow="Templates" title="Terms and Condition" description="T&C templates + builder." /> },
-        { path: 'alertsandtooltips', element: <PlaceholderPage eyebrow="Templates" title="Alerts and Tooltips" description="Cookie / Experian / Correspondence / Customer notification content." /> },
-        { path: 'emails', element: <PlaceholderPage eyebrow="Templates" title="Emails" description="Email templates linked to permission events." /> },
+        { path: 'documenttypes', element: <DocumentTypesPage /> },
+        { path: 'termsandcondition', element: <TermsAndConditionPage /> },
+        { path: 'alertsandtooltips', element: <AlertsAndTooltipsPage /> },
+        { path: 'emails', element: <EmailsPage /> },
 
         // Area
         { path: 'streets', element: <StreetsPage /> },
