@@ -13,6 +13,7 @@ import { StreetsPage } from './modules/area/StreetsPage';
 import { ZonesPage } from './modules/area/ZonesPage';
 import { LocationsPage } from './modules/area/LocationsPage';
 import { SpecialEventsPage } from './modules/area/SpecialEventsPage';
+import { BayListPage } from './modules/area/BayListPage';
 import { ContractSettingsPage } from './modules/contractsettings/ContractSettingsPage';
 import { ReportsPage } from './modules/reports/ReportsPage';
 import { DashboardPage } from './modules/dashboard/DashboardPage';
@@ -69,7 +70,7 @@ export const router = createBrowserRouter(
         { path: 'streets', element: <StreetsPage /> },
         { path: 'zones', element: <ZonesPage /> },
         { path: 'locations', element: <LocationsPage /> },
-        { path: 'baylist', element: <PlaceholderPage eyebrow="Area" title="Bay List" description="Bay inventory grid — Bay ID / Zone / Street / Status / Capacity." /> },
+        { path: 'baylist', element: <BayListPage /> },
         { path: 'SpecialEvents', element: <SpecialEventsPage /> },
 
         // Reports
