@@ -23,6 +23,8 @@ import { AlertsAndTooltipsPage } from './modules/templates/AlertsAndTooltipsPage
 import { EmailsPage } from './modules/templates/EmailsPage';
 import { MyWorkItemsPage } from './modules/workqueue/MyWorkItemsPage';
 import { ExploreApplicationsPage } from './modules/workqueue/ExploreApplicationsPage';
+import { PhysicalPermissionPage } from './modules/print/PhysicalPermissionPage';
+import { WhiteMailReminderPage } from './modules/print/WhiteMailReminderPage';
 import { ReportsPage } from './modules/reports/ReportsPage';
 import { DashboardPage } from './modules/dashboard/DashboardPage';
 import { PlaceholderPage } from './shared/PlaceholderPage';
@@ -49,8 +51,8 @@ export const router = createBrowserRouter(
         { path: 'myworkitems', element: <MyWorkItemsPage /> },
         { path: 'exploreapplications', element: <ExploreApplicationsPage /> },
         { path: 'suspensions', element: <PlaceholderPage eyebrow="Applications" title="Suspensions" description="Suspension rules, duration and CEO task assignment." /> },
-        { path: 'whitemailremainder', element: <PlaceholderPage eyebrow="Applications" title="White Mail Reminder" description="Physical permit reminder pipeline (6 tabs)." /> },
-        { path: 'physicalpermission', element: <PlaceholderPage eyebrow="Applications" title="Physical Permission" description="Physical permit issuing & tracking (6 tabs)." /> },
+        { path: 'whitemailremainder', element: <WhiteMailReminderPage /> },
+        { path: 'physicalpermission', element: <PhysicalPermissionPage /> },
 
         // Applicants
         { path: 'applicants', element: <ApplicantsPage /> },
