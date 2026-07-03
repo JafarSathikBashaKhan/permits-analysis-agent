@@ -9,16 +9,59 @@ import { tokens } from '../../theme';
 type Range = 'today' | 'week' | 'month';
 
 const kpis = [
-  { label: 'Permit',       value: 0, delta: 0 },
-  { label: 'Suspension',   value: 0, delta: 0 },
-  { label: 'Dispensation', value: 0, delta: 0 },
+  { label: 'Permit',       value: 1287, delta: 12 },
+  { label: 'Suspension',   value: 46,   delta: -3 },
+  { label: 'Dispensation', value: 92,   delta: 4 },
 ];
 
 const applicantSegments = [
-  { label: 'Active',               value: 0, color: '#266798' },
-  { label: 'Verification Pending', value: 1, color: '#E91E63' },
-  { label: 'Deactivated',          value: 0, color: '#FFCCBC' },
+  { label: 'Active',               value: 4210, color: '#266798' },
+  { label: 'Verification Pending', value: 143,  color: '#E91E63' },
+  { label: 'Deactivated',          value: 218,  color: '#FFCCBC' },
 ];
+
+const renewalsByDay: Record<'7' | '14' | '30', { day: string; permit: number; suspension: number; dispensation: number }[]> = {
+  '7': [
+    { day: 'Mon', permit: 12, suspension: 2, dispensation: 3 },
+    { day: 'Tue', permit: 18, suspension: 1, dispensation: 4 },
+    { day: 'Wed', permit: 22, suspension: 4, dispensation: 6 },
+    { day: 'Thu', permit: 15, suspension: 3, dispensation: 2 },
+    { day: 'Fri', permit: 27, suspension: 5, dispensation: 7 },
+    { day: 'Sat', permit: 9,  suspension: 1, dispensation: 1 },
+    { day: 'Sun', permit: 6,  suspension: 0, dispensation: 2 },
+  ],
+  '14': Array.from({ length: 14 }, (_, i) => ({
+    day: `D${i + 1}`, permit: 8 + Math.floor(Math.random() * 22),
+    suspension: Math.floor(Math.random() * 6), dispensation: 1 + Math.floor(Math.random() * 8),
+  })),
+  '30': Array.from({ length: 30 }, (_, i) => ({
+    day: `D${i + 1}`, permit: 4 + Math.floor(Math.random() * 26),
+    suspension: Math.floor(Math.random() * 7), dispensation: Math.floor(Math.random() * 10),
+  })),
+};
+
+const approvedByRange: Record<Range, number> = { today: 18, week: 96, month: 342 };
+const waitingByRange = 27;
+const statusBreakdown: Record<Range, { label: string; value: number; color: string }[]> = {
+  today: [
+    { label: 'Approved', value: 18, color: '#2E7D32' },
+    { label: 'Pending',  value: 12, color: '#ED6C02' },
+    { label: 'Rejected', value: 3,  color: '#C62828' },
+    { label: 'On Hold',  value: 4,  color: '#0288D1' },
+  ],
+  week: [
+    { label: 'Approved', value: 96, color: '#2E7D32' },
+    { label: 'Pending',  value: 47, color: '#ED6C02' },
+    { label: 'Rejected', value: 14, color: '#C62828' },
+    { label: 'On Hold',  value: 21, color: '#0288D1' },
+  ],
+  month: [
+    { label: 'Approved', value: 342, color: '#2E7D32' },
+    { label: 'Pending',  value: 158, color: '#ED6C02' },
+    { label: 'Rejected', value: 58,  color: '#C62828' },
+    { label: 'On Hold',  value: 74,  color: '#0288D1' },
+  ],
+};
 
 export function DashboardPage() {
   const [tab, setTab] = useState<'apps' | 'finance'>('apps');
@@ -72,17 +115,17 @@ function ApplicationsDashboard(props: {
           <PanelCard
             title="Approved"
             action={<RangeSelect value={props.approvedRange} onChange={props.setApprovedRange} />}
-            footer={<FooterStat label="Total Approved" value={0} />}
+            footer={<FooterStat label="Total Approved" value={approvedByRange[props.approvedRange]} />}
           >
-            <EmptyState message="No Approved Applications Found" />
+            <BigNumber value={approvedByRange[props.approvedRange]} caption={`Approved ${labelFor(props.approvedRange)}`} tone="#2E7D32" />
           </PanelCard>
         </Grid>
         <Grid item xs={12} md={6}>
           <PanelCard
             title="Waiting for Approval"
-            footer={<FooterStat label="Total Waiting for Approval" value={0} />}
+            footer={<FooterStat label="Total Waiting for Approval" value={waitingByRange} />}
           >
-            <EmptyState message="0 Pending Approvals" />
+            <BigNumber value={waitingByRange} caption="Pending review" tone="#ED6C02" />
           </PanelCard>
         </Grid>
       </Grid>
@@ -102,7 +145,7 @@ function ApplicationsDashboard(props: {
           </Select>
         }
       >
-        <EmptyState message="No upcoming renewals found for the selected period." minHeight={280} />
+        <RenewalsChart data={renewalsByDay[props.renewalRange]} />
       </PanelCard>
 
       <Grid container spacing={2.5}>
@@ -111,7 +154,7 @@ function ApplicationsDashboard(props: {
             title="Application Status"
             action={<RangeSelect value={props.statusRange} onChange={props.setStatusRange} />}
           >
-            <EmptyState message="No Data Available" minHeight={260} />
+            <StatusBars data={statusBreakdown[props.statusRange]} />
           </PanelCard>
         </Grid>
         <Grid item xs={12} md={4}>
@@ -226,6 +269,88 @@ function FooterStat({ label, value }: { label: string; value: number }) {
     <Typography sx={{ fontSize: '0.85rem', color: tokens.INK }}>
       {label} - <Box component="span" sx={{ fontWeight: 700 }}>{value}</Box>
     </Typography>
+  );
+}
+
+function labelFor(r: Range) {
+  return r === 'today' ? 'today' : r === 'week' ? 'this week' : 'this month';
+}
+
+function BigNumber({ value, caption, tone }: { value: number; caption: string; tone: string }) {
+  return (
+    <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', py: 3 }}>
+      <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '3.5rem', color: tone, lineHeight: 1 }}>
+        {value.toLocaleString()}
+      </Typography>
+      <Typography sx={{ mt: 1, color: tokens.MUTED, fontSize: '0.85rem' }}>{caption}</Typography>
+    </Box>
+  );
+}
+
+function RenewalsChart({ data }: { data: { day: string; permit: number; suspension: number; dispensation: number }[] }) {
+  const width = 720, height = 240, padL = 32, padR = 12, padT = 16, padB = 28;
+  const plotW = width - padL - padR;
+  const plotH = height - padT - padB;
+  const maxY = Math.max(...data.flatMap((d) => [d.permit, d.suspension, d.dispensation]), 10);
+  const stepX = plotW / Math.max(data.length - 1, 1);
+  const y = (v: number) => padT + plotH - (v / maxY) * plotH;
+  const path = (key: 'permit' | 'suspension' | 'dispensation') =>
+    data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${padL + i * stepX} ${y(d[key])}`).join(' ');
+  const series: [string, string, 'permit' | 'suspension' | 'dispensation'][] = [
+    ['Permit', '#266798', 'permit'],
+    ['Suspension', '#E91E63', 'suspension'],
+    ['Dispensation', '#ED6C02', 'dispensation'],
+  ];
+  return (
+    <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', py: 1 }}>
+      <Box sx={{ width: '100%', overflow: 'auto' }}>
+        <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} preserveAspectRatio="xMidYMid meet">
+          {[0, 0.25, 0.5, 0.75, 1].map((t) => (
+            <line key={t} x1={padL} x2={padL + plotW} y1={padT + plotH * t} y2={padT + plotH * t}
+              stroke={tokens.LINE} strokeDasharray="3 3" />
+          ))}
+          {series.map(([, color, k]) => (
+            <path key={k} d={path(k)} fill="none" stroke={color} strokeWidth={2.5} />
+          ))}
+          {data.map((d, i) =>
+            series.map(([, color, k]) => (
+              <circle key={`${i}-${k}`} cx={padL + i * stepX} cy={y(d[k])} r={3} fill={color} />
+            ))
+          )}
+          {data.map((d, i) => (
+            <text key={i} x={padL + i * stepX} y={height - 8} textAnchor="middle"
+              fontSize="10" fill={tokens.MUTED}>{d.day}</text>
+          ))}
+        </svg>
+      </Box>
+      <Stack direction="row" spacing={3} justifyContent="center" sx={{ mt: 1 }}>
+        {series.map(([label, color]) => (
+          <Stack key={label} direction="row" spacing={0.75} alignItems="center">
+            <Box sx={{ width: 10, height: 10, bgcolor: color, borderRadius: '2px' }} />
+            <Typography sx={{ fontSize: '0.8rem', color: tokens.INK }}>{label}</Typography>
+          </Stack>
+        ))}
+      </Stack>
+    </Box>
+  );
+}
+
+function StatusBars({ data }: { data: { label: string; value: number; color: string }[] }) {
+  const max = Math.max(...data.map((d) => d.value), 1);
+  return (
+    <Stack spacing={2} sx={{ flex: 1, justifyContent: 'center', py: 2, width: '100%' }}>
+      {data.map((d) => (
+        <Box key={d.label}>
+          <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
+            <Typography sx={{ fontSize: '0.85rem', color: tokens.INK, fontWeight: 500 }}>{d.label}</Typography>
+            <Typography sx={{ fontSize: '0.85rem', color: tokens.INK, fontWeight: 700 }}>{d.value}</Typography>
+          </Stack>
+          <Box sx={{ height: 10, bgcolor: '#F0F2F5', borderRadius: 5, overflow: 'hidden' }}>
+            <Box sx={{ height: '100%', width: `${(d.value / max) * 100}%`, bgcolor: d.color, transition: 'width .3s' }} />
+          </Box>
+        </Box>
+      ))}
+    </Stack>
   );
 }
 

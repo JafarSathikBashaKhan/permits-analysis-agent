@@ -33,7 +33,7 @@ import { FinancialReportPage } from './modules/reports/FinancialReportPage';
 import { PrintReportPage } from './modules/reports/PrintReportPage';
 import { VoucherReportPage } from './modules/reports/VoucherReportPage';
 import { DashboardPage } from './modules/dashboard/DashboardPage';
-import { PlaceholderPage } from './shared/PlaceholderPage';
+import { SystemAuditsPage } from './modules/systemaudits/SystemAuditsPage';
 
 const rawBase = ((import.meta as any).env?.BASE_URL as string) || '/';
 const basename = rawBase.replace(/\/$/, '') || '/';
@@ -98,7 +98,7 @@ export const router = createBrowserRouter(
         { path: 'reports/print', element: <PrintReportPage /> },
 
         // Governance / Config
-        { path: 'systemaudits', element: <PlaceholderPage eyebrow="Governance" title="System Audits" description="Audit log across all modules (user / entity / date filters)." /> },
+        { path: 'systemaudits', element: <SystemAuditsPage /> },
         { path: 'contractsettings', element: <ContractSettingsPage /> },
         { path: 'formbuilder', element: <FormBuilderPage /> },
       ],
