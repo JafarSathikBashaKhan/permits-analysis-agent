@@ -25,7 +25,11 @@ import { MyWorkItemsPage } from './modules/workqueue/MyWorkItemsPage';
 import { ExploreApplicationsPage } from './modules/workqueue/ExploreApplicationsPage';
 import { PhysicalPermissionPage } from './modules/print/PhysicalPermissionPage';
 import { WhiteMailReminderPage } from './modules/print/WhiteMailReminderPage';
-import { ReportsPage } from './modules/reports/ReportsPage';
+import { AddressReportPage } from './modules/reports/AddressReportPage';
+import { ApplicationReportPage } from './modules/reports/ApplicationReportPage';
+import { FinancialReportPage } from './modules/reports/FinancialReportPage';
+import { PrintReportPage } from './modules/reports/PrintReportPage';
+import { VoucherReportPage } from './modules/reports/VoucherReportPage';
 import { DashboardPage } from './modules/dashboard/DashboardPage';
 import { PlaceholderPage } from './shared/PlaceholderPage';
 
@@ -85,11 +89,11 @@ export const router = createBrowserRouter(
 
         // Reports
         { path: 'reports', element: <Navigate to="/reports/application" replace /> },
-        { path: 'reports/address', element: <PlaceholderPage eyebrow="Reports" title="Address Report" description="Power BI embedded — address-level metrics." /> },
-        { path: 'reports/application', element: <ReportsPage /> },
-        { path: 'reports/financial', element: <PlaceholderPage eyebrow="Reports" title="Financial Report" description="Power BI embedded — revenue & payment tracking." /> },
-        { path: 'reports/voucher', element: <PlaceholderPage eyebrow="Reports" title="Voucher Report" description="Power BI embedded — voucher distribution & redemption." /> },
-        { path: 'reports/print', element: <PlaceholderPage eyebrow="Reports" title="Print Report" description="Print-optimised PDF export view." /> },
+        { path: 'reports/address', element: <AddressReportPage /> },
+        { path: 'reports/application', element: <ApplicationReportPage /> },
+        { path: 'reports/financial', element: <FinancialReportPage /> },
+        { path: 'reports/voucher', element: <VoucherReportPage /> },
+        { path: 'reports/print', element: <PrintReportPage /> },
 
         // Governance / Config
         { path: 'systemaudits', element: <PlaceholderPage eyebrow="Governance" title="System Audits" description="Audit log across all modules (user / entity / date filters)." /> },
