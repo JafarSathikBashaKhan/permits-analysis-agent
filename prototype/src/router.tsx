@@ -21,6 +21,8 @@ import { DocumentTypesPage } from './modules/templates/DocumentTypesPage';
 import { TermsAndConditionPage } from './modules/templates/TermsAndConditionPage';
 import { AlertsAndTooltipsPage } from './modules/templates/AlertsAndTooltipsPage';
 import { EmailsPage } from './modules/templates/EmailsPage';
+import { MyWorkItemsPage } from './modules/workqueue/MyWorkItemsPage';
+import { ExploreApplicationsPage } from './modules/workqueue/ExploreApplicationsPage';
 import { ReportsPage } from './modules/reports/ReportsPage';
 import { DashboardPage } from './modules/dashboard/DashboardPage';
 import { PlaceholderPage } from './shared/PlaceholderPage';
@@ -44,8 +46,8 @@ export const router = createBrowserRouter(
         // Applications & queues
         { path: 'applications', element: <ApplicationsListPage /> },
         { path: 'applications/:id', element: <ApplicationDetailPage /> },
-        { path: 'myworkitems', element: <PlaceholderPage eyebrow="Applications" title="My Work Items" description="Unassigned / Assigned / Waiting list tabs for case ownership." /> },
-        { path: 'exploreapplications', element: <PlaceholderPage eyebrow="Applications" title="Explore Applications" description="Advanced multi-criteria search across all applications." /> },
+        { path: 'myworkitems', element: <MyWorkItemsPage /> },
+        { path: 'exploreapplications', element: <ExploreApplicationsPage /> },
         { path: 'suspensions', element: <PlaceholderPage eyebrow="Applications" title="Suspensions" description="Suspension rules, duration and CEO task assignment." /> },
         { path: 'whitemailremainder', element: <PlaceholderPage eyebrow="Applications" title="White Mail Reminder" description="Physical permit reminder pipeline (6 tabs)." /> },
         { path: 'physicalpermission', element: <PlaceholderPage eyebrow="Applications" title="Physical Permission" description="Physical permit issuing & tracking (6 tabs)." /> },
