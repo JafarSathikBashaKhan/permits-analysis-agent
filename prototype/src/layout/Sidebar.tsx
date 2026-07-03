@@ -46,66 +46,70 @@ type NavItem = {
   children?: NavItem[];
 };
 
-// Flat menu order requested by user (no section headers).
+// Sidebar structure mirrors the real MNPS-Permission-UI route folders,
+// grouped by business area for navigation clarity.
 const items: NavItem[] = [
   { label: 'Dashboard', to: '/dashboard', icon: <DashboardOutlined fontSize="small" /> },
   {
     label: 'Applications', to: '/applications', icon: <DescriptionOutlined fontSize="small" />,
     children: [
-      { label: 'All applications', to: '/applications', icon: <ArticleOutlined fontSize="small" /> },
-      { label: 'Permit', to: '/applications?type=permit', icon: <ArticleOutlined fontSize="small" /> },
-      { label: 'Suspension', to: '/applications?type=suspension', icon: <BlockOutlined fontSize="small" /> },
-      { label: 'Dispensation', to: '/applications?type=dispensation', icon: <EventBusyOutlined fontSize="small" /> },
-      { label: 'Exemption', to: '/applications?type=exemption', icon: <VerifiedUserOutlined fontSize="small" /> },
+      { label: 'All Applications', to: '/applications', icon: <ArticleOutlined fontSize="small" /> },
+      { label: 'My Work Items', to: '/myworkitems', icon: <FactCheckOutlined fontSize="small" /> },
+      { label: 'Explore Applications', to: '/exploreapplications', icon: <MapOutlined fontSize="small" /> },
+      { label: 'Suspensions', to: '/suspensions', icon: <BlockOutlined fontSize="small" /> },
+      { label: 'White Mail Reminder', to: '/whitemailremainder', icon: <NotificationImportantOutlined fontSize="small" /> },
+      { label: 'Physical Permission', to: '/physicalpermission', icon: <PrintOutlined fontSize="small" /> },
     ],
   },
+  { label: 'Applicants', to: '/applicants', icon: <PersonOutlineOutlined fontSize="small" /> },
   {
     label: 'Users', icon: <PeopleOutlineOutlined fontSize="small" />,
     children: [
-      { label: 'Roles & Permissions', to: '/users/roles', icon: <AdminPanelSettingsOutlined fontSize="small" /> },
-      { label: 'System Users', to: '/users/system', icon: <BadgeOutlined fontSize="small" /> },
-      { label: 'Applicants', to: '/users/applicants', icon: <PersonOutlineOutlined fontSize="small" /> },
+      { label: 'System Users', to: '/systemusers', icon: <BadgeOutlined fontSize="small" /> },
+      { label: 'Roles & Permissions', to: '/roleandpermission', icon: <AdminPanelSettingsOutlined fontSize="small" /> },
     ],
   },
   {
     label: 'Permission Setup', to: '/builder', icon: <ConstructionOutlined fontSize="small" />,
     children: [
-      { label: 'Pricing', to: '/pricing', icon: <CategoryOutlined fontSize="small" /> },
       { label: 'Builder', to: '/builder', icon: <ConstructionOutlined fontSize="small" /> },
-      { label: 'Groups', to: '/builder/groups', icon: <GroupWorkOutlined fontSize="small" /> },
+      { label: 'Groups', to: '/groups', icon: <GroupWorkOutlined fontSize="small" /> },
+      { label: 'Pricing', to: '/pricing', icon: <CategoryOutlined fontSize="small" /> },
+      { label: 'Purchase Reason', to: '/purchasereason', icon: <ArticleOutlined fontSize="small" /> },
     ],
   },
   {
-    label: 'Templates', to: '/templates', icon: <DescriptionRounded fontSize="small" />,
+    label: 'Templates', icon: <DescriptionRounded fontSize="small" />,
     children: [
-      { label: 'Document Types', to: '/templates/documents', icon: <ArticleOutlined fontSize="small" /> },
-      { label: 'Terms & Conditions', to: '/templates/terms', icon: <GavelOutlined fontSize="small" /> },
-      { label: 'Alerts & Tooltips', to: '/templates/alerts', icon: <NotificationImportantOutlined fontSize="small" /> },
+      { label: 'Document Types', to: '/documenttypes', icon: <ArticleOutlined fontSize="small" /> },
+      { label: 'Terms and Condition', to: '/termsandcondition', icon: <GavelOutlined fontSize="small" /> },
+      { label: 'Alerts and Tooltips', to: '/alertsandtooltips', icon: <NotificationImportantOutlined fontSize="small" /> },
+      { label: 'Emails', to: '/emails', icon: <ArticleOutlined fontSize="small" /> },
     ],
   },
-  { label: 'Print', to: '/print', icon: <PrintOutlined fontSize="small" /> },
   {
     label: 'Area', icon: <MapOutlined fontSize="small" />,
     children: [
-      { label: 'Streets', to: '/area/streets', icon: <RouteOutlined fontSize="small" /> },
-      { label: 'Zones', to: '/area/zones', icon: <PlaceOutlined fontSize="small" /> },
-      { label: 'Locations', to: '/area/locations', icon: <LocationCityOutlined fontSize="small" /> },
-      { label: 'Special Events', to: '/area/special-events', icon: <EventOutlined fontSize="small" /> },
+      { label: 'Streets', to: '/streets', icon: <RouteOutlined fontSize="small" /> },
+      { label: 'Zones', to: '/zones', icon: <PlaceOutlined fontSize="small" /> },
+      { label: 'Locations', to: '/locations', icon: <LocationCityOutlined fontSize="small" /> },
+      { label: 'Bay List', to: '/baylist', icon: <DirectionsCarFilledOutlined fontSize="small" /> },
+      { label: 'Special Events', to: '/SpecialEvents', icon: <EventOutlined fontSize="small" /> },
     ],
   },
-  { label: 'Reports', to: '/reports', icon: <AssessmentOutlined fontSize="small" /> },
-  { label: 'System Audits', to: '/system-audits', icon: <FactCheckOutlined fontSize="small" /> },
-  { label: 'Contract Settings', to: '/contract-settings', icon: <SettingsOutlined fontSize="small" /> },
-  { label: 'Vehicles', to: '/vehicles', icon: <DirectionsCarFilledOutlined fontSize="small" /> },
-  { label: 'Notifications', to: '/notifications', icon: <NotificationsNoneOutlined fontSize="small" /> },
   {
-    label: 'Apply Config', to: '/apply-config', icon: <TuneOutlined fontSize="small" />,
+    label: 'Reports', to: '/reports', icon: <AssessmentOutlined fontSize="small" />,
     children: [
-      { label: 'Apply Settings', to: '/apply-config/settings', icon: <SettingsOutlined fontSize="small" /> },
-      { label: 'Toggles', to: '/apply-config/toggles', icon: <ToggleOnOutlined fontSize="small" /> },
-      { label: 'Reject Reasons', to: '/apply-config/reject-reasons', icon: <BlockOutlined fontSize="small" /> },
+      { label: 'Application', to: '/reports/application', icon: <ArticleOutlined fontSize="small" /> },
+      { label: 'Address', to: '/reports/address', icon: <LocationCityOutlined fontSize="small" /> },
+      { label: 'Financial', to: '/reports/financial', icon: <AssessmentOutlined fontSize="small" /> },
+      { label: 'Voucher', to: '/reports/voucher', icon: <ArticleOutlined fontSize="small" /> },
+      { label: 'Print', to: '/reports/print', icon: <PrintOutlined fontSize="small" /> },
     ],
   },
+  { label: 'System Audits', to: '/systemaudits', icon: <FactCheckOutlined fontSize="small" /> },
+  { label: 'Contract Settings', to: '/contractsettings', icon: <SettingsOutlined fontSize="small" /> },
+  { label: 'Form Builder', to: '/formbuilder', icon: <TuneOutlined fontSize="small" /> },
 ];
 
 function useIsActive() {
