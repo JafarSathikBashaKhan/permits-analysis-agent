@@ -25,6 +25,8 @@ import { MyWorkItemsPage } from './modules/workqueue/MyWorkItemsPage';
 import { ExploreApplicationsPage } from './modules/workqueue/ExploreApplicationsPage';
 import { PhysicalPermissionPage } from './modules/print/PhysicalPermissionPage';
 import { WhiteMailReminderPage } from './modules/print/WhiteMailReminderPage';
+import { SuspensionsPage } from './modules/suspensions/SuspensionsPage';
+import { FormBuilderPage } from './modules/formbuilder/FormBuilderPage';
 import { AddressReportPage } from './modules/reports/AddressReportPage';
 import { ApplicationReportPage } from './modules/reports/ApplicationReportPage';
 import { FinancialReportPage } from './modules/reports/FinancialReportPage';
@@ -54,7 +56,7 @@ export const router = createBrowserRouter(
         { path: 'applications/:id', element: <ApplicationDetailPage /> },
         { path: 'myworkitems', element: <MyWorkItemsPage /> },
         { path: 'exploreapplications', element: <ExploreApplicationsPage /> },
-        { path: 'suspensions', element: <PlaceholderPage eyebrow="Applications" title="Suspensions" description="Suspension rules, duration and CEO task assignment." /> },
+        { path: 'suspensions', element: <SuspensionsPage /> },
         { path: 'whitemailremainder', element: <WhiteMailReminderPage /> },
         { path: 'physicalpermission', element: <PhysicalPermissionPage /> },
 
@@ -98,7 +100,7 @@ export const router = createBrowserRouter(
         // Governance / Config
         { path: 'systemaudits', element: <PlaceholderPage eyebrow="Governance" title="System Audits" description="Audit log across all modules (user / entity / date filters)." /> },
         { path: 'contractsettings', element: <ContractSettingsPage /> },
-        { path: 'formbuilder', element: <PlaceholderPage eyebrow="Configuration" title="Form Builder" description="Formio dynamic form renderer (SSR-disabled in real app)." /> },
+        { path: 'formbuilder', element: <FormBuilderPage /> },
       ],
     },
   ],
