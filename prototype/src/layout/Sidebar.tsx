@@ -61,10 +61,10 @@ const items: NavItem[] = [
       { label: 'Physical Permission', to: '/physicalpermission', icon: <PrintOutlined fontSize="small" /> },
     ],
   },
-  { label: 'Applicants', to: '/applicants', icon: <PersonOutlineOutlined fontSize="small" /> },
   {
     label: 'Users', icon: <PeopleOutlineOutlined fontSize="small" />,
     children: [
+      { label: 'Applicants', to: '/applicants', icon: <PersonOutlineOutlined fontSize="small" /> },
       { label: 'System Users', to: '/systemusers', icon: <BadgeOutlined fontSize="small" /> },
       { label: 'Roles & Permissions', to: '/roleandpermission', icon: <AdminPanelSettingsOutlined fontSize="small" /> },
     ],
