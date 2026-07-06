@@ -57,8 +57,6 @@ const items: NavItem[] = [
       { label: 'My Work Items', to: '/myworkitems', icon: <FactCheckOutlined fontSize="small" /> },
       { label: 'Explore Applications', to: '/exploreapplications', icon: <MapOutlined fontSize="small" /> },
       { label: 'Suspensions', to: '/suspensions', icon: <BlockOutlined fontSize="small" /> },
-      { label: 'White Mail Reminder', to: '/whitemailremainder', icon: <NotificationImportantOutlined fontSize="small" /> },
-      { label: 'Physical Permission', to: '/physicalpermission', icon: <PrintOutlined fontSize="small" /> },
     ],
   },
   {
@@ -85,6 +83,13 @@ const items: NavItem[] = [
       { label: 'Terms and Condition', to: '/termsandcondition', icon: <GavelOutlined fontSize="small" /> },
       { label: 'Alerts and Tooltips', to: '/alertsandtooltips', icon: <NotificationImportantOutlined fontSize="small" /> },
       { label: 'Emails', to: '/emails', icon: <ArticleOutlined fontSize="small" /> },
+    ],
+  },
+  {
+    label: 'Print', icon: <PrintOutlined fontSize="small" />,
+    children: [
+      { label: 'Physical Permission', to: '/physicalpermission', icon: <PrintOutlined fontSize="small" /> },
+      { label: 'White Mail Remainder', to: '/whitemailremainder', icon: <NotificationImportantOutlined fontSize="small" /> },
     ],
   },
   {
