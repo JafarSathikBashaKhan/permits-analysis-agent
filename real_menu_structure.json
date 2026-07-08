@@ -1,0 +1,41 @@
+{
+  "Dashboard": {
+    "error": "locator.waitFor: Timeout 4000ms exceeded."
+  },
+  "Applications": {
+    "error": "locator.waitFor: Timeout 4000ms exceeded."
+  },
+  "Users": {
+    "error": "locator.waitFor: Timeout 4000ms exceeded."
+  },
+  "Permission Setup": {
+    "error": "locator.waitFor: Timeout 4000ms exceeded."
+  },
+  "Templates": {
+    "error": "locator.waitFor: Timeout 4000ms exceeded."
+  },
+  "Print": {
+    "error": "locator.waitFor: Timeout 4000ms exceeded."
+  },
+  "Area": {
+    "error": "locator.waitFor: Timeout 4000ms exceeded."
+  },
+  "Reports": {
+    "error": "locator.waitFor: Timeout 4000ms exceeded."
+  },
+  "System Audits": {
+    "error": "locator.waitFor: Timeout 4000ms exceeded."
+  },
+  "Contract Settings": {
+    "error": "locator.waitFor: Timeout 4000ms exceeded."
+  },
+  "Vehicles": {
+    "error": "locator.waitFor: Timeout 4000ms exceeded."
+  },
+  "Notifications": {
+    "error": "locator.waitFor: Timeout 4000ms exceeded."
+  },
+  "Apply Config": {
+    "error": "locator.waitFor: Timeout 4000ms exceeded."
+  }
+}

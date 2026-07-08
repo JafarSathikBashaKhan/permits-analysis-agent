@@ -114,6 +114,9 @@ const items: NavItem[] = [
   },
   { label: 'System Audits', to: '/systemaudits', icon: <FactCheckOutlined fontSize="small" /> },
   { label: 'Contract Settings', to: '/contractsettings', icon: <SettingsOutlined fontSize="small" /> },
+  { label: 'Vehicles', to: '/vehicles', icon: <DirectionsCarFilledOutlined fontSize="small" /> },
+  { label: 'Notifications', to: '/notifications', icon: <NotificationsNoneOutlined fontSize="small" /> },
+  { label: 'Apply Config', to: '/applyconfig', icon: <ToggleOnOutlined fontSize="small" /> },
   { label: 'Form Builder', to: '/formbuilder', icon: <TuneOutlined fontSize="small" /> },
 ];
 

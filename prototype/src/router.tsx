@@ -34,6 +34,9 @@ import { PrintReportPage } from './modules/reports/PrintReportPage';
 import { VoucherReportPage } from './modules/reports/VoucherReportPage';
 import { DashboardPage } from './modules/dashboard/DashboardPage';
 import { SystemAuditsPage } from './modules/systemaudits/SystemAuditsPage';
+import { VehiclesPage } from './modules/vehicles/VehiclesPage';
+import { NotificationsPage } from './modules/notifications/NotificationsPage';
+import { ApplyConfigPage } from './modules/applyconfig/ApplyConfigPage';
 
 const rawBase = ((import.meta as any).env?.BASE_URL as string) || '/';
 const basename = rawBase.replace(/\/$/, '') || '/';
@@ -101,6 +104,11 @@ export const router = createBrowserRouter(
         { path: 'systemaudits', element: <SystemAuditsPage /> },
         { path: 'contractsettings', element: <ContractSettingsPage /> },
         { path: 'formbuilder', element: <FormBuilderPage /> },
+
+        // Fleet / Alerts / Apply-side config (top-level in real app)
+        { path: 'vehicles', element: <VehiclesPage /> },
+        { path: 'notifications', element: <NotificationsPage /> },
+        { path: 'applyconfig', element: <ApplyConfigPage /> },
       ],
     },
   ],
