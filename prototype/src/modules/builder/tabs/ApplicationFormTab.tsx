@@ -72,10 +72,60 @@ type DocFile = { name: string; size: number };
 type PermitMode = 'digital' | 'physical';
 
 export function ApplicationFormTab() {
-  const [templateId, setTemplateId] = useState('RES');
-  const template = TEMPLATES.find((t) => t.id === templateId)!;
+  const [templateId, setTemplateId] = useState<string | null>('RES');
+  const template = TEMPLATES.find((t) => t.id === templateId) || null;
   const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
+  const [confirmChangeOpen, setConfirmChangeOpen] = useState(false);
 
+  // Builder shell state
+  const [mode, setMode] = useState<'design' | 'preview'>('preview');
+  const [savedToast, setSavedToast] = useState<string | null>(null);
+  const [publishOpen, setPublishOpen] = useState(false);
+  const [publishStatus, setPublishStatus] = useState<'draft' | 'published'>('draft');
+  const [lastSaved, setLastSaved] = useState<string>('never');
+
+  // Designer schema: sections mirror the wizard steps; each has a list of fields
+  type DesignField = { id: string; type: 'text' | 'select' | 'radio' | 'checkbox' | 'file' | 'number' | 'date' | 'panel'; label: string; required: boolean; helper?: string; };
+  type DesignSection = { key: StepKey; label: string; fields: DesignField[] };
+  const [sections, setSections] = useState<DesignSection[]>(() => ([
+    { key: 'address',  label: 'Address',
+      fields: [
+        { id: 'f1', type: 'radio',  label: 'Permit mode',       required: true },
+        { id: 'f2', type: 'text',   label: 'Postcode',          required: true, helper: 'UK format (e.g. RG1 1AA)' },
+        { id: 'f3', type: 'select', label: 'Property',          required: true, helper: 'Pick from lookup results' },
+        { id: 'f4', type: 'text',   label: 'Address line 1',    required: false, helper: 'Auto-filled from UPRN' },
+        { id: 'f5', type: 'text',   label: 'Town',              required: false },
+        { id: 'f6', type: 'text',   label: 'UPRN',              required: false },
+      ] },
+    { key: 'vehicle', label: 'Vehicle',
+      fields: [
+        { id: 'f7', type: 'text',   label: 'VRM (Vehicle Registration Mark)', required: true, helper: 'Autoguru lookup' },
+        { id: 'f8', type: 'number', label: 'Max Vehicles',      required: true, helper: 'Rule from permit type' },
+      ] },
+    { key: 'document', label: 'Document',
+      fields: [
+        { id: 'f9',  type: 'file', label: 'Proof of Residency', required: true, helper: 'Utility bill / Council Tax letter' },
+        { id: 'f10', type: 'file', label: 'Vehicle Ownership',  required: true, helper: 'V5C logbook or lease agreement' },
+        { id: 'f11', type: 'file', label: 'Blue Badge',         required: false, helper: 'Optional' },
+      ] },
+    { key: 'pricing', label: 'Pricing',
+      fields: [
+        { id: 'f12', type: 'select', label: 'Duration',         required: true },
+        { id: 'f13', type: 'number', label: 'Quantity',         required: true },
+        { id: 'f14', type: 'panel',  label: 'Diesel Surcharge', required: false, helper: 'Computed from vehicles' },
+        { id: 'f15', type: 'panel',  label: 'Admin Fee',        required: false, helper: 'Contract setting' },
+      ] },
+    { key: 'checkout', label: 'Check Out',
+      fields: [
+        { id: 'f16', type: 'radio',    label: 'Payment method',     required: true },
+        { id: 'f17', type: 'checkbox', label: 'Accept T&C',         required: true },
+        { id: 'f18', type: 'checkbox', label: 'Privacy Policy',     required: true },
+      ] },
+  ]));
+  const [selectedSection, setSelectedSection] = useState<StepKey>('address');
+  const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
+
+  // Wizard runtime state (unchanged â€” used only in Preview mode)
   const [step, setStep] = useState<number>(0);
   const [expanded, setExpanded] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
@@ -175,18 +225,100 @@ export function ApplicationFormTab() {
     checkout: !!payment && tcAgreed,
   }), [chosenProperty, addressChoice, vehicles.length, docFiles, payment, tcAgreed]);
 
+  // Builder shell handlers
+  const nowStamp = () => new Date().toLocaleString('en-GB', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
+  const saveDraft = () => { setLastSaved(nowStamp()); setPublishStatus('draft'); setSavedToast('Draft saved.'); };
+  const publish = () => { setLastSaved(nowStamp()); setPublishStatus('published'); setPublishOpen(false); setSavedToast('Form published to Apply portal.'); };
+  const discardChanges = () => { setSavedToast('Changes discarded.'); };
+  const confirmChangeTemplate = (newId: string) => { setTemplateId(newId); setConfirmChangeOpen(false); setTemplatePickerOpen(false); setSavedToast(`Template switched to ${TEMPLATES.find((t) => t.id === newId)?.name}.`); };
+
+  const totalFields = sections.reduce((s, sec) => s + sec.fields.length, 0);
+  const requiredFields = sections.reduce((s, sec) => s + sec.fields.filter((f) => f.required).length, 0);
+
+  // Empty state â€” no template chosen yet
+  if (!template) {
+    return (
+      <Box sx={{ maxWidth: 640, mx: 'auto', mt: 6, textAlign: 'center' }}>
+        <Paper variant="outlined" sx={{ p: 5 }}>
+          <Typography variant="h5" sx={{ fontFamily: tokens.HEADING, fontWeight: 700, mb: 1 }}>
+            Application Form
+          </Typography>
+          <Typography sx={{ color: tokens.MUTED, mb: 3 }}>
+            No form template selected yet. Choose a starter template to configure the applicant-facing form.
+          </Typography>
+          <Button variant="contained" onClick={() => setTemplatePickerOpen(true)}>Select Template</Button>
+        </Paper>
+        <TemplatePickerDialog
+          open={templatePickerOpen}
+          onClose={() => setTemplatePickerOpen(false)}
+          onSelect={(id) => confirmChangeTemplate(id)}
+          currentId={null}
+        />
+      </Box>
+    );
+  }
+
   return (
     <Box>
-      {/* Template header line */}
-      <Stack direction="row" alignItems="center" spacing={3} sx={{ mb: 3 }}>
-        <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1.05rem', color: tokens.INK }}>
-          {template.name}
-        </Typography>
-        <Button size="small" onClick={() => setTemplatePickerOpen(true)} sx={{ textTransform: 'none', fontWeight: 600 }}>
-          Change Template
-        </Button>
-      </Stack>
+      {/* ---------------- Builder Shell Toolbar ---------------- */}
+      <Paper variant="outlined" sx={{ p: 2, mb: 2, bgcolor: '#FAFBFC' }}>
+        <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'center' }} justifyContent="space-between">
+          <Stack direction="row" alignItems="center" spacing={1.5} flexWrap="wrap">
+            <Chip
+              size="small" label="Template"
+              sx={{ bgcolor: '#EAF3FB', color: '#0D3E66', fontWeight: 700, letterSpacing: '.05em' }}
+            />
+            <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1.05rem', color: tokens.INK }}>
+              {template.name}
+            </Typography>
+            <Button size="small" onClick={() => setConfirmChangeOpen(true)} sx={{ textTransform: 'none', fontWeight: 600 }}>
+              Change Template
+            </Button>
+            <Chip
+              size="small"
+              label={publishStatus === 'published' ? 'Published' : 'Draft'}
+              sx={{
+                bgcolor: publishStatus === 'published' ? '#E7F5EC' : '#FFF7E0',
+                color:   publishStatus === 'published' ? '#1E7E34' : '#8A6D00',
+                fontWeight: 600,
+              }}
+            />
+            <Typography variant="caption" sx={{ color: tokens.MUTED }}>
+              {totalFields} fields Â· {requiredFields} required Â· saved {lastSaved}
+            </Typography>
+          </Stack>
 
+          <Stack direction="row" spacing={1} alignItems="center">
+            <ToggleButtonGroup
+              size="small" exclusive value={mode}
+              onChange={(_, v) => v && setMode(v)}
+              sx={{ mr: 1 }}
+            >
+              <ToggleButton value="design"><EditIcon fontSize="small" sx={{ mr: 0.5 }} />Design</ToggleButton>
+              <ToggleButton value="preview"><InsertDriveFileIcon fontSize="small" sx={{ mr: 0.5 }} />Preview</ToggleButton>
+            </ToggleButtonGroup>
+            <Button size="small" variant="outlined" onClick={discardChanges}>Discard</Button>
+            <Button size="small" variant="outlined" onClick={saveDraft}>Save Draft</Button>
+            <Button size="small" variant="contained" onClick={() => setPublishOpen(true)}>Publish</Button>
+          </Stack>
+        </Stack>
+      </Paper>
+
+      {/* ---------------- Design mode ---------------- */}
+      {mode === 'design' && (
+        <DesignerView
+          sections={sections}
+          setSections={setSections}
+          selectedSection={selectedSection}
+          setSelectedSection={setSelectedSection}
+          selectedFieldId={selectedFieldId}
+          setSelectedFieldId={setSelectedFieldId}
+        />
+      )}
+
+      {/* ---------------- Preview mode (live wizard) ---------------- */}
+      {mode === 'preview' && (
+      <>
       {/* Numbered horizontal stepper */}
       <NumberedStepper current={step} onSelect={(i) => setStep(i)} />
 
@@ -453,20 +585,47 @@ export function ApplicationFormTab() {
           </Stack>
         </Paper>
       </Box>
+      </>
+      )}
 
-      {/* Change template dialog */}
-      <Dialog open={templatePickerOpen} onClose={() => setTemplatePickerOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>Change Template</DialogTitle>
+      {/* Change template picker (via toolbar Change Template) */}
+      <TemplatePickerDialog
+        open={templatePickerOpen}
+        onClose={() => setTemplatePickerOpen(false)}
+        onSelect={(id) => confirmChangeTemplate(id)}
+        currentId={templateId}
+      />
+
+      {/* Confirm change template */}
+      <Dialog open={confirmChangeOpen} onClose={() => setConfirmChangeOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>Change template?</DialogTitle>
         <DialogContent dividers>
-          <Stack>
-            {TEMPLATES.map((t) => (
-              <FormControlLabel key={t.id} control={
-                <Radio checked={templateId === t.id} onChange={() => { setTemplateId(t.id); setTemplatePickerOpen(false); setToast(`Template changed to ${t.name}.`); }} />
-              } label={t.name} />
-            ))}
-          </Stack>
+          <Typography variant="body2">
+            Switching template will replace the current form structure. Any unsaved
+            customisations will be lost. Continue?
+          </Typography>
         </DialogContent>
-        <DialogActions><Button onClick={() => setTemplatePickerOpen(false)}>Close</Button></DialogActions>
+        <DialogActions>
+          <Button onClick={() => setConfirmChangeOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={() => { setConfirmChangeOpen(false); setTemplatePickerOpen(true); }}>
+            Yes, pick another
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Publish confirm */}
+      <Dialog open={publishOpen} onClose={() => setPublishOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>Publish Application Form</DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="body2">
+            Publishing will make this form live on the Apply portal for
+            <b> {template.name}</b>. Any active applicants will start seeing the updated form.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPublishOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={publish}>Publish</Button>
+        </DialogActions>
       </Dialog>
 
       {/* T&C */}
@@ -516,9 +675,9 @@ export function ApplicationFormTab() {
         </DialogActions>
       </Dialog>
 
-      <Snackbar open={!!toast} autoHideDuration={2500} onClose={() => setToast(null)}
+      <Snackbar open={!!toast || !!savedToast} autoHideDuration={2500} onClose={() => { setToast(null); setSavedToast(null); }}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
-        <Alert severity="success" onClose={() => setToast(null)}>{toast}</Alert>
+        <Alert severity="success" onClose={() => { setToast(null); setSavedToast(null); }}>{toast || savedToast}</Alert>
       </Snackbar>
     </Box>
   );
@@ -632,4 +791,263 @@ function paymentLabel(v: string) {
        : v === 'costCenter' ? 'Cost centre'
        : v === 'scratch'    ? 'Scratch voucher'
        : v;
+}
+
+// ---------------- Designer view (Form.io-style palette / canvas / properties) ----------------
+
+type FieldType = 'text' | 'select' | 'radio' | 'checkbox' | 'file' | 'number' | 'date' | 'panel';
+type DesignField = { id: string; type: FieldType; label: string; required: boolean; helper?: string };
+type DesignSection = { key: 'address' | 'vehicle' | 'document' | 'pricing' | 'checkout'; label: string; fields: DesignField[] };
+
+const PALETTE: { type: FieldType; label: string; }[] = [
+  { type: 'text',     label: 'Text Field'   },
+  { type: 'number',   label: 'Number'       },
+  { type: 'date',     label: 'Date'         },
+  { type: 'select',   label: 'Dropdown'     },
+  { type: 'radio',    label: 'Radio Group'  },
+  { type: 'checkbox', label: 'Checkbox'     },
+  { type: 'file',     label: 'File Upload'  },
+  { type: 'panel',    label: 'Info Panel'   },
+];
+
+function DesignerView({
+  sections, setSections, selectedSection, setSelectedSection, selectedFieldId, setSelectedFieldId,
+}: {
+  sections: DesignSection[];
+  setSections: (s: DesignSection[]) => void;
+  selectedSection: DesignSection['key'];
+  setSelectedSection: (k: DesignSection['key']) => void;
+  selectedFieldId: string | null;
+  setSelectedFieldId: (id: string | null) => void;
+}) {
+  const current = sections.find((s) => s.key === selectedSection)!;
+  const selectedField = current.fields.find((f) => f.id === selectedFieldId) || null;
+
+  const addField = (type: FieldType) => {
+    const nf: DesignField = {
+      id: `nf-${Date.now()}`,
+      type,
+      label: `New ${type} field`,
+      required: false,
+      helper: '',
+    };
+    setSections(sections.map((s) => s.key === selectedSection ? { ...s, fields: [...s.fields, nf] } : s));
+    setSelectedFieldId(nf.id);
+  };
+  const removeField = (id: string) => {
+    setSections(sections.map((s) => s.key === selectedSection ? { ...s, fields: s.fields.filter((f) => f.id !== id) } : s));
+    if (selectedFieldId === id) setSelectedFieldId(null);
+  };
+  const move = (id: string, dir: -1 | 1) => {
+    const list = [...current.fields];
+    const i = list.findIndex((f) => f.id === id);
+    if (i < 0) return;
+    const j = i + dir;
+    if (j < 0 || j >= list.length) return;
+    [list[i], list[j]] = [list[j], list[i]];
+    setSections(sections.map((s) => s.key === selectedSection ? { ...s, fields: list } : s));
+  };
+  const updateField = (patch: Partial<DesignField>) => {
+    if (!selectedField) return;
+    setSections(sections.map((s) => s.key === selectedSection
+      ? { ...s, fields: s.fields.map((f) => f.id === selectedField.id ? { ...f, ...patch } : f) }
+      : s));
+  };
+
+  return (
+    <Box sx={{
+      display: 'grid',
+      gridTemplateColumns: { xs: '1fr', lg: '240px minmax(0, 1fr) 320px' },
+      gap: 2,
+      alignItems: 'start',
+    }}>
+      {/* -------- Palette -------- */}
+      <Paper variant="outlined" sx={{ p: 1.5, position: { lg: 'sticky' }, top: { lg: 16 } }}>
+        <Typography sx={{ fontWeight: 700, fontSize: '0.8rem', letterSpacing: '.08em', textTransform: 'uppercase', color: tokens.MUTED, mb: 1 }}>
+          Components
+        </Typography>
+        <Stack spacing={0.75}>
+          {PALETTE.map((p) => (
+            <Box key={p.type}
+              onClick={() => addField(p.type)}
+              sx={{
+                p: 1, borderRadius: 1, border: '1px dashed #C7D2DA', bgcolor: '#FAFBFC',
+                cursor: 'grab', display: 'flex', alignItems: 'center', gap: 1,
+                fontSize: '0.85rem', fontWeight: 500,
+                '&:hover': { bgcolor: '#EAF3FB', borderColor: '#1976D2' },
+              }}>
+              <Box sx={{ width: 22, height: 22, borderRadius: '4px', bgcolor: '#E5EEF6', display: 'grid', placeItems: 'center', fontSize: '0.7rem', fontWeight: 700, color: '#0D3E66' }}>
+                {p.type[0].toUpperCase()}
+              </Box>
+              {p.label}
+            </Box>
+          ))}
+        </Stack>
+        <Typography variant="caption" sx={{ color: tokens.MUTED, mt: 1.5, display: 'block' }}>
+          Click a component to add it to the current section.
+        </Typography>
+      </Paper>
+
+      {/* -------- Canvas -------- */}
+      <Box>
+        {/* Section tabs */}
+        <Paper variant="outlined" sx={{ p: 1, mb: 1.5 }}>
+          <Stack direction="row" spacing={1} flexWrap="wrap">
+            {sections.map((s, i) => {
+              const active = s.key === selectedSection;
+              return (
+                <Chip key={s.key} clickable
+                  label={`${i + 1}. ${s.label} · ${s.fields.length}`}
+                  onClick={() => { setSelectedSection(s.key); setSelectedFieldId(null); }}
+                  sx={{
+                    fontWeight: active ? 700 : 500,
+                    bgcolor: active ? '#1976D2' : '#F0F3F6',
+                    color: active ? '#FFF' : tokens.INK,
+                    '&:hover': { bgcolor: active ? '#1565C0' : '#E5EEF6' },
+                  }} />
+              );
+            })}
+          </Stack>
+        </Paper>
+
+        {/* Field canvas */}
+        <Paper variant="outlined" sx={{ p: 2, minHeight: 400, bgcolor: '#FAFBFC' }}>
+          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+            <Typography sx={{ fontWeight: 700, fontFamily: tokens.HEADING, color: tokens.INK }}>
+              {current.label} section
+            </Typography>
+            <Typography variant="caption" sx={{ color: tokens.MUTED }}>
+              {current.fields.length} fields
+            </Typography>
+          </Stack>
+
+          {current.fields.length === 0 && (
+            <Paper variant="outlined" sx={{ p: 4, textAlign: 'center', bgcolor: '#FFF', borderStyle: 'dashed' }}>
+              <Typography sx={{ color: tokens.MUTED, mb: 1 }}>No fields in this section yet.</Typography>
+              <Typography variant="caption" sx={{ color: tokens.MUTED }}>
+                Add fields from the Components panel on the left.
+              </Typography>
+            </Paper>
+          )}
+
+          <Stack spacing={1}>
+            {current.fields.map((f, idx) => {
+              const isSelected = f.id === selectedFieldId;
+              return (
+                <Paper key={f.id} variant="outlined"
+                  onClick={() => setSelectedFieldId(f.id)}
+                  sx={{
+                    p: 1.5, cursor: 'pointer', bgcolor: '#FFF',
+                    borderColor: isSelected ? '#1976D2' : '#E0E0E0',
+                    boxShadow: isSelected ? '0 0 0 2px rgba(25,118,210,0.18)' : 'none',
+                    '&:hover': { borderColor: '#1976D2' },
+                  }}>
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Box sx={{
+                      width: 24, height: 24, borderRadius: '4px',
+                      bgcolor: '#E5EEF6', color: '#0D3E66',
+                      display: 'grid', placeItems: 'center',
+                      fontSize: '0.72rem', fontWeight: 700,
+                    }}>{f.type[0].toUpperCase()}</Box>
+                    <Box sx={{ flex: 1 }}>
+                      <Stack direction="row" alignItems="center" spacing={1}>
+                        <Typography sx={{ fontWeight: 600 }}>{f.label}</Typography>
+                        {f.required && <Chip size="small" label="Required" sx={{ height: 18, bgcolor: '#FDECEA', color: '#B71C1C', fontWeight: 600, fontSize: '0.68rem' }} />}
+                        <Chip size="small" variant="outlined" label={f.type} sx={{ height: 18, fontSize: '0.68rem' }} />
+                      </Stack>
+                      {f.helper && (
+                        <Typography variant="caption" sx={{ color: tokens.MUTED }}>{f.helper}</Typography>
+                      )}
+                    </Box>
+                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); move(f.id, -1); }} disabled={idx === 0} title="Move up">?</IconButton>
+                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); move(f.id, 1); }} disabled={idx === current.fields.length - 1} title="Move down">?</IconButton>
+                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); removeField(f.id); }} title="Delete">
+                      <DeleteOutlineIcon fontSize="small" />
+                    </IconButton>
+                  </Stack>
+                </Paper>
+              );
+            })}
+          </Stack>
+        </Paper>
+      </Box>
+
+      {/* -------- Properties -------- */}
+      <Paper variant="outlined" sx={{ p: 1.5, position: { lg: 'sticky' }, top: { lg: 16 } }}>
+        <Typography sx={{ fontWeight: 700, fontSize: '0.8rem', letterSpacing: '.08em', textTransform: 'uppercase', color: tokens.MUTED, mb: 1.5 }}>
+          Field Properties
+        </Typography>
+        {!selectedField && (
+          <Typography variant="caption" sx={{ color: tokens.MUTED }}>
+            Select a field on the canvas to edit its properties.
+          </Typography>
+        )}
+        {selectedField && (
+          <Stack spacing={1.5}>
+            <TextField size="small" label="Label" value={selectedField.label} onChange={(e) => updateField({ label: e.target.value })} fullWidth />
+            <TextField size="small" select label="Type" value={selectedField.type} onChange={(e) => updateField({ type: e.target.value as FieldType })} fullWidth>
+              {PALETTE.map((p) => <MenuItem key={p.type} value={p.type}>{p.label}</MenuItem>)}
+            </TextField>
+            <TextField size="small" label="Helper text" value={selectedField.helper || ''} onChange={(e) => updateField({ helper: e.target.value })} fullWidth multiline rows={2} />
+            <FormControlLabel control={<Checkbox checked={selectedField.required} onChange={(e) => updateField({ required: e.target.checked })} />} label="Required" />
+            <Divider />
+            <Button size="small" color="error" startIcon={<DeleteOutlineIcon />} onClick={() => removeField(selectedField.id)}>
+              Delete field
+            </Button>
+          </Stack>
+        )}
+      </Paper>
+    </Box>
+  );
+}
+
+// ---------------- Template picker dialog ----------------
+
+function TemplatePickerDialog({
+  open, onClose, onSelect, currentId,
+}: { open: boolean; onClose: () => void; onSelect: (id: string) => void; currentId: string | null }) {
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>Select Form Template</DialogTitle>
+      <DialogContent dividers>
+        <Typography variant="body2" sx={{ color: tokens.MUTED, mb: 2 }}>
+          Choose a template as the starting point for this permission's application form.
+          You can further customise fields in the Designer.
+        </Typography>
+        <Stack spacing={1}>
+          {TEMPLATES.map((t) => {
+            const active = currentId === t.id;
+            return (
+              <Paper key={t.id} variant="outlined"
+                onClick={() => onSelect(t.id)}
+                sx={{
+                  p: 1.5, cursor: 'pointer',
+                  borderColor: active ? '#1976D2' : '#E0E0E0',
+                  bgcolor: active ? '#EAF3FB' : '#FFF',
+                  '&:hover': { borderColor: '#1976D2' },
+                }}>
+                <Stack direction="row" alignItems="center" spacing={1.25}>
+                  <Box sx={{
+                    width: 34, height: 34, borderRadius: 1,
+                    bgcolor: '#0D3E66', color: '#FFF',
+                    display: 'grid', placeItems: 'center', fontWeight: 700,
+                  }}>{t.id}</Box>
+                  <Box sx={{ flex: 1 }}>
+                    <Typography sx={{ fontWeight: 600 }}>{t.name}</Typography>
+                    <Typography variant="caption" sx={{ color: tokens.MUTED }}>
+                      Standard 5-step form (Address · Vehicle · Document · Pricing · Check Out)
+                    </Typography>
+                  </Box>
+                  {active && <Chip size="small" label="Current" color="primary" />}
+                </Stack>
+              </Paper>
+            );
+          })}
+        </Stack>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+      </DialogActions>
+    </Dialog>
+  );
 }
