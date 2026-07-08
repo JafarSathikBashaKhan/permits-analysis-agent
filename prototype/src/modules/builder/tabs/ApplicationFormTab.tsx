@@ -1,580 +1,635 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
-  Alert, Box, Button, Checkbox, Chip, Dialog, DialogActions, DialogContent,
-  DialogTitle, Divider, FormControlLabel, IconButton, MenuItem, Paper,
-  Radio, RadioGroup, Stack, Switch, TextField, Typography, Tooltip,
+  Accordion, AccordionDetails, AccordionSummary, Alert, Autocomplete, Box, Button,
+  Checkbox, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Divider,
+  FormControlLabel, IconButton, LinearProgress, MenuItem, Paper, Radio, RadioGroup,
+  Snackbar, Stack, TextField, Typography, ToggleButton, ToggleButtonGroup,
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import EditIcon from '@mui/icons-material/Edit';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import CheckIcon from '@mui/icons-material/Check';
 import HomeIcon from '@mui/icons-material/Home';
 import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import DescriptionIcon from '@mui/icons-material/Description';
 import PoundIcon from '@mui/icons-material/CurrencyPound';
 import PaymentIcon from '@mui/icons-material/Payment';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CloseIcon from '@mui/icons-material/Close';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import EditIcon from '@mui/icons-material/Edit';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import { tokens } from '../../../theme';
 
-type SectionKey = 'address' | 'vehicles' | 'documents' | 'price' | 'checkout';
-
-const SECTION_META: Record<SectionKey, { title: string; icon: JSX.Element; description: string }> = {
-  address:   { title: 'Address',       icon: <HomeIcon fontSize="small" />,          description: 'How applicants confirm their permit address.' },
-  vehicles:  { title: 'Vehicle Details', icon: <DirectionsCarIcon fontSize="small" />, description: 'Vehicle capture and Autoguru autofill rules.' },
-  documents: { title: 'Documents',     icon: <DescriptionIcon fontSize="small" />,   description: 'Documents required for this permission.' },
-  price:     { title: 'Price',         icon: <PoundIcon fontSize="small" />,         description: 'Read-only summary — configure amounts in the Pricing tab.' },
-  checkout:  { title: 'Checkout',      icon: <PaymentIcon fontSize="small" />,       description: 'Allowed payment methods and terms & conditions binding.' },
-};
-
-const DOC_LIBRARY = [
-  'Proof of Residency', 'Vehicle Ownership (V5C)', 'Blue Badge',
-  'Council Tax Statement', 'Utility Bill', 'Driving Licence',
-  'Insurance Certificate', 'Business Rates Bill', 'Tenancy Agreement',
+// ---------------- Templates & mocks ----------------
+const TEMPLATES = [
+  { id: 'RES',  name: 'Resident Permit'   },
+  { id: 'VIS',  name: 'Visitor Permit'    },
+  { id: 'TRD',  name: 'Trades Permit'     },
+  { id: 'BUS',  name: 'Business Permit'   },
+  { id: 'BLU',  name: 'Blue Badge Permit' },
 ];
 
-const PAYMENT_METHODS = [
-  { key: 'credit',     label: 'Credit card' },
-  { key: 'debit',      label: 'Debit card' },
-  { key: 'costCenter', label: 'Cost centre / Budget code' },
-  { key: 'scratch',    label: 'Scratch card voucher' },
-] as const;
-
-type CustomField = {
-  id: string;
-  section: SectionKey;
-  label: string;
-  type: 'text' | 'single-select' | 'multi-select' | 'checkbox' | 'number';
-  required: boolean;
-  options?: string[];
-  help?: string;
+const POSTCODE_PROPERTIES: Record<string, { uprn: string; addressLine: string; town: string; postCode: string }[]> = {
+  'RG1 1AA': [
+    { uprn: '100091234567', addressLine: '12 Church Lane', town: 'Reading',   postCode: 'RG1 1AA' },
+    { uprn: '100091234568', addressLine: '14 Church Lane', town: 'Reading',   postCode: 'RG1 1AA' },
+  ],
+  'RG2 8BB': [
+    { uprn: '100091234570', addressLine: '48 Kingsway',    town: 'Reading',   postCode: 'RG2 8BB' },
+  ],
+  'RG4 5CC': [
+    { uprn: '100091234572', addressLine: '1 Mill Road',    town: 'Caversham', postCode: 'RG4 5CC' },
+  ],
 };
 
+const VEHICLE_DB: Record<string, { make: string; model: string; colour: string; fuel: 'Petrol' | 'Diesel' | 'Electric' | 'Hybrid'; co2: number; euro: string }> = {
+  'AB12CDE': { make: 'Ford',     model: 'Focus',   colour: 'Blue',   fuel: 'Petrol',   co2: 120, euro: 'Euro 6' },
+  'BD65XYZ': { make: 'Toyota',   model: 'Prius',   colour: 'Silver', fuel: 'Hybrid',   co2:  90, euro: 'Euro 6' },
+  'EV24GRN': { make: 'Tesla',    model: 'Model 3', colour: 'White',  fuel: 'Electric', co2:   0, euro: 'N/A'    },
+  'DV70FUL': { make: 'BMW',      model: '320d',    colour: 'Black',  fuel: 'Diesel',   co2: 130, euro: 'Euro 6' },
+};
+
+const DOC_TYPES = [
+  { key: 'residency', label: 'Proof of Residency', required: true,  help: 'Recent utility bill or Council Tax letter (last 3 months).' },
+  { key: 'vehicle',   label: 'Vehicle Ownership',  required: true,  help: 'V5C logbook or lease agreement.' },
+  { key: 'blue',      label: 'Blue Badge',         required: false, help: 'Optional — attach if applicable.' },
+];
+
+const DURATION_PRICES: Record<string, number> = { '3 months': 22, '6 months': 40, '12 months': 75 };
+
+const STEPS = [
+  { key: 'address',  label: 'Address',  icon: <HomeIcon fontSize="small" /> },
+  { key: 'vehicle',  label: 'Vehicle',  icon: <DirectionsCarIcon fontSize="small" /> },
+  { key: 'document', label: 'Document', icon: <DescriptionIcon fontSize="small" /> },
+  { key: 'pricing',  label: 'Pricing',  icon: <PoundIcon fontSize="small" /> },
+  { key: 'checkout', label: 'Check Out',icon: <PaymentIcon fontSize="small" /> },
+] as const;
+type StepKey = typeof STEPS[number]['key'];
+
+type Vehicle = { id: string; vrm: string; make: string; model: string; colour: string; fuel: string; co2: number; euro: string };
+type DocFile = { name: string; size: number };
+type PermitMode = 'digital' | 'physical';
+
 export function ApplicationFormTab() {
-  // Section order + enable state
-  const [order, setOrder] = useState<SectionKey[]>(['address', 'vehicles', 'documents', 'price', 'checkout']);
-  const [enabled, setEnabled] = useState<Record<SectionKey, boolean>>({
-    address: true, vehicles: true, documents: true, price: true, checkout: true,
-  });
-  const [active, setActive] = useState<SectionKey>('address');
+  const [templateId, setTemplateId] = useState('RES');
+  const template = TEMPLATES.find((t) => t.id === templateId)!;
+  const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
 
-  // Address settings
-  const [addr, setAddr] = useState({
-    savedAddressAllowed: true,
-    postcodeLookup: true,
-    manualAddress: false,
-    permitModeChoice: 'both' as 'digital' | 'physical' | 'both',
-    zoneValidation: true,
-  });
+  const [step, setStep] = useState<number>(0);
+  const [expanded, setExpanded] = useState(true);
+  const [toast, setToast] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Vehicles settings
-  const [veh, setVeh] = useState({
-    maxVehicles: 3,
-    tempVehiclesAllowed: true,
-    tempLimit: 2,
-    autoguruLookup: true,
-    manualVehicleEntry: false,
-    requireInsurance: false,
-    dieselSurcharge: true,
-    experianCheck: false,
-  });
+  // Address
+  const [permitMode, setPermitMode] = useState<PermitMode>('digital');
+  const [addressChoice, setAddressChoice] = useState<'saved' | 'new'>('new');
+  const [postcode, setPostcode] = useState('');
+  const [selectedUprn, setSelectedUprn] = useState('');
+  const postcodeMatches = POSTCODE_PROPERTIES[postcode.toUpperCase().trim()] || [];
+  const chosenProperty = postcodeMatches.find((p) => p.uprn === selectedUprn);
 
-  // Documents settings
-  const [docConfig, setDocConfig] = useState<{ name: string; required: boolean }[]>([
-    { name: 'Proof of Residency', required: true },
-    { name: 'Vehicle Ownership (V5C)', required: true },
-    { name: 'Blue Badge', required: false },
-  ]);
-  const [docLibOpen, setDocLibOpen] = useState(false);
-  const [docPick, setDocPick] = useState<string>('');
+  // Vehicle
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [vrmInput, setVrmInput] = useState('');
+  const [vrmError, setVrmError] = useState<string | null>(null);
+  const [autoLoading, setAutoLoading] = useState(false);
+  const maxVehicles = 3;
 
-  // Price settings (read-only summary)
-  // — no editable state here; pricing lives on the Pricing tab.
-
-  // Checkout settings
-  const [checkout, setCheckout] = useState({
-    payments: { credit: true, debit: true, costCenter: false, scratch: false },
-    termsAndConditionsId: 'TC-RES-2026',
-    privacyPolicyId: 'PP-CONTRACT',
-    requireTcAcceptance: true,
-    showSummary: true,
-  });
-
-  // Custom fields
-  const [customFields, setCustomFields] = useState<CustomField[]>([]);
-  const [cfDialogOpen, setCfDialogOpen] = useState(false);
-  const [cfDraft, setCfDraft] = useState<CustomField>({
-    id: '', section: 'address', label: '', type: 'text', required: false, options: [],
-  });
-  const [cfEditingId, setCfEditingId] = useState<string | null>(null);
-  const [optionText, setOptionText] = useState('');
-
-  // Preview dialog
-  const [previewOpen, setPreviewOpen] = useState(false);
-
-  const moveSection = (from: number, dir: -1 | 1) => {
-    const to = from + dir;
-    if (to < 0 || to >= order.length) return;
-    setOrder((prev) => {
-      const next = [...prev];
-      [next[from], next[to]] = [next[to], next[from]];
-      return next;
-    });
+  const lookupAndAdd = () => {
+    setVrmError(null);
+    const cleaned = vrmInput.replace(/\s/g, '').toUpperCase();
+    if (!cleaned) { setVrmError('Enter a VRM.'); return; }
+    if (vehicles.length >= maxVehicles) { setVrmError(`Max ${maxVehicles} vehicles allowed.`); return; }
+    if (vehicles.some((v) => v.vrm.replace(/\s/g, '') === cleaned)) { setVrmError('Already added.'); return; }
+    setAutoLoading(true);
+    setTimeout(() => {
+      setAutoLoading(false);
+      const hit = VEHICLE_DB[cleaned];
+      if (!hit) { setVrmError('Vehicle not found. Please check the registration.'); return; }
+      const formatted = `${cleaned.slice(0, cleaned.length - 3)} ${cleaned.slice(-3)}`;
+      setVehicles((prev) => [...prev, { id: `V-${Date.now()}`, vrm: formatted, ...hit }]);
+      setVrmInput('');
+    }, 400);
   };
 
-  const openNewCf = () => {
-    setCfEditingId(null);
-    setCfDraft({ id: '', section: active, label: '', type: 'text', required: false, options: [] });
-    setOptionText('');
-    setCfDialogOpen(true);
+  // Documents
+  const [docFiles, setDocFiles] = useState<Record<string, DocFile[]>>({ residency: [], vehicle: [], blue: [] });
+  const addFile = (k: string, name: string) => {
+    const size = 250 + Math.floor(Math.random() * 1800);
+    setDocFiles((prev) => ({ ...prev, [k]: [...prev[k], { name, size }] }));
   };
 
-  const openEditCf = (cf: CustomField) => {
-    setCfEditingId(cf.id);
-    setCfDraft({ ...cf, options: [...(cf.options || [])] });
-    setOptionText('');
-    setCfDialogOpen(true);
+  // Pricing
+  const [duration, setDuration] = useState('12 months');
+  const [qty, setQty] = useState(1);
+  const adminFee = 3.5;
+  const subtotal = DURATION_PRICES[duration] * qty;
+  const dieselCount = vehicles.filter((v) => v.fuel === 'Diesel').length;
+  const dieselSurcharge = dieselCount * 15;
+  const total = subtotal + adminFee + dieselSurcharge;
+
+  // Checkout
+  const [payment, setPayment] = useState<'credit' | 'debit' | 'costCenter' | 'scratch' | ''>('');
+  const [costCenter, setCostCenter] = useState('');
+  const [scratchCode, setScratchCode] = useState('');
+  const [tcAgreed, setTcAgreed] = useState(false);
+  const [tcOpen, setTcOpen] = useState(false);
+  const [ppOpen, setPpOpen] = useState(false);
+  const [applyOpen, setApplyOpen] = useState(false);
+
+  // Validation
+  const validate = () => {
+    const e: Record<string, string> = {};
+    if (step === 0) {
+      if (addressChoice === 'new') {
+        if (!postcode.trim()) e.postcode = 'This field is required.';
+        if (!selectedUprn) e.property = 'Please select a property.';
+      }
+    }
+    if (step === 1 && vehicles.length === 0) e.vehicles = 'Add at least one vehicle to continue.';
+    if (step === 2) {
+      DOC_TYPES.filter((d) => d.required).forEach((d) => {
+        if (docFiles[d.key].length === 0) e[`doc_${d.key}`] = `Please upload ${d.label}.`;
+      });
+    }
+    if (step === 4) {
+      if (!payment) e.payment = 'Please select a payment method.';
+      if (payment === 'costCenter' && !costCenter.trim()) e.costCenter = 'This field is required.';
+      if (payment === 'scratch' && !scratchCode.trim()) e.scratch = 'Enter a scratch card voucher code.';
+      if (!tcAgreed) e.tc = 'You must accept the Terms and Conditions to submit.';
+    }
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
-  const saveCf = () => {
-    if (!cfDraft.label.trim()) return;
-    const id = cfEditingId || `CF-${Date.now()}`;
-    const next: CustomField = { ...cfDraft, id, options: cfDraft.options || [] };
-    setCustomFields((prev) => cfEditingId ? prev.map((c) => c.id === id ? next : c) : [...prev, next]);
-    setCfDialogOpen(false);
-  };
+  const next = () => { if (validate()) setStep((s) => Math.min(STEPS.length - 1, s + 1)); };
+  const back = () => { setErrors({}); setStep((s) => Math.max(0, s - 1)); };
+  const doSubmit = () => { if (validate()) setApplyOpen(true); };
 
-  const removeCf = (id: string) => setCustomFields((prev) => prev.filter((c) => c.id !== id));
-
-  const addOption = () => {
-    if (!optionText.trim()) return;
-    setCfDraft((prev) => ({ ...prev, options: [...(prev.options || []), optionText.trim()] }));
-    setOptionText('');
-  };
-
-  const removeOption = (i: number) =>
-    setCfDraft((prev) => ({ ...prev, options: (prev.options || []).filter((_, k) => k !== i) }));
-
-  const needsOptions = cfDraft.type === 'single-select' || cfDraft.type === 'multi-select';
+  const summaryReady = useMemo(() => ({
+    address:  !!chosenProperty || addressChoice === 'saved',
+    vehicle:  vehicles.length > 0,
+    document: DOC_TYPES.filter((d) => d.required).every((d) => docFiles[d.key].length > 0),
+    pricing:  true,
+    checkout: !!payment && tcAgreed,
+  }), [chosenProperty, addressChoice, vehicles.length, docFiles, payment, tcAgreed]);
 
   return (
-    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '280px minmax(0, 1fr)' }, gap: 2 }}>
-      {/* Left: section list + reorder */}
-      <Paper sx={{ p: 1.5, alignSelf: 'flex-start' }}>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ px: 1, pb: 1 }}>
-          <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '0.95rem' }}>
-            Form sections
-          </Typography>
-          <Tooltip title="Drag or use arrows to change the order in which tabs appear to applicants.">
-            <HelpOutlineIcon sx={{ fontSize: 16, color: tokens.MUTED }} />
-          </Tooltip>
-        </Stack>
-        <Divider />
-        <Stack sx={{ mt: 1 }}>
-          {order.map((key, i) => {
-            const meta = SECTION_META[key];
-            const isActive = active === key;
-            return (
-              <Box key={key}
-                sx={{
-                  display: 'flex', alignItems: 'center', px: 1, py: 0.75, borderRadius: 1,
-                  cursor: 'pointer',
-                  bgcolor: isActive ? 'action.selected' : 'transparent',
-                  '&:hover': { bgcolor: isActive ? 'action.selected' : 'action.hover' },
-                }}
-                onClick={() => setActive(key)}>
-                <DragIndicatorIcon fontSize="small" sx={{ color: tokens.MUTED, mr: 0.5 }} />
-                <Box sx={{ mr: 1, color: enabled[key] ? tokens.NAVY : tokens.MUTED }}>{meta.icon}</Box>
-                <Box sx={{ flex: 1 }}>
-                  <Typography sx={{ fontSize: '0.9rem', fontWeight: 600, color: enabled[key] ? tokens.INK : tokens.MUTED }}>
-                    {i + 1}. {meta.title}
-                  </Typography>
-                  {!enabled[key] && (
-                    <Typography variant="caption" color="text.secondary">Disabled</Typography>
-                  )}
-                </Box>
-                <IconButton size="small" onClick={(e) => { e.stopPropagation(); moveSection(i, -1); }} disabled={i === 0}>
-                  <KeyboardArrowUpIcon fontSize="inherit" />
-                </IconButton>
-                <IconButton size="small" onClick={(e) => { e.stopPropagation(); moveSection(i, 1); }} disabled={i === order.length - 1}>
-                  <KeyboardArrowDownIcon fontSize="inherit" />
-                </IconButton>
-              </Box>
-            );
-          })}
-        </Stack>
-        <Divider sx={{ mt: 1, mb: 1 }} />
-        <Button fullWidth variant="outlined" startIcon={<VisibilityIcon />}
-          onClick={() => setPreviewOpen(true)}>
-          Preview Form
+    <Box>
+      {/* Template header line */}
+      <Stack direction="row" alignItems="center" spacing={3} sx={{ mb: 3 }}>
+        <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1.05rem', color: tokens.INK }}>
+          {template.name}
+        </Typography>
+        <Button size="small" onClick={() => setTemplatePickerOpen(true)} sx={{ textTransform: 'none', fontWeight: 600 }}>
+          Change Template
         </Button>
-      </Paper>
+      </Stack>
 
-      {/* Right: section config */}
-      <Box>
-        <Paper sx={{ p: 3 }}>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
-            <Box>
-              <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1.15rem' }}>
-                {SECTION_META[active].title}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                {SECTION_META[active].description}
-              </Typography>
-            </Box>
-            <FormControlLabel control={
-              <Switch checked={enabled[active]} onChange={(_, c) => setEnabled((p) => ({ ...p, [active]: c }))} />
-            } label={enabled[active] ? 'Enabled' : 'Disabled'} labelPlacement="start" />
-          </Stack>
-          <Divider sx={{ mb: 3 }} />
+      {/* Numbered horizontal stepper */}
+      <NumberedStepper current={step} onSelect={(i) => setStep(i)} />
 
-          {active === 'address' && (
-            <Stack spacing={2}>
-              <FormControlLabel control={
-                <Checkbox checked={addr.savedAddressAllowed} onChange={(_, c) => setAddr({ ...addr, savedAddressAllowed: c })} />
-              } label="Allow saved-address selection (for existing applicants)" />
-              <FormControlLabel control={
-                <Checkbox checked={addr.postcodeLookup} onChange={(_, c) => setAddr({ ...addr, postcodeLookup: c })} />
-              } label="Enable postcode → property lookup (UPRN)" />
-              <FormControlLabel control={
-                <Checkbox checked={addr.manualAddress} onChange={(_, c) => setAddr({ ...addr, manualAddress: c })} />
-              } label="Allow manual address entry (fallback when lookup fails)" />
-              <FormControlLabel control={
-                <Checkbox checked={addr.zoneValidation} onChange={(_, c) => setAddr({ ...addr, zoneValidation: c })} />
-              } label="Validate that the property belongs to a permission zone" />
-              <Divider />
-              <TextField size="small" select label="Permit mode offered" value={addr.permitModeChoice}
-                onChange={(e) => setAddr({ ...addr, permitModeChoice: e.target.value as any })} sx={{ maxWidth: 320 }}>
-                <MenuItem value="digital">Digital only</MenuItem>
-                <MenuItem value="physical">Physical only</MenuItem>
-                <MenuItem value="both">Both (applicant chooses)</MenuItem>
-              </TextField>
-            </Stack>
-          )}
-
-          {active === 'vehicles' && (
-            <Stack spacing={2}>
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                <TextField size="small" type="number" label="Maximum vehicles per permit"
-                  value={veh.maxVehicles} inputProps={{ min: 1, max: 20 }}
-                  onChange={(e) => setVeh({ ...veh, maxVehicles: Math.max(1, +e.target.value) })}
-                  sx={{ maxWidth: 260 }} />
-                <TextField size="small" type="number" label="Temporary vehicle limit"
-                  value={veh.tempLimit} inputProps={{ min: 0, max: 20 }}
-                  disabled={!veh.tempVehiclesAllowed}
-                  onChange={(e) => setVeh({ ...veh, tempLimit: Math.max(0, +e.target.value) })}
-                  sx={{ maxWidth: 260 }} />
-              </Stack>
-              <FormControlLabel control={
-                <Checkbox checked={veh.autoguruLookup} onChange={(_, c) => setVeh({ ...veh, autoguruLookup: c })} />
-              } label="Enable Autoguru VRM lookup (autofill make / model / colour / CO₂ / Euro standard)" />
-              <FormControlLabel control={
-                <Checkbox checked={veh.manualVehicleEntry} onChange={(_, c) => setVeh({ ...veh, manualVehicleEntry: c })} />
-              } label="Allow manual vehicle entry (when Autoguru unavailable)" />
-              <FormControlLabel control={
-                <Checkbox checked={veh.tempVehiclesAllowed} onChange={(_, c) => setVeh({ ...veh, tempVehiclesAllowed: c })} />
-              } label="Allow temporary vehicles" />
-              <FormControlLabel control={
-                <Checkbox checked={veh.requireInsurance} onChange={(_, c) => setVeh({ ...veh, requireInsurance: c })} />
-              } label="Require insurance certificate for each vehicle" />
-              <FormControlLabel control={
-                <Checkbox checked={veh.dieselSurcharge} onChange={(_, c) => setVeh({ ...veh, dieselSurcharge: c })} />
-              } label="Apply diesel surcharge (rate configured on Pricing tab)" />
-              <FormControlLabel control={
-                <Checkbox checked={veh.experianCheck} onChange={(_, c) => setVeh({ ...veh, experianCheck: c })} />
-              } label="Enable Experian check (validates ownership against DVLA)" />
-            </Stack>
-          )}
-
-          {active === 'documents' && (
-            <Stack spacing={2}>
-              <Alert severity="info">
-                Applicants will be asked to upload these documents when applying. Documents marked required
-                block form submission until provided.
-              </Alert>
-              {docConfig.length === 0 && (
-                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
-                  No documents added yet.
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'minmax(0, 1fr) 320px' }, gap: 3, mt: 3 }}>
+        {/* Main form */}
+        <Box>
+          <Accordion expanded={expanded} onChange={() => setExpanded(!expanded)}
+            sx={{ bgcolor: '#EAF3FB', boxShadow: 'none', border: '1px solid #C3DCF1', borderRadius: '6px !important', mb: 2, '&:before': { display: 'none' } }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <InfoOutlinedIcon sx={{ color: '#1976D2' }} />
+                <Typography sx={{ fontWeight: 600, color: '#0D3E66' }}>
+                  Application for Permit Purchase
                 </Typography>
-              )}
-              {docConfig.map((d, i) => (
-                <Paper key={d.name} variant="outlined" sx={{ p: 1.5 }}>
-                  <Stack direction="row" alignItems="center" spacing={1}>
-                    <DescriptionIcon fontSize="small" color="action" />
-                    <Typography sx={{ flex: 1, fontWeight: 500 }}>{d.name}</Typography>
-                    <FormControlLabel control={
-                      <Checkbox checked={d.required} onChange={(_, c) => {
-                        const next = [...docConfig]; next[i] = { ...d, required: c }; setDocConfig(next);
-                      }} />
-                    } label="Required" />
-                    <IconButton size="small" onClick={() => setDocConfig(docConfig.filter((_, k) => k !== i))}>
+              </Stack>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography variant="body2" sx={{ color: '#0D3E66' }}>
+                Complete each step to submit your permit application. Fields marked with * are mandatory. You can
+                save your progress as a draft and return later.
+              </Typography>
+            </AccordionDetails>
+          </Accordion>
+
+          {step === 0 && (
+            <Stack spacing={2.5}>
+              <Section title="Select the Permit mode">
+                <RadioGroup row value={permitMode} onChange={(e) => setPermitMode(e.target.value as PermitMode)}>
+                  <FormControlLabel value="digital"  control={<Radio />} label="Digital permit (email + PDF)" />
+                  <FormControlLabel value="physical" control={<Radio />} label="Physical permit (posted)" />
+                </RadioGroup>
+              </Section>
+
+              <Section title="Address section">
+                <ToggleButtonGroup exclusive size="small" value={addressChoice}
+                  onChange={(_, v) => v && setAddressChoice(v)} sx={{ mb: 2 }}>
+                  <ToggleButton value="saved">Use saved address</ToggleButton>
+                  <ToggleButton value="new">Search a new address</ToggleButton>
+                </ToggleButtonGroup>
+
+                {addressChoice === 'saved' ? (
+                  <Alert severity="success">
+                    Using saved address: <strong>12 Church Lane, Reading, RG1 1AA</strong> — UPRN 100091234567
+                  </Alert>
+                ) : (
+                  <Stack spacing={2}>
+                    <FieldRow
+                      label="Postcode *"
+                      error={errors.postcode}
+                      hint="Try RG1 1AA, RG2 8BB, RG4 5CC">
+                      <TextField size="small" fullWidth value={postcode}
+                        onChange={(e) => setPostcode(e.target.value.toUpperCase())}
+                        placeholder="Enter postcode" error={!!errors.postcode} />
+                    </FieldRow>
+
+                    {postcode && postcodeMatches.length === 0 && (
+                      <Alert severity="warning">No properties found for this postcode.</Alert>
+                    )}
+
+                    {postcodeMatches.length > 0 && (
+                      <FieldRow label="Property *" error={errors.property}>
+                        <Autocomplete size="small" options={postcodeMatches}
+                          value={chosenProperty || null}
+                          onChange={(_, v) => setSelectedUprn(v?.uprn || '')}
+                          getOptionLabel={(o) => `${o.addressLine} — UPRN ${o.uprn}`}
+                          renderInput={(p) => <TextField {...p} placeholder="Select property" error={!!errors.property} />} />
+                      </FieldRow>
+                    )}
+
+                    <FieldRow label="Address line 1"><TextField size="small" fullWidth value={chosenProperty?.addressLine || ''} disabled /></FieldRow>
+                    <FieldRow label="Town"><TextField size="small" fullWidth value={chosenProperty?.town || ''} disabled /></FieldRow>
+                    <FieldRow label="UPRN"><TextField size="small" fullWidth value={chosenProperty?.uprn || ''} disabled /></FieldRow>
+                  </Stack>
+                )}
+              </Section>
+            </Stack>
+          )}
+
+          {step === 1 && (
+            <Section title="Vehicle section">
+              <Alert severity="info" sx={{ mb: 2 }}>
+                Up to <strong>{maxVehicles}</strong> vehicles allowed. Autoguru autofills make, model, colour, CO₂ and Euro standard from the VRM.
+              </Alert>
+              <Stack direction="row" spacing={1}>
+                <TextField size="small" label="VRM" value={vrmInput}
+                  onChange={(e) => setVrmInput(e.target.value.toUpperCase())}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); lookupAndAdd(); } }}
+                  placeholder="e.g. AB12 CDE"
+                  error={!!vrmError} helperText={vrmError || 'Try AB12 CDE, BD65 XYZ, EV24 GRN, DV70 FUL'}
+                  disabled={vehicles.length >= maxVehicles} sx={{ flex: 1 }} />
+                <Button variant="contained" onClick={lookupAndAdd} disabled={autoLoading || vehicles.length >= maxVehicles}>
+                  {autoLoading ? 'Looking up…' : 'Add Vehicle'}
+                </Button>
+              </Stack>
+              {autoLoading && <LinearProgress sx={{ mt: 1 }} />}
+              {errors.vehicles && <Alert severity="error" sx={{ mt: 2 }}>{errors.vehicles}</Alert>}
+
+              <Divider sx={{ my: 2 }}>Registered ({vehicles.length}/{maxVehicles})</Divider>
+
+              {vehicles.length === 0 ? (
+                <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 2 }}>
+                  No vehicles added yet.
+                </Typography>
+              ) : vehicles.map((v) => (
+                <Paper key={v.id} variant="outlined" sx={{ p: 1.5, mb: 1 }}>
+                  <Stack direction="row" spacing={2} alignItems="center">
+                    <Chip label={v.vrm} color="primary" sx={{ fontWeight: 700 }} />
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="body2" fontWeight={600}>{v.make} {v.model} · {v.colour}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {v.fuel} · CO₂ {v.co2} g/km · {v.euro}
+                      </Typography>
+                    </Box>
+                    {v.fuel === 'Diesel'   && <Chip size="small" color="warning" variant="outlined" label="Diesel surcharge" />}
+                    {v.fuel === 'Electric' && <Chip size="small" color="success" variant="outlined" label="Zero-emission" />}
+                    <IconButton size="small" onClick={() => setVehicles((prev) => prev.filter((x) => x.id !== v.id))}>
                       <DeleteOutlineIcon fontSize="small" />
                     </IconButton>
                   </Stack>
                 </Paper>
               ))}
-              <Button variant="outlined" startIcon={<AddIcon />} onClick={() => setDocLibOpen(true)}
-                sx={{ alignSelf: 'flex-start' }}>
-                Add Document Type
-              </Button>
-            </Stack>
+            </Section>
           )}
 
-          {active === 'price' && (
-            <Stack spacing={2}>
-              <Alert severity="info">
-                Pricing amounts, tier configuration, admin fee and diesel surcharge rate are managed on the
-                <strong> Pricing </strong> tab. This section controls only how the Price tab is displayed to applicants.
+          {step === 2 && (
+            <Section title="Document section">
+              <Alert severity="info" sx={{ mb: 2 }}>
+                Maximum file size <strong>2 MB</strong>. Accepted formats: PDF, JPG, PNG. * denotes required.
               </Alert>
-              <FormControlLabel control={<Checkbox defaultChecked />} label="Show duration selector" />
-              <FormControlLabel control={<Checkbox defaultChecked />} label="Show quantity selector (multi-permit purchase)" />
-              <FormControlLabel control={<Checkbox defaultChecked />} label="Show line-item breakdown (base / diesel / admin fee)" />
-              <FormControlLabel control={<Checkbox defaultChecked />} label="Show total in persistent summary sidebar" />
-            </Stack>
-          )}
-
-          {active === 'checkout' && (
-            <Stack spacing={2}>
-              <Typography variant="subtitle2">Payment methods allowed</Typography>
-              <Paper variant="outlined" sx={{ p: 1.5 }}>
-                <Stack>
-                  {PAYMENT_METHODS.map((m) => (
-                    <FormControlLabel key={m.key} control={
-                      <Checkbox checked={(checkout.payments as any)[m.key]}
-                        onChange={(_, c) => setCheckout({ ...checkout, payments: { ...checkout.payments, [m.key]: c } })} />
-                    } label={m.label} />
-                  ))}
-                </Stack>
-              </Paper>
-              <Divider />
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                <TextField size="small" select label="Terms & Conditions template"
-                  value={checkout.termsAndConditionsId}
-                  onChange={(e) => setCheckout({ ...checkout, termsAndConditionsId: e.target.value })}
-                  sx={{ flex: 1 }}>
-                  <MenuItem value="TC-RES-2026">Resident Permit — 2026 v3</MenuItem>
-                  <MenuItem value="TC-VIS-2026">Visitor Permit — 2026 v1</MenuItem>
-                  <MenuItem value="TC-TRD-2026">Trades Permit — 2026 v1</MenuItem>
-                  <MenuItem value="">— None —</MenuItem>
-                </TextField>
-                <TextField size="small" select label="Privacy Policy source"
-                  value={checkout.privacyPolicyId}
-                  onChange={(e) => setCheckout({ ...checkout, privacyPolicyId: e.target.value })}
-                  sx={{ flex: 1 }}>
-                  <MenuItem value="PP-CONTRACT">Contract Settings → Data Sharing URL</MenuItem>
-                  <MenuItem value="PP-CUSTOM">Custom template</MenuItem>
-                </TextField>
-              </Stack>
-              <FormControlLabel control={
-                <Checkbox checked={checkout.requireTcAcceptance}
-                  onChange={(_, c) => setCheckout({ ...checkout, requireTcAcceptance: c })} />
-              } label="Require applicant to explicitly accept T&C before submitting" />
-              <FormControlLabel control={
-                <Checkbox checked={checkout.showSummary}
-                  onChange={(_, c) => setCheckout({ ...checkout, showSummary: c })} />
-              } label="Show application summary on the Checkout page" />
-            </Stack>
-          )}
-
-          {/* Custom fields for this section */}
-          <Divider sx={{ my: 3 }} />
-          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1.5 }}>
-            <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1rem' }}>
-              Custom fields on this section
-            </Typography>
-            <Button variant="outlined" size="small" startIcon={<AddIcon />} onClick={openNewCf}>
-              Add Custom Field
-            </Button>
-          </Stack>
-
-          {customFields.filter((c) => c.section === active).length === 0 ? (
-            <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', py: 3 }}>
-              No custom fields defined for this section.
-            </Typography>
-          ) : (
-            <Stack spacing={1}>
-              {customFields.filter((c) => c.section === active).map((cf) => (
-                <Paper key={cf.id} variant="outlined" sx={{ p: 1.5 }}>
+              {DOC_TYPES.map((d) => (
+                <Paper key={d.key} variant="outlined" sx={{ p: 2, mb: 1.5 }}>
                   <Stack direction="row" alignItems="center" spacing={1}>
-                    <Chip size="small" label={cf.type} variant="outlined" color="info" />
-                    <Typography sx={{ flex: 1 }}>
-                      {cf.label} {cf.required && <Typography component="span" color="error">*</Typography>}
-                    </Typography>
-                    {cf.options && cf.options.length > 0 && (
-                      <Chip size="small" label={`${cf.options.length} option(s)`} />
-                    )}
-                    <IconButton size="small" onClick={() => openEditCf(cf)}><EditIcon fontSize="small" /></IconButton>
-                    <IconButton size="small" onClick={() => removeCf(cf.id)}><DeleteOutlineIcon fontSize="small" /></IconButton>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography variant="subtitle2">{d.label}{d.required && ' *'}</Typography>
+                      <Typography variant="caption" color="text.secondary">{d.help}</Typography>
+                    </Box>
+                    <Button size="small" variant="outlined" startIcon={<CloudUploadIcon />}
+                      onClick={() => addFile(d.key, `${d.key}-${docFiles[d.key].length + 1}.pdf`)}>
+                      Upload
+                    </Button>
                   </Stack>
-                  {cf.help && (
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5, pl: 0.5 }}>
-                      Helper: {cf.help}
+                  {errors[`doc_${d.key}`] && (
+                    <Typography variant="caption" color="error" sx={{ display: 'block', mt: 1 }}>
+                      {errors[`doc_${d.key}`]}
                     </Typography>
+                  )}
+                  {docFiles[d.key].length > 0 && (
+                    <Stack spacing={0.5} sx={{ mt: 1.5 }}>
+                      {docFiles[d.key].map((f, i) => (
+                        <Stack key={i} direction="row" spacing={1} alignItems="center"
+                          sx={{ p: 1, bgcolor: 'grey.50', borderRadius: 1 }}>
+                          <InsertDriveFileIcon fontSize="small" color="action" />
+                          <Typography variant="body2" sx={{ flex: 1 }}>{f.name}</Typography>
+                          <Typography variant="caption" color="text.secondary">{f.size} KB</Typography>
+                          <IconButton size="small" onClick={() =>
+                            setDocFiles((prev) => ({ ...prev, [d.key]: prev[d.key].filter((_, k) => k !== i) }))
+                          }><CloseIcon fontSize="small" /></IconButton>
+                        </Stack>
+                      ))}
+                    </Stack>
                   )}
                 </Paper>
               ))}
-            </Stack>
+            </Section>
           )}
+
+          {step === 3 && (
+            <Section title="Pricing section">
+              <Stack spacing={2} sx={{ maxWidth: 460 }}>
+                <TextField size="small" select label="Duration" value={duration}
+                  onChange={(e) => setDuration(e.target.value)}>
+                  {Object.entries(DURATION_PRICES).map(([k, v]) => (
+                    <MenuItem key={k} value={k}>{k} — £{v.toFixed(2)}</MenuItem>
+                  ))}
+                </TextField>
+                <TextField size="small" type="number" label="Quantity" value={qty}
+                  inputProps={{ min: 1, max: 10 }}
+                  onChange={(e) => setQty(Math.max(1, Math.min(10, +e.target.value)))} />
+              </Stack>
+              <Divider sx={{ my: 2 }} />
+              <Paper variant="outlined" sx={{ p: 2, maxWidth: 460 }}>
+                <Row label={`Base (${duration} × ${qty})`} value={subtotal} />
+                <Row label={`Diesel surcharge (${dieselCount} × £15)`} value={dieselSurcharge} />
+                <Row label="Admin fee" value={adminFee} />
+                <Divider sx={{ my: 1 }} />
+                <Row label="Total" value={total} bold />
+              </Paper>
+            </Section>
+          )}
+
+          {step === 4 && (
+            <Section title="Check Out section">
+              <Typography variant="subtitle2" gutterBottom>Payment method</Typography>
+              <RadioGroup value={payment} onChange={(e) => setPayment(e.target.value as any)}>
+                <FormControlLabel value="credit"     control={<Radio />} label="Credit card" />
+                <FormControlLabel value="debit"      control={<Radio />} label="Debit card" />
+                <FormControlLabel value="costCenter" control={<Radio />} label="Cost centre / Budget code" />
+                <FormControlLabel value="scratch"    control={<Radio />} label="Scratch card voucher" />
+              </RadioGroup>
+              {errors.payment && <Typography variant="caption" color="error">{errors.payment}</Typography>}
+              {payment === 'costCenter' && (
+                <TextField size="small" fullWidth label="Cost centre code *" value={costCenter}
+                  onChange={(e) => setCostCenter(e.target.value)}
+                  error={!!errors.costCenter} helperText={errors.costCenter} sx={{ mt: 1, maxWidth: 460 }} />
+              )}
+              {payment === 'scratch' && (
+                <TextField size="small" fullWidth label="Scratch card voucher *" value={scratchCode}
+                  onChange={(e) => setScratchCode(e.target.value.toUpperCase())}
+                  placeholder="e.g. SC-2026-000123"
+                  error={!!errors.scratch} helperText={errors.scratch} sx={{ mt: 1, maxWidth: 460 }} />
+              )}
+              <Divider sx={{ my: 2 }} />
+              <Paper variant="outlined" sx={{ p: 2, bgcolor: 'grey.50' }}>
+                <Typography variant="body2">
+                  By clicking <strong>Apply</strong>, you agree to our{' '}
+                  <Button size="small" onClick={() => setTcOpen(true)} sx={{ p: 0, minWidth: 0 }}>Terms and Conditions</Button>{' '}
+                  and{' '}
+                  <Button size="small" onClick={() => setPpOpen(true)} sx={{ p: 0, minWidth: 0 }}>Privacy Policy</Button>.
+                </Typography>
+                <FormControlLabel sx={{ mt: 1 }} control={
+                  <Checkbox checked={tcAgreed} onChange={(_, c) => setTcAgreed(c)} />
+                } label="I have read and accept the Terms and Conditions" />
+                {errors.tc && <Typography variant="caption" color="error" sx={{ display: 'block' }}>{errors.tc}</Typography>}
+              </Paper>
+            </Section>
+          )}
+
+          {/* Nav buttons */}
+          <Stack direction="row" justifyContent="space-between" sx={{ mt: 3 }}>
+            <Button disabled={step === 0} onClick={back}>Back</Button>
+            <Stack direction="row" spacing={1}>
+              <Button onClick={() => setToast('Progress saved as Draft.')}>Save Draft</Button>
+              {step < STEPS.length - 1 ? (
+                <Button variant="contained" onClick={next}>Next</Button>
+              ) : (
+                <Button variant="contained" color="success" onClick={doSubmit}>Apply</Button>
+              )}
+            </Stack>
+          </Stack>
+        </Box>
+
+        {/* Summary sidebar */}
+        <Paper variant="outlined" sx={{ p: 2, alignSelf: 'flex-start', position: { lg: 'sticky' }, top: { lg: 16 } }}>
+          <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1.05rem', mb: 1 }}>
+            Summary
+          </Typography>
+          <Divider sx={{ mb: 1.5 }} />
+          <Stack spacing={1.5}>
+            <SummaryRow ready={summaryReady.address}  label="Address"  onEdit={() => setStep(0)}
+              value={chosenProperty ? `${chosenProperty.addressLine}, ${chosenProperty.postCode}` : (addressChoice === 'saved' ? '12 Church Lane, RG1 1AA' : '—')} />
+            <SummaryRow ready={summaryReady.vehicle}  label="Vehicle"  onEdit={() => setStep(1)}
+              value={vehicles.length === 0 ? '—' : vehicles.map((v) => v.vrm).join(', ')} />
+            <SummaryRow ready={summaryReady.document} label="Document" onEdit={() => setStep(2)}
+              value={DOC_TYPES.filter((d) => docFiles[d.key].length > 0).map((d) => d.label).join(', ') || '—'} />
+            <SummaryRow ready={summaryReady.pricing}  label="Pricing"  onEdit={() => setStep(3)}
+              value={`£${total.toFixed(2)} · ${duration} × ${qty}`} />
+            <SummaryRow ready={summaryReady.checkout} label="Check Out" onEdit={() => setStep(4)}
+              value={payment ? paymentLabel(payment) : '—'} />
+          </Stack>
+          <Divider sx={{ my: 1.5 }} />
+          <Stack direction="row" justifyContent="space-between">
+            <Typography variant="body2">Total due</Typography>
+            <Typography variant="body2" fontWeight={700}>£{total.toFixed(2)}</Typography>
+          </Stack>
         </Paper>
       </Box>
 
-      {/* Add document from library */}
-      <Dialog open={docLibOpen} onClose={() => setDocLibOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle>Add Document Type</DialogTitle>
-        <DialogContent>
-          <TextField size="small" select fullWidth label="Choose from library" value={docPick}
-            onChange={(e) => setDocPick(e.target.value)} sx={{ mt: 1 }}
-            helperText="Managed globally in Templates → Document Types.">
-            {DOC_LIBRARY.filter((d) => !docConfig.some((x) => x.name === d)).map((d) => (
-              <MenuItem key={d} value={d}>{d}</MenuItem>
-            ))}
-          </TextField>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDocLibOpen(false)}>Cancel</Button>
-          <Button variant="contained" disabled={!docPick}
-            onClick={() => {
-              setDocConfig([...docConfig, { name: docPick, required: false }]);
-              setDocPick(''); setDocLibOpen(false);
-            }}>Add</Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Custom field editor */}
-      <Dialog open={cfDialogOpen} onClose={() => setCfDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>{cfEditingId ? 'Edit Custom Field' : 'Add Custom Field'}</DialogTitle>
+      {/* Change template dialog */}
+      <Dialog open={templatePickerOpen} onClose={() => setTemplatePickerOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>Change Template</DialogTitle>
         <DialogContent dividers>
-          <Stack spacing={2} sx={{ mt: 0.5 }}>
-            <TextField size="small" fullWidth label="Field label *" value={cfDraft.label}
-              onChange={(e) => setCfDraft({ ...cfDraft, label: e.target.value })} />
-            <Stack direction="row" spacing={2}>
-              <TextField size="small" select label="Section" value={cfDraft.section}
-                onChange={(e) => setCfDraft({ ...cfDraft, section: e.target.value as SectionKey })}
-                sx={{ flex: 1 }}>
-                {order.map((k) => <MenuItem key={k} value={k}>{SECTION_META[k].title}</MenuItem>)}
-              </TextField>
-              <TextField size="small" select label="Field type" value={cfDraft.type}
-                onChange={(e) => setCfDraft({ ...cfDraft, type: e.target.value as any })}
-                sx={{ flex: 1 }}>
-                <MenuItem value="text">Text</MenuItem>
-                <MenuItem value="number">Number</MenuItem>
-                <MenuItem value="single-select">Single Select</MenuItem>
-                <MenuItem value="multi-select">Multi Select</MenuItem>
-                <MenuItem value="checkbox">Checkbox</MenuItem>
-              </TextField>
-            </Stack>
-            <TextField size="small" fullWidth label="Helper text (optional)" value={cfDraft.help || ''}
-              onChange={(e) => setCfDraft({ ...cfDraft, help: e.target.value })} />
-            <FormControlLabel control={
-              <Checkbox checked={cfDraft.required} onChange={(_, c) => setCfDraft({ ...cfDraft, required: c })} />
-            } label="Required field" />
-            {needsOptions && (
-              <Box>
-                <Typography variant="subtitle2" gutterBottom>Options</Typography>
-                <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
-                  <TextField size="small" fullWidth placeholder="New option" value={optionText}
-                    onChange={(e) => setOptionText(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addOption(); } }} />
-                  <Button variant="outlined" onClick={addOption}>Add</Button>
-                </Stack>
-                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                  {(cfDraft.options || []).map((o, i) => (
-                    <Chip key={i} label={o} onDelete={() => removeOption(i)} />
-                  ))}
-                  {(cfDraft.options || []).length === 0 && (
-                    <Typography variant="caption" color="text.secondary">No options yet.</Typography>
-                  )}
-                </Stack>
-              </Box>
-            )}
+          <Stack>
+            {TEMPLATES.map((t) => (
+              <FormControlLabel key={t.id} control={
+                <Radio checked={templateId === t.id} onChange={() => { setTemplateId(t.id); setTemplatePickerOpen(false); setToast(`Template changed to ${t.name}.`); }} />
+              } label={t.name} />
+            ))}
           </Stack>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setCfDialogOpen(false)}>Cancel</Button>
-          <Button variant="contained" disabled={!cfDraft.label.trim() || (needsOptions && (cfDraft.options || []).length === 0)}
-            onClick={saveCf}>{cfEditingId ? 'Save' : 'Add Field'}</Button>
-        </DialogActions>
+        <DialogActions><Button onClick={() => setTemplatePickerOpen(false)}>Close</Button></DialogActions>
       </Dialog>
 
-      {/* Preview */}
-      <Dialog open={previewOpen} onClose={() => setPreviewOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle>Form Preview
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-            Applicant-facing tabs, in the configured order.
-          </Typography>
+      {/* T&C */}
+      <Dialog open={tcOpen} onClose={() => setTcOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>Terms and Conditions — {template.name}
+          <IconButton sx={{ float: 'right' }} onClick={() => setTcOpen(false)}><CloseIcon /></IconButton>
         </DialogTitle>
         <DialogContent dividers>
-          <Stack spacing={2}>
-            {order.filter((k) => enabled[k]).map((k, i) => {
-              const meta = SECTION_META[k];
-              const cfs = customFields.filter((c) => c.section === k);
-              return (
-                <Paper key={k} variant="outlined" sx={{ p: 2 }}>
-                  <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                    <Chip size="small" color="primary" label={`Step ${i + 1}`} />
-                    <Typography fontWeight={700}>{meta.title}</Typography>
-                  </Stack>
-                  <Typography variant="body2" color="text.secondary" gutterBottom>
-                    {meta.description}
-                  </Typography>
-                  {k === 'address' && (
-                    <Typography variant="caption" component="div" color="text.secondary">
-                      · Saved: {addr.savedAddressAllowed ? 'yes' : 'no'} · Lookup: {addr.postcodeLookup ? 'yes' : 'no'} ·
-                      Manual: {addr.manualAddress ? 'yes' : 'no'} · Permit mode: {addr.permitModeChoice}
-                    </Typography>
-                  )}
-                  {k === 'vehicles' && (
-                    <Typography variant="caption" component="div" color="text.secondary">
-                      · Max {veh.maxVehicles} · Autoguru {veh.autoguruLookup ? 'on' : 'off'} ·
-                      Temp {veh.tempVehiclesAllowed ? `up to ${veh.tempLimit}` : 'off'} ·
-                      Diesel surcharge {veh.dieselSurcharge ? 'on' : 'off'}
-                    </Typography>
-                  )}
-                  {k === 'documents' && (
-                    <Typography variant="caption" component="div" color="text.secondary">
-                      {docConfig.length === 0 ? 'No documents required.' :
-                        docConfig.map((d) => `${d.name}${d.required ? ' *' : ''}`).join(' · ')}
-                    </Typography>
-                  )}
-                  {k === 'checkout' && (
-                    <Typography variant="caption" component="div" color="text.secondary">
-                      · Payments: {PAYMENT_METHODS.filter((m) => (checkout.payments as any)[m.key]).map((m) => m.label).join(', ') || 'None enabled'} ·
-                      T&C: {checkout.termsAndConditionsId || 'None'} ·
-                      Require acceptance: {checkout.requireTcAcceptance ? 'yes' : 'no'}
-                    </Typography>
-                  )}
-                  {cfs.length > 0 && (
-                    <Box sx={{ mt: 1 }}>
-                      <Typography variant="caption" fontWeight={700}>Custom fields:</Typography>
-                      <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap sx={{ mt: 0.5 }}>
-                        {cfs.map((c) => (
-                          <Chip key={c.id} size="small" variant="outlined"
-                            label={`${c.label}${c.required ? ' *' : ''} (${c.type})`} />
-                        ))}
-                      </Stack>
-                    </Box>
-                  )}
-                </Paper>
-              );
-            })}
-            {order.every((k) => !enabled[k]) && (
-              <Alert severity="warning">All sections are disabled — applicants would see an empty form.</Alert>
-            )}
-          </Stack>
+          <Typography variant="body2">
+            These are the illustrative Terms and Conditions attached to this permission via the Templates module.
+            The permit holder must display the permit as required, notify the council of any change of address or
+            vehicle, and abide by all restrictions of the applicable Traffic Regulation Order.
+          </Typography>
+        </DialogContent>
+        <DialogActions><Button onClick={() => setTcOpen(false)}>Close</Button></DialogActions>
+      </Dialog>
+
+      {/* Privacy */}
+      <Dialog open={ppOpen} onClose={() => setPpOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>Privacy Policy
+          <IconButton sx={{ float: 'right' }} onClick={() => setPpOpen(false)}><CloseIcon /></IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="body2">
+            Your personal data is processed by the local authority for the purposes of managing your permit application.
+            Full policy content is configured in Contract Settings → Policy URLs.
+          </Typography>
+        </DialogContent>
+        <DialogActions><Button onClick={() => setPpOpen(false)}>Close</Button></DialogActions>
+      </Dialog>
+
+      {/* Apply success */}
+      <Dialog open={applyOpen} onClose={() => setApplyOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <CheckIcon color="success" /> Application Submitted
+        </DialogTitle>
+        <DialogContent>
+          <Typography variant="body2">
+            Thank you for submitting your application. Your permit will either be auto-approved or sent to the
+            processing team for review, depending on the permit type. You will receive an email with the next steps
+            once your permit is approved.
+          </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setPreviewOpen(false)}>Close</Button>
-          <Button variant="contained"
-            onClick={() => window.open('/formbuilder?permission=Preview', '_blank')}>
-            Open Live Preview
-          </Button>
+          <Button onClick={() => { setApplyOpen(false); setStep(0); }}>No Thanks</Button>
+          <Button variant="contained" onClick={() => { setApplyOpen(false); setStep(0); }}>Yes! Please</Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar open={!!toast} autoHideDuration={2500} onClose={() => setToast(null)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+        <Alert severity="success" onClose={() => setToast(null)}>{toast}</Alert>
+      </Snackbar>
     </Box>
   );
 }
 
-// Placeholder RadioGroup import to keep tree-shaking happy if unused
-void RadioGroup; void Radio;
+// ---------------- Presentational helpers ----------------
+
+function NumberedStepper({ current, onSelect }: { current: number; onSelect: (i: number) => void }) {
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 0, py: 2 }}>
+      {STEPS.map((s, i) => {
+        const isActive = i === current;
+        const isDone = i < current;
+        const filled = isActive || isDone;
+        return (
+          <Box key={s.key} sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box onClick={() => onSelect(i)}
+              sx={{
+                display: 'flex', flexDirection: 'column', alignItems: 'center',
+                cursor: 'pointer', minWidth: 96,
+              }}>
+              <Box sx={{
+                width: 40, height: 40, borderRadius: '50%',
+                display: 'grid', placeItems: 'center',
+                bgcolor: filled ? '#1976D2' : '#BDBDBD',
+                color: '#fff', fontWeight: 700, fontSize: '0.95rem',
+                transition: 'background-color .2s',
+              }}>
+                {isDone ? <CheckIcon fontSize="small" /> : i + 1}
+              </Box>
+              <Typography sx={{
+                mt: 0.75, fontWeight: isActive ? 700 : 500,
+                fontSize: '0.85rem', color: filled ? tokens.INK : tokens.MUTED,
+              }}>
+                {s.label}
+              </Typography>
+            </Box>
+            {i < STEPS.length - 1 && (
+              <Box sx={{ width: 64, height: 2, bgcolor: i < current ? '#1976D2' : '#E0E0E0', mx: -1.5, mt: -3 }} />
+            )}
+          </Box>
+        );
+      })}
+    </Box>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <Box>
+      <Typography sx={{ fontWeight: 600, color: tokens.INK, mb: 1.5 }}>{title}</Typography>
+      {children}
+    </Box>
+  );
+}
+
+function FieldRow({ label, error, hint, children }: {
+  label: string; error?: string; hint?: string; children: React.ReactNode;
+}) {
+  return (
+    <Box sx={{
+      p: 1.5, borderRadius: 1,
+      border: error ? '1px solid #EF9A9A' : '1px solid #E0E0E0',
+      bgcolor: error ? '#FDECEA' : 'transparent',
+    }}>
+      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.75 }}>
+        {error && <ErrorOutlineIcon fontSize="small" color="error" />}
+        <Typography variant="caption" fontWeight={600} color={error ? 'error' : 'text.secondary'}>
+          {label}
+        </Typography>
+      </Stack>
+      {children}
+      {(error || hint) && (
+        <Typography variant="caption" sx={{ display: 'block', mt: 0.5, color: error ? 'error.main' : 'text.secondary' }}>
+          {error || hint}
+        </Typography>
+      )}
+    </Box>
+  );
+}
+
+function Row({ label, value, bold }: { label: string; value: number; bold?: boolean }) {
+  return (
+    <Stack direction="row" justifyContent="space-between" sx={{ py: 0.5 }}>
+      <Typography sx={{ fontWeight: bold ? 700 : 400 }}>{label}</Typography>
+      <Typography sx={{ fontWeight: bold ? 700 : 400 }}>£{value.toFixed(2)}</Typography>
+    </Stack>
+  );
+}
+
+function SummaryRow({ ready, label, value, onEdit }: {
+  ready: boolean; label: string; value: string; onEdit: () => void;
+}) {
+  return (
+    <Box>
+      <Stack direction="row" alignItems="center" justifyContent="space-between">
+        <Stack direction="row" alignItems="center" spacing={0.5}>
+          <CheckIcon fontSize="small" sx={{ color: ready ? 'success.main' : 'grey.400' }} />
+          <Typography variant="caption" fontWeight={600}>{label}</Typography>
+        </Stack>
+        <IconButton size="small" onClick={onEdit}><EditIcon fontSize="inherit" /></IconButton>
+      </Stack>
+      <Typography variant="body2" sx={{ pl: 2.5, wordBreak: 'break-word' }}>{value}</Typography>
+    </Box>
+  );
+}
+
+function paymentLabel(v: string) {
+  return v === 'credit'     ? 'Credit card'
+       : v === 'debit'      ? 'Debit card'
+       : v === 'costCenter' ? 'Cost centre'
+       : v === 'scratch'    ? 'Scratch voucher'
+       : v;
+}
