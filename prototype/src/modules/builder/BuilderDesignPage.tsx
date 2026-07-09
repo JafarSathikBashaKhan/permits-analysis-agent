@@ -362,7 +362,7 @@ export function BuilderDesignPage() {
 
         {topTab === 'rules' && <TopLevelPlaceholder title="Rules" />}
         {topTab === 'pricing' && <TopLevelPlaceholder title="Pricing" />}
-        {topTab === 'application-form' && <ApplicationFormTab />}
+        {topTab === 'application-form' && <ApplicationFormTab permissionId={id || 'default'} />}
       </Box>
     </Box>
   );

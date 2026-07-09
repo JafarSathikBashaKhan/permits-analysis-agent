@@ -16,7 +16,7 @@
  * Pricing/Check Out) and the FormBuilder as a Form.io-style drag-drop palette
  * + canvas + properties layout. All code is original.
  */
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import {
   Accordion, AccordionDetails, AccordionSummary, Alert, Autocomplete, Box, Button,
   Checkbox, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Divider,
@@ -148,7 +148,8 @@ type Vehicle = { id: string; vrm: string; make: string; model: string; colour: s
 type DocFile = { name: string; size: number };
 
 // â”€â”€â”€ Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-export function ApplicationFormTab() {
+export function ApplicationFormTab({ permissionId = 'default' }: { permissionId?: string }) {
+  const storageKey = `prototype:applicationForm:${permissionId}`;
   // Template + draft state (mirrors real basicInformationData.isDraftAvailable)
   const [selectedTemplate, setSelectedTemplate] = useState<typeof TEMPLATES[number] | null>(null);
   const [isDraftAvailable, setIsDraftAvailable] = useState(false);   // has a saved draft
@@ -182,6 +183,38 @@ export function ApplicationFormTab() {
   const [qty, setQty] = useState(1);
   const [payment, setPayment] = useState<'credit' | 'debit' | 'costCenter' | 'scratch' | ''>('');
   const [tcAgreed, setTcAgreed] = useState(false);
+
+  // ─── Load from localStorage on mount / when permissionId changes ─────────
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    setHydrated(false);
+    try {
+      const raw = localStorage.getItem(storageKey);
+      if (raw) {
+        const data = JSON.parse(raw);
+        if (data.selectedTemplate) setSelectedTemplate(data.selectedTemplate);
+        if (Array.isArray(data.pages)) setPages(data.pages);
+        if (data.activePageId) setActivePageId(data.activePageId);
+        if (typeof data.isDraftAvailable === 'boolean') setIsDraftAvailable(data.isDraftAvailable);
+        if (data.formMode) setFormMode(data.formMode);
+      } else {
+        // Reset on switch to a fresh permission id
+        setSelectedTemplate(null); setPages([]); setActivePageId(null);
+        setIsDraftAvailable(false); setFormMode('add');
+      }
+    } catch { /* ignore corrupt storage */ }
+    setHydrated(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey]);
+
+  // ─── Persist to localStorage whenever any tracked state changes ───────────
+  useEffect(() => {
+    if (!hydrated) return; // skip the initial pre-hydration render
+    try {
+      const payload = { selectedTemplate, pages, activePageId, isDraftAvailable, formMode };
+      localStorage.setItem(storageKey, JSON.stringify(payload));
+    } catch { /* quota / disabled */ }
+  }, [hydrated, storageKey, selectedTemplate, pages, activePageId, isDraftAvailable, formMode]);
 
   // Handlers
   const handleSelectTemplate = (tpl: typeof TEMPLATES[number] | null) => {
