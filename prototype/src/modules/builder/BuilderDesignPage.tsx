@@ -11,6 +11,7 @@ import { permissions, permissionTypes, groupsByType, categories } from '../../da
 import { tokens } from '../../theme';
 import { ApplicationFormTab } from './tabs/ApplicationFormTab';
 import { PricingTab } from './tabs/PricingTab';
+import { RulesTab } from './tabs/RulesTab';
 
 type TopTab = 'permissions' | 'rules' | 'pricing' | 'application-form';
 
@@ -361,7 +362,7 @@ export function BuilderDesignPage() {
           </Stack>
         )}
 
-        {topTab === 'rules' && <TopLevelPlaceholder title="Rules" />}
+        {topTab === 'rules' && <RulesTab permissionId={id || 'default'} />}
         {topTab === 'pricing' && <PricingTab permissionId={id || 'default'} />}
         {topTab === 'application-form' && <ApplicationFormTab permissionId={id || 'default'} />}
       </Box>
