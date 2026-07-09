@@ -1,411 +1,250 @@
+/*
+ * Dashboard — mirrors the real Marston MNPS-Permission-UI Dashboard.
+ *
+ * Tabs: APPLICATIONS (active), FINANCIAL (marked "coming soon" — like the real
+ * app, where the tab is commented out but the tab strip is visible).
+ *
+ * APPLICATIONS tab widgets:
+ *   1. Active Applications — clickable KPI cards per Permission Type showing:
+ *        - Permission Type name
+ *        - Active count (large)
+ *        - % change vs last month
+ *        - Trend arrow (up / down / flat)
+ *      Click → navigates to /applications filtered by permission type.
+ *   2. Upcoming Renewals — LineChart (multi-line, one line per Permission Type)
+ *      with an "Next 7 Days / Next 30 Days" dropdown selector in the header.
+ *      Total renewals shown at the bottom. Click a dot → /applications filtered
+ *      by permission type + renewal date.
+ */
+import { useMemo, useState } from 'react';
 import {
-  Box, Grid, Paper, Stack, Tab, Tabs, Typography, MenuItem, Select, Link,
+  Box, Card, CardActionArea, CardContent, FormControl, MenuItem, Select,
+  Stack, Tab, Tabs, Typography, Chip,
 } from '@mui/material';
-import { ArrowForward, ChevronRight } from '@mui/icons-material';
-import { useState } from 'react';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import TrendingFlatIcon from '@mui/icons-material/TrendingFlat';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { useNavigate } from 'react-router-dom';
+import {
+  CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip as RTooltip,
+  XAxis, YAxis,
+} from 'recharts';
 import { PageHeader } from '../../shared/PageHeader';
 import { tokens } from '../../theme';
 
-type Range = 'today' | 'week' | 'month';
-
-const kpis = [
-  { label: 'Permit',       value: 1287, delta: 12 },
-  { label: 'Suspension',   value: 46,   delta: -3 },
-  { label: 'Dispensation', value: 92,   delta: 4 },
-];
-
-const applicantSegments = [
-  { label: 'Active',               value: 4210, color: '#266798' },
-  { label: 'Verification Pending', value: 143,  color: '#E91E63' },
-  { label: 'Deactivated',          value: 218,  color: '#FFCCBC' },
-];
-
-const renewalsByDay: Record<'7' | '14' | '30', { day: string; permit: number; suspension: number; dispensation: number }[]> = {
-  '7': [
-    { day: 'Mon', permit: 12, suspension: 2, dispensation: 3 },
-    { day: 'Tue', permit: 18, suspension: 1, dispensation: 4 },
-    { day: 'Wed', permit: 22, suspension: 4, dispensation: 6 },
-    { day: 'Thu', permit: 15, suspension: 3, dispensation: 2 },
-    { day: 'Fri', permit: 27, suspension: 5, dispensation: 7 },
-    { day: 'Sat', permit: 9,  suspension: 1, dispensation: 1 },
-    { day: 'Sun', permit: 6,  suspension: 0, dispensation: 2 },
-  ],
-  '14': Array.from({ length: 14 }, (_, i) => ({
-    day: `D${i + 1}`, permit: 8 + Math.floor(Math.random() * 22),
-    suspension: Math.floor(Math.random() * 6), dispensation: 1 + Math.floor(Math.random() * 8),
-  })),
-  '30': Array.from({ length: 30 }, (_, i) => ({
-    day: `D${i + 1}`, permit: 4 + Math.floor(Math.random() * 26),
-    suspension: Math.floor(Math.random() * 7), dispensation: Math.floor(Math.random() * 10),
-  })),
+// ─── Data model (mirrors API shape) ─────────────────────────────────────
+type PermissionTypeCount = {
+  permissionTypeId: string;
+  permissionTypeName: string;
+  activeCount: number;
+  previousMonthCount: number;
+  percentageChange: number;
+  arrowIcon: 'up' | 'down' | 'flat';
 };
 
-const approvedByRange: Record<Range, number> = { today: 18, week: 96, month: 342 };
-const waitingByRange = 27;
-const statusBreakdown: Record<Range, { label: string; value: number; color: string }[]> = {
-  today: [
-    { label: 'Approved', value: 18, color: '#2E7D32' },
-    { label: 'Pending',  value: 12, color: '#ED6C02' },
-    { label: 'Rejected', value: 3,  color: '#C62828' },
-    { label: 'On Hold',  value: 4,  color: '#0288D1' },
-  ],
-  week: [
-    { label: 'Approved', value: 96, color: '#2E7D32' },
-    { label: 'Pending',  value: 47, color: '#ED6C02' },
-    { label: 'Rejected', value: 14, color: '#C62828' },
-    { label: 'On Hold',  value: 21, color: '#0288D1' },
-  ],
-  month: [
-    { label: 'Approved', value: 342, color: '#2E7D32' },
-    { label: 'Pending',  value: 158, color: '#ED6C02' },
-    { label: 'Rejected', value: 58,  color: '#C62828' },
-    { label: 'On Hold',  value: 74,  color: '#0288D1' },
-  ],
+const PERMISSION_TYPE_COUNTS: PermissionTypeCount[] = [
+  { permissionTypeId: 'RES', permissionTypeName: 'Residents Permit',   activeCount: 1287, previousMonthCount: 1148, percentageChange: 12.1, arrowIcon: 'up' },
+  { permissionTypeId: 'BUS', permissionTypeName: 'Business Permit',    activeCount:  412, previousMonthCount:  428, percentageChange: -3.7, arrowIcon: 'down' },
+  { permissionTypeId: 'VIS', permissionTypeName: 'Visitor Permit',     activeCount:  946, previousMonthCount:  902, percentageChange:  4.9, arrowIcon: 'up' },
+  { permissionTypeId: 'TRD', permissionTypeName: 'Trades Permit',      activeCount:  238, previousMonthCount:  240, percentageChange: -0.8, arrowIcon: 'flat' },
+  { permissionTypeId: 'BLU', permissionTypeName: 'Blue Badge Permit',  activeCount:  184, previousMonthCount:  171, percentageChange:  7.6, arrowIcon: 'up' },
+  { permissionTypeId: 'SUS', permissionTypeName: 'Suspension',         activeCount:   46, previousMonthCount:   49, percentageChange: -6.1, arrowIcon: 'down' },
+  { permissionTypeId: 'DIS', permissionTypeName: 'Dispensation',       activeCount:   92, previousMonthCount:   88, percentageChange:  4.5, arrowIcon: 'up' },
+  { permissionTypeId: 'TAX', permissionTypeName: 'Taxi Card',          activeCount:  118, previousMonthCount:  116, percentageChange:  1.7, arrowIcon: 'up' },
+];
+
+const PALETTE = ['#1976D2', '#F57C00', '#43A047', '#8E24AA', '#00838F', '#E53935', '#3949AB', '#6D4C41'];
+
+// Deterministic-ish per-day mock: seed by permission type + day offset
+function seedRenewals(days: number): { day: string; date: string; [k: string]: any }[] {
+  const out: { day: string; date: string; [k: string]: any }[] = [];
+  const today = new Date();
+  for (let d = 1; d <= days; d++) {
+    const dt = new Date(today);
+    dt.setDate(today.getDate() + d);
+    const dayLabel = dt.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+    const row: any = { day: dayLabel, date: dt.toISOString() };
+    PERMISSION_TYPE_COUNTS.forEach((p, idx) => {
+      // Fake but stable-ish curve per permission type
+      const base = Math.max(0, Math.round((p.activeCount / (days * 8)) * (1 + 0.5 * Math.sin((d + idx) * 0.6))));
+      row[p.permissionTypeName] = base;
+    });
+    out.push(row);
+  }
+  return out;
+}
+
+const RENEWALS: Record<'7' | '30', { day: string; date: string; [k: string]: any }[]> = {
+  '7': seedRenewals(7),
+  '30': seedRenewals(30),
 };
 
 export function DashboardPage() {
-  const [tab, setTab] = useState<'apps' | 'finance'>('apps');
-  const [approvedRange, setApprovedRange] = useState<Range>('today');
-  const [renewalRange, setRenewalRange] = useState<'7' | '14' | '30'>('7');
-  const [statusRange, setStatusRange] = useState<Range>('today');
+  const navigate = useNavigate();
+  const [tab, setTab] = useState<'applications' | 'financial'>('applications');
+  const [timeFilter, setTimeFilter] = useState<'7' | '30'>('7');
+
+  const renewalData = RENEWALS[timeFilter];
+  const totalRenewals = useMemo(() => {
+    return renewalData.reduce((sum, row) => {
+      return sum + PERMISSION_TYPE_COUNTS.reduce((s, p) => s + (row[p.permissionTypeName] || 0), 0);
+    }, 0);
+  }, [renewalData]);
+
+  const onCardClick = (p: PermissionTypeCount) => {
+    // In real app: menuStore push + navigate. Prototype: pass query.
+    navigate(`/applications?permissionType=${encodeURIComponent(p.permissionTypeName)}&fromDashboard=1`);
+  };
+
+  const onDotClick = (permType: string, date: string) => {
+    navigate(`/applications?permissionType=${encodeURIComponent(permType)}&renewalDate=${encodeURIComponent(date)}&fromDashboard=1`);
+  };
 
   return (
-    <>
-      <PageHeader title="Dashboard" />
-
-      <Paper sx={{ mb: 2.5 }}>
-        <Tabs value={tab} onChange={(_, v) => setTab(v)}>
-          <Tab label="Applications" value="apps" />
-          <Tab label="Finance" value="finance" />
-        </Tabs>
-      </Paper>
-
-      {tab === 'apps' && (
-        <ApplicationsDashboard
-          approvedRange={approvedRange} setApprovedRange={setApprovedRange}
-          renewalRange={renewalRange} setRenewalRange={setRenewalRange}
-          statusRange={statusRange} setStatusRange={setStatusRange}
-        />
-      )}
-      {tab === 'finance' && <FinancePlaceholder />}
-    </>
-  );
-}
-
-function ApplicationsDashboard(props: {
-  approvedRange: Range; setApprovedRange: (v: Range) => void;
-  renewalRange: '7' | '14' | '30'; setRenewalRange: (v: '7' | '14' | '30') => void;
-  statusRange: Range; setStatusRange: (v: Range) => void;
-}) {
-  return (
-    <Stack spacing={2.5}>
-      <Box>
-        <SectionTitle>Active Applications</SectionTitle>
-        <Grid container spacing={2.5}>
-          {kpis.map((k) => (
-            <Grid item xs={12} sm={6} md={4} key={k.label}>
-              <KpiCard label={k.label} value={k.value} delta={k.delta} />
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
-
-      <Grid container spacing={2.5}>
-        <Grid item xs={12} md={6}>
-          <PanelCard
-            title="Approved"
-            action={<RangeSelect value={props.approvedRange} onChange={props.setApprovedRange} />}
-            footer={<FooterStat label="Total Approved" value={approvedByRange[props.approvedRange]} />}
-          >
-            <BigNumber value={approvedByRange[props.approvedRange]} caption={`Approved ${labelFor(props.approvedRange)}`} tone="#2E7D32" />
-          </PanelCard>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <PanelCard
-            title="Waiting for Approval"
-            footer={<FooterStat label="Total Waiting for Approval" value={waitingByRange} />}
-          >
-            <BigNumber value={waitingByRange} caption="Pending review" tone="#ED6C02" />
-          </PanelCard>
-        </Grid>
-      </Grid>
-
-      <PanelCard
-        title="Upcoming Renewals"
-        action={
-          <Select
-            size="small"
-            value={props.renewalRange}
-            onChange={(e) => props.setRenewalRange(e.target.value as any)}
-            sx={{ minWidth: 140, bgcolor: '#FFF' }}
-          >
-            <MenuItem value="7">Next 7 Days</MenuItem>
-            <MenuItem value="14">Next 14 Days</MenuItem>
-            <MenuItem value="30">Next 30 Days</MenuItem>
-          </Select>
-        }
-      >
-        <RenewalsChart data={renewalsByDay[props.renewalRange]} />
-      </PanelCard>
-
-      <Grid container spacing={2.5}>
-        <Grid item xs={12} md={8}>
-          <PanelCard
-            title="Application Status"
-            action={<RangeSelect value={props.statusRange} onChange={props.setStatusRange} />}
-          >
-            <StatusBars data={statusBreakdown[props.statusRange]} />
-          </PanelCard>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <PanelCard
-            title="Applicants"
-            action={
-              <Link component="button" underline="none" sx={{ display: 'inline-flex', alignItems: 'center', color: tokens.NAVY, fontWeight: 700, fontSize: '0.8rem', letterSpacing: '0.03em', textTransform: 'uppercase' }}>
-                View Report <ChevronRight fontSize="small" />
-              </Link>
-            }
-          >
-            <ApplicantsDonut />
-          </PanelCard>
-        </Grid>
-      </Grid>
-    </Stack>
-  );
-}
-
-function FinancePlaceholder() {
-  return (
-    <PanelCard title="Finance">
-      <EmptyState message="Finance dashboard is not available in this prototype." minHeight={320} />
-    </PanelCard>
-  );
-}
-
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1.25rem', color: tokens.INK, mb: 1.5 }}>
-      {children}
-    </Typography>
-  );
-}
-
-function KpiCard({ label, value, delta }: { label: string; value: number; delta: number }) {
-  const positive = delta > 0;
-  const zero = delta === 0;
-  const color = zero ? tokens.MUTED : positive ? '#2E7D32' : '#C62828';
-  return (
-    <Paper sx={{ p: 2.5 }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
-        <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 600, fontSize: '1.05rem', color: tokens.INK }}>
-          {label}
-        </Typography>
-        <Stack alignItems="flex-end" sx={{ minWidth: 0 }}>
-          <Stack direction="row" spacing={0.5} alignItems="center">
-            <Typography sx={{ fontSize: '0.85rem', color, fontWeight: 600 }}>{delta}%</Typography>
-            <ArrowForward sx={{ fontSize: 16, color }} />
-          </Stack>
-          <Typography sx={{ fontSize: '0.72rem', color: tokens.MUTED }}>from last month</Typography>
-        </Stack>
-      </Stack>
-      <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '2.75rem', color: tokens.INK, lineHeight: 1.1, mt: 1.5 }}>
-        {value}
-      </Typography>
-    </Paper>
-  );
-}
-
-function PanelCard({
-  title, action, children, footer,
-}: {
-  title: string;
-  action?: React.ReactNode;
-  children: React.ReactNode;
-  footer?: React.ReactNode;
-}) {
-  return (
-    <Paper sx={{ display: 'flex', flexDirection: 'column', minHeight: 320 }}>
-      <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ px: 3, pt: 2.5, pb: 1.5 }}>
-        <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1.05rem', color: tokens.INK }}>
-          {title}
-        </Typography>
-        {action}
-      </Stack>
-      <Box sx={{ px: 3, py: 1, flex: 1, display: 'flex' }}>{children}</Box>
-      {footer && (
-        <Box sx={{ px: 3, py: 1.5, borderTop: `1px solid ${tokens.LINE}` }}>
-          {footer}
-        </Box>
-      )}
-    </Paper>
-  );
-}
-
-function RangeSelect({ value, onChange }: { value: Range; onChange: (v: Range) => void }) {
-  return (
-    <Select
-      size="small"
-      value={value}
-      onChange={(e) => onChange(e.target.value as Range)}
-      sx={{ minWidth: 120, bgcolor: '#FFF' }}
-    >
-      <MenuItem value="today">Today</MenuItem>
-      <MenuItem value="week">This Week</MenuItem>
-      <MenuItem value="month">This Month</MenuItem>
-    </Select>
-  );
-}
-
-function EmptyState({ message, minHeight = 200 }: { message: string; minHeight?: number }) {
-  return (
-    <Box sx={{ flex: 1, minHeight, display: 'grid', placeItems: 'center' }}>
-      <Typography sx={{ color: tokens.MUTED, fontSize: '0.9rem' }}>{message}</Typography>
-    </Box>
-  );
-}
-
-function FooterStat({ label, value }: { label: string; value: number }) {
-  return (
-    <Typography sx={{ fontSize: '0.85rem', color: tokens.INK }}>
-      {label} - <Box component="span" sx={{ fontWeight: 700 }}>{value}</Box>
-    </Typography>
-  );
-}
-
-function labelFor(r: Range) {
-  return r === 'today' ? 'today' : r === 'week' ? 'this week' : 'this month';
-}
-
-function BigNumber({ value, caption, tone }: { value: number; caption: string; tone: string }) {
-  return (
-    <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', py: 3 }}>
-      <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '3.5rem', color: tone, lineHeight: 1 }}>
-        {value.toLocaleString()}
-      </Typography>
-      <Typography sx={{ mt: 1, color: tokens.MUTED, fontSize: '0.85rem' }}>{caption}</Typography>
-    </Box>
-  );
-}
-
-function RenewalsChart({ data }: { data: { day: string; permit: number; suspension: number; dispensation: number }[] }) {
-  const width = 720, height = 240, padL = 32, padR = 12, padT = 16, padB = 28;
-  const plotW = width - padL - padR;
-  const plotH = height - padT - padB;
-  const maxY = Math.max(...data.flatMap((d) => [d.permit, d.suspension, d.dispensation]), 10);
-  const stepX = plotW / Math.max(data.length - 1, 1);
-  const y = (v: number) => padT + plotH - (v / maxY) * plotH;
-  const path = (key: 'permit' | 'suspension' | 'dispensation') =>
-    data.map((d, i) => `${i === 0 ? 'M' : 'L'} ${padL + i * stepX} ${y(d[key])}`).join(' ');
-  const series: [string, string, 'permit' | 'suspension' | 'dispensation'][] = [
-    ['Permit', '#266798', 'permit'],
-    ['Suspension', '#E91E63', 'suspension'],
-    ['Dispensation', '#ED6C02', 'dispensation'],
-  ];
-  return (
-    <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', py: 1 }}>
-      <Box sx={{ width: '100%', overflow: 'auto' }}>
-        <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} preserveAspectRatio="xMidYMid meet">
-          {[0, 0.25, 0.5, 0.75, 1].map((t) => (
-            <line key={t} x1={padL} x2={padL + plotW} y1={padT + plotH * t} y2={padT + plotH * t}
-              stroke={tokens.LINE} strokeDasharray="3 3" />
-          ))}
-          {series.map(([, color, k]) => (
-            <path key={k} d={path(k)} fill="none" stroke={color} strokeWidth={2.5} />
-          ))}
-          {data.map((d, i) =>
-            series.map(([, color, k]) => (
-              <circle key={`${i}-${k}`} cx={padL + i * stepX} cy={y(d[k])} r={3} fill={color} />
-            ))
-          )}
-          {data.map((d, i) => (
-            <text key={i} x={padL + i * stepX} y={height - 8} textAnchor="middle"
-              fontSize="10" fill={tokens.MUTED}>{d.day}</text>
-          ))}
-        </svg>
-      </Box>
-      <Stack direction="row" spacing={3} justifyContent="center" sx={{ mt: 1 }}>
-        {series.map(([label, color]) => (
-          <Stack key={label} direction="row" spacing={0.75} alignItems="center">
-            <Box sx={{ width: 10, height: 10, bgcolor: color, borderRadius: '2px' }} />
-            <Typography sx={{ fontSize: '0.8rem', color: tokens.INK }}>{label}</Typography>
-          </Stack>
-        ))}
-      </Stack>
-    </Box>
-  );
-}
-
-function StatusBars({ data }: { data: { label: string; value: number; color: string }[] }) {
-  const max = Math.max(...data.map((d) => d.value), 1);
-  return (
-    <Stack spacing={2} sx={{ flex: 1, justifyContent: 'center', py: 2, width: '100%' }}>
-      {data.map((d) => (
-        <Box key={d.label}>
-          <Stack direction="row" justifyContent="space-between" sx={{ mb: 0.5 }}>
-            <Typography sx={{ fontSize: '0.85rem', color: tokens.INK, fontWeight: 500 }}>{d.label}</Typography>
-            <Typography sx={{ fontSize: '0.85rem', color: tokens.INK, fontWeight: 700 }}>{d.value}</Typography>
-          </Stack>
-          <Box sx={{ height: 10, bgcolor: '#F0F2F5', borderRadius: 5, overflow: 'hidden' }}>
-            <Box sx={{ height: '100%', width: `${(d.value / max) * 100}%`, bgcolor: d.color, transition: 'width .3s' }} />
-          </Box>
-        </Box>
-      ))}
-    </Stack>
-  );
-}
-
-function ApplicantsDonut() {
-  const size = 180;
-  const stroke = 26;
-  const radius = (size - stroke) / 2;
-  const cx = size / 2;
-  const cy = size / 2;
-  const total = applicantSegments.reduce((sum, s) => sum + s.value, 0) || 1;
-  const circumference = 2 * Math.PI * radius;
-
-  let offset = 0;
-  const arcs = applicantSegments.map((s) => {
-    const length = (s.value / total) * circumference;
-    const dashArray = `${length} ${circumference - length}`;
-    const el = (
-      <circle
-        key={s.label}
-        cx={cx}
-        cy={cy}
-        r={radius}
-        fill="none"
-        stroke={s.color}
-        strokeWidth={stroke}
-        strokeDasharray={dashArray}
-        strokeDashoffset={-offset}
+    <Box>
+      <PageHeader
+        eyebrow="Overview"
+        title="Dashboard"
+        description="Real-time snapshot of active permissions and upcoming renewals across every permission type."
       />
-    );
-    offset += length;
-    return el;
-  });
+
+      {/* Tab strip — Applications active, Financial coming soon */}
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+        <Tabs value={tab} onChange={(_, v) => setTab(v)}>
+          <Tab value="applications" label="APPLICATIONS" />
+          <Tab
+            value="financial"
+            label={<Stack direction="row" spacing={0.5} alignItems="center">
+              <span>FINANCIAL</span>
+              <Chip size="small" label="Coming soon" sx={{ ml: 0.5, height: 18, fontSize: '0.65rem' }} />
+            </Stack>}
+          />
+        </Tabs>
+      </Box>
+
+      {tab === 'applications' && (
+        <Stack spacing={3}>
+          {/* Widget 1: Active Applications */}
+          <Box>
+            <Typography sx={{ fontWeight: 700, mb: 1.5, color: tokens.INK }}>Active Applications</Typography>
+            <Box sx={{
+              display: 'grid',
+              gap: 2,
+              gridTemplateColumns: {
+                xs: '1fr',
+                sm: 'repeat(2, 1fr)',
+                md: 'repeat(3, 1fr)',
+                lg: 'repeat(4, 1fr)',
+              },
+            }}>
+              {PERMISSION_TYPE_COUNTS.map((p) => (
+                <PermissionCard key={p.permissionTypeId} data={p} onClick={() => onCardClick(p)} />
+              ))}
+            </Box>
+          </Box>
+
+          {/* Widget 2: Upcoming Renewals line chart */}
+          <Card variant="outlined">
+            <CardContent>
+              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                <Typography sx={{ fontWeight: 700, color: tokens.INK }}>Upcoming Renewals</Typography>
+                <FormControl size="small" sx={{ minWidth: 160 }}>
+                  <Select value={timeFilter} onChange={(e) => setTimeFilter(e.target.value as '7' | '30')}>
+                    <MenuItem value="7">Next 7 Days</MenuItem>
+                    <MenuItem value="30">Next 30 Days</MenuItem>
+                  </Select>
+                </FormControl>
+              </Stack>
+
+              <Box sx={{ height: 340 }}>
+                {totalRenewals === 0 ? (
+                  <Stack alignItems="center" justifyContent="center" sx={{ height: '100%' }}>
+                    <Typography color="text.secondary">No upcoming renewals found for the selected period.</Typography>
+                  </Stack>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={renewalData} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#EEE" />
+                      <XAxis dataKey="day" tick={{ fontSize: 11 }} />
+                      <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                      <RTooltip />
+                      <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
+                      {PERMISSION_TYPE_COUNTS.map((p, idx) => (
+                        <Line
+                          key={p.permissionTypeId}
+                          type="monotone"
+                          dataKey={p.permissionTypeName}
+                          stroke={PALETTE[idx % PALETTE.length]}
+                          strokeWidth={2}
+                          dot={{ r: 3, cursor: 'pointer' }}
+                          activeDot={{
+                            r: 6,
+                            cursor: 'pointer',
+                            onClick: (_, payload: any) => {
+                              const row = payload?.payload;
+                              if (row) onDotClick(p.permissionTypeName, row.date);
+                            },
+                          }}
+                        />
+                      ))}
+                    </LineChart>
+                  </ResponsiveContainer>
+                )}
+              </Box>
+
+              <Stack direction="row" justifyContent="flex-end" sx={{ mt: 1.5 }}>
+                <Typography variant="body2" color="text.secondary">
+                  Total Upcoming Renewals: <b style={{ color: tokens.INK }}>{totalRenewals}</b>
+                </Typography>
+              </Stack>
+            </CardContent>
+          </Card>
+        </Stack>
+      )}
+
+      {tab === 'financial' && (
+        <Card variant="outlined">
+          <CardContent>
+            <Stack alignItems="center" spacing={1.5} sx={{ py: 8 }}>
+              <LockOutlinedIcon sx={{ fontSize: 48, color: tokens.MUTED }} />
+              <Typography sx={{ fontWeight: 700, color: tokens.INK }}>Financial dashboard coming soon</Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 480, textAlign: 'center' }}>
+                In the real Marston app this tab is currently commented out. The prototype leaves it
+                visible in the tab strip so the layout matches, but the widgets will be added when the
+                back-end financial API endpoints are enabled.
+              </Typography>
+            </Stack>
+          </CardContent>
+        </Card>
+      )}
+    </Box>
+  );
+}
+
+// ─── Clickable Permission Type KPI card ────────────────────────────────
+function PermissionCard({ data, onClick }: { data: PermissionTypeCount; onClick: () => void }) {
+  const arrowColor = data.arrowIcon === 'up' ? '#2E7D32' : data.arrowIcon === 'down' ? '#C62828' : '#757575';
+  const ArrowIcon = data.arrowIcon === 'up' ? ArrowUpwardIcon : data.arrowIcon === 'down' ? ArrowDownwardIcon : TrendingFlatIcon;
+  const sign = data.percentageChange > 0 ? '+' : '';
 
   return (
-    <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', gap: 2, py: 1 }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: 'rotate(-90deg)' }}>
-        {arcs}
-      </svg>
-      <Stack spacing={1.5} sx={{ flex: 1 }}>
-        {applicantSegments.map((s) => {
-          const pct = Math.round((s.value / total) * 100);
-          return (
-            <Box key={s.label}>
-              <Stack direction="row" alignItems="center" spacing={1}>
-                <Box sx={{ width: 12, height: 12, bgcolor: s.color, borderRadius: '2px' }} />
-                <Typography sx={{ fontSize: '0.85rem', color: tokens.INK, fontWeight: 500 }}>{s.label}</Typography>
-              </Stack>
-              <Stack direction="row" alignItems="baseline" spacing={0.75} sx={{ ml: 2.5 }}>
-                <Typography sx={{ fontFamily: tokens.HEADING, fontSize: '1.35rem', fontWeight: 700, color: tokens.INK }}>{s.value}</Typography>
-                <Typography sx={{ fontSize: '0.8rem', color: tokens.MUTED }}>({pct}%)</Typography>
-              </Stack>
-            </Box>
-          );
-        })}
-      </Stack>
-    </Box>
+    <Card variant="outlined" sx={{ borderRadius: 2, '&:hover': { borderColor: '#1976D2', boxShadow: '0 2px 8px rgba(25,118,210,0.15)' } }}>
+      <CardActionArea onClick={onClick} sx={{ p: 2 }}>
+        <Typography variant="caption" sx={{ color: tokens.MUTED, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.05em' }}>
+          {data.permissionTypeName}
+        </Typography>
+        <Typography sx={{ fontSize: '2rem', fontWeight: 700, color: tokens.INK, lineHeight: 1.2, mt: 0.5 }}>
+          {data.activeCount.toLocaleString()}
+        </Typography>
+        <Stack direction="row" alignItems="center" spacing={0.5} sx={{ mt: 1 }}>
+          <ArrowIcon sx={{ fontSize: 16, color: arrowColor }} />
+          <Typography variant="caption" sx={{ color: arrowColor, fontWeight: 600 }}>
+            {sign}{data.percentageChange.toFixed(1)}%
+          </Typography>
+          <Typography variant="caption" color="text.secondary">vs last month</Typography>
+        </Stack>
+      </CardActionArea>
+    </Card>
   );
 }

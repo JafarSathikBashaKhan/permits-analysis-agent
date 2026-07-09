@@ -1,8 +1,8 @@
 import { Box, Paper, Typography } from '@mui/material';
 
-export function Section({ title, description, children, actions }: { title: string; description?: string; children: React.ReactNode; actions?: React.ReactNode }) {
+export function Section({ id, title, description, children, actions }: { id?: string; title: string; description?: string; children: React.ReactNode; actions?: React.ReactNode }) {
   return (
-    <Paper sx={{ p: 3, mb: 3 }}>
+    <Paper id={id} sx={{ p: 3, mb: 3, scrollMarginTop: '80px' }}>
       <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 2 }}>
         <Box>
           <Typography variant="h4" sx={{ mb: description ? 0.5 : 0 }}>{title}</Typography>

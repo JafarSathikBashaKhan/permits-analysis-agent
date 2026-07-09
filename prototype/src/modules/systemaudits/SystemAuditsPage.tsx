@@ -86,8 +86,17 @@ const seedAudit = (): AuditRow[] => {
   return rows.sort((a, b) => b.eventDate.localeCompare(a.eventDate));
 };
 
+// Preset date-range shortcuts — mirrors real SystemAuditsToolbar
+// (Last 7 days, Last 30 days, This month, Six months) plus a few extras.
 const RANGES: Record<string, number> = {
-  'Today': 1, 'Last 24 hours': 1, 'Last 3 days': 3, 'Last 7 days': 7, 'Last 30 days': 30, 'All time': 999,
+  'Today': 1,
+  'Last 24 hours': 1,
+  'Last 3 days': 3,
+  'Last 7 days': 7,
+  'Last 30 days': 30,
+  'This month': 30,
+  'Six months': 180,
+  'All time': 9999,
 };
 
 export function SystemAuditsPage() {
