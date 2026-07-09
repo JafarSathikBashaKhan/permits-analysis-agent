@@ -12,6 +12,11 @@ import { tokens } from '../../theme';
 import { ApplicationFormTab } from './tabs/ApplicationFormTab';
 import { PricingTab } from './tabs/PricingTab';
 import { RulesTab } from './tabs/RulesTab';
+import {
+  PermissionLabelSection, PaymentSettingsSection, DiscountSettingsSection,
+  DocumentTypeSettingsSection, MerchantSettingsSection, RenewalsAndRemindersSection,
+  EmailTemplatesSection, VisitorPortalSettingsSection,
+} from './tabs/PermissionSubSections';
 
 type TopTab = 'permissions' | 'rules' | 'pricing' | 'application-form';
 
@@ -204,7 +209,16 @@ export function BuilderDesignPage() {
               )}
 
               {sub !== 'Basic Information' && sub !== 'General Settings' && sub !== 'Zone Mapping' && (
-                <PlaceholderSection title={sub} />
+                <>
+                  {sub === 'Permission Label'        && <PermissionLabelSection        permissionId={id || 'default'} />}
+                  {sub === 'Payment Settings'        && <PaymentSettingsSection        permissionId={id || 'default'} />}
+                  {sub === 'Discount Settings'       && <DiscountSettingsSection       permissionId={id || 'default'} />}
+                  {sub === 'Document Type Settings'  && <DocumentTypeSettingsSection   permissionId={id || 'default'} />}
+                  {sub === 'Merchant Settings'       && <MerchantSettingsSection       permissionId={id || 'default'} />}
+                  {sub === 'Renewals and Reminders'  && <RenewalsAndRemindersSection   permissionId={id || 'default'} />}
+                  {sub === 'Email Templates'         && <EmailTemplatesSection         permissionId={id || 'default'} />}
+                  {sub === 'Visitor Portal Settings' && <VisitorPortalSettingsSection  permissionId={id || 'default'} />}
+                </>
               )}
 
               {sub === 'Zone Mapping' && (
