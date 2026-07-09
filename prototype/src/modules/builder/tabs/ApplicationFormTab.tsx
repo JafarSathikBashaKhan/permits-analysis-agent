@@ -210,9 +210,8 @@ export function ApplicationFormTab() {
     setFlash('Application form published to Apply portal.');
   };
 
-  // Palette drop â†’ add to active page
+  // Palette drop â†’ add to active page (auto-create page if none exists)
   const addPaletteComponent = (t: FormioType, label: string) => {
-    if (!activePage) return;
     const id = `c-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
     // Unique key across the whole form
     const baseKey = label.replace(/\s+/g, '');
@@ -230,7 +229,17 @@ export function ApplicationFormTab() {
       placeholder: '',
       options: defaultOptions,
     };
-    setPages((prev) => prev.map((p) => p.id === activePage.id ? { ...p, components: [...p.components, nc] } : p));
+    setPages((prev) => {
+      // If no pages yet, create Page 1 and drop the component into it
+      if (prev.length === 0) {
+        const pid = `p-${Date.now()}`;
+        setActivePageId(pid);
+        return [{ id: pid, name: 'Page 1', components: [nc] }];
+      }
+      const targetPageId = activePageId || prev[0].id;
+      if (!activePageId) setActivePageId(targetPageId);
+      return prev.map((p) => p.id === targetPageId ? { ...p, components: [...p.components, nc] } : p);
+    });
     setSelectedComponentId(id);
   };
 
@@ -704,9 +713,26 @@ function FormioBuilderCanvas({
   const [propTab, setPropTab] = useState<'display' | 'data' | 'validation'>('display');
   const [renaming, setRenaming] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
+  const [dragOver, setDragOver] = useState(false);
   const activePage = pages.find((p) => p.id === activePageId) || null;
   const activeIdx = pages.findIndex((p) => p.id === activePageId);
   const canvasComponents = activePage?.components || [];
+
+  // Drag from palette → drop on canvas
+  const handleDragStart = (e: React.DragEvent, t: FormioType, label: string) => {
+    e.dataTransfer.setData('application/x-formio-component', JSON.stringify({ type: t, label }));
+    e.dataTransfer.effectAllowed = 'copy';
+  };
+  const handleCanvasDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    const raw = e.dataTransfer.getData('application/x-formio-component');
+    if (!raw) return;
+    try {
+      const { type, label } = JSON.parse(raw);
+      onAdd(type as FormioType, label as string);
+    } catch { /* ignore */ }
+  };
 
   return (
     <Paper variant="outlined" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '240px minmax(0, 1fr) 320px' }, minHeight: '70vh' }}>
@@ -727,6 +753,8 @@ function FormioBuilderCanvas({
               <Stack spacing={0.5} sx={{ mt: 0.5, pl: 0.5 }}>
                 {grp.items.map((it) => (
                   <Box key={it.type}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, it.type, it.label)}
                     onClick={() => onAdd(it.type, it.label)}
                     sx={{
                       p: 0.75, borderRadius: 1, border: '1px dashed #C7D2DA', bgcolor: '#FFF',
@@ -799,7 +827,12 @@ function FormioBuilderCanvas({
         </Box>
 
         {/* Canvas body */}
-        <Box sx={{ p: 2, flex: 1, overflowY: 'auto' }}>
+        <Box
+          onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; setDragOver(true); }}
+          onDragLeave={() => setDragOver(false)}
+          onDrop={handleCanvasDrop}
+          sx={{ p: 2, flex: 1, overflowY: 'auto', bgcolor: dragOver ? '#EAF3FB' : 'transparent', transition: 'background-color 0.15s' }}
+        >
           <Accordion defaultExpanded sx={{ bgcolor: '#EAF3FB', boxShadow: 'none', border: '1px solid #C3DCF1', borderRadius: '6px !important', mb: 2, '&:before': { display: 'none' } }}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Stack direction="row" alignItems="center" spacing={1}>
