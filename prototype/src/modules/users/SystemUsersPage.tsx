@@ -28,6 +28,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { PageHeader } from '../../shared/PageHeader';
+import { usePersistentState } from '../../hooks/usePersistentState';
 
 // ─────────────────────────────────────────────────────────────
 // Fixtures (mirror real API shape: role, permission groups, users)
@@ -538,7 +539,7 @@ function UserSlidingPanel({
 // List page
 // ─────────────────────────────────────────────────────────────
 export function SystemUsersPage() {
-  const [rows, setRows] = useState<SystemUser[]>(seedUsers);
+  const [rows, setRows] = usePersistentState<SystemUser[]>('prototype:users:system-users:rows', seedUsers);
   const [q, setQ] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Deactive'>('All');
   const [roleFilter, setRoleFilter] = useState<string>('All');

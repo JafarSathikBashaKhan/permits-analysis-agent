@@ -24,6 +24,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { PageHeader } from '../../shared/PageHeader';
 import { Section } from '../../shared/Section';
 import { FieldHint } from '../../shared/FieldHint';
+import { usePersistentState } from '../../hooks/usePersistentState';
 
 // ─── Left-nav sections (scroll-spy) ─────────────────────────────────────
 const NAV_SECTIONS: { id: string; label: string }[] = [
@@ -155,7 +156,7 @@ export function ContractSettingsPage() {
       .forEach((t) => { s[t.key] = !!t.defaultOn; });
     return s;
   }, []);
-  const [state, setState] = useState<Record<string, boolean>>(initial);
+  const [state, setState] = usePersistentState<Record<string, boolean>>('prototype:contract-settings:state', initial);
 
   // Customer
   const [blueBadgeLimit, setBlueBadgeLimit] = useState(2);

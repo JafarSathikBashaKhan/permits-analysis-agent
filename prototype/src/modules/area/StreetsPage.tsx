@@ -17,6 +17,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { PageHeader } from '../../shared/PageHeader';
 import { Street, PropertyRow, TOWNS, seedStreets, BLACKLIST_DURATIONS } from './areaFixtures';
+import { usePersistentState } from '../../hooks/usePersistentState';
 
 type BlackStreet = Street & { blacklistedUntil: string; reason?: string };
 type BlackProperty = PropertyRow & {
@@ -228,9 +229,9 @@ function BlacklistDialog({
 export function StreetsPage() {
   const [tab, setTab] = useState(0);
   const [q, setQ] = useState('');
-  const [rows, setRows] = useState<Street[]>(seedStreets);
-  const [blackStreets, setBlackStreets] = useState<BlackStreet[]>(() => seedBlackStreets(seedStreets()));
-  const [blackProps, setBlackProps] = useState<BlackProperty[]>(() => seedBlackProperties(seedStreets()));
+  const [rows, setRows] = usePersistentState<Street[]>('prototype:area:streets:rows', seedStreets);
+  const [blackStreets, setBlackStreets] = usePersistentState<BlackStreet[]>('prototype:area:streets:black-streets', () => seedBlackStreets(seedStreets()));
+  const [blackProps, setBlackProps] = usePersistentState<BlackProperty[]>('prototype:area:streets:black-props', () => seedBlackProperties(seedStreets()));
   const [selection, setSelection] = useState<GridRowSelectionModel>([]);
   const [panelOpen, setPanelOpen] = useState(false);
   const [selected, setSelected] = useState<Street | null>(null);

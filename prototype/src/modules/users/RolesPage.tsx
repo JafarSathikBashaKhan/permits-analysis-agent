@@ -26,6 +26,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CloseIcon from '@mui/icons-material/Close';
 import { PageHeader } from '../../shared/PageHeader';
+import { usePersistentState } from '../../hooks/usePersistentState';
 
 // ─────────────────────────────────────────────────────────────
 // Fixtures
@@ -390,7 +391,7 @@ function RolePanel({
 // List page
 // ─────────────────────────────────────────────────────────────
 export function RolesPage() {
-  const [rows, setRows] = useState<Role[]>(seedRoles);
+  const [rows, setRows] = usePersistentState<Role[]>('prototype:users:roles:rows', seedRoles);
   const [q, setQ] = useState('');
   const [typeFilter, setTypeFilter] = useState('All');
   const [panelOpen, setPanelOpen] = useState(false);

@@ -9,6 +9,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import { PageHeader } from '../../shared/PageHeader';
+import { usePersistentState } from '../../hooks/usePersistentState';
 
 const EXPIRATION_PERIODS = ['Days', 'Weeks', 'Months', 'Years'];
 
@@ -57,7 +58,7 @@ const seed = (): DocumentType[] => [
 type PanelMode = 'closed' | 'preview' | 'edit' | 'add';
 
 export function DocumentTypesPage() {
-  const [rows, setRows] = useState<DocumentType[]>(seed());
+  const [rows, setRows] = usePersistentState<DocumentType[]>('prototype:templates:document-types:rows', seed);
   const [search, setSearch] = useState('');
   const [panel, setPanel] = useState<PanelMode>('closed');
   const [target, setTarget] = useState<DocumentType | null>(null);

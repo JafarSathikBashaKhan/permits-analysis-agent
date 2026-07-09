@@ -18,6 +18,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { PageHeader } from '../../shared/PageHeader';
 import { seedStreets, Street } from './areaFixtures';
+import { usePersistentState } from '../../hooks/usePersistentState';
 
 type Zone = {
   id: string;
@@ -178,7 +179,7 @@ function ZoneSlider({
 }
 
 export function ZonesPage() {
-  const [rows, setRows] = useState<Zone[]>(seedZones);
+  const [rows, setRows] = usePersistentState<Zone[]>('prototype:area:zones:rows', seedZones);
   const [q, setQ] = useState('');
   const [panelOpen, setPanelOpen] = useState(false);
   const [selected, setSelected] = useState<Zone | null>(null);

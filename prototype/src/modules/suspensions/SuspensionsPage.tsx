@@ -12,6 +12,7 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import AddIcon from '@mui/icons-material/Add';
 import { PageHeader } from '../../shared/PageHeader';
 import { systemUsers } from '../../data/mock';
+import { usePersistentState } from '../../hooks/usePersistentState';
 
 type TaskStatus = 'Assigned' | 'Completed' | 'Cancelled' | 'Unassigned';
 type Attachment = { name: string; kind: 'image' | 'pdf' };
@@ -59,7 +60,7 @@ const STATUS_COLOR: Record<TaskStatus, 'success' | 'primary' | 'warning' | 'erro
 const DURATIONS = ['30 minutes', '1 hour', '2 hours', '4 hours', '1 day', '2 days', 'Custom'];
 
 export function SuspensionsPage() {
-  const [tasks, setTasks] = useState<CeoTask[]>(seed());
+  const [tasks, setTasks] = usePersistentState<CeoTask[]>('prototype:suspensions:rows', seed);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | TaskStatus>('All');
   const [evidenceTarget, setEvidenceTarget] = useState<CeoTask | null>(null);

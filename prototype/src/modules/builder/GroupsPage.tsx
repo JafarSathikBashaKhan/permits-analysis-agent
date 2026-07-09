@@ -12,6 +12,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { PageHeader } from '../../shared/PageHeader';
+import { usePersistentState } from '../../hooks/usePersistentState';
 
 const PERMISSION_TYPES = [
   'Residents Permit', 'Business Permit', 'Visitor Permit', 'Contractor Permit',
@@ -142,7 +143,7 @@ function GroupPanel({
 }
 
 export function GroupsPage() {
-  const [rows, setRows] = useState<Group[]>(seedGroups);
+  const [rows, setRows] = usePersistentState<Group[]>('prototype:builder:groups:rows', seedGroups);
   const [q, setQ] = useState('');
   const [panelOpen, setPanelOpen] = useState(false);
   const [selected, setSelected] = useState<Group | null>(null);

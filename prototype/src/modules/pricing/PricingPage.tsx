@@ -11,6 +11,7 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { PageHeader } from '../../shared/PageHeader';
+import { usePersistentState } from '../../hooks/usePersistentState';
 
 const PERM_TYPES = ['Residents Permit', 'Business Permit', 'Visitor Permit', 'Suspension', 'Dispensation'];
 const SUB_TYPES = ['Standard', 'Concession', 'Trade', 'Event', 'Other'];
@@ -55,9 +56,9 @@ function StatusChip({ v }: { v: Pricing['status'] }) {
 
 export function PricingPage() {
   const [tab, setTab] = useState(0);
-  const [zonal, setZonal] = useState<Pricing[]>(() => seedPricing('zonal'));
-  const [nonzonal, setNonzonal] = useState<Pricing[]>(() => seedPricing('nonzonal'));
-  const [rule, setRule] = useState<Pricing[]>(() => seedPricing('rule'));
+  const [zonal, setZonal] = usePersistentState<Pricing[]>('prototype:pricing:zonal', () => seedPricing('zonal'));
+  const [nonzonal, setNonzonal] = usePersistentState<Pricing[]>('prototype:pricing:nonzonal', () => seedPricing('nonzonal'));
+  const [rule, setRule] = usePersistentState<Pricing[]>('prototype:pricing:rule', () => seedPricing('rule'));
   const [q, setQ] = useState('');
   const [menuAnchor, setMenuAnchor] = useState<{ el: HTMLElement; row: Pricing } | null>(null);
   const [deleting, setDeleting] = useState<Pricing | null>(null);

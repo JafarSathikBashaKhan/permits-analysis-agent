@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { usePersistentState } from '../../hooks/usePersistentState';
 import {
   Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle,
   Stack, Tab, Tabs, TextField, Typography, FormControlLabel, Switch, Alert,
@@ -49,8 +50,8 @@ function RichEditor({
 
 export function AlertsAndTooltipsPage() {
   const [tab, setTab] = useState(0);
-  const [saved, setSaved] = useState<AlertConfig>(initial);
-  const [draft, setDraft] = useState<AlertConfig>(initial);
+  const [saved, setSaved] = usePersistentState<AlertConfig>('prototype:templates:alerts:rows', initial);
+  const [draft, setDraft] = useState<AlertConfig>(saved);
   const [confirmDiscard, setConfirmDiscard] = useState(false);
 
   const dirty = JSON.stringify(saved) !== JSON.stringify(draft);

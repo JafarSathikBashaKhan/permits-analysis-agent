@@ -21,6 +21,7 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import PaymentIcon from '@mui/icons-material/Payment';
 import PoundIcon from '@mui/icons-material/CurrencyPound';
 import { PageHeader } from '../../shared/PageHeader';
+import { usePersistentState } from '../../hooks/usePersistentState';
 
 // ---------- Mock lookups ----------
 const POSTCODE_PROPERTIES: Record<string, { uprn: string; addressLine: string; streetName: string; town: string; postCode: string }[]> = {
@@ -99,7 +100,7 @@ export function FormBuilderPage() {
   const effectiveAddress = addressSelection === 'saved' ? savedAddress : chosenNewProperty;
 
   // ---- Vehicles ----
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [vehicles, setVehicles] = usePersistentState<Vehicle[]>('prototype:formbuilder:state', []);
   const [vrmInput, setVrmInput] = useState('');
   const [autoLoading, setAutoLoading] = useState(false);
   const [vrmError, setVrmError] = useState<string | null>(null);

@@ -9,6 +9,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import { PageHeader } from '../../shared/PageHeader';
+import { usePersistentState } from '../../hooks/usePersistentState';
 
 const PERMISSION_TYPES = [
   'Resident Permit', 'Visitor Permit', 'Business Permit', 'Blue Badge',
@@ -56,7 +57,7 @@ type PanelMode = 'closed' | 'view' | 'edit' | 'add';
 const strip = (html: string) => html.replace(/<p>|<\/p>|<br\s*\/?>|&nbsp;/gi, '').trim();
 
 export function TermsAndConditionPage() {
-  const [rows, setRows] = useState<Template[]>(seed());
+  const [rows, setRows] = usePersistentState<Template[]>('prototype:templates:tnc:rows', seed);
   const [search, setSearch] = useState('');
   const [panel, setPanel] = useState<PanelMode>('closed');
   const [target, setTarget] = useState<Template | null>(null);

@@ -10,6 +10,7 @@ import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '../../shared/PageHeader';
 import { applications, systemUsers } from '../../data/mock';
+import { usePersistentState } from '../../hooks/usePersistentState';
 
 const STATUS_COLORS: Record<string, { color: 'default'|'primary'|'success'|'warning'|'error'|'info'; variant: 'filled'|'outlined' }> = {
   'Pending Approval': { color: 'warning', variant: 'outlined' },
@@ -74,7 +75,7 @@ type Mode = 'assign' | 'reassign';
 
 export function MyWorkItemsPage() {
   const nav = useNavigate();
-  const [rows, setRows] = useState<WorkItem[]>(seed());
+  const [rows, setRows] = usePersistentState<WorkItem[]>('prototype:workqueue:my-work:rows', seed);
   const [tab, setTab] = useState(0);
   const [search, setSearch] = useState('');
   const [selection, setSelection] = useState<GridRowSelectionModel>([]);

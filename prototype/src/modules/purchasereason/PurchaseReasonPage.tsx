@@ -12,6 +12,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { PageHeader } from '../../shared/PageHeader';
+import { usePersistentState } from '../../hooks/usePersistentState';
 
 const FIELD_TYPES = ['Text', 'Number', 'Single Select', 'Multi Select', 'Date', 'Checkbox', 'Radio'];
 
@@ -173,7 +174,7 @@ function ReasonPanel({
 }
 
 export function PurchaseReasonPage() {
-  const [rows, setRows] = useState<PurchaseReason[]>(seedReasons);
+  const [rows, setRows] = usePersistentState<PurchaseReason[]>('prototype:purchase-reason:rows', seedReasons);
   const [q, setQ] = useState('');
   const [panelOpen, setPanelOpen] = useState(false);
   const [selected, setSelected] = useState<PurchaseReason | null>(null);

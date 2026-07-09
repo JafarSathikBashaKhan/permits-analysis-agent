@@ -12,6 +12,7 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { PageHeader } from '../../shared/PageHeader';
+import { usePersistentState } from '../../hooks/usePersistentState';
 
 type Bay = {
   id: string;
@@ -112,7 +113,7 @@ function BayDialog({
 }
 
 export function BayListPage() {
-  const [rows, setRows] = useState<Bay[]>(seedBays);
+  const [rows, setRows] = usePersistentState<Bay[]>('prototype:area:baylist:rows', seedBays);
   const [q, setQ] = useState('');
   const [panelOpen, setPanelOpen] = useState(false);
   const [panelMode, setPanelMode] = useState<'add' | 'edit' | 'view'>('add');

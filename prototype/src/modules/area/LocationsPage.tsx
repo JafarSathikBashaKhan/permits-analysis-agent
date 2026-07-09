@@ -16,6 +16,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { PageHeader } from '../../shared/PageHeader';
 import { seedStreets, Street } from './areaFixtures';
+import { usePersistentState } from '../../hooks/usePersistentState';
 
 type Location = {
   id: string;
@@ -169,7 +170,7 @@ function LocationSlider({
 }
 
 export function LocationsPage() {
-  const [rows, setRows] = useState<Location[]>(seedLocations);
+  const [rows, setRows] = usePersistentState<Location[]>('prototype:area:locations:rows', seedLocations);
   const [q, setQ] = useState('');
   const [panelOpen, setPanelOpen] = useState(false);
   const [selected, setSelected] = useState<Location | null>(null);
