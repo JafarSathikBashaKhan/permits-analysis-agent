@@ -6,9 +6,16 @@ import { tokens } from '../theme';
 
 export function AppLayout() {
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', background: tokens.BG }}>
+    <Box sx={{ minHeight: '100vh', background: tokens.BG }}>
       <Sidebar />
-      <Box sx={{ flex: 1, ml: `${SIDEBAR_WIDTH}px`, display: 'flex', flexDirection: 'column' }}>
+      <Box
+        sx={{
+          ml: `${SIDEBAR_WIDTH}px`,
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         <Topbar />
         <Box
           component="main"
@@ -19,6 +26,8 @@ export function AppLayout() {
             maxWidth: 1400,
             width: '100%',
             mx: 'auto',
+            minWidth: 0,
+            boxSizing: 'border-box',
           }}
         >
           <Outlet />
