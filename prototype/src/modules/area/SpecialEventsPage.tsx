@@ -16,6 +16,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { PageHeader } from '../../shared/PageHeader';
 import { seedStreets, Street } from './areaFixtures';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import { useToast } from '../../components/Toast';
 
 type SpecialEvent = {
   id: string;
@@ -179,6 +180,7 @@ function SpecialEventSlider({
 }
 
 export function SpecialEventsPage() {
+  const showToast = useToast();
   const [rows, setRows] = usePersistentState<SpecialEvent[]>('prototype:area:special-events:rows', seedEvents);
   const [q, setQ] = useState('');
   const [panelOpen, setPanelOpen] = useState(false);
@@ -227,7 +229,7 @@ export function SpecialEventsPage() {
         description="Time-bounded events that override normal permit rules for specific streets."
         actions={
           <Stack direction="row" spacing={1}>
-            <Button variant="outlined" startIcon={<DownloadIcon />}>Download Sample</Button>
+            <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => showToast('Sample downloaded', 'info')}>Download Sample</Button>
             <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setSelected(null); setPanelOpen(true); }}>Add Event</Button>
           </Stack>
         } />

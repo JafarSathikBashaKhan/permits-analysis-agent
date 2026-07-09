@@ -13,6 +13,7 @@ import LockOutlined from '@mui/icons-material/LockOutlined';
 import LanguageOutlined from '@mui/icons-material/LanguageOutlined';
 import UploadOutlined from '@mui/icons-material/UploadOutlined';
 import PreviewOutlined from '@mui/icons-material/PreviewOutlined';
+import { useToast } from '../../components/Toast';
 
 type Tab = 'general' | 'portal' | 'permission-visibility' | 'payment' | 'security' | 'integrations';
 
@@ -24,6 +25,7 @@ const ALL_PERMISSIONS = [
 
 export function ApplyConfigPage() {
   const [tab, setTab] = useState<Tab>('general');
+  const showToast = useToast();
   const [portalOpen, setPortalOpen] = useState(true);
   const [signupEnabled, setSignupEnabled] = useState(true);
   const [guestApply, setGuestApply] = useState(false);
@@ -56,7 +58,7 @@ export function ApplyConfigPage() {
         description="Controls the customer-facing Apply portal — branding, which permits are visible, payment methods, and integrations."
         actions={
           <>
-            <Button variant="outlined" startIcon={<PreviewOutlined />}>Preview Portal</Button>
+            <Button variant="outlined" startIcon={<PreviewOutlined />} onClick={() => showToast('Preview coming soon', 'info')}>Preview Portal</Button>
             <Button variant="contained" onClick={save}>Save Changes</Button>
           </>
         }
@@ -147,7 +149,7 @@ export function ApplyConfigPage() {
                 <Card variant="outlined" sx={{ height: 160, display: 'grid', placeItems: 'center', bgcolor: '#FAFBFC' }}>
                   <Stack alignItems="center" spacing={1}>
                     <UploadOutlined sx={{ fontSize: 40, color: tokens.MUTED }} />
-                    <Button variant="outlined" size="small">Upload Logo</Button>
+                    <Button variant="outlined" size="small" onClick={() => showToast('Upload dialog coming soon', 'info')}>Upload Logo</Button>
                     <Typography sx={{ color: tokens.MUTED, fontSize: '0.78rem' }}>PNG / SVG, max 500KB</Typography>
                   </Stack>
                 </Card>
@@ -157,7 +159,7 @@ export function ApplyConfigPage() {
                 <Card variant="outlined" sx={{ height: 160, display: 'grid', placeItems: 'center', bgcolor: '#FAFBFC' }}>
                   <Stack alignItems="center" spacing={1}>
                     <UploadOutlined sx={{ fontSize: 40, color: tokens.MUTED }} />
-                    <Button variant="outlined" size="small">Upload Favicon</Button>
+                    <Button variant="outlined" size="small" onClick={() => showToast('Upload dialog coming soon', 'info')}>Upload Favicon</Button>
                     <Typography sx={{ color: tokens.MUTED, fontSize: '0.78rem' }}>32x32 ICO / PNG</Typography>
                   </Stack>
                 </Card>
@@ -275,7 +277,7 @@ export function ApplyConfigPage() {
                     color: intg.status === 'Connected' ? '#1E7E34' : '#616161',
                     fontWeight: 600,
                   }} />
-                  <Button size="small" variant="outlined">{intg.status === 'Connected' ? 'Manage' : 'Connect'}</Button>
+                  <Button size="small" variant="outlined" onClick={() => showToast(intg.status === 'Connected' ? 'Integration coming soon' : 'Integration coming soon', 'info')}>{intg.status === 'Connected' ? 'Manage' : 'Connect'}</Button>
                 </Stack>
               </Stack>
             ))}

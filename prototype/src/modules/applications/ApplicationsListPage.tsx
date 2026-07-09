@@ -3,6 +3,7 @@ import { Add, Search, DownloadOutlined, FileUploadOutlined, EventRepeatOutlined 
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useToast } from '../../components/Toast';
 import { PageHeader } from '../../shared/PageHeader';
 import { StatusChip } from '../../shared/StatusChip';
 import { applications } from '../../data/mock';
@@ -16,6 +17,7 @@ const TYPE_LABELS: Record<string, string> = {
 
 export function ApplicationsListPage() {
   const nav = useNavigate();
+  const showToast = useToast();
   const [params] = useSearchParams();
   const typeParam = (params.get('type') ?? '').toLowerCase();
   const typeLabel = TYPE_LABELS[typeParam];
@@ -57,10 +59,10 @@ export function ApplicationsListPage() {
           : 'Review, action and progress permit applications from all channels.'}
         actions={
           <Stack direction="row" spacing={1}>
-            <Button variant="outlined" startIcon={<EventRepeatOutlined />}>Extend Duration</Button>
-            <Button variant="outlined" startIcon={<FileUploadOutlined />}>Export</Button>
-            <Button variant="outlined" startIcon={<DownloadOutlined />}>Download</Button>
-            <Button variant="contained" startIcon={<Add />}>New application</Button>
+            <Button variant="outlined" startIcon={<EventRepeatOutlined />} onClick={() => showToast('Extend duration dialog coming soon', 'info')}>Extend Duration</Button>
+            <Button variant="outlined" startIcon={<FileUploadOutlined />} onClick={() => showToast('Exporting…', 'info')}>Export</Button>
+            <Button variant="outlined" startIcon={<DownloadOutlined />} onClick={() => showToast('Downloading…', 'info')}>Download</Button>
+            <Button variant="contained" startIcon={<Add />} onClick={() => showToast('Use Buy Now flow to create a new application', 'info')}>New application</Button>
           </Stack>
         }
       />

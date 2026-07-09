@@ -27,6 +27,7 @@ import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import CloseIcon from '@mui/icons-material/Close';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { tokens } from '../../../theme';
+import { useToast } from '../../../components/Toast';
 
 // ─── Types ───────────────────────────────────────────────────────────────
 type PricingMode = 'standard' | 'minIncremental' | 'fixed';
@@ -93,6 +94,7 @@ const DEFAULT_STATE: PricingState = {
 
 // ─── Main component ──────────────────────────────────────────────────────
 export function PricingTab({ permissionId = 'default' }: { permissionId?: string }) {
+  const showToast = useToast();
   const storageKey = `prototype:pricing:${permissionId}`;
   const [state, setState] = useState<PricingState>(DEFAULT_STATE);
   const [importOpen, setImportOpen] = useState(false);
@@ -195,7 +197,7 @@ export function PricingTab({ permissionId = 'default' }: { permissionId?: string
           <Paper variant="outlined" sx={{ p: 3, textAlign: 'center', borderStyle: 'dashed' }}>
             <CloudUploadIcon sx={{ fontSize: 40, color: tokens.MUTED, mb: 1 }} />
             <Typography variant="body2" color="text.secondary">Drop CSV here or click to browse</Typography>
-            <Button variant="outlined" size="small" sx={{ mt: 1.5 }}>Choose File</Button>
+            <Button variant="outlined" size="small" sx={{ mt: 1.5 }} onClick={() => showToast('File chooser coming soon', 'info')}>Choose File</Button>
           </Paper>
         </DialogContent>
         <DialogActions>

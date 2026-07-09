@@ -7,6 +7,7 @@ import {
 } from '@mui/icons-material';
 import { useMemo, useState, MouseEvent } from 'react';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useToast } from '../../components/Toast';
 import { permissions, permissionTypes, groupsByType, categories } from '../../data/mock';
 import { tokens } from '../../theme';
 import { ApplicationFormTab } from './tabs/ApplicationFormTab';
@@ -38,6 +39,7 @@ type PermissionSub = typeof PERMISSION_SUBS[number];
 export function BuilderDesignPage() {
   const { id } = useParams();
   const nav = useNavigate();
+  const showToast = useToast();
   const isNew = id === 'new';
   const perm = useMemo(() => permissions.find((p) => p.id === id), [id]);
   const displayName = isNew ? 'New permission' : (perm?.name ?? 'Permission');
@@ -107,6 +109,7 @@ export function BuilderDesignPage() {
           <Button
             variant="outlined"
             startIcon={<SaveOutlined />}
+            onClick={() => showToast('Draft saved', 'success')}
             sx={{ fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}
           >
             Save Draft
@@ -114,6 +117,7 @@ export function BuilderDesignPage() {
           <Button
             variant="contained"
             startIcon={<UploadOutlined />}
+            onClick={() => showToast('Permission published', 'success')}
             sx={{ fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}
           >
             Publish

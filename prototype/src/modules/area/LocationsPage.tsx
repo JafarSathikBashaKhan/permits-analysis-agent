@@ -17,6 +17,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { PageHeader } from '../../shared/PageHeader';
 import { seedStreets, Street } from './areaFixtures';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import { useToast } from '../../components/Toast';
 
 type Location = {
   id: string;
@@ -170,6 +171,7 @@ function LocationSlider({
 }
 
 export function LocationsPage() {
+  const showToast = useToast();
   const [rows, setRows] = usePersistentState<Location[]>('prototype:area:locations:rows', seedLocations);
   const [q, setQ] = useState('');
   const [panelOpen, setPanelOpen] = useState(false);
@@ -213,8 +215,8 @@ export function LocationsPage() {
         description="Named collections of streets used by parking enforcement and physical permit logistics."
         actions={
           <Stack direction="row" spacing={1}>
-            <Button variant="outlined" startIcon={<DownloadIcon />}>Download Sample</Button>
-            <Button variant="outlined" startIcon={<UploadFileIcon />}>Import</Button>
+            <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => showToast('Sample downloaded', 'info')}>Download Sample</Button>
+            <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => showToast('Import dialog coming soon', 'info')}>Import</Button>
             <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setSelected(null); setPanelOpen(true); }}>Add Location</Button>
           </Stack>
         } />

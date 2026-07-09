@@ -18,6 +18,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { PageHeader } from '../../shared/PageHeader';
 import { Street, PropertyRow, TOWNS, seedStreets, BLACKLIST_DURATIONS } from './areaFixtures';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import { useToast } from '../../components/Toast';
 
 type BlackStreet = Street & { blacklistedUntil: string; reason?: string };
 type BlackProperty = PropertyRow & {
@@ -227,6 +228,7 @@ function BlacklistDialog({
 // Streets page (3 tabs)
 // ─────────────────────────────────────────────────────────────
 export function StreetsPage() {
+  const showToast = useToast();
   const [tab, setTab] = useState(0);
   const [q, setQ] = useState('');
   const [rows, setRows] = usePersistentState<Street[]>('prototype:area:streets:rows', seedStreets);
@@ -353,7 +355,7 @@ export function StreetsPage() {
         <Box sx={{ flex: 1 }} />
         {tab === 0 && (
           <>
-            <Button variant="outlined" startIcon={<DownloadIcon />}>Download Sample</Button>
+            <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => showToast('Sample downloaded', 'success')}>Download Sample</Button>
             <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => setImportOpen(true)}>Import</Button>
             <Button variant="contained" startIcon={<AddIcon />} onClick={openAdd}>Add Street</Button>
           </>
@@ -405,7 +407,7 @@ export function StreetsPage() {
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <Alert severity="info">Upload a CSV or XLSX file matching the sample template.</Alert>
-            <Button variant="outlined" startIcon={<UploadFileIcon />}>Choose file</Button>
+            <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => showToast('File chooser coming soon', 'info')}>Choose file</Button>
           </Stack>
         </DialogContent>
         <DialogActions>

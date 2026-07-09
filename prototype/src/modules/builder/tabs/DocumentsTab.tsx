@@ -2,10 +2,12 @@ import { Alert, Box, Button, IconButton, Paper, Stack, Switch, Typography } from
 import { Add, DragIndicator, Edit } from '@mui/icons-material';
 import { useState } from 'react';
 import { Section } from '../../../shared/Section';
+import { useToast } from '../../../components/Toast';
 
 type Doc = { name: string; required: boolean; expires: boolean };
 
 export function DocumentsTab() {
+  const showToast = useToast();
   const [docs, setDocs] = useState<Doc[]>([
     { name: 'Proof of address', required: true, expires: true },
     { name: 'Photo ID', required: true, expires: true },
@@ -21,7 +23,7 @@ export function DocumentsTab() {
         Required documents are enforced at the Documents step in Buy Now and appear on the Back Office application review page.
       </Alert>
 
-      <Section title="Required documents" actions={<Button startIcon={<Add />} variant="outlined" size="small">Add document type</Button>}>
+      <Section title="Required documents" actions={<Button startIcon={<Add />} variant="outlined" size="small" onClick={() => showToast('Document type dialog coming soon', 'info')}>Add document type</Button>}>
         <Stack spacing={1.25}>
           {docs.map((d, i) => (
             <Paper key={d.name} sx={{ p: 1.5 }}>

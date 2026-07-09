@@ -13,6 +13,7 @@ import SearchOutlined from '@mui/icons-material/SearchOutlined';
 import DownloadOutlined from '@mui/icons-material/DownloadOutlined';
 import { PageHeader } from '../../shared/PageHeader';
 import { tokens } from '../../theme';
+import { useToast } from '../../components/Toast';
 
 type FuelType = 'Petrol' | 'Diesel' | 'Electric' | 'Hybrid' | 'LPG';
 type Status = 'Active' | 'Pending' | 'Suspended' | 'Expired' | 'Temporary';
@@ -85,6 +86,7 @@ const FUEL_ICON: Record<FuelType, React.ReactNode> = {
 };
 
 export function VehiclesPage() {
+  const showToast = useToast();
   const [rows] = useState<Vehicle[]>(() => seedVehicles());
   const [search, setSearch] = useState('');
   const [fuelFilter, setFuelFilter] = useState<'All' | FuelType>('All');
@@ -142,8 +144,8 @@ export function VehiclesPage() {
         description="All vehicles registered across permit applications. Search, filter by fuel and status, and open any vehicle to view its Autoguru details."
         actions={
           <>
-            <Button variant="outlined" startIcon={<DownloadOutlined />}>Export</Button>
-            <Button variant="contained">Add Vehicle</Button>
+            <Button variant="outlined" startIcon={<DownloadOutlined />} onClick={() => showToast('Exporting…', 'info')}>Export</Button>
+            <Button variant="contained" onClick={() => showToast('Add vehicle dialog coming soon', 'info')}>Add Vehicle</Button>
           </>
         }
       />
@@ -228,8 +230,8 @@ export function VehiclesPage() {
             ))}
             <Divider sx={{ my: 2 }} />
             <Stack direction="row" spacing={1}>
-              <Button variant="outlined" fullWidth>Edit</Button>
-              <Button variant="contained" fullWidth>Open Application</Button>
+              <Button variant="outlined" fullWidth onClick={() => showToast('Edit form coming soon', 'info')}>Edit</Button>
+              <Button variant="contained" fullWidth onClick={() => showToast('Open Application — coming soon', 'info')}>Open Application</Button>
             </Stack>
           </Box>
         )}

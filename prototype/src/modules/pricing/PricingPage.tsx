@@ -12,6 +12,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { PageHeader } from '../../shared/PageHeader';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import { useToast } from '../../components/Toast';
 
 const PERM_TYPES = ['Residents Permit', 'Business Permit', 'Visitor Permit', 'Suspension', 'Dispensation'];
 const SUB_TYPES = ['Standard', 'Concession', 'Trade', 'Event', 'Other'];
@@ -55,6 +56,7 @@ function StatusChip({ v }: { v: Pricing['status'] }) {
 }
 
 export function PricingPage() {
+  const showToast = useToast();
   const [tab, setTab] = useState(0);
   const [zonal, setZonal] = usePersistentState<Pricing[]>('prototype:pricing:zonal', () => seedPricing('zonal'));
   const [nonzonal, setNonzonal] = usePersistentState<Pricing[]>('prototype:pricing:nonzonal', () => seedPricing('nonzonal'));
@@ -118,7 +120,7 @@ export function PricingPage() {
           onChange={(e) => setQ(e.target.value)} sx={{ flex: 1, maxWidth: 420 }} />
         <Box sx={{ flex: 1 }} />
         <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => setImportOpen(true)}>Import</Button>
-        <Button variant="contained" startIcon={<AddIcon />}>Add Pricing</Button>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={() => showToast('Add pricing dialog coming soon', 'info')}>Add Pricing</Button>
       </Stack>
 
       <Box sx={{ bgcolor: 'background.paper', border: 1, borderColor: 'divider', borderRadius: 1 }}>
@@ -165,7 +167,7 @@ export function PricingPage() {
             <Alert severity="info">
               Expected columns: Zone Set Name, Zone Name, Duration, Tier, Price, Diesel Surcharge.
             </Alert>
-            <Button variant="outlined" startIcon={<UploadFileIcon />}>Choose file</Button>
+            <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => showToast('File chooser coming soon', 'info')}>Choose file</Button>
           </Stack>
         </DialogContent>
         <DialogActions>

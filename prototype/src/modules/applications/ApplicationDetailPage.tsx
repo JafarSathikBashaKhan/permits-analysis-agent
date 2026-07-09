@@ -12,6 +12,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { StatusChip } from '../../shared/StatusChip';
 import { applications } from '../../data/mock';
 import { tokens } from '../../theme';
+import { useToast } from '../../components/Toast';
 
 type TabKey =
   | 'overview' | 'applicant' | 'vehicle' | 'document' | 'email'
@@ -60,6 +61,7 @@ function headerActionsFor(status: string, isSuspension: boolean): { label: strin
 export function ApplicationDetailPage() {
   const { id } = useParams();
   const nav = useNavigate();
+  const showToast = useToast();
   const app = applications.find((a) => a.id === id) ?? applications[0];
   const [tab, setTab] = useState<TabKey>('overview');
   const [moreAnchor, setMoreAnchor] = useState<HTMLElement | null>(null);
@@ -100,7 +102,8 @@ export function ApplicationDetailPage() {
           <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
             <StatusChip status={app.status} />
             {actions.map((a) => (
-              <Button key={a.label} variant={a.variant ?? 'outlined'} color={a.color as any}>
+              <Button key={a.label} variant={a.variant ?? 'outlined'} color={a.color as any}
+                onClick={() => showToast(`${a.label} — action recorded`, 'success')}>
                 {a.label}
               </Button>
             ))}
@@ -199,9 +202,10 @@ function OverviewPanel({ app }: { app: any }) {
 }
 
 function ApplicantPanel({ app }: { app: any }) {
+  const showToast = useToast();
   const email = app.applicant.toLowerCase().replace(/[^a-z]+/g, '.') + '@example.co.uk';
   return (
-    <PanelPaper title="Applicant details" actions={<Button size="small" variant="outlined" startIcon={<EditOutlined />}>Edit</Button>}>
+    <PanelPaper title="Applicant details" actions={<Button size="small" variant="outlined" startIcon={<EditOutlined />} onClick={() => showToast('Edit form coming soon', 'info')}>Edit</Button>}>
       <Grid container spacing={2}>
         <Fact label="Full name" value={app.applicant} />
         <Fact label="Title" value="Mr" />
@@ -218,12 +222,13 @@ function ApplicantPanel({ app }: { app: any }) {
 }
 
 function VehiclePanel() {
+  const showToast = useToast();
   const rows = [
     { vrm: 'AB19 XYZ', make: 'Ford', model: 'Focus', colour: 'Silver', fuel: 'Petrol', co2: 118, source: 'AutoGuru' },
     { vrm: 'BC22 CDE', make: 'Tesla', model: 'Model 3', colour: 'White', fuel: 'Electric', co2: 0, source: 'AutoGuru' },
   ];
   return (
-    <PanelPaper title="Vehicles" actions={<Button size="small" variant="contained" startIcon={<AddOutlined />}>Add Vehicle</Button>}>
+    <PanelPaper title="Vehicles" actions={<Button size="small" variant="contained" startIcon={<AddOutlined />} onClick={() => showToast('Add vehicle dialog coming soon', 'info')}>Add Vehicle</Button>}>
       <SimpleTable
         columns={['VRM','Make','Model','Colour','Fuel','CO₂','Source','Actions']}
         rows={rows.map((r) => [r.vrm, r.make, r.model, r.colour, r.fuel, `${r.co2} g/km`, r.source,
@@ -237,12 +242,13 @@ function VehiclePanel() {
 }
 
 function DocumentPanel() {
+  const showToast = useToast();
   const rows = [
     { name: 'Proof of Address.pdf', type: 'Proof of Address', uploaded: '2026-06-24', size: '212 KB', status: 'Approved' },
     { name: 'V5C.pdf',              type: 'Vehicle V5C',      uploaded: '2026-06-24', size: '384 KB', status: 'Pending' },
   ];
   return (
-    <PanelPaper title="Documents" actions={<Button size="small" variant="contained" startIcon={<UploadFileOutlined />}>Upload Document</Button>}>
+    <PanelPaper title="Documents" actions={<Button size="small" variant="contained" startIcon={<UploadFileOutlined />} onClick={() => showToast('Upload document dialog coming soon', 'info')}>Upload Document</Button>}>
       <SimpleTable
         columns={['File Name','Document Type','Uploaded','Size','Status','Actions']}
         rows={rows.map((r) => [r.name, r.type, r.uploaded, r.size, <StatusChip status={r.status} />,
@@ -257,12 +263,13 @@ function DocumentPanel() {
 }
 
 function EmailPanel() {
+  const showToast = useToast();
   const rows = [
     { date: '2026-06-24 09:22', to: 'applicant@example.com', subject: 'Application received', status: 'Delivered' },
     { date: '2026-06-25 14:08', to: 'applicant@example.com', subject: 'Payment required',     status: 'Delivered' },
   ];
   return (
-    <PanelPaper title="Email history" actions={<Button size="small" variant="contained" startIcon={<EmailOutlined />}>Compose Email</Button>}>
+    <PanelPaper title="Email history" actions={<Button size="small" variant="contained" startIcon={<EmailOutlined />} onClick={() => showToast('Compose email dialog coming soon', 'info')}>Compose Email</Button>}>
       <SimpleTable columns={['Sent','To','Subject','Status','Actions']}
         rows={rows.map((r) => [r.date, r.to, r.subject, <StatusChip status={r.status} />,
           <IconButton size="small"><PreviewOutlined fontSize="small" /></IconButton>])} />
@@ -325,6 +332,7 @@ function NotesPanel() {
 }
 
 function AddressAssignPanel() {
+  const showToast = useToast();
   return (
     <PanelPaper title="Add address and assign">
       <Grid container spacing={2}>
@@ -335,27 +343,29 @@ function AddressAssignPanel() {
         <FormItem label="Zone"><TextField placeholder="Auto-detected from address" fullWidth /></FormItem>
       </Grid>
       <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ mt: 2 }}>
-        <Button variant="text">Cancel</Button>
-        <Button variant="contained">Add Address & Assign</Button>
+        <Button variant="text" onClick={() => showToast('Cancelled', 'info')}>Cancel</Button>
+        <Button variant="contained" onClick={() => showToast('Address assigned', 'success')}>Add Address & Assign</Button>
       </Stack>
     </PanelPaper>
   );
 }
 
 function CEOTaskPanel() {
+  const showToast = useToast();
   const rows = [
     { taskId: 'CEO-2201', assignedTo: 'Team A', created: '2026-06-25', due: '2026-07-01', status: 'Task Assigned' },
   ];
   return (
-    <PanelPaper title="CEO Task assignment" actions={<Button size="small" variant="contained" startIcon={<AddOutlined />}>Assign Task to CEO</Button>}>
+    <PanelPaper title="CEO Task assignment" actions={<Button size="small" variant="contained" startIcon={<AddOutlined />} onClick={() => showToast('Task assigned', 'success')}>Assign Task to CEO</Button>}>
       <SimpleTable columns={['Task ID','Assigned To','Created','Due','Status','Actions']}
         rows={rows.map((r) => [r.taskId, r.assignedTo, r.created, r.due, <StatusChip status={r.status} />,
-          <Button size="small" color="error">Cancel Task</Button>])} />
+          <Button size="small" color="error" onClick={() => showToast('Task cancelled', 'success')}>Cancel Task</Button>])} />
     </PanelPaper>
   );
 }
 
 function RenewalSummaryPanel({ app }: { app: any }) {
+  const showToast = useToast();
   return (
     <PanelPaper title="Renewal summary">
       <Grid container spacing={2}>
@@ -367,16 +377,17 @@ function RenewalSummaryPanel({ app }: { app: any }) {
         <Fact label="Documents required" value="Proof of Address, V5C" />
       </Grid>
       <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ mt: 2 }}>
-        <Button variant="text">Cancel</Button>
-        <Button variant="contained">Confirm Renewal</Button>
+        <Button variant="text" onClick={() => showToast('Cancelled', 'info')}>Cancel</Button>
+        <Button variant="contained" onClick={() => showToast('Renewal confirmed', 'success')}>Confirm Renewal</Button>
       </Stack>
     </PanelPaper>
   );
 }
 
 function RenewalDocsPanel() {
+  const showToast = useToast();
   return (
-    <PanelPaper title="Renewal documents" actions={<Button size="small" variant="contained" startIcon={<UploadFileOutlined />}>Upload Document</Button>}>
+    <PanelPaper title="Renewal documents" actions={<Button size="small" variant="contained" startIcon={<UploadFileOutlined />} onClick={() => showToast('Upload document dialog coming soon', 'info')}>Upload Document</Button>}>
       <SimpleTable columns={['Document Type','Required','Uploaded','Status']}
         rows={[
           ['Proof of Address', 'Yes', '2026-06-24', <StatusChip status="Approved" />],
@@ -387,8 +398,9 @@ function RenewalDocsPanel() {
 }
 
 function VoucherPanel() {
+  const showToast = useToast();
   return (
-    <PanelPaper title="Visitor voucher / permit" actions={<Button size="small" variant="contained" startIcon={<AddOutlined />}>Issue Voucher</Button>}>
+    <PanelPaper title="Visitor voucher / permit" actions={<Button size="small" variant="contained" startIcon={<AddOutlined />} onClick={() => showToast('Voucher issued', 'success')}>Issue Voucher</Button>}>
       <SimpleTable columns={['Voucher ID','Type','Hours','Issued','Used','Status']}
         rows={[
           ['V-30021', 'Hourly', '4h', '2026-06-24 09:22', '2026-06-24 12:12', <StatusChip status="Used" />],
@@ -399,13 +411,14 @@ function VoucherPanel() {
 }
 
 function PreviewPanel({ app }: { app: any }) {
+  const showToast = useToast();
   return (
     <PanelPaper title="Application preview">
       <Box sx={{ p: 4, textAlign: 'center', border: `1px dashed ${tokens.LINE}`, borderRadius: 1, bgcolor: '#FAFBFC' }}>
         <PreviewOutlined sx={{ fontSize: 48, color: tokens.MUTED }} />
         <Typography sx={{ mt: 1 }}>Print-ready preview for <b>{app.ref}</b></Typography>
         <Typography variant="body2" color="text.secondary">PDF renderer stub — real app embeds react-pdf.</Typography>
-        <Button variant="contained" startIcon={<DownloadOutlined />} sx={{ mt: 2 }}>Download PDF</Button>
+        <Button variant="contained" startIcon={<DownloadOutlined />} sx={{ mt: 2 }} onClick={() => showToast('PDF downloading…', 'info')}>Download PDF</Button>
       </Box>
     </PanelPaper>
   );

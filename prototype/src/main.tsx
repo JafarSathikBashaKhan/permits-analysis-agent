@@ -5,12 +5,15 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { RouterProvider } from 'react-router-dom';
 import { theme } from './theme';
 import { router } from './router';
+import { ToastProvider } from './components/Toast';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <RouterProvider router={router} />
+      <ToastProvider>
+        <RouterProvider router={router} />
+      </ToastProvider>
     </ThemeProvider>
   </React.StrictMode>,
 );

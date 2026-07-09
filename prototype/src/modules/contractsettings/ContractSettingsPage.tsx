@@ -22,6 +22,7 @@ import {
 import { Save } from '@mui/icons-material';
 import { useEffect, useMemo, useState } from 'react';
 import { PageHeader } from '../../shared/PageHeader';
+import { useToast } from '../../components/Toast';
 import { Section } from '../../shared/Section';
 import { FieldHint } from '../../shared/FieldHint';
 import { usePersistentState } from '../../hooks/usePersistentState';
@@ -149,6 +150,7 @@ function ScrollSpyNav() {
 }
 
 export function ContractSettingsPage() {
+  const showToast = useToast();
   // Toggle state — one flat map covers every switch/checkbox on the page.
   const initial = useMemo(() => {
     const s: Record<string, boolean> = {};
@@ -241,8 +243,8 @@ export function ContractSettingsPage() {
         description="Global switches and defaults for the entire contract. These affect every module."
         actions={
           <Stack direction="row" spacing={1}>
-            <Button variant="outlined">Cancel</Button>
-            <Button variant="contained" startIcon={<Save />}>Save Changes</Button>
+            <Button variant="outlined" onClick={() => showToast('Changes discarded', 'info')}>Cancel</Button>
+            <Button variant="contained" startIcon={<Save />} onClick={() => showToast('Settings saved', 'success')}>Save Changes</Button>
           </Stack>
         } />
 

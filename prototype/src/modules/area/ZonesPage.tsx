@@ -19,6 +19,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { PageHeader } from '../../shared/PageHeader';
 import { seedStreets, Street } from './areaFixtures';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import { useToast } from '../../components/Toast';
 
 type Zone = {
   id: string;
@@ -179,6 +180,7 @@ function ZoneSlider({
 }
 
 export function ZonesPage() {
+  const showToast = useToast();
   const [rows, setRows] = usePersistentState<Zone[]>('prototype:area:zones:rows', seedZones);
   const [q, setQ] = useState('');
   const [panelOpen, setPanelOpen] = useState(false);
@@ -227,8 +229,8 @@ export function ZonesPage() {
         description="Group streets into zones. Zones must be published before permissions can be issued against them."
         actions={
           <Stack direction="row" spacing={1}>
-            <Button variant="outlined" startIcon={<DownloadIcon />}>Download Sample</Button>
-            <Button variant="outlined" startIcon={<UploadFileIcon />}>Import</Button>
+            <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => showToast('Sample downloaded', 'info')}>Download Sample</Button>
+            <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => showToast('Import dialog coming soon', 'info')}>Import</Button>
             <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setSelected(null); setPanelOpen(true); }}>Add Zone</Button>
           </Stack>
         } />

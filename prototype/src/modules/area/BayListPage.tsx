@@ -13,6 +13,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { PageHeader } from '../../shared/PageHeader';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import { useToast } from '../../components/Toast';
 
 type Bay = {
   id: string;
@@ -113,6 +114,7 @@ function BayDialog({
 }
 
 export function BayListPage() {
+  const showToast = useToast();
   const [rows, setRows] = usePersistentState<Bay[]>('prototype:area:baylist:rows', seedBays);
   const [q, setQ] = useState('');
   const [panelOpen, setPanelOpen] = useState(false);
@@ -168,8 +170,8 @@ export function BayListPage() {
         description="Physical parking bays. Referenced by streets and enforcement."
         actions={
           <Stack direction="row" spacing={1}>
-            <Button variant="outlined" startIcon={<DownloadIcon />}>Export</Button>
-            <Button variant="outlined" startIcon={<UploadFileIcon />}>Import</Button>
+            <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => showToast('Exporting…', 'info')}>Export</Button>
+            <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => showToast('Import dialog coming soon', 'info')}>Import</Button>
             <Button variant="contained" startIcon={<AddIcon />}
               onClick={() => { setSelected(null); setPanelMode('add'); setPanelOpen(true); }}>
               Add Bay

@@ -6,6 +6,7 @@ import {
 import { PageHeader } from '../../shared/PageHeader';
 import { tokens } from '../../theme';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import { useToast } from '../../components/Toast';
 import NotificationsOutlined from '@mui/icons-material/NotificationsOutlined';
 import MailOutlineOutlined from '@mui/icons-material/MailOutlineOutlined';
 import ErrorOutlineOutlined from '@mui/icons-material/ErrorOutlineOutlined';
@@ -72,6 +73,7 @@ const SEV_STYLE: Record<Severity, { bg: string; fg: string; icon: React.ReactNod
 const CATS: (Category | 'All')[] = ['All', 'Application', 'Payment', 'Renewal', 'System', 'User', 'Print'];
 
 export function NotificationsPage() {
+  const showToast = useToast();
   const [items, setItems] = usePersistentState<Notif[]>('prototype:notifications:rows', seed);
   const [tab, setTab] = useState<'inbox' | 'settings' | 'history'>('inbox');
   const [cat, setCat] = useState<Category | 'All'>('All');
@@ -203,8 +205,8 @@ export function NotificationsPage() {
               </Stack>
             ))}
             <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
-              <Button variant="contained">Save Preferences</Button>
-              <Button variant="outlined">Reset to Defaults</Button>
+              <Button variant="contained" onClick={() => showToast('Preferences saved', 'success')}>Save Preferences</Button>
+              <Button variant="outlined" onClick={() => showToast('Preferences reset to defaults', 'info')}>Reset to Defaults</Button>
             </Stack>
           </CardContent>
         </Card>

@@ -22,6 +22,7 @@ import PaymentIcon from '@mui/icons-material/Payment';
 import PoundIcon from '@mui/icons-material/CurrencyPound';
 import { PageHeader } from '../../shared/PageHeader';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import { useToast } from '../../components/Toast';
 
 // ---------- Mock lookups ----------
 const POSTCODE_PROPERTIES: Record<string, { uprn: string; addressLine: string; streetName: string; town: string; postCode: string }[]> = {
@@ -75,6 +76,7 @@ const STEPS = [
 
 export function FormBuilderPage() {
   const nav = useNavigate();
+  const showToast = useToast();
   const [params] = useSearchParams();
   const permissionType = params.get('permission') || 'Resident Permit';
   const maxVehicles = Number(params.get('maxVehicles') || 3);
@@ -247,7 +249,7 @@ export function FormBuilderPage() {
                       onChange={(e) => setPostcode(e.target.value.toUpperCase())}
                       error={!!errors.postcode} helperText={errors.postcode || 'Try RG1 1AA, RG2 8BB or RG4 5CC.'}
                       sx={{ flex: 1 }} />
-                    <Button variant="outlined" onClick={() => { /* postcodeMatches is derived */ }}>Find</Button>
+                    <Button variant="outlined" onClick={() => showToast(postcode ? `Looking up ${postcode}…` : 'Enter a postcode first', postcode ? 'info' : 'warning')}>Find</Button>
                   </Stack>
                   {postcode && postcodeMatches.length === 0 && (
                     <Alert severity="warning">No properties found for this postcode.</Alert>

@@ -13,6 +13,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { PageHeader } from '../../shared/PageHeader';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import { useToast } from '../../components/Toast';
 
 const FIELD_TYPES = ['Text', 'Number', 'Single Select', 'Multi Select', 'Date', 'Checkbox', 'Radio'];
 
@@ -174,6 +175,7 @@ function ReasonPanel({
 }
 
 export function PurchaseReasonPage() {
+  const showToast = useToast();
   const [rows, setRows] = usePersistentState<PurchaseReason[]>('prototype:purchase-reason:rows', seedReasons);
   const [q, setQ] = useState('');
   const [panelOpen, setPanelOpen] = useState(false);
@@ -230,8 +232,8 @@ export function PurchaseReasonPage() {
         description="Reasons offered to applicants (Suspension / Dispensation) with optional collection fields."
         actions={
           <Stack direction="row" spacing={1}>
-            <Button variant="text" startIcon={<DownloadIcon />}>Export</Button>
-            <Button variant="outlined" startIcon={<UploadFileIcon />}>Import</Button>
+            <Button variant="text" startIcon={<DownloadIcon />} onClick={() => showToast('Exporting…', 'info')}>Export</Button>
+            <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => showToast('Import dialog coming soon', 'info')}>Import</Button>
             <Button variant="contained" startIcon={<AddIcon />}
               onClick={() => { setSelected(null); setPanelOpen(true); }}>
               Add Purchase Reason

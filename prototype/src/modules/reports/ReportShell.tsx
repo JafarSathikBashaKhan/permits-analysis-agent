@@ -4,6 +4,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import { PageHeader } from '../../shared/PageHeader';
+import { useToast } from '../../components/Toast';
 
 function PowerBiEmbedPlaceholder({ reportName, height = 640 }: { reportName: string; height?: number }) {
   const [reloadKey, setReloadKey] = useState(0);
@@ -67,6 +68,7 @@ type ReportShellProps = {
 
 export function ReportShell({ eyebrow = 'Reports', title, description, tabs }: ReportShellProps) {
   const [tab, setTab] = useState(0);
+  const showToast = useToast();
   const activeName = tabs && tabs.length > 0 ? `${title} — ${tabs[tab]}` : title;
 
   return (
@@ -85,8 +87,8 @@ export function ReportShell({ eyebrow = 'Reports', title, description, tabs }: R
       <PowerBiEmbedPlaceholder reportName={activeName} />
 
       <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ mt: 2 }}>
-        <Button variant="outlined" size="small">Export to PDF</Button>
-        <Button variant="outlined" size="small">Export to CSV</Button>
+        <Button variant="outlined" size="small" onClick={() => showToast('Exporting to PDF…', 'info')}>Export to PDF</Button>
+        <Button variant="outlined" size="small" onClick={() => showToast('Exporting to CSV…', 'info')}>Export to CSV</Button>
       </Stack>
     </Box>
   );

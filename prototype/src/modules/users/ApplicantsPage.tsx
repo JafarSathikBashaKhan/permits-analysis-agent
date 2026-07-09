@@ -10,6 +10,7 @@ import { useMemo, useState } from 'react';
 import { PageHeader } from '../../shared/PageHeader';
 import { StatusChip } from '../../shared/StatusChip';
 import { tokens } from '../../theme';
+import { useToast } from '../../components/Toast';
 
 type Applicant = {
   id: string;
@@ -37,6 +38,7 @@ const APPLICANTS: Applicant[] = Array.from({ length: 40 }).map((_, i) => ({
 }));
 
 export function ApplicantsPage() {
+  const showToast = useToast();
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('All');
   const [addOpen, setAddOpen] = useState(false);
@@ -73,8 +75,8 @@ export function ApplicantsPage() {
         description="Customers who apply for permits via the portal or in person."
         actions={
           <Stack direction="row" spacing={1}>
-            <Button variant="outlined" startIcon={<EmailOutlined />}>Broadcast Email</Button>
-            <Button variant="outlined" startIcon={<LockResetOutlined />}>Reset Password</Button>
+            <Button variant="outlined" startIcon={<EmailOutlined />} onClick={() => showToast('Broadcast email coming soon', 'info')}>Broadcast Email</Button>
+            <Button variant="outlined" startIcon={<LockResetOutlined />} onClick={() => showToast('Password reset — coming soon', 'info')}>Reset Password</Button>
             <Button variant="contained" startIcon={<AddOutlined />} onClick={() => setAddOpen(true)}>New Applicant</Button>
           </Stack>
         }
@@ -117,9 +119,9 @@ export function ApplicantsPage() {
               </Box>
               <Stack direction="row" spacing={1}>
                 <StatusChip status={selected.status} />
-                <Button variant="outlined" startIcon={<EmailOutlined />}>Send Email</Button>
-                <Button variant="outlined" startIcon={<LockResetOutlined />}>Reset Password</Button>
-                <Button variant="contained" startIcon={<EditOutlined />}>Edit</Button>
+                <Button variant="outlined" startIcon={<EmailOutlined />} onClick={() => showToast('Compose email dialog coming soon', 'info')}>Send Email</Button>
+                <Button variant="outlined" startIcon={<LockResetOutlined />} onClick={() => showToast('Password reset — coming soon', 'info')}>Reset Password</Button>
+                <Button variant="contained" startIcon={<EditOutlined />} onClick={() => showToast('Edit form coming soon', 'info')}>Edit</Button>
               </Stack>
             </Stack>
           </Box>
@@ -182,10 +184,11 @@ function ApplicationsPane() {
 }
 
 function BlueBadgePane({ hasBadge }: { hasBadge: boolean }) {
+  const showToast = useToast();
   return (
     <>
       <Stack direction="row" justifyContent="flex-end" sx={{ mb: 1 }}>
-        <Button variant="contained" startIcon={<AddOutlined />}>Add Blue Badge</Button>
+        <Button variant="contained" startIcon={<AddOutlined />} onClick={() => showToast('Add blue badge dialog coming soon', 'info')}>Add Blue Badge</Button>
       </Stack>
       <SimpleTable columns={['Badge No','Issue Date','Expiry Date','Status','Actions']}
         rows={hasBadge ? [['BB-8821','2024-01-15','2027-01-14', <StatusChip status="Active" />,
@@ -199,6 +202,7 @@ function BlueBadgePane({ hasBadge }: { hasBadge: boolean }) {
 }
 
 function VehiclesPane() {
+  const showToast = useToast();
   const rows = [
     ['AB19 XYZ', 'Standard', 'Silver Ford Focus',    'Focus daily',   '2026-06-01 09:22',
       <Stack direction="row" spacing={0.5}><IconButton size="small"><EditOutlined fontSize="small" /></IconButton><IconButton size="small"><DeleteOutlineOutlined fontSize="small" /></IconButton></Stack>],
@@ -210,8 +214,8 @@ function VehiclesPane() {
   return (
     <>
       <Stack direction="row" justifyContent="flex-end" sx={{ mb: 1 }} spacing={1}>
-        <Button variant="outlined" startIcon={<DirectionsCarOutlined />}>Temporary Vehicle</Button>
-        <Button variant="contained" startIcon={<AddOutlined />}>Add Vehicle</Button>
+        <Button variant="outlined" startIcon={<DirectionsCarOutlined />} onClick={() => showToast('Temporary vehicle dialog coming soon', 'info')}>Temporary Vehicle</Button>
+        <Button variant="contained" startIcon={<AddOutlined />} onClick={() => showToast('Add vehicle dialog coming soon', 'info')}>Add Vehicle</Button>
       </Stack>
       <SimpleTable columns={['Vehicle number (VRM)','Type','Color, Make, Model','Nick name','Last added date/time','Actions']} rows={rows} />
     </>
@@ -219,6 +223,7 @@ function VehiclesPane() {
 }
 
 function DocumentsPane() {
+  const showToast = useToast();
   const rows = [
     ['Proof of Address.pdf', 'Proof of Address', '2026-06-24', '212 KB', <StatusChip status="Approved" />,
       <Stack direction="row" spacing={0.5}><IconButton size="small"><DownloadOutlined fontSize="small" /></IconButton><IconButton size="small"><PreviewOutlined fontSize="small" /></IconButton><IconButton size="small"><DeleteOutlineOutlined fontSize="small" /></IconButton></Stack>],
@@ -228,7 +233,7 @@ function DocumentsPane() {
   return (
     <>
       <Stack direction="row" justifyContent="flex-end" sx={{ mb: 1 }}>
-        <Button variant="contained" startIcon={<UploadFileOutlined />}>Add Document</Button>
+        <Button variant="contained" startIcon={<UploadFileOutlined />} onClick={() => showToast('Upload document dialog coming soon', 'info')}>Add Document</Button>
       </Stack>
       <SimpleTable columns={['File Name','Document Type','Uploaded','Size','Status','Actions']} rows={rows} />
     </>
@@ -236,6 +241,7 @@ function DocumentsPane() {
 }
 
 function EmailsPane() {
+  const showToast = useToast();
   const rows = [
     ['2026-06-25 14:08', 'Application received',      'Delivered', <IconButton size="small"><PreviewOutlined fontSize="small" /></IconButton>],
     ['2026-06-14 09:22', 'Password reset link',       'Delivered', <IconButton size="small"><PreviewOutlined fontSize="small" /></IconButton>],
@@ -244,7 +250,7 @@ function EmailsPane() {
   return (
     <>
       <Stack direction="row" justifyContent="flex-end" sx={{ mb: 1 }}>
-        <Button variant="contained" startIcon={<EmailOutlined />}>Send Email</Button>
+        <Button variant="contained" startIcon={<EmailOutlined />} onClick={() => showToast('Compose email dialog coming soon', 'info')}>Send Email</Button>
       </Stack>
       <SimpleTable columns={['Sent','Subject','Status','Actions']} rows={rows} />
     </>
