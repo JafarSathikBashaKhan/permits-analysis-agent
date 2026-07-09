@@ -10,6 +10,7 @@ import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import { permissions, permissionTypes, groupsByType, categories } from '../../data/mock';
 import { tokens } from '../../theme';
 import { ApplicationFormTab } from './tabs/ApplicationFormTab';
+import { PricingTab } from './tabs/PricingTab';
 
 type TopTab = 'permissions' | 'rules' | 'pricing' | 'application-form';
 
@@ -361,7 +362,7 @@ export function BuilderDesignPage() {
         )}
 
         {topTab === 'rules' && <TopLevelPlaceholder title="Rules" />}
-        {topTab === 'pricing' && <TopLevelPlaceholder title="Pricing" />}
+        {topTab === 'pricing' && <PricingTab permissionId={id || 'default'} />}
         {topTab === 'application-form' && <ApplicationFormTab permissionId={id || 'default'} />}
       </Box>
     </Box>
