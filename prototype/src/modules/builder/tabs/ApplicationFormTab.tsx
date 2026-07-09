@@ -1,11 +1,11 @@
-/*
- * Application Form tab — mirrors the real Marston MNPS FormBuilderPage
+﻿/*
+ * Application Form tab â€” mirrors the real Marston MNPS FormBuilderPage
  * (src/app/(pages)/builder/(dynamicformbuilder)/FormBuilderPage.tsx).
  *
  * Three-state flow, matching the real app 1:1:
- *   A. No draft yet     → "Select Template" label + template autocomplete + [EDIT]
- *   B. Draft saved      → "<template name>" label + "Change Template" link + read-only wizard preview
- *   C. Editing (showPreview=true) → "Edit <template name>" + [Cancel][Save/Update Form] + FormBuilder canvas
+ *   A. No draft yet     â†’ "Select Template" label + template autocomplete + [EDIT]
+ *   B. Draft saved      â†’ "<template name>" label + "Change Template" link + read-only wizard preview
+ *   C. Editing (showPreview=true) â†’ "Edit <template name>" + [Cancel][Save/Update Form] + FormBuilder canvas
  *
  * Change Template popup:
  *   "Changing the template and saving it as a draft will retain only the changes
@@ -40,7 +40,7 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { tokens } from '../../../theme';
 
-// ─── Template catalogue (mirrors real templateDataLoad shape) ───────────────
+// â”€â”€â”€ Template catalogue (mirrors real templateDataLoad shape) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const TEMPLATES: { id: string; name: string; description: string }[] = [
   { id: 'RES', name: 'Resident Permit',   description: 'Standard 5-step form for residents' },
   { id: 'VIS', name: 'Visitor Permit',    description: 'Short form for visitor scratch/day permits' },
@@ -49,7 +49,7 @@ const TEMPLATES: { id: string; name: string; description: string }[] = [
   { id: 'BLU', name: 'Blue Badge Permit', description: 'Blue badge holder with disability documentation' },
 ];
 
-// ─── Address / vehicle / document mock DBs (used by the wizard preview) ────
+// â”€â”€â”€ Address / vehicle / document mock DBs (used by the wizard preview) â”€â”€â”€â”€
 const POSTCODE_PROPERTIES: Record<string, { uprn: string; addressLine: string; town: string; postCode: string }[]> = {
   'RG1 1AA': [
     { uprn: '100091234567', addressLine: '12 Church Lane', town: 'Reading',   postCode: 'RG1 1AA' },
@@ -73,7 +73,7 @@ const VEHICLE_DB: Record<string, { make: string; model: string; colour: string; 
 const DOC_TYPES = [
   { key: 'residency', label: 'Proof of Residency', required: true,  help: 'Recent utility bill or Council Tax letter (last 3 months).' },
   { key: 'vehicle',   label: 'Vehicle Ownership',  required: true,  help: 'V5C logbook or lease agreement.' },
-  { key: 'blue',      label: 'Blue Badge',         required: false, help: 'Optional — attach if applicable.' },
+  { key: 'blue',      label: 'Blue Badge',         required: false, help: 'Optional â€” attach if applicable.' },
 ];
 
 const DURATION_PRICES: Record<string, number> = { '3 months': 22, '6 months': 40, '12 months': 75 };
@@ -87,7 +87,7 @@ const STEPS = [
 ] as const;
 type StepKey = typeof STEPS[number]['key'];
 
-// ─── Form.io-style builder palette (mirrors the real drag palette) ─────────
+// â”€â”€â”€ Form.io-style builder palette (mirrors the real drag palette) â”€â”€â”€â”€â”€â”€â”€â”€â”€
 type FormioType =
   | 'textfield' | 'textarea' | 'number' | 'password' | 'checkbox' | 'selectboxes'
   | 'select' | 'radio' | 'button' | 'email' | 'url' | 'phoneNumber' | 'tags'
@@ -133,13 +133,21 @@ type BuilderComponent = {
   required?: boolean;
   placeholder?: string;
   description?: string;
+  options?: string[];  // for select / radio / selectboxes
+};
+
+// A page groups components â€” mirrors real form.io wizard pages
+type BuilderPage = {
+  id: string;
+  name: string;
+  components: BuilderComponent[];
 };
 
 type PermitMode = 'digital' | 'physical';
 type Vehicle = { id: string; vrm: string; make: string; model: string; colour: string; fuel: string; co2: number; euro: string };
 type DocFile = { name: string; size: number };
 
-// ─── Component ─────────────────────────────────────────────────────────────
+// â”€â”€â”€ Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function ApplicationFormTab() {
   // Template + draft state (mirrors real basicInformationData.isDraftAvailable)
   const [selectedTemplate, setSelectedTemplate] = useState<typeof TEMPLATES[number] | null>(null);
@@ -152,10 +160,12 @@ export function ApplicationFormTab() {
   const [flash, setFlash] = useState<string | null>(null);
   const [applicationFormError] = useState(0);                        // "Configure at least 1 form to publish"
 
-  // Builder canvas state (used inside edit mode)
-  const [builderComponents, setBuilderComponents] = useState<BuilderComponent[]>([]);
+  // Builder canvas state (used inside edit mode) â€” pages hold components
+  const [pages, setPages] = useState<BuilderPage[]>([]);
+  const [activePageId, setActivePageId] = useState<string | null>(null);
   const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
-  const selectedComponent = builderComponents.find((c) => c.id === selectedComponentId) || null;
+  const activePage = pages.find((p) => p.id === activePageId) || null;
+  const selectedComponent = activePage?.components.find((c) => c.id === selectedComponentId) || null;
 
   // Wizard preview interactive state (only for preview mode)
   const [step, setStep] = useState(0);
@@ -178,7 +188,12 @@ export function ApplicationFormTab() {
     setSelectedTemplate(tpl);
     if (tpl) {
       // Seed the builder canvas from the template's baseline schema
-      setBuilderComponents(seedComponentsForTemplate(tpl.id));
+      const seededPages = seedPagesForTemplate(tpl.id);
+      setPages(seededPages);
+      setActivePageId(seededPages[0]?.id || null);
+    } else {
+      setPages([]);
+      setActivePageId(null);
     }
   };
   const openEditor = () => setShowPreview(true);
@@ -195,31 +210,77 @@ export function ApplicationFormTab() {
     setFlash('Application form published to Apply portal.');
   };
 
+  // Palette drop â†’ add to active page
   const addPaletteComponent = (t: FormioType, label: string) => {
-    const id = `c-${Date.now()}`;
-    const key = label.replace(/\s+/g, '').charAt(0).toLowerCase() + label.replace(/\s+/g, '').slice(1);
-    const nc: BuilderComponent = { id, type: t, label, key, input: !['button', 'htmlelement', 'content', 'columns', 'fieldset', 'panel', 'table', 'tabs', 'well', 'container'].includes(t), required: false };
-    setBuilderComponents((prev) => [...prev, nc]);
+    if (!activePage) return;
+    const id = `c-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    // Unique key across the whole form
+    const baseKey = label.replace(/\s+/g, '');
+    const allKeys = pages.flatMap((p) => p.components.map((c) => c.key));
+    let key = baseKey.charAt(0).toLowerCase() + baseKey.slice(1);
+    let n = 1;
+    while (allKeys.includes(key)) { key = `${baseKey.charAt(0).toLowerCase() + baseKey.slice(1)}${n++}`; }
+    const defaultOptions = ['select', 'radio', 'selectboxes'].includes(t)
+      ? ['Option 1', 'Option 2', 'Option 3']
+      : undefined;
+    const nc: BuilderComponent = {
+      id, type: t, label, key,
+      input: !['button', 'htmlelement', 'content', 'columns', 'fieldset', 'panel', 'table', 'tabs', 'well', 'container'].includes(t),
+      required: false,
+      placeholder: '',
+      options: defaultOptions,
+    };
+    setPages((prev) => prev.map((p) => p.id === activePage.id ? { ...p, components: [...p.components, nc] } : p));
     setSelectedComponentId(id);
   };
+
   const updateComponent = (patch: Partial<BuilderComponent>) => {
-    if (!selectedComponent) return;
-    setBuilderComponents((prev) => prev.map((c) => c.id === selectedComponent.id ? { ...c, ...patch } : c));
+    if (!activePage || !selectedComponent) return;
+    setPages((prev) => prev.map((p) => p.id !== activePage.id ? p : ({
+      ...p, components: p.components.map((c) => c.id === selectedComponent.id ? { ...c, ...patch } : c),
+    })));
   };
+
   const removeComponent = (id: string) => {
-    setBuilderComponents((prev) => prev.filter((c) => c.id !== id));
+    if (!activePage) return;
+    setPages((prev) => prev.map((p) => p.id !== activePage.id ? p : ({
+      ...p, components: p.components.filter((c) => c.id !== id),
+    })));
     if (selectedComponentId === id) setSelectedComponentId(null);
   };
+
   const moveComponent = (id: string, dir: -1 | 1) => {
-    setBuilderComponents((prev) => {
-      const i = prev.findIndex((c) => c.id === id);
-      if (i < 0) return prev;
+    if (!activePage) return;
+    setPages((prev) => prev.map((p) => {
+      if (p.id !== activePage.id) return p;
+      const i = p.components.findIndex((c) => c.id === id);
+      if (i < 0) return p;
       const j = i + dir;
-      if (j < 0 || j >= prev.length) return prev;
-      const next = [...prev];
+      if (j < 0 || j >= p.components.length) return p;
+      const next = [...p.components];
       [next[i], next[j]] = [next[j], next[i]];
-      return next;
-    });
+      return { ...p, components: next };
+    }));
+  };
+
+  // Page CRUD
+  const addPage = () => {
+    const id = `p-${Date.now()}`;
+    const nextNumber = pages.length + 1;
+    const newPage: BuilderPage = { id, name: `Page ${nextNumber}`, components: [] };
+    setPages((prev) => [...prev, newPage]);
+    setActivePageId(id);
+    setSelectedComponentId(null);
+  };
+  const renamePage = (id: string, name: string) => {
+    setPages((prev) => prev.map((p) => p.id === id ? { ...p, name } : p));
+  };
+  const removePage = (id: string) => {
+    if (pages.length <= 1) { setFlash('At least one page is required.'); return; }
+    const idx = pages.findIndex((p) => p.id === id);
+    const next = pages.filter((p) => p.id !== id);
+    setPages(next);
+    if (activePageId === id) setActivePageId(next[Math.max(0, idx - 1)].id);
   };
 
   // Label logic (mirrors the real ternary): if no draft OR switching draft template -> "Select Template"; else show template name
@@ -233,7 +294,7 @@ export function ApplicationFormTab() {
       )}
 
       {!showPreview ? (
-        // ═══════════════════════════════ PREVIEW MODE ═══════════════════════════════
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• PREVIEW MODE â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         <>
           {/* Template selection row */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
@@ -287,7 +348,7 @@ export function ApplicationFormTab() {
             </Stack>
           </Box>
 
-          {/* Preview area — read-only Form.io wizard rendering */}
+          {/* Preview area â€” read-only Form.io wizard rendering */}
           <Paper variant="outlined" sx={{ p: 0, overflow: 'hidden' }}>
             {!selectedTemplate ? (
               <Box sx={{ p: 6, textAlign: 'center', bgcolor: '#FAFBFC' }}>
@@ -319,7 +380,7 @@ export function ApplicationFormTab() {
           </Paper>
         </>
       ) : (
-        // ═══════════════════════════════ EDIT MODE ═══════════════════════════════
+        // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• EDIT MODE â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
         <>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography variant="h5" sx={{ fontWeight: 700, color: tokens.INK }}>
@@ -336,7 +397,12 @@ export function ApplicationFormTab() {
           </Box>
 
           <FormioBuilderCanvas
-            components={builderComponents}
+            pages={pages}
+            activePageId={activePageId}
+            setActivePageId={(id) => { setActivePageId(id); setSelectedComponentId(null); }}
+            onAddPage={addPage}
+            onRenamePage={renamePage}
+            onRemovePage={removePage}
             selectedId={selectedComponentId}
             onSelect={setSelectedComponentId}
             onAdd={addPaletteComponent}
@@ -348,7 +414,7 @@ export function ApplicationFormTab() {
         </>
       )}
 
-      {/* ═══════════════════════ Change Template popup (matches real DPSDialog) ═══════════════════════ */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• Change Template popup (matches real DPSDialog) â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <Dialog open={changeTemplatePopupOpen} onClose={() => setChangeTemplatePopupOpen(false)} maxWidth="xs" fullWidth
         TransitionProps={{ timeout: 200 }}>
         <DialogTitle sx={{ pb: 1 }}>
@@ -396,7 +462,7 @@ export function ApplicationFormTab() {
   );
 }
 
-// ═══════════════════════ Wizard Preview (read-only render of the applicant form) ═══════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• Wizard Preview (read-only render of the applicant form) â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 type WizardProps = {
   templateName: string;
@@ -447,11 +513,11 @@ function WizardPreview(p: WizardProps) {
     setDocFiles((prev) => ({ ...prev, [k]: [...prev[k], { name, size: 200 + Math.floor(Math.random() * 1800) }] }));
 
   const summary = {
-    address: !!chosenProperty ? `${chosenProperty.addressLine}, ${chosenProperty.town}` : '—',
-    vehicle: vehicles.length ? `${vehicles.length} vehicle${vehicles.length > 1 ? 's' : ''}` : '—',
-    document: DOC_TYPES.filter((d) => d.required).every((d) => docFiles[d.key].length > 0) ? 'Uploaded' : '—',
-    pricing: `${duration} × ${qty}`,
-    checkout: payment ? paymentLabel(payment) : '—',
+    address: !!chosenProperty ? `${chosenProperty.addressLine}, ${chosenProperty.town}` : 'â€”',
+    vehicle: vehicles.length ? `${vehicles.length} vehicle${vehicles.length > 1 ? 's' : ''}` : 'â€”',
+    document: DOC_TYPES.filter((d) => d.required).every((d) => docFiles[d.key].length > 0) ? 'Uploaded' : 'â€”',
+    pricing: `${duration} Ã— ${qty}`,
+    checkout: payment ? paymentLabel(payment) : 'â€”',
   };
 
   return (
@@ -497,7 +563,7 @@ function WizardPreview(p: WizardProps) {
                     <Autocomplete size="small" options={postcodeMatches}
                       value={chosenProperty || null}
                       onChange={(_, v) => setSelectedUprn(v?.uprn || '')}
-                      getOptionLabel={(o) => `${o.addressLine} — UPRN ${o.uprn}`}
+                      getOptionLabel={(o) => `${o.addressLine} â€” UPRN ${o.uprn}`}
                       renderInput={(p) => <TextField {...p} placeholder="Select property" />} />
                   </FieldRow>
                 )}
@@ -522,7 +588,7 @@ function WizardPreview(p: WizardProps) {
                     <Stack direction="row" alignItems="center" justifyContent="space-between">
                       <Box>
                         <Typography sx={{ fontFamily: 'monospace', fontWeight: 700 }}>{v.vrm}</Typography>
-                        <Typography variant="caption" color="text.secondary">{v.make} {v.model} · {v.colour} · {v.fuel} · CO2 {v.co2} · {v.euro}</Typography>
+                        <Typography variant="caption" color="text.secondary">{v.make} {v.model} Â· {v.colour} Â· {v.fuel} Â· CO2 {v.co2} Â· {v.euro}</Typography>
                       </Box>
                       <IconButton size="small" onClick={() => setVehicles((prev) => prev.filter((x) => x.id !== v.id))}>
                         <DeleteOutlineIcon fontSize="small" />
@@ -561,9 +627,9 @@ function WizardPreview(p: WizardProps) {
                 <TextField type="number" size="small" label="Quantity" value={qty} onChange={(e) => setQty(Math.max(1, +e.target.value))} sx={{ width: 120 }} />
               </Stack>
               <Divider sx={{ my: 2 }} />
-              <Row label={`Base (${duration} × ${qty})`} value={subtotal} />
+              <Row label={`Base (${duration} Ã— ${qty})`} value={subtotal} />
               <Row label="Admin fee" value={adminFee} />
-              <Row label={`Diesel surcharge (${dieselCount} × £15)`} value={dieselSurcharge} />
+              <Row label={`Diesel surcharge (${dieselCount} Ã— Â£15)`} value={dieselSurcharge} />
               <Divider sx={{ my: 1 }} />
               <Row label="Total" value={total} bold />
             </Section>
@@ -600,7 +666,7 @@ function WizardPreview(p: WizardProps) {
           <Stack spacing={1}>
             {STEPS.map((s, i) => (
               <SummaryRow key={s.key}
-                ready={!!(summary as any)[s.key] && (summary as any)[s.key] !== '—'}
+                ready={!!(summary as any)[s.key] && (summary as any)[s.key] !== 'â€”'}
                 label={s.label}
                 value={(summary as any)[s.key]}
                 onEdit={() => setStep(i)} />
@@ -609,7 +675,7 @@ function WizardPreview(p: WizardProps) {
           <Divider sx={{ my: 1.5 }} />
           <Stack direction="row" justifyContent="space-between">
             <Typography sx={{ fontWeight: 700 }}>Total</Typography>
-            <Typography sx={{ fontWeight: 700 }}>£{total.toFixed(2)}</Typography>
+            <Typography sx={{ fontWeight: 700 }}>Â£{total.toFixed(2)}</Typography>
           </Stack>
         </Paper>
       </Box>
@@ -617,12 +683,17 @@ function WizardPreview(p: WizardProps) {
   );
 }
 
-// ═══════════════════════ Form.io FormBuilder Canvas ═══════════════════════
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• Form.io Page-based Builder Canvas â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// Layout: Palette (left) | Page-stepper + Canvas (centre) | Summary (right)
 
 function FormioBuilderCanvas({
-  components, selectedId, onSelect, onAdd, onRemove, onMove, selectedComponent, onUpdate,
+  pages, activePageId, setActivePageId, onAddPage, onRenamePage, onRemovePage,
+  selectedId, onSelect, onAdd, onRemove, onMove, selectedComponent, onUpdate,
 }: {
-  components: BuilderComponent[]; selectedId: string | null;
+  pages: BuilderPage[]; activePageId: string | null;
+  setActivePageId: (id: string) => void;
+  onAddPage: () => void; onRenamePage: (id: string, n: string) => void; onRemovePage: (id: string) => void;
+  selectedId: string | null;
   onSelect: (id: string | null) => void;
   onAdd: (t: FormioType, label: string) => void;
   onRemove: (id: string) => void; onMove: (id: string, dir: -1 | 1) => void;
@@ -631,11 +702,16 @@ function FormioBuilderCanvas({
 }) {
   const [openGroup, setOpenGroup] = useState<Record<string, boolean>>({ Basic: true, Advanced: true, Layout: false, Data: false });
   const [propTab, setPropTab] = useState<'display' | 'data' | 'validation'>('display');
+  const [renaming, setRenaming] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+  const activePage = pages.find((p) => p.id === activePageId) || null;
+  const activeIdx = pages.findIndex((p) => p.id === activePageId);
+  const canvasComponents = activePage?.components || [];
 
   return (
-    <Paper variant="outlined" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '260px minmax(0, 1fr) 320px' }, minHeight: '65vh' }}>
-      {/* ─── Palette (real form.io builder has this on the left) ─── */}
-      <Box sx={{ borderRight: { lg: '1px solid #E0E0E0' }, p: 1.5, overflowY: 'auto', maxHeight: { lg: '65vh' } }}>
+    <Paper variant="outlined" sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '240px minmax(0, 1fr) 320px' }, minHeight: '70vh' }}>
+      {/* â”€â”€â”€ Palette (left) â”€â”€â”€ */}
+      <Box sx={{ borderRight: { lg: '1px solid #E0E0E0' }, p: 1.5, overflowY: 'auto', maxHeight: { lg: '70vh' } }}>
         <Typography sx={{ fontWeight: 700, fontSize: '0.75rem', letterSpacing: '.08em', textTransform: 'uppercase', color: tokens.MUTED, mb: 1 }}>
           Form Components
         </Typography>
@@ -668,131 +744,355 @@ function FormioBuilderCanvas({
         ))}
       </Box>
 
-      {/* ─── Canvas ─── */}
-      <Box sx={{ p: 2, borderRight: { lg: '1px solid #E0E0E0' }, minHeight: '65vh', bgcolor: '#FAFBFC' }}>
-        {components.length === 0 ? (
-          <Paper variant="outlined" sx={{ p: 5, textAlign: 'center', bgcolor: '#FFF', borderStyle: 'dashed' }}>
-            <Typography sx={{ color: tokens.MUTED, mb: 1 }}>Drop or click components to build the form.</Typography>
-            <Typography variant="caption" sx={{ color: tokens.MUTED }}>
-              This is a preview of the Form.io drag-and-drop builder. Palette on the left → click to add.
-            </Typography>
-          </Paper>
-        ) : (
-          <Stack spacing={1}>
-            {components.map((c, idx) => {
-              const isSel = c.id === selectedId;
+      {/* â”€â”€â”€ Canvas (centre) â”€â”€â”€ */}
+      <Box sx={{ borderRight: { lg: '1px solid #E0E0E0' }, minHeight: '70vh', bgcolor: '#FAFBFC', display: 'flex', flexDirection: 'column' }}>
+        {/* Numbered page stepper + Add Page */}
+        <Box sx={{ px: 2, pt: 2, pb: 1, borderBottom: '1px solid #EEF1F4', bgcolor: '#FFF' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'nowrap', overflowX: 'auto', gap: 0, pb: 1 }}>
+            {pages.map((p, i) => {
+              const isActive = p.id === activePageId;
+              const isDone = i < activeIdx;
+              const filled = isActive || isDone;
               return (
-                <Paper key={c.id} variant="outlined"
-                  onClick={() => onSelect(c.id)}
-                  sx={{
-                    p: 1.5, cursor: 'pointer', bgcolor: '#FFF',
-                    borderColor: isSel ? '#1976D2' : '#E0E0E0',
-                    boxShadow: isSel ? '0 0 0 2px rgba(25,118,210,0.18)' : 'none',
-                    '&:hover': { borderColor: '#1976D2' },
-                  }}>
-                  <Stack direction="row" alignItems="center" spacing={1}>
-                    <DragIndicatorIcon sx={{ color: tokens.MUTED }} />
+                <Box key={p.id} sx={{ display: 'flex', alignItems: 'center', flex: '0 0 auto' }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', minWidth: 100, position: 'relative' }}
+                    onClick={() => setActivePageId(p.id)}
+                    onDoubleClick={() => { setRenaming(p.id); setRenameValue(p.name); }}>
                     <Box sx={{
-                      width: 26, height: 26, borderRadius: '4px',
-                      bgcolor: '#E5EEF6', color: '#0D3E66',
-                      display: 'grid', placeItems: 'center', fontSize: '0.68rem', fontWeight: 700,
-                    }}>{c.type.slice(0, 3).toUpperCase()}</Box>
-                    <Box sx={{ flex: 1 }}>
-                      <Typography sx={{ fontWeight: 600 }}>
-                        {c.label} {c.required && <span style={{ color: '#B71C1C' }}>*</span>}
+                      width: 40, height: 40, borderRadius: '50%', display: 'grid', placeItems: 'center',
+                      bgcolor: filled ? '#1976D2' : '#BDBDBD', color: '#fff', fontWeight: 700, fontSize: '0.95rem',
+                      border: isActive ? '3px solid rgba(25,118,210,0.25)' : 'none',
+                    }}>{isDone ? <CheckIcon fontSize="small" /> : i + 1}</Box>
+                    {renaming === p.id ? (
+                      <TextField autoFocus size="small" variant="standard" value={renameValue}
+                        onChange={(e) => setRenameValue(e.target.value)}
+                        onBlur={() => { onRenamePage(p.id, renameValue.trim() || p.name); setRenaming(null); }}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { onRenamePage(p.id, renameValue.trim() || p.name); setRenaming(null); } }}
+                        sx={{ mt: 0.5, width: 90, '& input': { fontSize: '0.82rem', textAlign: 'center', fontWeight: 600 } }} />
+                    ) : (
+                      <Typography sx={{ mt: 0.75, fontWeight: isActive ? 700 : 500, fontSize: '0.82rem', color: filled ? tokens.INK : tokens.MUTED, whiteSpace: 'nowrap' }}>
+                        {p.name}
                       </Typography>
-                      <Typography variant="caption" sx={{ color: tokens.MUTED }}>
-                        {c.type} · key: <code>{c.key}</code>
-                      </Typography>
-                    </Box>
-                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); onMove(c.id, -1); }} disabled={idx === 0} title="Move up">▲</IconButton>
-                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); onMove(c.id, 1); }} disabled={idx === components.length - 1} title="Move down">▼</IconButton>
-                    <IconButton size="small" onClick={(e) => { e.stopPropagation(); onRemove(c.id); }} title="Remove">
-                      <DeleteOutlineIcon fontSize="small" />
-                    </IconButton>
-                  </Stack>
-                </Paper>
+                    )}
+                    {pages.length > 1 && isActive && (
+                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); onRemovePage(p.id); }}
+                        sx={{ position: 'absolute', top: -6, right: -6, width: 18, height: 18, bgcolor: '#FFF', border: '1px solid #E0E0E0', '&:hover': { bgcolor: '#FFEBEE' } }}>
+                        <CloseIcon sx={{ fontSize: 12 }} />
+                      </IconButton>
+                    )}
+                  </Box>
+                  {i < pages.length - 1 && (
+                    <Box sx={{ width: 40, height: 2, bgcolor: i < activeIdx ? '#1976D2' : '#E0E0E0', mx: 0.5, mt: -3 }} />
+                  )}
+                </Box>
               );
             })}
-          </Stack>
-        )}
+            <Box sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
+              {pages.length > 0 && <Box sx={{ width: 20, height: 2, bgcolor: '#E0E0E0', mr: 0.5, mt: -3 }} />}
+              <Button variant="contained" color="success" onClick={onAddPage}
+                sx={{ minWidth: 0, px: 1.25, py: 0.5, mt: -0.5, textTransform: 'none', fontSize: '0.78rem', borderRadius: 1 }}
+                startIcon={<span style={{ fontSize: 14, marginRight: -4 }}>+</span>}>
+                Page
+              </Button>
+            </Box>
+          </Box>
+        </Box>
+
+        {/* Canvas body */}
+        <Box sx={{ p: 2, flex: 1, overflowY: 'auto' }}>
+          <Accordion defaultExpanded sx={{ bgcolor: '#EAF3FB', boxShadow: 'none', border: '1px solid #C3DCF1', borderRadius: '6px !important', mb: 2, '&:before': { display: 'none' } }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Stack direction="row" alignItems="center" spacing={1}>
+                <InfoOutlinedIcon sx={{ color: '#1976D2' }} />
+                <Typography sx={{ fontWeight: 600, color: '#0D3E66' }}>Application for Permit Purchase</Typography>
+              </Stack>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography variant="body2" sx={{ color: '#0D3E66' }}>
+                Configuring <b>{activePage?.name}</b>. Drop or click components from the left palette
+                to build this page. Applicants will see the pages in order at the top of the form.
+              </Typography>
+            </AccordionDetails>
+          </Accordion>
+
+          {!activePage ? (
+            <Paper variant="outlined" sx={{ p: 5, textAlign: 'center', bgcolor: '#FFF', borderStyle: 'dashed' }}>
+              <Typography sx={{ color: tokens.MUTED }}>No pages yet â€” click <b>+ Page</b> to add one.</Typography>
+            </Paper>
+          ) : canvasComponents.length === 0 ? (
+            <Paper variant="outlined" sx={{ p: 5, textAlign: 'center', bgcolor: '#FFF', borderStyle: 'dashed' }}>
+              <Typography sx={{ color: tokens.MUTED, mb: 1 }}>{activePage.name} section</Typography>
+              <Typography variant="caption" sx={{ color: tokens.MUTED }}>
+                Palette on the left â†’ click a component to drop it here.
+              </Typography>
+            </Paper>
+          ) : (
+            <Stack spacing={1.5}>
+              {canvasComponents.map((c, idx) => {
+                const isSel = c.id === selectedId;
+                return (
+                  <Paper key={c.id} variant="outlined"
+                    onClick={() => onSelect(c.id)}
+                    sx={{
+                      p: 1.5, cursor: 'pointer', bgcolor: '#FFF',
+                      borderColor: isSel ? '#1976D2' : '#E0E0E0',
+                      boxShadow: isSel ? '0 0 0 2px rgba(25,118,210,0.18)' : 'none',
+                      '&:hover': { borderColor: '#1976D2' },
+                    }}>
+                    <Stack direction="row" alignItems="flex-start" spacing={1}>
+                      <DragIndicatorIcon sx={{ color: tokens.MUTED, mt: 0.5 }} />
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <ComponentPreview c={c} />
+                        <Typography variant="caption" sx={{ color: tokens.MUTED, mt: 0.5, display: 'block' }}>
+                          {c.type} Â· key: <code>{c.key}</code>
+                        </Typography>
+                      </Box>
+                      <Stack direction="row" spacing={0.25} sx={{ pt: 0.5 }}>
+                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onMove(c.id, -1); }} disabled={idx === 0} title="Move up">â–²</IconButton>
+                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onMove(c.id, 1); }} disabled={idx === canvasComponents.length - 1} title="Move down">â–¼</IconButton>
+                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); onRemove(c.id); }} title="Remove">
+                          <DeleteOutlineIcon fontSize="small" />
+                        </IconButton>
+                      </Stack>
+                    </Stack>
+                  </Paper>
+                );
+              })}
+            </Stack>
+          )}
+        </Box>
       </Box>
 
-      {/* ─── Properties (Display/Data/Validation tabs like Form.io) ─── */}
-      <Box sx={{ p: 1.5, maxHeight: '65vh', overflowY: 'auto' }}>
-        <Typography sx={{ fontWeight: 700, fontSize: '0.75rem', letterSpacing: '.08em', textTransform: 'uppercase', color: tokens.MUTED, mb: 1 }}>
-          Component Settings
-        </Typography>
-        {!selectedComponent && (
-          <Typography variant="caption" sx={{ color: tokens.MUTED }}>
-            Select a component on the canvas to edit its properties.
-          </Typography>
-        )}
-        {selectedComponent && (
-          <>
-            <ToggleButtonGroup exclusive size="small" value={propTab} onChange={(_, v) => v && setPropTab(v)} sx={{ mb: 1.5 }}>
-              <ToggleButton value="display">Display</ToggleButton>
-              <ToggleButton value="data">Data</ToggleButton>
-              <ToggleButton value="validation">Validation</ToggleButton>
-            </ToggleButtonGroup>
-
-            {propTab === 'display' && (
-              <Stack spacing={1.5}>
-                <TextField size="small" label="Label" value={selectedComponent.label} onChange={(e) => onUpdate({ label: e.target.value })} fullWidth />
-                <TextField size="small" label="Placeholder" value={selectedComponent.placeholder || ''} onChange={(e) => onUpdate({ placeholder: e.target.value })} fullWidth />
-                <TextField size="small" label="Description" value={selectedComponent.description || ''} onChange={(e) => onUpdate({ description: e.target.value })} fullWidth multiline rows={2} />
-              </Stack>
-            )}
-            {propTab === 'data' && (
-              <Stack spacing={1.5}>
-                <TextField size="small" label="Property Name (key)" value={selectedComponent.key} onChange={(e) => onUpdate({ key: e.target.value })} fullWidth />
-                <TextField size="small" label="Type" value={selectedComponent.type} disabled fullWidth />
-                <FormControlLabel control={<Checkbox checked={selectedComponent.input} onChange={(e) => onUpdate({ input: e.target.checked })} />} label="Input Component" />
-              </Stack>
-            )}
-            {propTab === 'validation' && (
-              <Stack spacing={1.5}>
-                <FormControlLabel control={<Checkbox checked={!!selectedComponent.required} onChange={(e) => onUpdate({ required: e.target.checked })} />} label="Required" />
-                <Typography variant="caption" sx={{ color: tokens.MUTED }}>
-                  Additional validators (min/max/pattern) can be attached at publish time.
+      {/* â”€â”€â”€ Right: Summary + Properties â”€â”€â”€ */}
+      <Box sx={{ maxHeight: '70vh', overflowY: 'auto', display: 'flex', flexDirection: 'column' }}>
+        {/* Summary â€” pages + component counts */}
+        <Box sx={{ p: 1.5, borderBottom: '1px solid #EEF1F4' }}>
+          <Typography sx={{ fontWeight: 700, fontSize: '0.9rem', color: tokens.INK, mb: 1 }}>Summary</Typography>
+          <Stack spacing={0.5}>
+            {pages.map((p, i) => (
+              <Stack key={p.id} direction="row" justifyContent="space-between" alignItems="center"
+                onClick={() => setActivePageId(p.id)}
+                sx={{ cursor: 'pointer', py: 0.5, px: 1, borderRadius: 1,
+                  bgcolor: p.id === activePageId ? '#EAF3FB' : 'transparent',
+                  '&:hover': { bgcolor: '#F5F7FA' } }}>
+                <Typography variant="body2" sx={{ fontWeight: p.id === activePageId ? 700 : 500 }}>
+                  {i + 1}. {p.name}
                 </Typography>
+                <Chip size="small" label={`${p.components.length} field${p.components.length === 1 ? '' : 's'}`} variant="outlined" sx={{ height: 20, fontSize: '0.7rem' }} />
               </Stack>
-            )}
-            <Divider sx={{ my: 2 }} />
-            <Button size="small" color="error" startIcon={<DeleteOutlineIcon />} onClick={() => onRemove(selectedComponent.id)}>
-              Remove component
-            </Button>
-          </>
-        )}
+            ))}
+          </Stack>
+          <Divider sx={{ my: 1.5 }} />
+          <Stack direction="row" justifyContent="space-between">
+            <Typography variant="caption" color="text.secondary">Total components</Typography>
+            <Typography variant="caption" fontWeight={700}>{pages.reduce((s, p) => s + p.components.length, 0)}</Typography>
+          </Stack>
+        </Box>
+
+        {/* Component properties */}
+        <Box sx={{ p: 1.5, flex: 1 }}>
+          <Typography sx={{ fontWeight: 700, fontSize: '0.75rem', letterSpacing: '.08em', textTransform: 'uppercase', color: tokens.MUTED, mb: 1 }}>
+            Component Settings
+          </Typography>
+          {!selectedComponent && (
+            <Typography variant="caption" sx={{ color: tokens.MUTED }}>
+              Select a component on the canvas to edit its properties.
+            </Typography>
+          )}
+          {selectedComponent && (
+            <>
+              <ToggleButtonGroup exclusive size="small" value={propTab} onChange={(_, v) => v && setPropTab(v)} sx={{ mb: 1.5 }}>
+                <ToggleButton value="display">Display</ToggleButton>
+                <ToggleButton value="data">Data</ToggleButton>
+                <ToggleButton value="validation">Validation</ToggleButton>
+              </ToggleButtonGroup>
+
+              {propTab === 'display' && (
+                <Stack spacing={1.5}>
+                  <TextField size="small" label="Label" value={selectedComponent.label} onChange={(e) => onUpdate({ label: e.target.value })} fullWidth />
+                  <TextField size="small" label="Placeholder" value={selectedComponent.placeholder || ''} onChange={(e) => onUpdate({ placeholder: e.target.value })} fullWidth />
+                  <TextField size="small" label="Description" value={selectedComponent.description || ''} onChange={(e) => onUpdate({ description: e.target.value })} fullWidth multiline rows={2} />
+                  {['select', 'radio', 'selectboxes'].includes(selectedComponent.type) && (
+                    <TextField size="small" label="Options (one per line)" fullWidth multiline rows={4}
+                      value={(selectedComponent.options || []).join('\n')}
+                      onChange={(e) => onUpdate({ options: e.target.value.split('\n').map((x) => x.trim()).filter(Boolean) })} />
+                  )}
+                </Stack>
+              )}
+              {propTab === 'data' && (
+                <Stack spacing={1.5}>
+                  <TextField size="small" label="Property Name (key)" value={selectedComponent.key} onChange={(e) => onUpdate({ key: e.target.value })} fullWidth />
+                  <TextField size="small" label="Type" value={selectedComponent.type} disabled fullWidth />
+                  <FormControlLabel control={<Checkbox checked={selectedComponent.input} onChange={(e) => onUpdate({ input: e.target.checked })} />} label="Input Component" />
+                </Stack>
+              )}
+              {propTab === 'validation' && (
+                <Stack spacing={1.5}>
+                  <FormControlLabel control={<Checkbox checked={!!selectedComponent.required} onChange={(e) => onUpdate({ required: e.target.checked })} />} label="Required" />
+                  <Typography variant="caption" sx={{ color: tokens.MUTED }}>
+                    Additional validators (min/max/pattern) can be attached at publish time.
+                  </Typography>
+                </Stack>
+              )}
+              <Divider sx={{ my: 2 }} />
+              <Button size="small" color="error" startIcon={<DeleteOutlineIcon />} onClick={() => onRemove(selectedComponent.id)}>
+                Remove component
+              </Button>
+            </>
+          )}
+        </Box>
       </Box>
     </Paper>
   );
 }
 
-// ─── Seed the builder canvas from a template ─────────────────────────────
-function seedComponentsForTemplate(id: string): BuilderComponent[] {
-  const t = (label: string, key: string, type: FormioType, required = false): BuilderComponent =>
-    ({ id: `s-${key}-${Math.random().toString(36).slice(2, 8)}`, label, key, type, input: true, required });
-  const base = [
-    t('Postcode',        'postcode',   'textfield',  true),
-    t('Property',        'property',   'select',     true),
-    t('Address Line',    'addressLine','textfield'),
-    t('Town',            'town',       'textfield'),
-    t('UPRN',            'uprn',       'textfield'),
-    t('VRM',             'vrm',        'textfield',  true),
-    t('Proof of Residency','proofOfResidency','file', true),
-    t('Vehicle Ownership','vehicleOwnership','file', true),
-    t('Duration',        'duration',   'select',     true),
-    t('Quantity',        'quantity',   'number',     true),
-    t('Payment Method',  'paymentMethod','radio',    true),
-    t('Accept T&C',      'acceptTc',   'checkbox',   true),
-  ];
-  if (id === 'BLU') base.splice(6, 0, t('Blue Badge', 'blueBadge', 'file', true), t('Date of Birth', 'dob', 'day', true));
-  if (id === 'BUS') base.splice(5, 1, t('Fleet VRMs', 'fleetVrms', 'datagrid', true));
-  return base;
+// Real MUI preview of the dropped component â€” shows exactly what the applicant will see
+function ComponentPreview({ c }: { c: BuilderComponent }) {
+  const label = <>{c.label}{c.required && <span style={{ color: '#B71C1C' }}> *</span>}</>;
+  const helper = c.description || undefined;
+  switch (c.type) {
+    case 'textfield':
+    case 'email':
+    case 'url':
+    case 'phoneNumber':
+      return <TextField size="small" fullWidth label={label} placeholder={c.placeholder} helperText={helper} InputProps={{ readOnly: true }} />;
+    case 'password':
+      return <TextField size="small" fullWidth type="password" label={label} placeholder={c.placeholder} helperText={helper} InputProps={{ readOnly: true }} />;
+    case 'textarea':
+      return <TextField size="small" fullWidth multiline rows={3} label={label} placeholder={c.placeholder} helperText={helper} InputProps={{ readOnly: true }} />;
+    case 'number':
+    case 'currency':
+      return <TextField size="small" fullWidth type="number" label={label} placeholder={c.placeholder} helperText={helper} InputProps={{ readOnly: true, startAdornment: c.type === 'currency' ? <span style={{ marginRight: 6 }}>Â£</span> : undefined }} />;
+    case 'checkbox':
+      return <FormControlLabel control={<Checkbox checked={false} readOnly />} label={label} />;
+    case 'selectboxes':
+      return <Box>
+        <Typography variant="body2" fontWeight={600}>{label}</Typography>
+        <Stack>
+          {(c.options || []).map((o) => <FormControlLabel key={o} control={<Checkbox checked={false} readOnly />} label={o} />)}
+        </Stack>
+      </Box>;
+    case 'select':
+      return <TextField select size="small" fullWidth label={label} value="" helperText={helper} InputProps={{ readOnly: true }}>
+        <MenuItem value="">Selectâ€¦</MenuItem>
+        {(c.options || []).map((o) => <MenuItem key={o} value={o}>{o}</MenuItem>)}
+      </TextField>;
+    case 'radio':
+      return <Box>
+        <Typography variant="body2" fontWeight={600}>{label}</Typography>
+        <RadioGroup>
+          {(c.options || []).map((o) => <FormControlLabel key={o} value={o} control={<Radio />} label={o} />)}
+        </RadioGroup>
+      </Box>;
+    case 'button':
+      return <Button variant="contained" size="small" disabled>{c.label}</Button>;
+    case 'datetime':
+    case 'day':
+    case 'time':
+      return <TextField size="small" fullWidth type={c.type === 'time' ? 'time' : 'date'} label={label} InputLabelProps={{ shrink: true }} InputProps={{ readOnly: true }} helperText={helper} />;
+    case 'signature':
+      return <Box>
+        <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>{label}</Typography>
+        <Paper variant="outlined" sx={{ height: 80, bgcolor: '#FAFBFC', display: 'grid', placeItems: 'center' }}>
+          <Typography variant="caption" color="text.secondary">Signature pad</Typography>
+        </Paper>
+      </Box>;
+    case 'file':
+      return <Box>
+        <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>{label}</Typography>
+        <Button variant="outlined" size="small" startIcon={<CloudUploadIcon />} disabled>Upload file</Button>
+        {helper && <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>{helper}</Typography>}
+      </Box>;
+    case 'address':
+      return <Box>
+        <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>{label}</Typography>
+        <TextField size="small" fullWidth placeholder="Search addressâ€¦" InputProps={{ readOnly: true }} />
+      </Box>;
+    case 'tags':
+      return <Box>
+        <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>{label}</Typography>
+        <Stack direction="row" spacing={0.5}><Chip size="small" label="tag1" /><Chip size="small" label="tag2" /></Stack>
+      </Box>;
+    case 'survey':
+      return <Box>
+        <Typography variant="body2" fontWeight={600} sx={{ mb: 0.5 }}>{label}</Typography>
+        <Typography variant="caption" color="text.secondary">Survey grid (question Ã— rating scale)</Typography>
+      </Box>;
+    case 'content':
+    case 'htmlelement':
+      return <Paper variant="outlined" sx={{ p: 1.5, bgcolor: '#FFF8E1' }}>
+        <Typography variant="caption" color="text.secondary">HTML / Content block</Typography>
+      </Paper>;
+    case 'columns':
+    case 'fieldset':
+    case 'panel':
+    case 'table':
+    case 'tabs':
+    case 'well':
+      return <Paper variant="outlined" sx={{ p: 1.5, bgcolor: '#F5F7FA', borderStyle: 'dashed' }}>
+        <Typography variant="caption" color="text.secondary">{c.type.toUpperCase()} layout container â€” drop child components inside</Typography>
+      </Paper>;
+    case 'datagrid':
+    case 'editgrid':
+      return <Paper variant="outlined" sx={{ p: 1.5, bgcolor: '#F5F7FA' }}>
+        <Typography variant="body2" fontWeight={600}>{label}</Typography>
+        <Typography variant="caption" color="text.secondary">Repeating {c.type === 'datagrid' ? 'grid' : 'edit grid'} â€” add child fields</Typography>
+      </Paper>;
+    case 'container':
+      return <Paper variant="outlined" sx={{ p: 1.5, bgcolor: '#F5F7FA', borderStyle: 'dashed' }}>
+        <Typography variant="caption" color="text.secondary">Container â€” nested field group</Typography>
+      </Paper>;
+    default:
+      return <TextField size="small" fullWidth label={label} InputProps={{ readOnly: true }} />;
+  }
 }
 
-// ═══════════════════════ Small presentational helpers ═══════════════════════
+// â”€â”€â”€ Seed pages for a template â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+function seedPagesForTemplate(id: string): BuilderPage[] {
+  const f = (label: string, key: string, type: FormioType, required = false, options?: string[]): BuilderComponent =>
+    ({ id: `s-${key}-${Math.random().toString(36).slice(2, 8)}`, label, key, type, input: true, required, options });
+
+  const address: BuilderComponent[] = [
+    f('Postcode',       'postcode',    'textfield', true),
+    f('Property',       'property',    'select',    true, ['12 Church Lane', '14 Church Lane', '48 Kingsway']),
+    f('Address Line',   'addressLine', 'textfield'),
+    f('Town',           'town',        'textfield'),
+    f('UPRN',           'uprn',        'textfield'),
+  ];
+  const vehicle: BuilderComponent[] = [
+    f('VRM',            'vrm',         'textfield', true),
+    f('Make',           'make',        'textfield'),
+    f('Model',          'model',       'textfield'),
+    f('Colour',         'colour',      'textfield'),
+    f('Fuel Type',      'fuelType',    'select',    false, ['Petrol', 'Diesel', 'Electric', 'Hybrid']),
+  ];
+  const documents: BuilderComponent[] = [
+    f('Proof of Residency', 'proofOfResidency', 'file', true),
+    f('Vehicle Ownership',  'vehicleOwnership', 'file', true),
+  ];
+  const pricing: BuilderComponent[] = [
+    f('Duration',       'duration',    'select', true, ['3 months', '6 months', '12 months']),
+    f('Quantity',       'quantity',    'number', true),
+  ];
+  const checkout: BuilderComponent[] = [
+    f('Payment Method', 'paymentMethod', 'radio', true, ['Credit card', 'Debit card', 'Cost centre', 'Scratch voucher']),
+    f('Accept T&C',     'acceptTc',      'checkbox', true),
+  ];
+
+  if (id === 'BLU') documents.unshift(f('Blue Badge', 'blueBadge', 'file', true));
+  if (id === 'BUS') vehicle.push(f('Fleet VRMs', 'fleetVrms', 'datagrid', true));
+
+  return [
+    { id: 'p-address',  name: 'Address',   components: address },
+    { id: 'p-vehicle',  name: 'Vehicle',   components: vehicle },
+    { id: 'p-document', name: 'Document',  components: documents },
+    { id: 'p-pricing',  name: 'Pricing',   components: pricing },
+    { id: 'p-checkout', name: 'Check Out', components: checkout },
+  ];
+}
+
+
+// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• Small presentational helpers â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
 
 function NumberedStepper({ current, onSelect }: { current: number; onSelect: (i: number) => void }) {
   return (
@@ -847,7 +1147,7 @@ function Row({ label, value, bold }: { label: string; value: number; bold?: bool
   return (
     <Stack direction="row" justifyContent="space-between" sx={{ py: 0.5 }}>
       <Typography sx={{ fontWeight: bold ? 700 : 400 }}>{label}</Typography>
-      <Typography sx={{ fontWeight: bold ? 700 : 400 }}>£{value.toFixed(2)}</Typography>
+      <Typography sx={{ fontWeight: bold ? 700 : 400 }}>Â£{value.toFixed(2)}</Typography>
     </Stack>
   );
 }
