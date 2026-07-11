@@ -6,7 +6,23 @@ import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { PageHeader } from '../../shared/PageHeader';
-import { systemUsers } from '../../data/mock';
+import { usePersistentState } from '../../hooks/usePersistentState';
+
+type SystemUser = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  emailAddress: string;
+  role: string;
+  mobileNumber: string;
+  status: 'Active' | 'Deactive';
+  allowPermitDateChange: boolean;
+  agentAssistEnabled: boolean;
+  ddi?: string;
+  pin?: string;
+};
+
+const seedSystemUsers = (): SystemUser[] => [];
 
 type AuditRow = {
   id: string;
@@ -62,24 +78,26 @@ const descriptions: Record<string, (u: string, m: string) => string> = {
   'Send to Print': () => `Batch of 8 physical permissions sent to print partner`,
 };
 
-const seedAudit = (): AuditRow[] => {
+const seedAudit = (users: SystemUser[]): AuditRow[] => {
   const rows: AuditRow[] = [];
   const now = Date.now();
-  const activeUsers = systemUsers.filter((u) => u.status === 'Active');
+  const activeUsers = users.filter((u) => u.status === 'Active');
+  if (activeUsers.length === 0) return [];
   for (let i = 0; i < 120; i++) {
     const ev = EVENT_TYPES[Math.floor(Math.random() * EVENT_TYPES.length)];
     const u = activeUsers[Math.floor(Math.random() * activeUsers.length)];
     const mod = MODULES[Math.floor(Math.random() * MODULES.length)];
     const t = new Date(now - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000));
+    const userName = `${u.firstName} ${u.lastName}`;
     rows.push({
       id: `AUD-${String(i + 1).padStart(5, '0')}`,
       eventDate: t.toLocaleString('en-GB', {
         day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit',
       }),
       eventType: ev,
-      eventDescription: descriptions[ev]?.(u.name, mod) ?? `${ev} performed in ${mod}`,
+      eventDescription: descriptions[ev]?.(userName, mod) ?? `${ev} performed in ${mod}`,
       roleName: u.role,
-      userName: u.name,
+      userName,
       module: mod,
     });
   }
@@ -100,7 +118,8 @@ const RANGES: Record<string, number> = {
 };
 
 export function SystemAuditsPage() {
-  const [rows] = useState<AuditRow[]>(seedAudit());
+  const [persistedUsers] = usePersistentState<SystemUser[]>('prototype:users:system-users:rows', seedSystemUsers);
+  const [rows] = useState<AuditRow[]>(() => seedAudit(persistedUsers && persistedUsers.length > 0 ? persistedUsers : []));
   const [search, setSearch] = useState('');
   const [range, setRange] = useState('Last 7 days');
   const [moduleFilter, setModuleFilter] = useState('All');

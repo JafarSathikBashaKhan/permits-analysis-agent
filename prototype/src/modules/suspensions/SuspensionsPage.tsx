@@ -13,7 +13,6 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import { PageHeader } from '../../shared/PageHeader';
-import { systemUsers } from '../../data/mock';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { useToast } from '../../components/Toast';
 import { ConfirmDialog } from '../../components/dialogs/ConfirmDialog';
@@ -29,9 +28,24 @@ type CeoTask = {
   showEvidence: boolean; attachments: Attachment[]; notes: Note[];
 };
 
+type SystemUser = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  emailAddress: string;
+  role: string;
+  mobileNumber: string;
+  status: 'Active' | 'Deactive';
+  allowPermitDateChange: boolean;
+  agentAssistEnabled: boolean;
+  ddi?: string;
+  pin?: string;
+};
+
 const CATEGORIES = ['Bay Suspension', 'Skip Hire', 'Scaffolding', 'Event Closure', 'Dispensation', 'Inspection'];
 const LOCATIONS = ['Kingsway', 'Church Lane', 'Market Street', 'Mill Road', 'Riverside Ave', 'Oak Hill'];
-const boUsers = systemUsers.filter((u) => u.status === 'Active').map((u) => u.name);
+
+const seedSystemUsers = (): SystemUser[] => [];
 
 const seed = (): CeoTask[] => [
   { id: 'CEO-001', title: 'Inspect scaffolding at 48 Kingsway', category: 'Scaffolding', location: 'Kingsway',
@@ -66,6 +80,12 @@ const DURATIONS = ['30 minutes', '1 hour', '2 hours', '4 hours', '1 day', '2 day
 export function SuspensionsPage() {
   const showToast = useToast();
   const [tasks, setTasks] = usePersistentState<CeoTask[]>('prototype:suspensions:rows', seed);
+  const [persistedUsers] = usePersistentState<SystemUser[]>('prototype:users:system-users:rows', seedSystemUsers);
+  const boUsers = useMemo(() => {
+    const users = persistedUsers && persistedUsers.length > 0 ? persistedUsers : [];
+    return users.filter(u => u.status === 'Active').map(u => `${u.firstName} ${u.lastName}`);
+  }, [persistedUsers]);
+  
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | TaskStatus>('All');
   const [selection, setSelection] = useState<GridRowSelectionModel>([]);

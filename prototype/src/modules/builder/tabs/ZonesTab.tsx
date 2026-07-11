@@ -1,10 +1,37 @@
 import { Alert, Chip, Grid, Paper, Stack, Typography } from '@mui/material';
 import { CheckCircle } from '@mui/icons-material';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Section } from '../../../shared/Section';
-import { zones } from '../../../data/mock';
+import { usePersistentState } from '../../../hooks/usePersistentState';
+
+type Zone = {
+  id: string;
+  name: string;
+  streetCount: number;
+  status: 'Published' | 'Unpublished';
+  isBackOfficeUse: boolean;
+  createdOn: string;
+  createdByUser: string;
+  updatedOn: string;
+  updatedByUser: string;
+  streets: any[];
+};
+
+const seedZones = (): Zone[] => [];
 
 export function ZonesTab() {
+  const [persistedZones] = usePersistentState<Zone[]>('prototype:area:zones:rows', seedZones);
+  const zones = useMemo(() => {
+    if (!persistedZones || persistedZones.length === 0) return [];
+    return persistedZones.map(z => ({
+      code: z.id,
+      name: z.name,
+      streets: z.streetCount,
+      published: z.status === 'Published',
+      permissions: 0,
+    }));
+  }, [persistedZones]);
+  
   const [selected, setSelected] = useState<string[]>(['Z-CC', 'Z-N1']);
   const toggle = (code: string) => setSelected((s) => s.includes(code) ? s.filter((x) => x !== code) : [...s, code]);
 

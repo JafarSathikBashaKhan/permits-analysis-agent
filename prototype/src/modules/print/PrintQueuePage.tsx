@@ -4,7 +4,6 @@ import { LocalPrintshop, Send, DeleteOutline } from '@mui/icons-material';
 import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import { PageHeader } from '../../shared/PageHeader';
 import { StatusChip } from '../../shared/StatusChip';
-import { printQueue } from '../../data/mock';
 import { useToast } from '../../components/Toast';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { ConfirmDialog } from '../../components/dialogs/ConfirmDialog';
@@ -18,9 +17,11 @@ type PrintQueueRow = {
   status: 'Ready' | 'Sent' | 'Awaiting Approval' | 'Printed';
 };
 
+const seedPrintQueue = (): PrintQueueRow[] => [];
+
 export function PrintQueuePage() {
   const showToast = useToast();
-  const [rows, setRows] = usePersistentState<PrintQueueRow[]>('prototype:print-queue:rows', () => printQueue as PrintQueueRow[]);
+  const [rows, setRows] = usePersistentState<PrintQueueRow[]>('prototype:print-queue:rows', seedPrintQueue);
   const [selection, setSelection] = useState<GridRowSelectionModel>([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
 

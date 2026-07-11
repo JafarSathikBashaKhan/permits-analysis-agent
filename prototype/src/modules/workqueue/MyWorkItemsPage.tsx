@@ -9,9 +9,25 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '../../shared/PageHeader';
-import { applications, systemUsers } from '../../data/mock';
+import { applications, Application } from '../../data/mock';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { useToast } from '../../components/Toast';
+
+type SystemUser = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  emailAddress: string;
+  role: string;
+  mobileNumber: string;
+  status: 'Active' | 'Deactive';
+  allowPermitDateChange: boolean;
+  agentAssistEnabled: boolean;
+  ddi?: string;
+  pin?: string;
+};
+
+const seedSystemUsers = (): SystemUser[] => [];
 
 const STATUS_COLORS: Record<string, { color: 'default'|'primary'|'success'|'warning'|'error'|'info'; variant: 'filled'|'outlined' }> = {
   'Pending Approval': { color: 'warning', variant: 'outlined' },
@@ -50,34 +66,46 @@ type WorkItem = {
 const VRMS = ['AB12 CDE', 'LK21 MNP', 'BX70 XYZ', 'JS08 KLM', 'TR19 QWE', 'MN22 RTY', 'AA65 BCD', 'FR15 GHK'];
 const POSTCODES = ['SK1 3AZ', 'M4 1LE', 'M1 2AB', 'SK7 5PP', 'M2 3JB', 'SK4 4NX'];
 const ADDR = ['12 Church Lane', '48 Kingsway', '3 Market Street', '210 Mill Road', '77 Riverside Ave', '156 Oak Hill'];
-const boUsers = systemUsers.filter((u) => u.status === 'Active').map((u) => u.name);
 
-const seed = (): WorkItem[] => applications.slice(0, 18).map((a, i) => {
-  const bucket: WorkItem['bucket'] = i < 6 ? 'unassigned' : i < 14 ? 'assigned' : 'waiting';
-  return {
-    id: a.id,
-    ref: a.ref,
-    permissionGroup: a.type + ' — ' + a.zone.split(' ')[0],
-    vrm: VRMS[i % VRMS.length],
-    workQueueStatus: a.status,
-    applicant: a.applicant,
-    address: ADDR[i % ADDR.length],
-    postcode: POSTCODES[i % POSTCODES.length],
-    appliedOn: '02/03/2026',
-    startDate: '15/03/2026',
-    expiryDate: '14/03/2027',
-    assignedBy: bucket === 'assigned' ? 'Priya R.' : undefined,
-    assignedTo: bucket === 'assigned' ? boUsers[i % boUsers.length] : undefined,
-    bucket,
-  };
-});
+const seed = (users: SystemUser[], apps: Application[]): WorkItem[] => {
+  const boUsers = users.filter((u) => u.status === 'Active').map((u) => `${u.firstName} ${u.lastName}`);
+  return apps.slice(0, 18).map((a, i) => {
+    const bucket: WorkItem['bucket'] = i < 6 ? 'unassigned' : i < 14 ? 'assigned' : 'waiting';
+    return {
+      id: a.id,
+      ref: a.ref,
+      permissionGroup: a.type + ' — ' + a.zone.split(' ')[0],
+      vrm: VRMS[i % VRMS.length],
+      workQueueStatus: a.status,
+      applicant: a.applicant,
+      address: ADDR[i % ADDR.length],
+      postcode: POSTCODES[i % POSTCODES.length],
+      appliedOn: '02/03/2026',
+      startDate: '15/03/2026',
+      expiryDate: '14/03/2027',
+      assignedBy: bucket === 'assigned' ? 'Priya R.' : undefined,
+      assignedTo: bucket === 'assigned' ? boUsers[i % boUsers.length] : undefined,
+      bucket,
+    };
+  });
+};
 
 type Mode = 'assign' | 'reassign';
 
 export function MyWorkItemsPage() {
   const showToast = useToast();
   const nav = useNavigate();
-  const [rows, setRows] = usePersistentState<WorkItem[]>('prototype:workqueue:my-work:rows', seed);
+  const [persistedUsers] = usePersistentState<SystemUser[]>('prototype:users:system-users:rows', seedSystemUsers);
+  const [persistedApps] = usePersistentState<Application[]>('prototype:applications:rows', () => [...applications]);
+  const [rows, setRows] = usePersistentState<WorkItem[]>('prototype:workqueue:my-work:rows', () => seed(
+    persistedUsers && persistedUsers.length > 0 ? persistedUsers : [],
+    persistedApps && persistedApps.length > 0 ? persistedApps : applications
+  ));
+  
+  const boUsers = useMemo(() => {
+    const users = persistedUsers && persistedUsers.length > 0 ? persistedUsers : [];
+    return users.filter(u => u.status === 'Active').map(u => `${u.firstName} ${u.lastName}`);
+  }, [persistedUsers]);
   const [tab, setTab] = useState(0);
   const [search, setSearch] = useState('');
   const [selection, setSelection] = useState<GridRowSelectionModel>([]);

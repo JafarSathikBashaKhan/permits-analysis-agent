@@ -8,7 +8,7 @@ import {
 import { useMemo, useState, MouseEvent } from 'react';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useToast } from '../../components/Toast';
-import { permissions, groupsByType, Permission } from '../../data/mock';
+import { permissions, Permission } from '../../data/mock';
 import { tokens } from '../../theme';
 import { ApplicationFormTab } from './tabs/ApplicationFormTab';
 import { PricingTab } from './tabs/PricingTab';
@@ -21,6 +21,24 @@ import {
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { BUILDER_ROWS_KEY } from './BuilderListPage';
 import { PERMISSION_TYPE_OPTIONS, PERMISSION_CATEGORY_OPTIONS, BUSINESS_RULES } from '../../constants/enums';
+
+type Group = {
+  id: string;
+  name: string;
+  permissionType: string;
+  groupType: 'Zonal' | 'Non-Zonal';
+  householdLimit: number;
+  maxVouchers: number;
+  backOfficeUse: boolean;
+  status: 'Active' | 'InActive';
+  linkedPermissions: number;
+  createdOn: string;
+  createdByUser: string;
+  updatedOn: string;
+  updatedByUser: string;
+};
+
+const seedGroups = (): Group[] => [];
 
 type TopTab = 'permissions' | 'rules' | 'pricing' | 'application-form';
 
@@ -85,7 +103,12 @@ export function BuilderDesignPage() {
   // Permission limit (Basic Information)
   const [permissionLimit, setPermissionLimit] = useState('');
 
-  const availableGroups = type ? (groupsByType[type] ?? []) : Object.values(groupsByType).flat();
+  const [persistedGroups] = usePersistentState<Group[]>('prototype:builder:groups:rows', seedGroups);
+  const allGroups = useMemo(
+    () => (persistedGroups && persistedGroups.length > 0 ? persistedGroups : []),
+    [persistedGroups]
+  );
+  const availableGroups = type ? allGroups.filter(g => g.permissionType === type && g.status === 'Active').map(g => g.name) : allGroups.filter(g => g.status === 'Active').map(g => g.name);
 
   return (
     <Box sx={{ mx: -3, my: -3 }}>

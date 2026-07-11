@@ -12,8 +12,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { PageHeader } from '../../shared/PageHeader';
-import { applications } from '../../data/mock';
+import { applications, Application } from '../../data/mock';
 import { ConfirmDialog } from '../../components/dialogs/ConfirmDialog';
+import { usePersistentState } from '../../hooks/usePersistentState';
 
 export type PrintRow = {
   id: string;
@@ -35,8 +36,8 @@ const VRMS = ['AB12 CDE', 'LK21 MNP', 'BX70 XYZ', 'JS08 KLM', 'TR19 QWE', 'MN22 
 const POSTCODES = ['SK1 3AZ', 'M4 1LE', 'M1 2AB', 'SK7 5PP', 'M2 3JB'];
 const ADDR = ['12 Church Lane', '48 Kingsway', '3 Market Street', '210 Mill Road', '77 Riverside Ave'];
 
-export const buildPrintRows = (activeLabel: 'print' | 'active'): PrintRow[] =>
-  applications.slice(0, 24).map((a, i) => ({
+export const buildPrintRows = (apps: Application[], activeLabel: 'print' | 'active'): PrintRow[] =>
+  apps.slice(0, 24).map((a, i) => ({
     id: a.id,
     ref: a.ref,
     permissionGroup: `${a.type} — ${a.zone.split(' ')[0]}`,

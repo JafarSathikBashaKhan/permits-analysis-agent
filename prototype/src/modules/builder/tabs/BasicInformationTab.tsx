@@ -1,8 +1,27 @@
 import { Alert, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Section } from '../../../shared/Section';
 import { FieldHint } from '../../../shared/FieldHint';
-import { permissionTypes, groupsByType, categories, Permission } from '../../../data/mock';
+import { permissionTypes, categories, Permission } from '../../../data/mock';
+import { usePersistentState } from '../../../hooks/usePersistentState';
+
+type Group = {
+  id: string;
+  name: string;
+  permissionType: string;
+  groupType: 'Zonal' | 'Non-Zonal';
+  householdLimit: number;
+  maxVouchers: number;
+  backOfficeUse: boolean;
+  status: 'Active' | 'InActive';
+  linkedPermissions: number;
+  createdOn: string;
+  createdByUser: string;
+  updatedOn: string;
+  updatedByUser: string;
+};
+
+const seedGroups = (): Group[] => [];
 
 export function BasicInformationTab({ permission }: { permission?: Permission }) {
   const [name, setName] = useState(permission?.name ?? '');
@@ -11,7 +30,12 @@ export function BasicInformationTab({ permission }: { permission?: Permission })
   const [category, setCategory] = useState<string>(permission?.category ?? '');
   const [description, setDescription] = useState('');
 
-  const groups = type ? groupsByType[type] ?? [] : [];
+  const [persistedGroups] = usePersistentState<Group[]>('prototype:builder:groups:rows', seedGroups);
+  const allGroups = useMemo(
+    () => (persistedGroups && persistedGroups.length > 0 ? persistedGroups : []),
+    [persistedGroups]
+  );
+  const groups = type ? allGroups.filter(g => g.permissionType === type && g.status === 'Active').map(g => g.name) : [];
   const nameLimit = 100;
   const descLimit = 500;
   const nameError = name.length === 0 ? '' : (name.length > nameLimit ? `Max ${nameLimit} characters` : '');
