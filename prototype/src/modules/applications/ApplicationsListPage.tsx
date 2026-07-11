@@ -1,6 +1,6 @@
-import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, MenuItem, Paper, Stack, TextField } from '@mui/material';
-import { Add, Search, DownloadOutlined, FileUploadOutlined, EventRepeatOutlined } from '@mui/icons-material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { Box, Button, Card, CardContent, Chip, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, MenuItem, Paper, Stack, TextField, Typography } from '@mui/material';
+import { Add, Search, DownloadOutlined, FileUploadOutlined, EventRepeatOutlined, DeleteOutline, CheckCircle, Cancel } from '@mui/icons-material';
+import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import { useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '../../components/Toast';
@@ -35,6 +35,7 @@ export function ApplicationsListPage() {
   const [assignee, setAssignee] = useState('All');
   const [extendOpen, setExtendOpen] = useState(false);
   const [newAppOpen, setNewAppOpen] = useState(false);
+  const [selection, setSelection] = useState<GridRowSelectionModel>([]);
 
   const [allRows, setAllRows] = usePersistentState<Application[]>('prototype:applications:rows', () => [...applications]);
 
@@ -94,6 +95,24 @@ export function ApplicationsListPage() {
     } },
   ];
 
+  const handleBulkApprove = () => {
+    setAllRows((prev) => prev.map((r) => selection.includes(r.id) ? { ...r, status: 'Approved' } : r));
+    showToast(`${selection.length} application(s) approved`, 'success');
+    setSelection([]);
+  };
+
+  const handleBulkReject = () => {
+    setAllRows((prev) => prev.map((r) => selection.includes(r.id) ? { ...r, status: 'Rejected' } : r));
+    showToast(`${selection.length} application(s) rejected`, 'success');
+    setSelection([]);
+  };
+
+  const handleBulkDelete = () => {
+    setAllRows((prev) => prev.filter((r) => !selection.includes(r.id)));
+    showToast(`${selection.length} application(s) deleted`, 'success');
+    setSelection([]);
+  };
+
   return (
     <>
       <PageHeader
@@ -129,9 +148,35 @@ export function ApplicationsListPage() {
           </TextField>
         </Stack>
       </Paper>
+      
+      {selection.length > 0 && (
+        <Card sx={{ mb: 2, bgcolor: '#EAF3FB' }}>
+          <CardContent>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Typography sx={{ fontWeight: 600, color: '#0D3E66' }}>
+                {selection.length} row(s) selected
+              </Typography>
+              <Button variant="outlined" size="small" startIcon={<CheckCircle />} onClick={handleBulkApprove}>Approve</Button>
+              <Button variant="outlined" size="small" startIcon={<Cancel />} onClick={handleBulkReject}>Reject</Button>
+              <Button variant="outlined" size="small" color="error" startIcon={<DeleteOutline />} onClick={handleBulkDelete}>Delete</Button>
+            </Stack>
+          </CardContent>
+        </Card>
+      )}
+
       <Paper>
         <Box sx={{ height: 620 }}>
-          <DataGrid rows={rows} columns={cols} onRowClick={(p) => nav(`/applications/${p.id}`)} disableRowSelectionOnClick pageSizeOptions={[10, 25, 50]} initialState={{ pagination: { paginationModel: { pageSize: 10 } } }} checkboxSelection />
+          <DataGrid 
+            rows={rows} 
+            columns={cols} 
+            onRowClick={(p) => nav(`/applications/${p.id}`)} 
+            disableRowSelectionOnClick 
+            pageSizeOptions={[10, 25, 50]} 
+            initialState={{ pagination: { paginationModel: { pageSize: 10 } } }} 
+            checkboxSelection 
+            rowSelectionModel={selection}
+            onRowSelectionModelChange={setSelection}
+          />
         </Box>
       </Paper>
 

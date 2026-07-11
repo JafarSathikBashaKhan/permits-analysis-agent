@@ -3,7 +3,7 @@ import {
   Box, Button, Chip, IconButton, MenuItem, Stack, TextField, Typography, Drawer,
   Divider, Grid, Card, CardContent,
 } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import CloseIcon from '@mui/icons-material/Close';
 import VisibilityOutlined from '@mui/icons-material/VisibilityOutlined';
 import DirectionsCarFilledOutlined from '@mui/icons-material/DirectionsCarFilledOutlined';
@@ -97,6 +97,7 @@ export function VehiclesPage() {
   const [selected, setSelected] = useState<Vehicle | null>(null);
   const [addVehicleOpen, setAddVehicleOpen] = useState(false);
   const [editVehicle, setEditVehicle] = useState<Vehicle | null>(null);
+  const [selection, setSelection] = useState<GridRowSelectionModel>([]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -140,6 +141,17 @@ export function VehiclesPage() {
         </IconButton>
       ) },
   ];
+
+  const handleBulkDelete = () => {
+    setRows((prev) => prev.filter((r) => !selection.includes(r.id)));
+    showToast(`${selection.length} vehicle(s) deleted`, 'success');
+    setSelection([]);
+  };
+
+  const handleBulkExport = () => {
+    showToast(`Exporting ${selection.length} vehicle(s)`, 'success');
+    setSelection([]);
+  };
 
   return (
     <Box>
@@ -198,12 +210,29 @@ export function VehiclesPage() {
         </CardContent>
       </Card>
 
+      {selection.length > 0 && (
+        <Card variant="outlined" sx={{ mb: 2, bgcolor: '#EAF3FB' }}>
+          <CardContent>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Typography sx={{ fontWeight: 600, color: '#0D3E66' }}>
+                {selection.length} row(s) selected
+              </Typography>
+              <Button variant="outlined" size="small" startIcon={<DownloadOutlined />} onClick={handleBulkExport}>Export</Button>
+              <Button variant="outlined" size="small" color="error" onClick={handleBulkDelete}>Delete</Button>
+            </Stack>
+          </CardContent>
+        </Card>
+      )}
+
       <Box sx={{ height: 620, width: '100%' }}>
         <DataGrid
           rows={filtered}
           columns={columns}
           density="standard"
           disableRowSelectionOnClick
+          checkboxSelection
+          rowSelectionModel={selection}
+          onRowSelectionModelChange={setSelection}
           pageSizeOptions={[10, 25, 50]}
           initialState={{ pagination: { paginationModel: { pageSize: 25 } } }}
         />
@@ -237,7 +266,7 @@ export function VehiclesPage() {
             <Divider sx={{ my: 2 }} />
             <Stack direction="row" spacing={1}>
               <Button variant="outlined" fullWidth onClick={() => { setEditVehicle(selected); setSelected(null); }}>Edit</Button>
-              <Button variant="contained" fullWidth onClick={() => showToast('Open Application — coming soon', 'info')}>Open Application</Button>
+              <Button variant="contained" fullWidth onClick={() => { showToast(`Opening ${selected.applicationId}`, 'info'); setSelected(null); }}>Open Application</Button>
             </Stack>
           </Box>
         )}

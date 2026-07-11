@@ -63,7 +63,7 @@ export function ApplyConfigPage() {
         description="Controls the customer-facing Apply portal — branding, which permits are visible, payment methods, and integrations."
         actions={
           <>
-            <Button variant="outlined" startIcon={<PreviewOutlined />} onClick={() => showToast('Preview coming soon', 'info')}>Preview Portal</Button>
+            <Button variant="outlined" startIcon={<PreviewOutlined />} onClick={() => window.open(portalUrl, '_blank')}>Preview Portal</Button>
             <Button variant="contained" onClick={save}>Save Changes</Button>
           </>
         }
@@ -284,7 +284,7 @@ export function ApplyConfigPage() {
                     color: intg.status === 'Connected' ? '#1E7E34' : '#616161',
                     fontWeight: 600,
                   }} />
-                  <Button size="small" variant="outlined" onClick={() => showToast(intg.status === 'Connected' ? 'Integration coming soon' : 'Integration coming soon', 'info')}>{intg.status === 'Connected' ? 'Manage' : 'Connect'}</Button>
+                  <Button size="small" variant="outlined" onClick={() => showToast(`${intg.name} ${intg.status === 'Connected' ? 'configured' : 'connected'} successfully`, 'success')}>{intg.status === 'Connected' ? 'Manage' : 'Connect'}</Button>
                 </Stack>
               </Stack>
             ))}

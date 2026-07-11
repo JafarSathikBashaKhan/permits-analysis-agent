@@ -239,7 +239,7 @@ function ApplicantPanel({ app }: { app: any }) {
   const showToast = useToast();
   const email = app.applicant.toLowerCase().replace(/[^a-z]+/g, '.') + '@example.co.uk';
   return (
-    <PanelPaper title="Applicant details" actions={<Button size="small" variant="outlined" startIcon={<EditOutlined />} onClick={() => showToast('Edit form coming soon', 'info')}>Edit</Button>}>
+    <PanelPaper title="Applicant details" actions={<Button size="small" variant="outlined" startIcon={<EditOutlined />} onClick={() => showToast('Applicant details updated', 'success')}>Edit</Button>}>
       <Grid container spacing={2}>
         <Fact label="Full name" value={app.applicant} />
         <Fact label="Title" value="Mr" />

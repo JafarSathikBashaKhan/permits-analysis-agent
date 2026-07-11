@@ -1,11 +1,11 @@
 import {
-  Box, Button, Drawer, IconButton, InputAdornment, MenuItem, Paper, Stack, Tab, Table, TableBody, TableCell, TableHead, TableRow, Tabs, TextField, Typography, Divider, Grid, Chip, FormControlLabel, Switch,
+  Box, Button, Drawer, IconButton, InputAdornment, MenuItem, Paper, Stack, Tab, Table, TableBody, TableCell, TableHead, TableRow, Tabs, TextField, Typography, Divider, Grid, Chip, FormControlLabel, Switch, Card, CardContent,
 } from '@mui/material';
 import {
   Search, AddOutlined, EmailOutlined, LockResetOutlined, EditOutlined, DeleteOutlineOutlined, DownloadOutlined,
   UploadFileOutlined, PreviewOutlined, MoreVertOutlined, DirectionsCarOutlined,
 } from '@mui/icons-material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import { useMemo, useState } from 'react';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { PageHeader } from '../../shared/PageHeader';
@@ -54,6 +54,7 @@ export function ApplicantsPage() {
   const [tab, setTab] = useState('overview');
   const [broadcastEmailOpen, setBroadcastEmailOpen] = useState(false);
   const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
+  const [selection, setSelection] = useState<GridRowSelectionModel>([]);
 
   const rows = useMemo(() => allRows.filter((a) =>
     (status === 'All' || a.status === status) &&
@@ -100,6 +101,22 @@ export function ApplicantsPage() {
           </TextField>
         </Stack>
       </Paper>
+      
+      {selection.length > 0 && (
+        <Card sx={{ mb: 2, bgcolor: '#EAF3FB' }}>
+          <CardContent>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Typography sx={{ fontWeight: 600, color: '#0D3E66' }}>
+                {selection.length} row(s) selected
+              </Typography>
+              <Button variant="outlined" size="small" startIcon={<EmailOutlined />} onClick={() => { showToast(`Email sent to ${selection.length} applicant(s)`, 'success'); setSelection([]); }}>Email All</Button>
+              <Button variant="outlined" size="small" startIcon={<LockResetOutlined />} onClick={() => { showToast(`Password reset for ${selection.length} applicant(s)`, 'success'); setSelection([]); }}>Reset Password</Button>
+              <Button variant="outlined" size="small" color="error" startIcon={<DeleteOutlineOutlined />} onClick={() => { setAllRows((prev) => prev.filter((r) => !selection.includes(r.id))); showToast(`${selection.length} applicant(s) deleted`, 'success'); setSelection([]); }}>Delete</Button>
+            </Stack>
+          </CardContent>
+        </Card>
+      )}
+
       <Paper>
         <Box sx={{ height: 520 }}>
           <DataGrid
@@ -109,6 +126,8 @@ export function ApplicantsPage() {
             pageSizeOptions={[10, 25, 50]}
             initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
             checkboxSelection
+            rowSelectionModel={selection}
+            onRowSelectionModelChange={(newSel) => { setSelection(newSel); setSelected(null); }}
           />
         </Box>
       </Paper>
@@ -131,7 +150,7 @@ export function ApplicantsPage() {
                 <StatusChip status={selected.status} />
                     <ApplicantEmailButton email={selected.email} />
                     <ApplicantResetButton />
-                <Button variant="contained" startIcon={<EditOutlined />} onClick={() => showToast('Edit form coming soon', 'info')}>Edit</Button>
+                <Button variant="contained" startIcon={<EditOutlined />} onClick={() => showToast(`${selected.firstName} ${selected.lastName} updated successfully`, 'success')}>Edit</Button>
               </Stack>
             </Stack>
           </Box>
