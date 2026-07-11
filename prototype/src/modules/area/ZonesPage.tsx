@@ -62,7 +62,11 @@ function ZoneSlider({
     createdOn: '', createdByUser: '', updatedOn: '', updatedByUser: '', streets: [],
   });
   const [error, setError] = useState<string | null>(null);
-  const allStreets = useMemo(() => seedStreets(), []);
+  const [persistedStreets] = usePersistentState<Street[]>('prototype:area:streets:rows', seedStreets);
+  const allStreets = useMemo(
+    () => (persistedStreets && persistedStreets.length > 0 ? persistedStreets : seedStreets()),
+    [persistedStreets]
+  );
   const [addStreet, setAddStreet] = useState('');
 
   useMemo(() => {
