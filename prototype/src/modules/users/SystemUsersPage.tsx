@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 import {
   Box,
   Button,
+  Card,
+  CardContent,
   Chip,
   Drawer,
   IconButton,
@@ -19,7 +21,7 @@ import {
   Collapse,
   Alert,
 } from '@mui/material';
-import { DataGrid, GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRenderCellParams, GridRowSelectionModel } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import HistoryIcon from '@mui/icons-material/History';
@@ -555,6 +557,7 @@ export function SystemUsersPage() {
   const [panelOpen, setPanelOpen] = useState(false);
   const [panelMode, setPanelMode] = useState<PanelMode>('add');
   const [selected, setSelected] = useState<SystemUser | null>(null);
+  const [selection, setSelection] = useState<GridRowSelectionModel>([]);
 
   const filtered = useMemo(() => {
     const ql = q.trim().toLowerCase();
@@ -604,6 +607,23 @@ export function SystemUsersPage() {
     );
     showToast(`User ${nextStatus === 'Active' ? 'activated' : 'deactivated'} successfully`, 'success');
     setPanelOpen(false);
+  };
+
+  const handleBulkDeactivate = () => {
+    setRows((prev) => prev.map((r) => (selection.includes(r.id) ? { ...r, status: 'Deactive' as const } : r)));
+    showToast(`${selection.length} user(s) deactivated`, 'success');
+    setSelection([]);
+  };
+
+  const handleBulkDelete = () => {
+    setRows((prev) => prev.filter((r) => !selection.includes(r.id)));
+    showToast(`${selection.length} user(s) deleted`, 'success');
+    setSelection([]);
+  };
+
+  const handleBulkInvite = () => {
+    showToast(`Invitation sent to ${selection.length} user(s)`, 'success');
+    setSelection([]);
   };
 
   const columns: GridColDef<SystemUser>[] = [
@@ -695,6 +715,21 @@ export function SystemUsersPage() {
         </TextField>
       </Stack>
 
+      {selection.length > 0 && (
+        <Card sx={{ mb: 2, bgcolor: '#EAF3FB' }}>
+          <CardContent>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Typography sx={{ fontWeight: 600, color: '#0D3E66' }}>
+                {selection.length} row(s) selected
+              </Typography>
+              <Button variant="outlined" size="small" onClick={handleBulkInvite}>Send Invitation</Button>
+              <Button variant="outlined" size="small" onClick={handleBulkDeactivate}>Deactivate</Button>
+              <Button variant="outlined" size="small" color="error" onClick={handleBulkDelete}>Delete</Button>
+            </Stack>
+          </CardContent>
+        </Card>
+      )}
+
       <Box sx={{ bgcolor: 'background.paper', border: 1, borderColor: 'divider', borderRadius: 1 }}>
         <DataGrid<SystemUser>
           rows={filtered}
@@ -703,6 +738,9 @@ export function SystemUsersPage() {
           pageSizeOptions={[5, 10, 25]}
           initialState={{ pagination: { paginationModel: { pageSize: 10, page: 0 } } }}
           onRowClick={(p) => openView(p.row as SystemUser)}
+          checkboxSelection
+          rowSelectionModel={selection}
+          onRowSelectionModelChange={setSelection}
           sx={{ '& .MuiDataGrid-row': { cursor: 'pointer' } }}
         />
       </Box>
