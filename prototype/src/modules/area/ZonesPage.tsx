@@ -20,6 +20,7 @@ import { PageHeader } from '../../shared/PageHeader';
 import { seedStreets, Street } from './areaFixtures';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { useToast } from '../../components/Toast';
+import { ImportCsvDialog } from '../../components/dialogs/ImportCsvDialog';
 
 type Zone = {
   id: string;
@@ -187,6 +188,7 @@ export function ZonesPage() {
   const [selected, setSelected] = useState<Zone | null>(null);
   const [menuAnchor, setMenuAnchor] = useState<{ el: HTMLElement; row: Zone } | null>(null);
   const [confirm, setConfirm] = useState<{ kind: 'delete' | 'publish' | 'unpublish'; row: Zone } | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
 
   const filtered = useMemo(() => {
     const ql = q.trim().toLowerCase();
@@ -230,7 +232,7 @@ export function ZonesPage() {
         actions={
           <Stack direction="row" spacing={1}>
             <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => showToast('Sample downloaded', 'info')}>Download Sample</Button>
-            <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => showToast('Import dialog coming soon', 'info')}>Import</Button>
+            <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => setImportOpen(true)}>Import</Button>
             <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setSelected(null); setPanelOpen(true); }}>Add Zone</Button>
           </Stack>
         } />
@@ -302,6 +304,13 @@ export function ZonesPage() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <ImportCsvDialog
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        entityName="zones"
+        onImport={() => {}}
+      />
     </>
   );
 }

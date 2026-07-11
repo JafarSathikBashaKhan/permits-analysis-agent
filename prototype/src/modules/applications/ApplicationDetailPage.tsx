@@ -13,6 +13,9 @@ import { StatusChip } from '../../shared/StatusChip';
 import { applications } from '../../data/mock';
 import { tokens } from '../../theme';
 import { useToast } from '../../components/Toast';
+import { AddVehicleDialog } from '../../components/dialogs/AddVehicleDialog';
+import { UploadDocumentDialog } from '../../components/dialogs/UploadDocumentDialog';
+import { ComposeEmailDialog } from '../../components/dialogs/ComposeEmailDialog';
 
 type TabKey =
   | 'overview' | 'applicant' | 'vehicle' | 'document' | 'email'
@@ -223,57 +226,90 @@ function ApplicantPanel({ app }: { app: any }) {
 
 function VehiclePanel() {
   const showToast = useToast();
-  const rows = [
+  const [addVehicleOpen, setAddVehicleOpen] = useState(false);
+  const [vehicles, setVehicles] = useState([
     { vrm: 'AB19 XYZ', make: 'Ford', model: 'Focus', colour: 'Silver', fuel: 'Petrol', co2: 118, source: 'AutoGuru' },
     { vrm: 'BC22 CDE', make: 'Tesla', model: 'Model 3', colour: 'White', fuel: 'Electric', co2: 0, source: 'AutoGuru' },
-  ];
+  ]);
   return (
-    <PanelPaper title="Vehicles" actions={<Button size="small" variant="contained" startIcon={<AddOutlined />} onClick={() => showToast('Add vehicle dialog coming soon', 'info')}>Add Vehicle</Button>}>
-      <SimpleTable
-        columns={['VRM','Make','Model','Colour','Fuel','CO₂','Source','Actions']}
-        rows={rows.map((r) => [r.vrm, r.make, r.model, r.colour, r.fuel, `${r.co2} g/km`, r.source,
-          <Stack direction="row" spacing={0.5}>
-            <IconButton size="small"><EditOutlined fontSize="small" /></IconButton>
-            <IconButton size="small"><DeleteOutlineOutlined fontSize="small" /></IconButton>
-          </Stack>])}
+    <>
+      <PanelPaper title="Vehicles" actions={<Button size="small" variant="contained" startIcon={<AddOutlined />} onClick={() => setAddVehicleOpen(true)}>Add Vehicle</Button>}>
+        <SimpleTable
+          columns={['VRM','Make','Model','Colour','Fuel','CO₂','Source','Actions']}
+          rows={vehicles.map((r) => [r.vrm, r.make, r.model, r.colour, r.fuel, `${r.co2} g/km`, r.source,
+            <Stack direction="row" spacing={0.5}>
+              <IconButton size="small"><EditOutlined fontSize="small" /></IconButton>
+              <IconButton size="small"><DeleteOutlineOutlined fontSize="small" /></IconButton>
+            </Stack>])}
+        />
+      </PanelPaper>
+      <AddVehicleDialog
+        open={addVehicleOpen}
+        onClose={() => setAddVehicleOpen(false)}
+        onSave={(v) => {
+          setVehicles((prev) => [...prev, { vrm: v.vrm, make: v.make, model: v.model, colour: v.colour, fuel: v.fuelType, co2: 0, source: 'Manual' }]);
+          showToast('Vehicle added', 'success');
+        }}
       />
-    </PanelPaper>
+    </>
   );
 }
 
 function DocumentPanel() {
   const showToast = useToast();
-  const rows = [
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [docs, setDocs] = useState([
     { name: 'Proof of Address.pdf', type: 'Proof of Address', uploaded: '2026-06-24', size: '212 KB', status: 'Approved' },
     { name: 'V5C.pdf',              type: 'Vehicle V5C',      uploaded: '2026-06-24', size: '384 KB', status: 'Pending' },
-  ];
+  ]);
   return (
-    <PanelPaper title="Documents" actions={<Button size="small" variant="contained" startIcon={<UploadFileOutlined />} onClick={() => showToast('Upload document dialog coming soon', 'info')}>Upload Document</Button>}>
-      <SimpleTable
-        columns={['File Name','Document Type','Uploaded','Size','Status','Actions']}
-        rows={rows.map((r) => [r.name, r.type, r.uploaded, r.size, <StatusChip status={r.status} />,
-          <Stack direction="row" spacing={0.5}>
-            <IconButton size="small"><DownloadOutlined fontSize="small" /></IconButton>
-            <IconButton size="small"><PreviewOutlined fontSize="small" /></IconButton>
-            <IconButton size="small"><DeleteOutlineOutlined fontSize="small" /></IconButton>
-          </Stack>])}
+    <>
+      <PanelPaper title="Documents" actions={<Button size="small" variant="contained" startIcon={<UploadFileOutlined />} onClick={() => setUploadOpen(true)}>Upload Document</Button>}>
+        <SimpleTable
+          columns={['File Name','Document Type','Uploaded','Size','Status','Actions']}
+          rows={docs.map((r) => [r.name, r.type, r.uploaded, r.size, <StatusChip status={r.status} />,
+            <Stack direction="row" spacing={0.5}>
+              <IconButton size="small"><DownloadOutlined fontSize="small" /></IconButton>
+              <IconButton size="small"><PreviewOutlined fontSize="small" /></IconButton>
+              <IconButton size="small"><DeleteOutlineOutlined fontSize="small" /></IconButton>
+            </Stack>])}
+        />
+      </PanelPaper>
+      <UploadDocumentDialog
+        open={uploadOpen}
+        onClose={() => setUploadOpen(false)}
+        onSave={(d) => {
+          setDocs((prev) => [...prev, { name: d.fileName, type: d.type, uploaded: new Date().toLocaleDateString('en-GB'), size: d.size, status: 'Pending' }]);
+          showToast('Document uploaded', 'success');
+        }}
       />
-    </PanelPaper>
+    </>
   );
 }
 
 function EmailPanel() {
   const showToast = useToast();
-  const rows = [
+  const [composeOpen, setComposeOpen] = useState(false);
+  const [emails, setEmails] = useState([
     { date: '2026-06-24 09:22', to: 'applicant@example.com', subject: 'Application received', status: 'Delivered' },
     { date: '2026-06-25 14:08', to: 'applicant@example.com', subject: 'Payment required',     status: 'Delivered' },
-  ];
+  ]);
   return (
-    <PanelPaper title="Email history" actions={<Button size="small" variant="contained" startIcon={<EmailOutlined />} onClick={() => showToast('Compose email dialog coming soon', 'info')}>Compose Email</Button>}>
-      <SimpleTable columns={['Sent','To','Subject','Status','Actions']}
-        rows={rows.map((r) => [r.date, r.to, r.subject, <StatusChip status={r.status} />,
-          <IconButton size="small"><PreviewOutlined fontSize="small" /></IconButton>])} />
-    </PanelPaper>
+    <>
+      <PanelPaper title="Email history" actions={<Button size="small" variant="contained" startIcon={<EmailOutlined />} onClick={() => setComposeOpen(true)}>Compose Email</Button>}>
+        <SimpleTable columns={['Sent','To','Subject','Status','Actions']}
+          rows={emails.map((r) => [r.date, r.to, r.subject, <StatusChip status={r.status} />,
+            <IconButton size="small"><PreviewOutlined fontSize="small" /></IconButton>])} />
+      </PanelPaper>
+      <ComposeEmailDialog
+        open={composeOpen}
+        onClose={() => setComposeOpen(false)}
+        onSave={(e) => {
+          setEmails((prev) => [...prev, { date: new Date().toLocaleString('en-GB'), to: e.to, subject: e.subject, status: 'Sent' }]);
+          showToast('Email sent', 'success');
+        }}
+      />
+    </>
   );
 }
 
@@ -386,14 +422,26 @@ function RenewalSummaryPanel({ app }: { app: any }) {
 
 function RenewalDocsPanel() {
   const showToast = useToast();
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [docs, setDocs] = useState([
+    { type: 'Proof of Address', required: 'Yes', uploaded: '2026-06-24', status: 'Approved' },
+    { type: 'Vehicle V5C',      required: 'Yes', uploaded: '—',           status: 'Pending' },
+  ]);
   return (
-    <PanelPaper title="Renewal documents" actions={<Button size="small" variant="contained" startIcon={<UploadFileOutlined />} onClick={() => showToast('Upload document dialog coming soon', 'info')}>Upload Document</Button>}>
-      <SimpleTable columns={['Document Type','Required','Uploaded','Status']}
-        rows={[
-          ['Proof of Address', 'Yes', '2026-06-24', <StatusChip status="Approved" />],
-          ['Vehicle V5C',      'Yes', '—',           <StatusChip status="Pending" />],
-        ]} />
-    </PanelPaper>
+    <>
+      <PanelPaper title="Renewal documents" actions={<Button size="small" variant="contained" startIcon={<UploadFileOutlined />} onClick={() => setUploadOpen(true)}>Upload Document</Button>}>
+        <SimpleTable columns={['Document Type','Required','Uploaded','Status']}
+          rows={docs.map((r) => [r.type, r.required, r.uploaded, <StatusChip status={r.status} />])} />
+      </PanelPaper>
+      <UploadDocumentDialog
+        open={uploadOpen}
+        onClose={() => setUploadOpen(false)}
+        onSave={(d) => {
+          setDocs((prev) => [...prev, { type: d.type, required: 'No', uploaded: new Date().toLocaleDateString('en-GB'), status: 'Pending' }]);
+          showToast('Document uploaded', 'success');
+        }}
+      />
+    </>
   );
 }
 

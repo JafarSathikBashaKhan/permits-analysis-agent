@@ -14,6 +14,8 @@ import DownloadOutlined from '@mui/icons-material/DownloadOutlined';
 import { PageHeader } from '../../shared/PageHeader';
 import { tokens } from '../../theme';
 import { useToast } from '../../components/Toast';
+import { usePersistentState } from '../../hooks/usePersistentState';
+import { AddVehicleDialog } from '../../components/dialogs/AddVehicleDialog';
 
 type FuelType = 'Petrol' | 'Diesel' | 'Electric' | 'Hybrid' | 'LPG';
 type Status = 'Active' | 'Pending' | 'Suspended' | 'Expired' | 'Temporary';
@@ -87,11 +89,12 @@ const FUEL_ICON: Record<FuelType, React.ReactNode> = {
 
 export function VehiclesPage() {
   const showToast = useToast();
-  const [rows] = useState<Vehicle[]>(() => seedVehicles());
+  const [rows, setRows] = usePersistentState<Vehicle[]>('prototype:vehicles', () => seedVehicles());
   const [search, setSearch] = useState('');
   const [fuelFilter, setFuelFilter] = useState<'All' | FuelType>('All');
   const [statusFilter, setStatusFilter] = useState<'All' | Status>('All');
   const [selected, setSelected] = useState<Vehicle | null>(null);
+  const [addVehicleOpen, setAddVehicleOpen] = useState(false);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -145,7 +148,7 @@ export function VehiclesPage() {
         actions={
           <>
             <Button variant="outlined" startIcon={<DownloadOutlined />} onClick={() => showToast('Exporting…', 'info')}>Export</Button>
-            <Button variant="contained" onClick={() => showToast('Add vehicle dialog coming soon', 'info')}>Add Vehicle</Button>
+            <Button variant="contained" onClick={() => setAddVehicleOpen(true)}>Add Vehicle</Button>
           </>
         }
       />
@@ -236,6 +239,30 @@ export function VehiclesPage() {
           </Box>
         )}
       </Drawer>
+
+      <AddVehicleDialog
+        open={addVehicleOpen}
+        onClose={() => setAddVehicleOpen(false)}
+        onSave={(v) => {
+          setRows((prev) => [...prev, {
+            id: v.id,
+            vrm: v.vrm,
+            make: v.make,
+            model: v.model,
+            colour: v.colour,
+            fuel: (v.fuelType as FuelType),
+            co2: 0,
+            euro: 'N/A',
+            owner: '—',
+            applicationId: '—',
+            permission: '—',
+            status: v.temporary ? 'Temporary' : 'Pending',
+            registeredOn: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+            autoguruVerified: false,
+          }]);
+          showToast('Vehicle added', 'success');
+        }}
+      />
     </Box>
   );
 }

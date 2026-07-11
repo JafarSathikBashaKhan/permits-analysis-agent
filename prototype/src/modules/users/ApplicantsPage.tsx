@@ -11,6 +11,11 @@ import { PageHeader } from '../../shared/PageHeader';
 import { StatusChip } from '../../shared/StatusChip';
 import { tokens } from '../../theme';
 import { useToast } from '../../components/Toast';
+import { AddVehicleDialog } from '../../components/dialogs/AddVehicleDialog';
+import { UploadDocumentDialog } from '../../components/dialogs/UploadDocumentDialog';
+import { ComposeEmailDialog } from '../../components/dialogs/ComposeEmailDialog';
+import { AddBlueBadgeDialog } from '../../components/dialogs/AddBlueBadgeDialog';
+import { ConfirmDialog } from '../../components/dialogs/ConfirmDialog';
 
 type Applicant = {
   id: string;
@@ -44,6 +49,8 @@ export function ApplicantsPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [selected, setSelected] = useState<Applicant | null>(null);
   const [tab, setTab] = useState('overview');
+  const [broadcastEmailOpen, setBroadcastEmailOpen] = useState(false);
+  const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
 
   const rows = useMemo(() => APPLICANTS.filter((a) =>
     (status === 'All' || a.status === status) &&
@@ -75,8 +82,8 @@ export function ApplicantsPage() {
         description="Customers who apply for permits via the portal or in person."
         actions={
           <Stack direction="row" spacing={1}>
-            <Button variant="outlined" startIcon={<EmailOutlined />} onClick={() => showToast('Broadcast email coming soon', 'info')}>Broadcast Email</Button>
-            <Button variant="outlined" startIcon={<LockResetOutlined />} onClick={() => showToast('Password reset — coming soon', 'info')}>Reset Password</Button>
+            <Button variant="outlined" startIcon={<EmailOutlined />} onClick={() => setBroadcastEmailOpen(true)}>Broadcast Email</Button>
+            <Button variant="outlined" startIcon={<LockResetOutlined />} onClick={() => setResetPasswordOpen(true)}>Reset Password</Button>
             <Button variant="contained" startIcon={<AddOutlined />} onClick={() => setAddOpen(true)}>New Applicant</Button>
           </Stack>
         }
@@ -119,8 +126,8 @@ export function ApplicantsPage() {
               </Box>
               <Stack direction="row" spacing={1}>
                 <StatusChip status={selected.status} />
-                <Button variant="outlined" startIcon={<EmailOutlined />} onClick={() => showToast('Compose email dialog coming soon', 'info')}>Send Email</Button>
-                <Button variant="outlined" startIcon={<LockResetOutlined />} onClick={() => showToast('Password reset — coming soon', 'info')}>Reset Password</Button>
+                    <ApplicantEmailButton email={selected.email} />
+                    <ApplicantResetButton />
                 <Button variant="contained" startIcon={<EditOutlined />} onClick={() => showToast('Edit form coming soon', 'info')}>Edit</Button>
               </Stack>
             </Stack>
@@ -151,11 +158,49 @@ export function ApplicantsPage() {
       <Drawer anchor="right" open={addOpen} onClose={() => setAddOpen(false)} PaperProps={{ sx: { width: { xs:'100%', sm: 560, md: 640 } } }}>
         <AddApplicantDrawer onClose={() => setAddOpen(false)} />
       </Drawer>
+
+      <ComposeEmailDialog
+        open={broadcastEmailOpen}
+        onClose={() => setBroadcastEmailOpen(false)}
+        isBroadcast={true}
+        onSave={() => showToast('Broadcast email sent', 'success')}
+      />
+      <ConfirmDialog
+        open={resetPasswordOpen}
+        onClose={() => setResetPasswordOpen(false)}
+        onConfirm={() => showToast('Password reset link sent', 'success')}
+        title="Reset password?"
+        message="An email with reset instructions will be sent to the applicant."
+        confirmLabel="Send reset link"
+      />
     </>
   );
 }
 
 /* -------- Detail panes -------- */
+
+function ApplicantEmailButton({ email }: { email: string }) {
+  const showToast = useToast();
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button variant="outlined" startIcon={<EmailOutlined />} onClick={() => setOpen(true)}>Send Email</Button>
+      <ComposeEmailDialog open={open} onClose={() => setOpen(false)} defaultTo={email} onSave={() => showToast('Email sent', 'success')} />
+    </>
+  );
+}
+
+function ApplicantResetButton() {
+  const showToast = useToast();
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button variant="outlined" startIcon={<LockResetOutlined />} onClick={() => setOpen(true)}>Reset Password</Button>
+      <ConfirmDialog open={open} onClose={() => setOpen(false)} onConfirm={() => showToast('Password reset link sent', 'success')}
+        title="Reset password?" message="An email with reset instructions will be sent to the applicant." confirmLabel="Send reset link" />
+    </>
+  );
+}
 
 function OverviewPane({ a }: { a: Applicant }) {
   return (
@@ -185,74 +230,107 @@ function ApplicationsPane() {
 
 function BlueBadgePane({ hasBadge }: { hasBadge: boolean }) {
   const showToast = useToast();
+  const [open, setOpen] = useState(false);
+  const [badges, setBadges] = useState(hasBadge ? [{ no: 'BB-8821', issue: '2024-01-15', expiry: '2027-01-14' }] : [] as { no: string; issue: string; expiry: string }[]);
   return (
     <>
       <Stack direction="row" justifyContent="flex-end" sx={{ mb: 1 }}>
-        <Button variant="contained" startIcon={<AddOutlined />} onClick={() => showToast('Add blue badge dialog coming soon', 'info')}>Add Blue Badge</Button>
+        <Button variant="contained" startIcon={<AddOutlined />} onClick={() => setOpen(true)}>Add Blue Badge</Button>
       </Stack>
       <SimpleTable columns={['Badge No','Issue Date','Expiry Date','Status','Actions']}
-        rows={hasBadge ? [['BB-8821','2024-01-15','2027-01-14', <StatusChip status="Active" />,
+        rows={badges.map((b) => [b.no, b.issue, b.expiry, <StatusChip status="Active" />,
           <Stack direction="row" spacing={0.5}>
             <IconButton size="small"><EditOutlined fontSize="small" /></IconButton>
             <IconButton size="small"><DeleteOutlineOutlined fontSize="small" /></IconButton>
           </Stack>
-        ]] : []} />
+        ])} />
+      <AddBlueBadgeDialog open={open} onClose={() => setOpen(false)} onSave={(b) => {
+        setBadges((prev) => [...prev, { no: b.badgeNumber, issue: b.issueDate, expiry: b.expiryDate }]);
+        showToast('Blue badge added', 'success');
+      }} />
     </>
   );
 }
 
 function VehiclesPane() {
   const showToast = useToast();
-  const rows = [
-    ['AB19 XYZ', 'Standard', 'Silver Ford Focus',    'Focus daily',   '2026-06-01 09:22',
-      <Stack direction="row" spacing={0.5}><IconButton size="small"><EditOutlined fontSize="small" /></IconButton><IconButton size="small"><DeleteOutlineOutlined fontSize="small" /></IconButton></Stack>],
-    ['BC22 CDE', 'Standard', 'White Tesla Model 3',  'Tesla',         '2026-05-11 12:41',
-      <Stack direction="row" spacing={0.5}><IconButton size="small"><EditOutlined fontSize="small" /></IconButton><IconButton size="small"><DeleteOutlineOutlined fontSize="small" /></IconButton></Stack>],
-    ['TMP LOAN', 'Temporary', 'Black BMW 3 Series (loaner)', 'Loaner', '2026-06-15 10:04',
-      <Stack direction="row" spacing={0.5}><IconButton size="small"><EditOutlined fontSize="small" /></IconButton><IconButton size="small"><DeleteOutlineOutlined fontSize="small" /></IconButton></Stack>],
-  ];
+  const [addVehicleOpen, setAddVehicleOpen] = useState(false);
+  const [addTempOpen, setAddTempOpen] = useState(false);
+  const [vehicles, setVehicles] = useState([
+    { vrm: 'AB19 XYZ', type: 'Standard', desc: 'Silver Ford Focus',    nick: 'Focus daily',   date: '2026-06-01 09:22' },
+    { vrm: 'BC22 CDE', type: 'Standard', desc: 'White Tesla Model 3',  nick: 'Tesla',         date: '2026-05-11 12:41' },
+    { vrm: 'TMP LOAN', type: 'Temporary', desc: 'Black BMW 3 Series (loaner)', nick: 'Loaner', date: '2026-06-15 10:04' },
+  ]);
   return (
     <>
       <Stack direction="row" justifyContent="flex-end" sx={{ mb: 1 }} spacing={1}>
-        <Button variant="outlined" startIcon={<DirectionsCarOutlined />} onClick={() => showToast('Temporary vehicle dialog coming soon', 'info')}>Temporary Vehicle</Button>
-        <Button variant="contained" startIcon={<AddOutlined />} onClick={() => showToast('Add vehicle dialog coming soon', 'info')}>Add Vehicle</Button>
+        <Button variant="outlined" startIcon={<DirectionsCarOutlined />} onClick={() => setAddTempOpen(true)}>Temporary Vehicle</Button>
+        <Button variant="contained" startIcon={<AddOutlined />} onClick={() => setAddVehicleOpen(true)}>Add Vehicle</Button>
       </Stack>
-      <SimpleTable columns={['Vehicle number (VRM)','Type','Color, Make, Model','Nick name','Last added date/time','Actions']} rows={rows} />
+      <SimpleTable columns={['Vehicle number (VRM)','Type','Color, Make, Model','Nick name','Last added date/time','Actions']}
+        rows={vehicles.map((v) => [v.vrm, v.type, v.desc, v.nick, v.date,
+          <Stack direction="row" spacing={0.5}>
+            <IconButton size="small"><EditOutlined fontSize="small" /></IconButton>
+            <IconButton size="small"><DeleteOutlineOutlined fontSize="small" /></IconButton>
+          </Stack>])} />
+      <AddVehicleDialog open={addVehicleOpen} onClose={() => setAddVehicleOpen(false)} onSave={(v) => {
+        setVehicles((prev) => [...prev, { vrm: v.vrm, type: 'Standard', desc: `${v.colour} ${v.make} ${v.model}`, nick: v.vrm, date: new Date().toLocaleString('en-GB') }]);
+        showToast('Vehicle added', 'success');
+      }} />
+      <AddVehicleDialog title="Add Temporary Vehicle" defaultTemporary={true} open={addTempOpen} onClose={() => setAddTempOpen(false)} onSave={(v) => {
+        setVehicles((prev) => [...prev, { vrm: v.vrm, type: 'Temporary', desc: `${v.colour} ${v.make} ${v.model}`, nick: v.vrm, date: new Date().toLocaleString('en-GB') }]);
+        showToast('Temporary vehicle added', 'success');
+      }} />
     </>
   );
 }
 
 function DocumentsPane() {
   const showToast = useToast();
-  const rows = [
-    ['Proof of Address.pdf', 'Proof of Address', '2026-06-24', '212 KB', <StatusChip status="Approved" />,
-      <Stack direction="row" spacing={0.5}><IconButton size="small"><DownloadOutlined fontSize="small" /></IconButton><IconButton size="small"><PreviewOutlined fontSize="small" /></IconButton><IconButton size="small"><DeleteOutlineOutlined fontSize="small" /></IconButton></Stack>],
-    ['Utility Bill.pdf',    'Proof of Address', '2026-05-30', '198 KB', <StatusChip status="Approved" />,
-      <Stack direction="row" spacing={0.5}><IconButton size="small"><DownloadOutlined fontSize="small" /></IconButton><IconButton size="small"><PreviewOutlined fontSize="small" /></IconButton><IconButton size="small"><DeleteOutlineOutlined fontSize="small" /></IconButton></Stack>],
-  ];
+  const [open, setOpen] = useState(false);
+  const [docs, setDocs] = useState([
+    { name: 'Proof of Address.pdf', type: 'Proof of Address', date: '2026-06-24', size: '212 KB', status: 'Approved' },
+    { name: 'Utility Bill.pdf',    type: 'Proof of Address', date: '2026-05-30', size: '198 KB', status: 'Approved' },
+  ]);
   return (
     <>
       <Stack direction="row" justifyContent="flex-end" sx={{ mb: 1 }}>
-        <Button variant="contained" startIcon={<UploadFileOutlined />} onClick={() => showToast('Upload document dialog coming soon', 'info')}>Add Document</Button>
+        <Button variant="contained" startIcon={<UploadFileOutlined />} onClick={() => setOpen(true)}>Add Document</Button>
       </Stack>
-      <SimpleTable columns={['File Name','Document Type','Uploaded','Size','Status','Actions']} rows={rows} />
+      <SimpleTable columns={['File Name','Document Type','Uploaded','Size','Status','Actions']}
+        rows={docs.map((d) => [d.name, d.type, d.date, d.size, <StatusChip status={d.status} />,
+          <Stack direction="row" spacing={0.5}>
+            <IconButton size="small"><DownloadOutlined fontSize="small" /></IconButton>
+            <IconButton size="small"><PreviewOutlined fontSize="small" /></IconButton>
+            <IconButton size="small"><DeleteOutlineOutlined fontSize="small" /></IconButton>
+          </Stack>])} />
+      <UploadDocumentDialog open={open} onClose={() => setOpen(false)} onSave={(d) => {
+        setDocs((prev) => [...prev, { name: d.fileName, type: d.type, date: new Date().toLocaleDateString('en-GB'), size: d.size, status: 'Pending' }]);
+        showToast('Document uploaded', 'success');
+      }} />
     </>
   );
 }
 
 function EmailsPane() {
   const showToast = useToast();
-  const rows = [
-    ['2026-06-25 14:08', 'Application received',      'Delivered', <IconButton size="small"><PreviewOutlined fontSize="small" /></IconButton>],
-    ['2026-06-14 09:22', 'Password reset link',       'Delivered', <IconButton size="small"><PreviewOutlined fontSize="small" /></IconButton>],
-    ['2026-05-30 10:03', 'Renewal reminder — 30 days', 'Opened',    <IconButton size="small"><PreviewOutlined fontSize="small" /></IconButton>],
-  ];
+  const [open, setOpen] = useState(false);
+  const [emails, setEmails] = useState([
+    { sent: '2026-06-25 14:08', subject: 'Application received',      status: 'Delivered' },
+    { sent: '2026-06-14 09:22', subject: 'Password reset link',       status: 'Delivered' },
+    { sent: '2026-05-30 10:03', subject: 'Renewal reminder — 30 days', status: 'Opened' },
+  ]);
   return (
     <>
       <Stack direction="row" justifyContent="flex-end" sx={{ mb: 1 }}>
-        <Button variant="contained" startIcon={<EmailOutlined />} onClick={() => showToast('Compose email dialog coming soon', 'info')}>Send Email</Button>
+        <Button variant="contained" startIcon={<EmailOutlined />} onClick={() => setOpen(true)}>Send Email</Button>
       </Stack>
-      <SimpleTable columns={['Sent','Subject','Status','Actions']} rows={rows} />
+      <SimpleTable columns={['Sent','Subject','Status','Actions']}
+        rows={emails.map((e) => [e.sent, e.subject, e.status, <IconButton size="small"><PreviewOutlined fontSize="small" /></IconButton>])} />
+      <ComposeEmailDialog open={open} onClose={() => setOpen(false)} onSave={(e) => {
+        setEmails((prev) => [...prev, { sent: new Date().toLocaleString('en-GB'), subject: e.subject, status: 'Sent' }]);
+        showToast('Email sent', 'success');
+      }} />
     </>
   );
 }

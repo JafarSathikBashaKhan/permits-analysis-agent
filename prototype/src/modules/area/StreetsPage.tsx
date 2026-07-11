@@ -19,6 +19,7 @@ import { PageHeader } from '../../shared/PageHeader';
 import { Street, PropertyRow, TOWNS, seedStreets, BLACKLIST_DURATIONS } from './areaFixtures';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { useToast } from '../../components/Toast';
+import { ImportCsvDialog } from '../../components/dialogs/ImportCsvDialog';
 
 type BlackStreet = Street & { blacklistedUntil: string; reason?: string };
 type BlackProperty = PropertyRow & {
@@ -401,20 +402,12 @@ export function StreetsPage() {
       <BlacklistDialog open={!!blacklistOpen} onClose={() => setBlacklistOpen(null)}
         onConfirm={confirmBlacklist} target={blacklistOpen?.target} />
 
-      {/* Import stub */}
-      <Dialog open={importOpen} onClose={() => setImportOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Import Streets</DialogTitle>
-        <DialogContent>
-          <Stack spacing={2} sx={{ mt: 1 }}>
-            <Alert severity="info">Upload a CSV or XLSX file matching the sample template.</Alert>
-            <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => showToast('File chooser coming soon', 'info')}>Choose file</Button>
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setImportOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={() => setImportOpen(false)}>Import</Button>
-        </DialogActions>
-      </Dialog>
+      <ImportCsvDialog
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        entityName="streets"
+        onImport={() => {}}
+      />
     </>
   );
 }

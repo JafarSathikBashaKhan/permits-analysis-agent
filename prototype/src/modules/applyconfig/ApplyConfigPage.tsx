@@ -14,6 +14,7 @@ import LanguageOutlined from '@mui/icons-material/LanguageOutlined';
 import UploadOutlined from '@mui/icons-material/UploadOutlined';
 import PreviewOutlined from '@mui/icons-material/PreviewOutlined';
 import { useToast } from '../../components/Toast';
+import { UploadImageDialog } from '../../components/dialogs/UploadImageDialog';
 
 type Tab = 'general' | 'portal' | 'permission-visibility' | 'payment' | 'security' | 'integrations';
 
@@ -28,6 +29,10 @@ export function ApplyConfigPage() {
   const showToast = useToast();
   const [portalOpen, setPortalOpen] = useState(true);
   const [signupEnabled, setSignupEnabled] = useState(true);
+  const [uploadLogoOpen, setUploadLogoOpen] = useState(false);
+  const [uploadFaviconOpen, setUploadFaviconOpen] = useState(false);
+  const [logoName, setLogoName] = useState<string | null>(null);
+  const [faviconName, setFaviconName] = useState<string | null>(null);
   const [guestApply, setGuestApply] = useState(false);
   const [autoRenew, setAutoRenew] = useState(true);
   const [smsEnabled, setSmsEnabled] = useState(true);
@@ -51,7 +56,8 @@ export function ApplyConfigPage() {
   };
 
   return (
-    <Box>
+    <>
+      <Box>
       <PageHeader
         eyebrow="Apply Config"
         title="Apply Portal Configuration"
@@ -149,7 +155,8 @@ export function ApplyConfigPage() {
                 <Card variant="outlined" sx={{ height: 160, display: 'grid', placeItems: 'center', bgcolor: '#FAFBFC' }}>
                   <Stack alignItems="center" spacing={1}>
                     <UploadOutlined sx={{ fontSize: 40, color: tokens.MUTED }} />
-                    <Button variant="outlined" size="small" onClick={() => showToast('Upload dialog coming soon', 'info')}>Upload Logo</Button>
+                    {logoName && <Typography variant="body2" sx={{ color: tokens.INK }}>{logoName}</Typography>}
+                    <Button variant="outlined" size="small" onClick={() => setUploadLogoOpen(true)}>Upload Logo</Button>
                     <Typography sx={{ color: tokens.MUTED, fontSize: '0.78rem' }}>PNG / SVG, max 500KB</Typography>
                   </Stack>
                 </Card>
@@ -159,7 +166,8 @@ export function ApplyConfigPage() {
                 <Card variant="outlined" sx={{ height: 160, display: 'grid', placeItems: 'center', bgcolor: '#FAFBFC' }}>
                   <Stack alignItems="center" spacing={1}>
                     <UploadOutlined sx={{ fontSize: 40, color: tokens.MUTED }} />
-                    <Button variant="outlined" size="small" onClick={() => showToast('Upload dialog coming soon', 'info')}>Upload Favicon</Button>
+                    {faviconName && <Typography variant="body2" sx={{ color: tokens.INK }}>{faviconName}</Typography>}
+                    <Button variant="outlined" size="small" onClick={() => setUploadFaviconOpen(true)}>Upload Favicon</Button>
                     <Typography sx={{ color: tokens.MUTED, fontSize: '0.78rem' }}>32x32 ICO / PNG</Typography>
                   </Stack>
                 </Card>
@@ -285,5 +293,21 @@ export function ApplyConfigPage() {
         </Card>
       )}
     </Box>
+
+    <UploadImageDialog
+      open={uploadLogoOpen}
+      onClose={() => setUploadLogoOpen(false)}
+      title="Upload Logo"
+      hint="PNG / SVG, max 500KB"
+      onSave={(fileName) => { setLogoName(fileName); showToast('Logo uploaded', 'success'); }}
+    />
+    <UploadImageDialog
+      open={uploadFaviconOpen}
+      onClose={() => setUploadFaviconOpen(false)}
+      title="Upload Favicon"
+      hint="32x32 ICO / PNG"
+      onSave={(fileName) => { setFaviconName(fileName); showToast('Favicon uploaded', 'success'); }}
+    />
+    </>
   );
 }

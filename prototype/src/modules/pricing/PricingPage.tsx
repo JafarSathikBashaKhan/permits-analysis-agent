@@ -13,6 +13,8 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { PageHeader } from '../../shared/PageHeader';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { useToast } from '../../components/Toast';
+import { AddPricingDialog } from '../../components/dialogs/AddPricingDialog';
+import { ImportCsvDialog } from '../../components/dialogs/ImportCsvDialog';
 
 const PERM_TYPES = ['Residents Permit', 'Business Permit', 'Visitor Permit', 'Suspension', 'Dispensation'];
 const SUB_TYPES = ['Standard', 'Concession', 'Trade', 'Event', 'Other'];
@@ -65,6 +67,7 @@ export function PricingPage() {
   const [menuAnchor, setMenuAnchor] = useState<{ el: HTMLElement; row: Pricing } | null>(null);
   const [deleting, setDeleting] = useState<Pricing | null>(null);
   const [importOpen, setImportOpen] = useState(false);
+  const [addPricingOpen, setAddPricingOpen] = useState(false);
 
   const currentRows = tab === 0 ? zonal : tab === 1 ? nonzonal : rule;
   const setCurrentRows = tab === 0 ? setZonal : tab === 1 ? setNonzonal : setRule;
@@ -120,7 +123,7 @@ export function PricingPage() {
           onChange={(e) => setQ(e.target.value)} sx={{ flex: 1, maxWidth: 420 }} />
         <Box sx={{ flex: 1 }} />
         <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => setImportOpen(true)}>Import</Button>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={() => showToast('Add pricing dialog coming soon', 'info')}>Add Pricing</Button>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={() => setAddPricingOpen(true)}>Add Pricing</Button>
       </Stack>
 
       <Box sx={{ bgcolor: 'background.paper', border: 1, borderColor: 'divider', borderRadius: 1 }}>
@@ -160,21 +163,50 @@ export function PricingPage() {
         </DialogActions>
       </Dialog>
 
-      <Dialog open={importOpen} onClose={() => setImportOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Import Pricing</DialogTitle>
-        <DialogContent>
-          <Stack spacing={2} sx={{ mt: 1 }}>
-            <Alert severity="info">
-              Expected columns: Zone Set Name, Zone Name, Duration, Tier, Price, Diesel Surcharge.
-            </Alert>
-            <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => showToast('File chooser coming soon', 'info')}>Choose file</Button>
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setImportOpen(false)}>Cancel</Button>
-          <Button variant="contained" onClick={() => setImportOpen(false)}>Import</Button>
-        </DialogActions>
-      </Dialog>
+      <ImportCsvDialog
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        entityName="pricing rules"
+        onImport={(count) => {
+          const newRows = Array.from({ length: count }, (_, i) => ({
+            id: `imported-${Date.now()}-${i}`,
+            name: `Imported Pricing ${i + 1}`,
+            permissionType: PERM_TYPES[i % PERM_TYPES.length],
+            subType: SUB_TYPES[i % SUB_TYPES.length],
+            duration: '1 months',
+            startDate: '2026-01-01',
+            endDate: '2026-12-31',
+            status: 'Draft' as const,
+            createdOn: new Date().toLocaleString('en-GB'),
+            createdByUser: 'import',
+            updatedOn: new Date().toLocaleString('en-GB'),
+            updatedByUser: 'import',
+          }));
+          setCurrentRows((prev) => [...prev, ...newRows]);
+        }}
+      />
+
+      <AddPricingDialog
+        open={addPricingOpen}
+        onClose={() => setAddPricingOpen(false)}
+        onSave={(p) => {
+          setCurrentRows((prev) => [...prev, {
+            id: p.id,
+            name: p.name,
+            permissionType: p.type,
+            subType: 'Standard',
+            duration: p.duration,
+            startDate: new Date().toLocaleDateString('en-CA'),
+            endDate: new Date().toLocaleDateString('en-CA'),
+            status: p.status === 'Active' ? 'Published' : 'Draft',
+            createdOn: new Date().toLocaleString('en-GB'),
+            createdByUser: 'admin.user',
+            updatedOn: new Date().toLocaleString('en-GB'),
+            updatedByUser: 'admin.user',
+          }]);
+          showToast('Pricing added', 'success');
+        }}
+      />
     </>
   );
 }

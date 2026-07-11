@@ -14,6 +14,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { PageHeader } from '../../shared/PageHeader';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { useToast } from '../../components/Toast';
+import { ImportCsvDialog } from '../../components/dialogs/ImportCsvDialog';
 
 type Bay = {
   id: string;
@@ -121,6 +122,7 @@ export function BayListPage() {
   const [panelMode, setPanelMode] = useState<'add' | 'edit' | 'view'>('add');
   const [selected, setSelected] = useState<Bay | null>(null);
   const [menuAnchor, setMenuAnchor] = useState<{ el: HTMLElement; row: Bay } | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
   const [deleting, setDeleting] = useState<Bay | null>(null);
 
   const filtered = useMemo(() => {
@@ -171,7 +173,7 @@ export function BayListPage() {
         actions={
           <Stack direction="row" spacing={1}>
             <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => showToast('Exporting…', 'info')}>Export</Button>
-            <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => showToast('Import dialog coming soon', 'info')}>Import</Button>
+            <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => setImportOpen(true)}>Import</Button>
             <Button variant="contained" startIcon={<AddIcon />}
               onClick={() => { setSelected(null); setPanelMode('add'); setPanelOpen(true); }}>
               Add Bay
@@ -216,6 +218,13 @@ export function BayListPage() {
           }}>Delete</Button>
         </DialogActions>
       </Dialog>
+
+      <ImportCsvDialog
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        entityName="bays"
+        onImport={() => {}}
+      />
     </>
   );
 }

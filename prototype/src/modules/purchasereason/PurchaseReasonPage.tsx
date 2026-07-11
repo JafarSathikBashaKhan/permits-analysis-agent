@@ -14,6 +14,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { PageHeader } from '../../shared/PageHeader';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { useToast } from '../../components/Toast';
+import { ImportCsvDialog } from '../../components/dialogs/ImportCsvDialog';
 
 const FIELD_TYPES = ['Text', 'Number', 'Single Select', 'Multi Select', 'Date', 'Checkbox', 'Radio'];
 
@@ -181,6 +182,7 @@ export function PurchaseReasonPage() {
   const [panelOpen, setPanelOpen] = useState(false);
   const [selected, setSelected] = useState<PurchaseReason | null>(null);
   const [deleting, setDeleting] = useState<PurchaseReason | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
 
   const filtered = useMemo(() => {
     const ql = q.trim().toLowerCase();
@@ -233,7 +235,7 @@ export function PurchaseReasonPage() {
         actions={
           <Stack direction="row" spacing={1}>
             <Button variant="text" startIcon={<DownloadIcon />} onClick={() => showToast('Exporting…', 'info')}>Export</Button>
-            <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => showToast('Import dialog coming soon', 'info')}>Import</Button>
+            <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => setImportOpen(true)}>Import</Button>
             <Button variant="contained" startIcon={<AddIcon />}
               onClick={() => { setSelected(null); setPanelOpen(true); }}>
               Add Purchase Reason
@@ -278,6 +280,13 @@ export function PurchaseReasonPage() {
           )}
         </DialogActions>
       </Dialog>
+
+      <ImportCsvDialog
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        entityName="purchase reasons"
+        onImport={() => {}}
+      />
     </>
   );
 }

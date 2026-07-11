@@ -7,6 +7,7 @@ import { useToast } from '../../components/Toast';
 import { PageHeader } from '../../shared/PageHeader';
 import { StatusChip } from '../../shared/StatusChip';
 import { applications } from '../../data/mock';
+import { ExtendDurationDialog } from '../../components/dialogs/ExtendDurationDialog';
 
 const TYPE_LABELS: Record<string, string> = {
   permit: 'Permit',
@@ -25,6 +26,7 @@ export function ApplicationsListPage() {
   const [status, setStatus] = useState('All');
   const [zone, setZone] = useState('All');
   const [assignee, setAssignee] = useState('All');
+  const [extendOpen, setExtendOpen] = useState(false);
 
   const zones = useMemo(() => Array.from(new Set(applications.map((a) => a.zone))), []);
   const assignees = useMemo(() => Array.from(new Set(applications.map((a) => a.assignedTo))), []);
@@ -59,7 +61,7 @@ export function ApplicationsListPage() {
           : 'Review, action and progress permit applications from all channels.'}
         actions={
           <Stack direction="row" spacing={1}>
-            <Button variant="outlined" startIcon={<EventRepeatOutlined />} onClick={() => showToast('Extend duration dialog coming soon', 'info')}>Extend Duration</Button>
+            <Button variant="outlined" startIcon={<EventRepeatOutlined />} onClick={() => setExtendOpen(true)}>Extend Duration</Button>
             <Button variant="outlined" startIcon={<FileUploadOutlined />} onClick={() => showToast('Exporting…', 'info')}>Export</Button>
             <Button variant="outlined" startIcon={<DownloadOutlined />} onClick={() => showToast('Downloading…', 'info')}>Download</Button>
             <Button variant="contained" startIcon={<Add />} onClick={() => showToast('Use Buy Now flow to create a new application', 'info')}>New application</Button>
@@ -88,6 +90,12 @@ export function ApplicationsListPage() {
           <DataGrid rows={rows} columns={cols} onRowClick={(p) => nav(`/applications/${p.id}`)} disableRowSelectionOnClick pageSizeOptions={[10, 25, 50]} initialState={{ pagination: { paginationModel: { pageSize: 10 } } }} checkboxSelection />
         </Box>
       </Paper>
+
+      <ExtendDurationDialog
+        open={extendOpen}
+        onClose={() => setExtendOpen(false)}
+        onSave={() => showToast('Duration extended', 'success')}
+      />
     </>
   );
 }
