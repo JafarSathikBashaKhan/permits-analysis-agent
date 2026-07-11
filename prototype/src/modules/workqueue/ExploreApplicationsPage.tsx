@@ -16,6 +16,7 @@ import CommuteOutlinedIcon from '@mui/icons-material/CommuteOutlined';
 import NoCrashOutlinedIcon from '@mui/icons-material/NoCrashOutlined';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '../../shared/PageHeader';
+import { usePersistentState } from '../../hooks/usePersistentState';
 
 type PermTile = {
   id: string;
@@ -64,7 +65,8 @@ export function ExploreApplicationsPage() {
   const [tab, setTab] = useState(0);
   const [search, setSearch] = useState('');
   const [group, setGroup] = useState('All');
-  const [favorites, setFavorites] = useState<Set<string>>(new Set(['PT-01', 'PT-03']));
+  const [favoritesArr, setFavoritesArr] = usePersistentState<string[]>('prototype:workqueue:explore:favorites', () => ['PT-01', 'PT-03']);
+  const favorites = useMemo(() => new Set(favoritesArr), [favoritesArr]);
   const [usedCount] = useState(2);
   const [limitOpen, setLimitOpen] = useState(false);
 
@@ -84,9 +86,7 @@ export function ExploreApplicationsPage() {
   const others = filtered.filter((t) => !favorites.has(t.id));
 
   const toggleFav = (id: string) => {
-    const next = new Set(favorites);
-    if (next.has(id)) next.delete(id); else next.add(id);
-    setFavorites(next);
+    setFavoritesArr((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   };
 
   const openTile = (tile: PermTile) => {

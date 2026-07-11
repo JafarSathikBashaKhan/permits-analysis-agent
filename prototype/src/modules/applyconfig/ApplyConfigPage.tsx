@@ -15,6 +15,7 @@ import UploadOutlined from '@mui/icons-material/UploadOutlined';
 import PreviewOutlined from '@mui/icons-material/PreviewOutlined';
 import { useToast } from '../../components/Toast';
 import { UploadImageDialog } from '../../components/dialogs/UploadImageDialog';
+import { usePersistentState } from '../../hooks/usePersistentState';
 
 type Tab = 'general' | 'portal' | 'permission-visibility' | 'payment' | 'security' | 'integrations';
 
@@ -27,32 +28,30 @@ const ALL_PERMISSIONS = [
 export function ApplyConfigPage() {
   const [tab, setTab] = useState<Tab>('general');
   const showToast = useToast();
-  const [portalOpen, setPortalOpen] = useState(true);
-  const [signupEnabled, setSignupEnabled] = useState(true);
+  const [portalOpen, setPortalOpen] = usePersistentState('prototype:apply-config:portalOpen', true);
+  const [signupEnabled, setSignupEnabled] = usePersistentState('prototype:apply-config:signupEnabled', true);
   const [uploadLogoOpen, setUploadLogoOpen] = useState(false);
   const [uploadFaviconOpen, setUploadFaviconOpen] = useState(false);
-  const [logoName, setLogoName] = useState<string | null>(null);
-  const [faviconName, setFaviconName] = useState<string | null>(null);
-  const [guestApply, setGuestApply] = useState(false);
-  const [autoRenew, setAutoRenew] = useState(true);
-  const [smsEnabled, setSmsEnabled] = useState(true);
-  const [dobRequired, setDobRequired] = useState(true);
-  const [redact, setRedact] = useState(true);
-  const [primaryColor, setPrimaryColor] = useState('#0D3E66');
-  const [portalUrl, setPortalUrl] = useState('https://apply.wokingham.gov.uk');
-  const [supportEmail, setSupportEmail] = useState('permits@wokingham.gov.uk');
-  const [contactPhone, setContactPhone] = useState('+44 118 974 6000');
-  const [maxTempVehicles, setMaxTempVehicles] = useState('3');
-  const [sessionTimeout, setSessionTimeout] = useState('20');
-  const [visible, setVisible] = useState<string[]>(ALL_PERMISSIONS.slice(0, 6));
-  const [savedToast, setSavedToast] = useState(false);
+  const [logoName, setLogoName] = usePersistentState<string | null>('prototype:apply-config:logoName', null);
+  const [faviconName, setFaviconName] = usePersistentState<string | null>('prototype:apply-config:faviconName', null);
+  const [guestApply, setGuestApply] = usePersistentState('prototype:apply-config:guestApply', false);
+  const [autoRenew, setAutoRenew] = usePersistentState('prototype:apply-config:autoRenew', true);
+  const [smsEnabled, setSmsEnabled] = usePersistentState('prototype:apply-config:smsEnabled', true);
+  const [dobRequired, setDobRequired] = usePersistentState('prototype:apply-config:dobRequired', true);
+  const [redact, setRedact] = usePersistentState('prototype:apply-config:redact', true);
+  const [primaryColor, setPrimaryColor] = usePersistentState('prototype:apply-config:primaryColor', '#0D3E66');
+  const [portalUrl, setPortalUrl] = usePersistentState('prototype:apply-config:portalUrl', 'https://apply.wokingham.gov.uk');
+  const [supportEmail, setSupportEmail] = usePersistentState('prototype:apply-config:supportEmail', 'permits@wokingham.gov.uk');
+  const [contactPhone, setContactPhone] = usePersistentState('prototype:apply-config:contactPhone', '+44 118 974 6000');
+  const [maxTempVehicles, setMaxTempVehicles] = usePersistentState('prototype:apply-config:maxTempVehicles', '3');
+  const [sessionTimeout, setSessionTimeout] = usePersistentState('prototype:apply-config:sessionTimeout', '20');
+  const [visible, setVisible] = usePersistentState<string[]>('prototype:apply-config:visible', () => ALL_PERMISSIONS.slice(0, 6));
 
   const toggleVisible = (name: string) =>
     setVisible((v) => v.includes(name) ? v.filter((x) => x !== name) : [...v, name]);
 
   const save = () => {
-    setSavedToast(true);
-    setTimeout(() => setSavedToast(false), 3000);
+    showToast('Apply config saved successfully', 'success');
   };
 
   return (
@@ -70,7 +69,7 @@ export function ApplyConfigPage() {
         }
       />
 
-      {savedToast && <Alert severity="success" sx={{ mb: 2 }}>Apply config saved successfully.</Alert>}
+      {/* savedToast removed — using showToast instead */}
 
       <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ borderBottom: '1px solid #E0E0E0', mb: 2 }} variant="scrollable">
         <Tab value="general" iconPosition="start" icon={<TuneOutlined fontSize="small" />} label="General" />

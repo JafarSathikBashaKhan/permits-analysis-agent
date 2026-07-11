@@ -1,11 +1,14 @@
 import { useMemo, useState } from 'react';
 import {
-  Box, Button, Chip, Drawer, IconButton, Stack, TextField, Typography, Alert, Divider,
+  Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle,
+  Drawer, IconButton, MenuItem, Stack, TextField, Typography, Divider, FormControlLabel, Checkbox,
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { PageHeader } from '../../shared/PageHeader';
+import { usePersistentState } from '../../hooks/usePersistentState';
+import { useToast } from '../../components/Toast';
 
 type EmailTemplate = {
   id: string;
@@ -70,9 +73,45 @@ const seed = (): EmailTemplate[] => [
 ];
 
 export function EmailsPage() {
-  const [rows] = useState<EmailTemplate[]>(seed());
+  const showToast = useToast();
+  const [rows, setRows] = usePersistentState<EmailTemplate[]>('prototype:templates:emails:rows', seed);
   const [search, setSearch] = useState('');
   const [target, setTarget] = useState<EmailTemplate | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
+
+  // Add template form state
+  const [newName, setNewName] = useState('');
+  const [newSubject, setNewSubject] = useState('');
+  const [newBody, setNewBody] = useState('');
+  const [newEvent, setNewEvent] = useState('Approved');
+  const [newPermType, setNewPermType] = useState('Resident Permit');
+  const [newDefault, setNewDefault] = useState(false);
+
+  const handleAddSave = () => {
+    if (!newName.trim() || !newSubject.trim()) {
+      showToast('Name and Subject are required', 'error');
+      return;
+    }
+    const now = new Date().toLocaleDateString('en-GB');
+    const newTemplate: EmailTemplate = {
+      id: `EM-${Date.now()}`,
+      templateName: newName.trim(),
+      permissionType: newPermType,
+      linkedEvents: [newEvent],
+      emailSubject: newSubject.trim(),
+      fromEmail: 'noreply@mnps.gov.uk',
+      bodyHtml: newBody || `<p>${newSubject}</p>`,
+      createdOn: now,
+      createdBy: 'You',
+      updatedOn: now,
+      updatedBy: 'You',
+    };
+    void newDefault;
+    setRows((prev) => [newTemplate, ...prev]);
+    showToast('Email template created successfully', 'success');
+    setAddOpen(false);
+    setNewName(''); setNewSubject(''); setNewBody(''); setNewEvent('Approved'); setNewPermType('Resident Permit'); setNewDefault(false);
+  };
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -113,11 +152,13 @@ export function EmailsPage() {
   return (
     <Box>
       <PageHeader eyebrow="Templates" title="Emails"
-        description="Read-only view of email templates linked to permission events." />
-
-      <Alert severity="info" icon={<InfoOutlinedIcon />} sx={{ mb: 2 }}>
-        To create or edit an email template, go to the <strong>MNPS Template creation screen</strong>. This module is view-only.
-      </Alert>
+        description="Email templates linked to permission events."
+        actions={
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => setAddOpen(true)}>
+            Add Template
+          </Button>
+        }
+      />
 
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 2 }}>
         <TextField size="small" placeholder="Search by Template Name, Permission Type"
@@ -191,6 +232,45 @@ export function EmailsPage() {
           </Stack>
         )}
       </Drawer>
+
+      <Dialog open={addOpen} onClose={() => setAddOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Add Email Template</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField label="Template Name" required fullWidth value={newName} onChange={(e) => setNewName(e.target.value)} />
+            <TextField
+              select label="Permission Type" fullWidth
+              value={newPermType} onChange={(e) => setNewPermType(e.target.value)}
+            >
+              {['Resident Permit','Business Permit','Visitor Permit','Blue Badge Permit','All'].map((p) => (
+                <MenuItem key={p} value={p}>{p}</MenuItem>
+              ))}
+            </TextField>
+            <TextField label="Email Subject" required fullWidth value={newSubject} onChange={(e) => setNewSubject(e.target.value)} />
+            <TextField
+              label="Body" multiline rows={4} fullWidth
+              value={newBody} onChange={(e) => setNewBody(e.target.value)}
+              placeholder="<p>Dear {{ApplicantName}},</p>"
+            />
+            <TextField
+              select label="Trigger Event" fullWidth
+              value={newEvent} onChange={(e) => setNewEvent(e.target.value)}
+            >
+              {['Approved','Rejected','Reminder','Renewal','Payment Failed','Custom'].map((ev) => (
+                <MenuItem key={ev} value={ev}>{ev}</MenuItem>
+              ))}
+            </TextField>
+            <FormControlLabel
+              control={<Checkbox checked={newDefault} onChange={(e) => setNewDefault(e.target.checked)} />}
+              label="Set as default template for this event"
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setAddOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleAddSave}>Create Template</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

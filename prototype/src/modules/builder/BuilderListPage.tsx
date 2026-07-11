@@ -9,8 +9,11 @@ import {
 } from '@mui/icons-material';
 import { useMemo, useState, MouseEvent } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { permissions } from '../../data/mock';
+import { permissions, Permission } from '../../data/mock';
 import { tokens } from '../../theme';
+import { usePersistentState } from '../../hooks/usePersistentState';
+
+export const BUILDER_ROWS_KEY = 'prototype:builder:list:rows';
 
 export function BuilderListPage() {
   const [q, setQ] = useState('');
@@ -18,11 +21,13 @@ export function BuilderListPage() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
-  const rows = useMemo(() => permissions.filter((p) => {
+  const [allRows, setAllRows] = usePersistentState<Permission[]>(BUILDER_ROWS_KEY, () => [...permissions]);
+
+  const rows = useMemo(() => allRows.filter((p) => {
     if (!q.trim()) return true;
     const s = q.toLowerCase();
     return p.name.toLowerCase().includes(s) || p.type.toLowerCase().includes(s) || p.group.toLowerCase().includes(s);
-  }), [q]);
+  }), [allRows, q]);
 
   const visible = rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   const allSelected = visible.length > 0 && visible.every((r) => selected.has(r.id));
@@ -105,6 +110,8 @@ export function BuilderListPage() {
                   row={p}
                   checked={selected.has(p.id)}
                   onToggle={() => toggleOne(p.id)}
+                  onDelete={() => setAllRows((prev) => prev.filter((r) => r.id !== p.id))}
+                  onTogglePublish={() => setAllRows((prev) => prev.map((r) => r.id === p.id ? { ...r, status: r.status === 'Draft' ? 'Published' : 'Draft' } : r))}
                 />
               ))}
               {visible.length === 0 && (
@@ -144,13 +151,14 @@ function HeadCell({ children, align }: { children: React.ReactNode; align?: 'lef
   );
 }
 
-function PermissionRow({ row, checked, onToggle }: {
-  row: typeof permissions[number]; checked: boolean; onToggle: () => void;
+function PermissionRow({ row, checked, onToggle, onDelete, onTogglePublish }: {
+  row: Permission; checked: boolean; onToggle: () => void;
+  onDelete: () => void; onTogglePublish: () => void;
 }) {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const scope = row.category === 'Visitor' || row.category === 'Scratch card' ? 'Non-Zonal' : 'Zonal';
-  const createdOn = '2025-09-14';
-  const createdBy = 'admin.user';
+  const createdOn = row.lastUpdated ?? '2025-09-14';
+  const createdBy = row.createdBy ?? 'admin.user';
 
   const openMenu = (e: MouseEvent<HTMLElement>) => setAnchor(e.currentTarget);
   const closeMenu = () => setAnchor(null);
@@ -188,10 +196,10 @@ function PermissionRow({ row, checked, onToggle }: {
       <TableCell align="right">
         <IconButton size="small" onClick={openMenu}><MoreVertOutlined /></IconButton>
         <Menu anchorEl={anchor} open={!!anchor} onClose={closeMenu}>
-          <MenuItem onClick={closeMenu}><VisibilityOutlined fontSize="small" style={{ marginRight: 8 }} />Open</MenuItem>
+          <MenuItem component={RouterLink} to={`/builder/${row.id}`} onClick={closeMenu}><VisibilityOutlined fontSize="small" style={{ marginRight: 8 }} />Open</MenuItem>
           <MenuItem onClick={closeMenu}><ContentCopyOutlined fontSize="small" style={{ marginRight: 8 }} />Clone</MenuItem>
-          <MenuItem onClick={closeMenu}><PublishedWithChangesOutlined fontSize="small" style={{ marginRight: 8 }} />{row.status === 'Draft' ? 'Publish' : 'Unpublish'}</MenuItem>
-          <MenuItem onClick={closeMenu} sx={{ color: '#C62828' }}><DeleteOutline fontSize="small" style={{ marginRight: 8 }} />Delete</MenuItem>
+          <MenuItem onClick={() => { onTogglePublish(); closeMenu(); }}><PublishedWithChangesOutlined fontSize="small" style={{ marginRight: 8 }} />{row.status === 'Draft' ? 'Publish' : 'Unpublish'}</MenuItem>
+          <MenuItem onClick={() => { onDelete(); closeMenu(); }} sx={{ color: '#C62828' }}><DeleteOutline fontSize="small" style={{ marginRight: 8 }} />Delete</MenuItem>
         </Menu>
       </TableCell>
     </TableRow>

@@ -7,6 +7,7 @@ import {
 } from '@mui/icons-material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useMemo, useState } from 'react';
+import { usePersistentState } from '../../hooks/usePersistentState';
 import { PageHeader } from '../../shared/PageHeader';
 import { StatusChip } from '../../shared/StatusChip';
 import { tokens } from '../../theme';
@@ -44,6 +45,7 @@ const APPLICANTS: Applicant[] = Array.from({ length: 40 }).map((_, i) => ({
 
 export function ApplicantsPage() {
   const showToast = useToast();
+  const [allRows, setAllRows] = usePersistentState<Applicant[]>('prototype:users:applicants:rows', () => [...APPLICANTS]);
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('All');
   const [addOpen, setAddOpen] = useState(false);
@@ -52,10 +54,10 @@ export function ApplicantsPage() {
   const [broadcastEmailOpen, setBroadcastEmailOpen] = useState(false);
   const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
 
-  const rows = useMemo(() => APPLICANTS.filter((a) =>
+  const rows = useMemo(() => allRows.filter((a) =>
     (status === 'All' || a.status === status) &&
     (q === '' || `${a.firstName} ${a.lastName}`.toLowerCase().includes(q.toLowerCase()) || a.email.toLowerCase().includes(q.toLowerCase()) || a.contact.includes(q))
-  ), [q, status]);
+  ), [allRows, q, status]);
 
   const cols: GridColDef[] = [
     { field: 'firstName', headerName: 'First Name', flex: 1, minWidth: 140 },
@@ -156,7 +158,13 @@ export function ApplicantsPage() {
 
       {/* Add Applicant Drawer */}
       <Drawer anchor="right" open={addOpen} onClose={() => setAddOpen(false)} PaperProps={{ sx: { width: { xs:'100%', sm: 560, md: 640 } } }}>
-        <AddApplicantDrawer onClose={() => setAddOpen(false)} />
+        <AddApplicantDrawer
+          onClose={() => setAddOpen(false)}
+          onSave={(a) => {
+            setAllRows((prev) => [{ ...a, id: `AP-${Date.now()}` }, ...prev]);
+            showToast('Applicant created successfully', 'success');
+          }}
+        />
       </Drawer>
 
       <ComposeEmailDialog
@@ -345,9 +353,25 @@ function AuditPane() {
 
 /* -------- Add Applicant Drawer -------- */
 
-function AddApplicantDrawer({ onClose }: { onClose: () => void }) {
+function AddApplicantDrawer({ onClose, onSave }: { onClose: () => void; onSave: (a: Omit<Applicant, 'id'>) => void }) {
   const showToast = useToast();
   const [experian, setExperian] = useState(false);
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [contact, setContact] = useState('');
+  const [dob, setDob] = useState('');
+  const [blueBadge, setBlueBadge] = useState(false);
+
+  const handleSave = () => {
+    if (!firstName.trim() || !lastName.trim() || !email.trim()) {
+      showToast('First Name, Last Name and Email are required', 'error');
+      return;
+    }
+    onSave({ firstName, lastName, email, contact, dob, status: 'Active', blueBadge });
+    onClose();
+  };
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <Box sx={{ px: 3, py: 2, borderBottom: `1px solid ${tokens.LINE}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -367,15 +391,25 @@ function AddApplicantDrawer({ onClose }: { onClose: () => void }) {
               {['Mr','Mrs','Miss','Ms','Dr'].map((t) => <MenuItem key={t} value={t}>{t}</MenuItem>)}
             </TextField>
           </FormItem>
-          <FormItem label="First Name" required><TextField placeholder="Enter First Name" fullWidth /></FormItem>
-          <FormItem label="Last Name" required><TextField placeholder="Enter Last Name" fullWidth /></FormItem>
+          <FormItem label="First Name" required>
+            <TextField placeholder="Enter First Name" fullWidth value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+          </FormItem>
+          <FormItem label="Last Name" required>
+            <TextField placeholder="Enter Last Name" fullWidth value={lastName} onChange={(e) => setLastName(e.target.value)} />
+          </FormItem>
           <FormItem label="User Name" required><TextField placeholder="Enter User Name" fullWidth /></FormItem>
-          <FormItem label="Email" required><TextField type="email" placeholder="Enter Email" fullWidth /></FormItem>
-          <FormItem label="Contact Number"><TextField placeholder="+44 7700 900 000" fullWidth /></FormItem>
-          <FormItem label="Date of Birth"><TextField type="date" InputLabelProps={{ shrink: true }} fullWidth /></FormItem>
+          <FormItem label="Email" required>
+            <TextField type="email" placeholder="Enter Email" fullWidth value={email} onChange={(e) => setEmail(e.target.value)} />
+          </FormItem>
+          <FormItem label="Contact Number">
+            <TextField placeholder="+44 7700 900 000" fullWidth value={contact} onChange={(e) => setContact(e.target.value)} />
+          </FormItem>
+          <FormItem label="Date of Birth">
+            <TextField type="date" InputLabelProps={{ shrink: true }} fullWidth value={dob} onChange={(e) => setDob(e.target.value)} />
+          </FormItem>
           <FormItem label="Correspondence address" full><TextField placeholder="Enter address" fullWidth multiline minRows={2} /></FormItem>
           <FormItem label="Blue Badge" full>
-            <FormControlLabel control={<Switch />} label="Applicant holds a Blue Badge" />
+            <FormControlLabel control={<Switch checked={blueBadge} onChange={(e) => setBlueBadge(e.target.checked)} />} label="Applicant holds a Blue Badge" />
           </FormItem>
           <FormItem label="Experian check" full>
             <FormControlLabel control={<Switch checked={experian} onChange={(e) => setExperian(e.target.checked)} />} label="Run Experian address & identity check on save" />
@@ -384,7 +418,7 @@ function AddApplicantDrawer({ onClose }: { onClose: () => void }) {
       </Box>
       <Box sx={{ px: 3, py: 2, borderTop: `1px solid ${tokens.LINE}`, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" onClick={() => { showToast('Applicant created successfully', 'success'); onClose(); }}>Add Applicant</Button>
+        <Button variant="contained" onClick={handleSave}>Add Applicant</Button>
       </Box>
     </Box>
   );

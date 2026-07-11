@@ -2,7 +2,7 @@ import {
   Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle,
   FormControlLabel, MenuItem, Stack, TextField,
 } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export type VehiclePayload = {
   id: string;
@@ -23,12 +23,13 @@ type Props = {
   onSave: (vehicle: VehiclePayload) => void;
   title?: string;
   defaultTemporary?: boolean;
+  initial?: Partial<Pick<VehiclePayload, 'vrm' | 'make' | 'model' | 'colour' | 'fuelType' | 'vehicleType' | 'temporary' | 'validUntil'>>;
 };
 
 const FUEL_TYPES = ['Petrol', 'Diesel', 'Electric', 'Hybrid', 'LPG'];
 const VEHICLE_TYPES = ['Car', 'Van', 'Motorcycle', 'HGV'];
 
-export function AddVehicleDialog({ open, onClose, onSave, title = 'Add Vehicle', defaultTemporary = false }: Props) {
+export function AddVehicleDialog({ open, onClose, onSave, title = 'Add Vehicle', defaultTemporary = false, initial }: Props) {
   const [vrm, setVrm] = useState('');
   const [make, setMake] = useState('');
   const [model, setModel] = useState('');
@@ -37,6 +38,23 @@ export function AddVehicleDialog({ open, onClose, onSave, title = 'Add Vehicle',
   const [vehicleType, setVehicleType] = useState('');
   const [temporary, setTemporary] = useState(defaultTemporary);
   const [validUntil, setValidUntil] = useState('');
+
+  useEffect(() => {
+    if (open && initial) {
+      setVrm(initial.vrm ?? '');
+      setMake(initial.make ?? '');
+      setModel(initial.model ?? '');
+      setColour(initial.colour ?? '');
+      setFuelType(initial.fuelType ?? '');
+      setVehicleType(initial.vehicleType ?? '');
+      setTemporary(initial.temporary ?? defaultTemporary);
+      setValidUntil(initial.validUntil ?? '');
+    } else if (open && !initial) {
+      setVrm(''); setMake(''); setModel(''); setColour('');
+      setFuelType(''); setVehicleType('');
+      setTemporary(defaultTemporary); setValidUntil('');
+    }
+  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const reset = () => {
     setVrm(''); setMake(''); setModel(''); setColour('');

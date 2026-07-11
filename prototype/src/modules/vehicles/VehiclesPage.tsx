@@ -95,6 +95,7 @@ export function VehiclesPage() {
   const [statusFilter, setStatusFilter] = useState<'All' | Status>('All');
   const [selected, setSelected] = useState<Vehicle | null>(null);
   const [addVehicleOpen, setAddVehicleOpen] = useState(false);
+  const [editVehicle, setEditVehicle] = useState<Vehicle | null>(null);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -233,7 +234,7 @@ export function VehiclesPage() {
             ))}
             <Divider sx={{ my: 2 }} />
             <Stack direction="row" spacing={1}>
-              <Button variant="outlined" fullWidth onClick={() => showToast('Edit form coming soon', 'info')}>Edit</Button>
+              <Button variant="outlined" fullWidth onClick={() => { setEditVehicle(selected); setSelected(null); }}>Edit</Button>
               <Button variant="contained" fullWidth onClick={() => showToast('Open Application — coming soon', 'info')}>Open Application</Button>
             </Stack>
           </Box>
@@ -261,6 +262,34 @@ export function VehiclesPage() {
             autoguruVerified: false,
           }]);
           showToast('Vehicle added', 'success');
+        }}
+      />
+
+      <AddVehicleDialog
+        open={!!editVehicle}
+        title="Edit Vehicle"
+        initial={editVehicle ? {
+          vrm: editVehicle.vrm,
+          make: editVehicle.make,
+          model: editVehicle.model,
+          colour: editVehicle.colour,
+          fuelType: editVehicle.fuel,
+          vehicleType: 'Car',
+          temporary: editVehicle.status === 'Temporary',
+        } : undefined}
+        onClose={() => setEditVehicle(null)}
+        onSave={(v) => {
+          setRows((prev) => prev.map((r) => r.id === editVehicle?.id ? {
+            ...r,
+            vrm: v.vrm,
+            make: v.make,
+            model: v.model,
+            colour: v.colour,
+            fuel: v.fuelType as FuelType,
+            status: v.temporary ? 'Temporary' : r.status === 'Temporary' ? 'Active' : r.status,
+          } : r));
+          showToast('Vehicle updated', 'success');
+          setEditVehicle(null);
         }}
       />
     </Box>

@@ -1,4 +1,4 @@
-import { Box, Button, InputAdornment, MenuItem, Paper, Stack, TextField } from '@mui/material';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, MenuItem, Paper, Stack, TextField } from '@mui/material';
 import { Add, Search, DownloadOutlined, FileUploadOutlined, EventRepeatOutlined } from '@mui/icons-material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useMemo, useState } from 'react';
@@ -6,8 +6,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '../../components/Toast';
 import { PageHeader } from '../../shared/PageHeader';
 import { StatusChip } from '../../shared/StatusChip';
-import { applications } from '../../data/mock';
+import { applications, Application } from '../../data/mock';
 import { ExtendDurationDialog } from '../../components/dialogs/ExtendDurationDialog';
+import { usePersistentState } from '../../hooks/usePersistentState';
 
 const TYPE_LABELS: Record<string, string> = {
   permit: 'Permit',
@@ -27,17 +28,49 @@ export function ApplicationsListPage() {
   const [zone, setZone] = useState('All');
   const [assignee, setAssignee] = useState('All');
   const [extendOpen, setExtendOpen] = useState(false);
+  const [newAppOpen, setNewAppOpen] = useState(false);
 
-  const zones = useMemo(() => Array.from(new Set(applications.map((a) => a.zone))), []);
-  const assignees = useMemo(() => Array.from(new Set(applications.map((a) => a.assignedTo))), []);
+  const [allRows, setAllRows] = usePersistentState<Application[]>('prototype:applications:rows', () => [...applications]);
 
-  const rows = useMemo(() => applications.filter((a) =>
+  // New application form state
+  const [newApplicant, setNewApplicant] = useState('');
+  const [newPermType, setNewPermType] = useState('Resident Permit');
+  const [newVrm, setNewVrm] = useState('');
+  const [newZone, setNewZone] = useState('Z01 City Centre');
+
+  const FIXED_ZONES = ['Z01 City Centre', 'Z02 Northgate', 'Z03 Southbank', 'Z04 Riverside', 'Z05 Kingsway'];
+
+  const handleCreateApp = () => {
+    if (!newApplicant.trim()) { showToast('Applicant name is required', 'error'); return; }
+    const id = `A-${Date.now()}`;
+    const newApp: Application = {
+      id,
+      ref: `AP-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`,
+      applicant: newApplicant.trim(),
+      permission: newPermType,
+      type: 'Permit',
+      submitted: new Date().toISOString().slice(0, 10),
+      status: 'Pending Approval',
+      amount: 0,
+      zone: newZone,
+      assignedTo: 'Unassigned',
+    };
+    setAllRows((prev) => [newApp, ...prev]);
+    showToast('Application created successfully', 'success');
+    setNewAppOpen(false);
+    setNewApplicant(''); setNewVrm('');
+  };
+
+  const zones = useMemo(() => Array.from(new Set(allRows.map((a) => a.zone))), [allRows]);
+  const assignees = useMemo(() => Array.from(new Set(allRows.map((a) => a.assignedTo))), [allRows]);
+
+  const rows = useMemo(() => allRows.filter((a) =>
     (!typeLabel || a.type === typeLabel) &&
     (status === 'All' || a.status === status) &&
     (zone === 'All' || a.zone === zone) &&
     (assignee === 'All' || a.assignedTo === assignee) &&
     (q === '' || a.ref.toLowerCase().includes(q.toLowerCase()) || a.applicant.toLowerCase().includes(q.toLowerCase()))
-  ), [q, status, zone, assignee, typeLabel]);
+  ), [allRows, q, status, zone, assignee, typeLabel]);
 
   const cols: GridColDef[] = [
     { field: 'ref',        headerName: 'Reference',   width: 150 },
@@ -64,7 +97,7 @@ export function ApplicationsListPage() {
             <Button variant="outlined" startIcon={<EventRepeatOutlined />} onClick={() => setExtendOpen(true)}>Extend Duration</Button>
             <Button variant="outlined" startIcon={<FileUploadOutlined />} onClick={() => showToast('Exporting…', 'info')}>Export</Button>
             <Button variant="outlined" startIcon={<DownloadOutlined />} onClick={() => showToast('Downloading…', 'info')}>Download</Button>
-            <Button variant="contained" startIcon={<Add />} onClick={() => showToast('Use Buy Now flow to create a new application', 'info')}>New application</Button>
+            <Button variant="contained" startIcon={<Add />} onClick={() => setNewAppOpen(true)}>New application</Button>
           </Stack>
         }
       />
@@ -96,6 +129,44 @@ export function ApplicationsListPage() {
         onClose={() => setExtendOpen(false)}
         onSave={() => showToast('Duration extended', 'success')}
       />
+
+      <Dialog open={newAppOpen} onClose={() => setNewAppOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>New Application</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField
+              label="Applicant Name" required fullWidth
+              value={newApplicant} onChange={(e) => setNewApplicant(e.target.value)}
+              placeholder="Full name of applicant"
+            />
+            <TextField
+              select label="Permission Type" fullWidth
+              value={newPermType} onChange={(e) => setNewPermType(e.target.value)}
+            >
+              {['Resident Permit','Business Permit','Visitor Permit','Blue Badge Permit','Bay Suspension'].map((p) => (
+                <MenuItem key={p} value={p}>{p}</MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              label="Vehicle VRM" fullWidth
+              value={newVrm} onChange={(e) => setNewVrm(e.target.value.toUpperCase())}
+              placeholder="e.g. AB19 XYZ"
+              inputProps={{ style: { textTransform: 'uppercase', fontFamily: 'monospace' } }}
+            />
+            <TextField
+              select label="Zone" fullWidth
+              value={newZone} onChange={(e) => setNewZone(e.target.value)}
+            >
+              {FIXED_ZONES.map((z) => <MenuItem key={z} value={z}>{z}</MenuItem>)}
+            </TextField>
+            <TextField label="Status" fullWidth value="Pending Approval" disabled />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setNewAppOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleCreateApp}>Create Application</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }

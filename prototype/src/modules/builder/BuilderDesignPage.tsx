@@ -8,7 +8,7 @@ import {
 import { useMemo, useState, MouseEvent } from 'react';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useToast } from '../../components/Toast';
-import { permissions, permissionTypes, groupsByType, categories } from '../../data/mock';
+import { permissions, permissionTypes, groupsByType, categories, Permission } from '../../data/mock';
 import { tokens } from '../../theme';
 import { ApplicationFormTab } from './tabs/ApplicationFormTab';
 import { PricingTab } from './tabs/PricingTab';
@@ -18,6 +18,8 @@ import {
   DocumentTypeSettingsSection, MerchantSettingsSection, RenewalsAndRemindersSection,
   EmailTemplatesSection, VisitorPortalSettingsSection,
 } from './tabs/PermissionSubSections';
+import { usePersistentState } from '../../hooks/usePersistentState';
+import { BUILDER_ROWS_KEY } from './BuilderListPage';
 
 type TopTab = 'permissions' | 'rules' | 'pricing' | 'application-form';
 
@@ -41,7 +43,8 @@ export function BuilderDesignPage() {
   const nav = useNavigate();
   const showToast = useToast();
   const isNew = id === 'new';
-  const perm = useMemo(() => permissions.find((p) => p.id === id), [id]);
+  const [builderRows, setBuilderRows] = usePersistentState<Permission[]>(BUILDER_ROWS_KEY, () => [...permissions]);
+  const perm = useMemo(() => builderRows.find((p) => p.id === id), [builderRows, id]);
   const displayName = isNew ? 'New permission' : (perm?.name ?? 'Permission');
 
   const [topTab, setTopTab] = useState<TopTab>('permissions');
@@ -109,7 +112,30 @@ export function BuilderDesignPage() {
           <Button
             variant="outlined"
             startIcon={<SaveOutlined />}
-            onClick={() => showToast('Draft saved', 'success')}
+            onClick={() => {
+              const newId = isNew ? `P-${Date.now()}` : (id ?? `P-${Date.now()}`);
+              const entry: Permission = {
+                id: newId,
+                name: name || 'Untitled',
+                type: (type || 'Resident') as Permission['type'],
+                group: group || 'General',
+                category: (category || 'Resident') as Permission['category'],
+                status: 'Draft',
+                prefix: '',
+                price: 0,
+                version: 1,
+                lastUpdated: new Date().toISOString().slice(0, 10),
+                createdBy: 'You',
+                zones: 0,
+                documents: 0,
+              };
+              setBuilderRows((prev) => {
+                const exists = prev.some((r) => r.id === newId);
+                return exists ? prev.map((r) => r.id === newId ? { ...r, name: entry.name, type: entry.type, group: entry.group, category: entry.category, status: 'Draft', lastUpdated: entry.lastUpdated } : r) : [entry, ...prev];
+              });
+              showToast('Draft saved', 'success');
+              if (isNew) nav(`/builder/${newId}`);
+            }}
             sx={{ fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}
           >
             Save Draft
@@ -117,7 +143,30 @@ export function BuilderDesignPage() {
           <Button
             variant="contained"
             startIcon={<UploadOutlined />}
-            onClick={() => showToast('Permission published', 'success')}
+            onClick={() => {
+              const newId = isNew ? `P-${Date.now()}` : (id ?? `P-${Date.now()}`);
+              const entry: Permission = {
+                id: newId,
+                name: name || 'Untitled',
+                type: (type || 'Resident') as Permission['type'],
+                group: group || 'General',
+                category: (category || 'Resident') as Permission['category'],
+                status: 'Published',
+                prefix: '',
+                price: 0,
+                version: 1,
+                lastUpdated: new Date().toISOString().slice(0, 10),
+                createdBy: 'You',
+                zones: 0,
+                documents: 0,
+              };
+              setBuilderRows((prev) => {
+                const exists = prev.some((r) => r.id === newId);
+                return exists ? prev.map((r) => r.id === newId ? { ...r, name: entry.name, type: entry.type, group: entry.group, category: entry.category, status: 'Published', lastUpdated: entry.lastUpdated } : r) : [entry, ...prev];
+              });
+              showToast('Permission published', 'success');
+              if (isNew) nav(`/builder/${newId}`);
+            }}
             sx={{ fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}
           >
             Publish
