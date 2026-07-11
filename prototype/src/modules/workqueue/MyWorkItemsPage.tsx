@@ -157,6 +157,97 @@ export function MyWorkItemsPage() {
     setSelection([]);
     showToast(`${ids.length} work item(s) rejected`, 'success');
   };
+  
+  const bulkBeginReview = () => {
+    const ids = selection.map(String);
+    setRows(rows.map((r) => ids.includes(r.id) ? { ...r, workQueueStatus: 'In Progress' } : r));
+    setSelection([]);
+    showToast(`${ids.length} work item(s) moved to In Progress`, 'success');
+  };
+  
+  const bulkUnderReview = () => {
+    const ids = selection.map(String);
+    setRows(rows.map((r) => ids.includes(r.id) ? { ...r, workQueueStatus: 'Under Review' } : r));
+    setSelection([]);
+    showToast(`${ids.length} work item(s) moved to Under Review`, 'success');
+  };
+  
+  const bulkActivate = () => {
+    const ids = selection.map(String);
+    setRows(rows.map((r) => ids.includes(r.id) ? { ...r, workQueueStatus: 'Active' } : r));
+    setSelection([]);
+    showToast(`${ids.length} work item(s) activated`, 'success');
+  };
+  
+  const bulkSuspend = () => {
+    const ids = selection.map(String);
+    setRows(rows.map((r) => ids.includes(r.id) ? { ...r, workQueueStatus: 'Suspended' } : r));
+    setSelection([]);
+    showToast(`${ids.length} work item(s) suspended`, 'success');
+  };
+  
+  const bulkResume = () => {
+    const ids = selection.map(String);
+    setRows(rows.map((r) => ids.includes(r.id) ? { ...r, workQueueStatus: 'Active' } : r));
+    setSelection([]);
+    showToast(`${ids.length} work item(s) resumed to Active`, 'success');
+  };
+  
+  const bulkOnHold = () => {
+    const ids = selection.map(String);
+    setRows(rows.map((r) => ids.includes(r.id) ? { ...r, workQueueStatus: 'On Hold' } : r));
+    setSelection([]);
+    showToast(`${ids.length} work item(s) put on hold`, 'success');
+  };
+  
+  const bulkOffHold = () => {
+    const ids = selection.map(String);
+    setRows(rows.map((r) => ids.includes(r.id) ? { ...r, workQueueStatus: 'In Progress' } : r));
+    setSelection([]);
+    showToast(`${ids.length} work item(s) taken off hold`, 'success');
+  };
+  
+  const bulkCancel = () => {
+    const ids = selection.map(String);
+    setRows(rows.map((r) => ids.includes(r.id) ? { ...r, workQueueStatus: 'Cancelled' } : r));
+    setSelection([]);
+    showToast(`${ids.length} work item(s) cancelled`, 'success');
+  };
+  
+  const bulkMarkExpired = () => {
+    const ids = selection.map(String);
+    setRows(rows.map((r) => ids.includes(r.id) ? { ...r, workQueueStatus: 'Expired' } : r));
+    setSelection([]);
+    showToast(`${ids.length} work item(s) marked as expired`, 'success');
+  };
+  
+  const bulkClose = () => {
+    const ids = selection.map(String);
+    setRows(rows.map((r) => ids.includes(r.id) ? { ...r, workQueueStatus: 'Closed' } : r));
+    setSelection([]);
+    showToast(`${ids.length} work item(s) closed`, 'success');
+  };
+  
+  const bulkMarkNFI = () => {
+    const ids = selection.map(String);
+    setRows(rows.map((r) => ids.includes(r.id) ? { ...r, workQueueStatus: 'NFI' } : r));
+    setSelection([]);
+    showToast(`${ids.length} work item(s) marked as NFI (No Further Info)`, 'success');
+  };
+  
+  const bulkRequestPayment = () => {
+    const ids = selection.map(String);
+    setRows(rows.map((r) => ids.includes(r.id) ? { ...r, workQueueStatus: 'Awaiting Payment' } : r));
+    setSelection([]);
+    showToast(`${ids.length} work item(s) awaiting payment`, 'success');
+  };
+  
+  const bulkPaymentFailed = () => {
+    const ids = selection.map(String);
+    setRows(rows.map((r) => ids.includes(r.id) ? { ...r, workQueueStatus: 'Payment Failed' } : r));
+    setSelection([]);
+    showToast(`${ids.length} work item(s) marked as payment failed`, 'success');
+  };
 
   const bulkDelete = () => {
     const ids = new Set(selection.map(String));
@@ -235,18 +326,34 @@ export function MyWorkItemsPage() {
             <>
               <Typography variant="body2" color="text.secondary">{selection.length} Row(s) Selected</Typography>
               {bucket === 'unassigned' && (
-                <Button variant="outlined" startIcon={<PersonAddAltIcon />}
-                  onClick={() => openAssign(selection as string[])}>Assign</Button>
+                <>
+                  <Button variant="outlined" startIcon={<PersonAddAltIcon />}
+                    onClick={() => openAssign(selection as string[])}>Assign</Button>
+                  <Button size="small" variant="outlined" onClick={bulkBeginReview}>Begin Review</Button>
+                </>
               )}
               {bucket === 'assigned' && (
                 <>
-                  <Button variant="outlined" onClick={bulkApprove}>Approve</Button>
-                  <Button variant="outlined" color="warning" onClick={bulkReject}>Reject</Button>
-                  <Button variant="outlined" color="secondary"
+                  <Button size="small" variant="outlined" onClick={bulkBeginReview}>Begin Review</Button>
+                  <Button size="small" variant="outlined" onClick={bulkUnderReview}>Under Review</Button>
+                  <Button size="small" variant="outlined" color="success" onClick={bulkApprove}>Approve</Button>
+                  <Button size="small" variant="outlined" color="warning" onClick={bulkReject}>Reject</Button>
+                  <Button size="small" variant="outlined" onClick={bulkActivate}>Activate</Button>
+                  <Button size="small" variant="outlined" color="warning" onClick={bulkSuspend}>Suspend</Button>
+                  <Button size="small" variant="outlined" onClick={bulkResume}>Resume</Button>
+                  <Button size="small" variant="outlined" onClick={bulkOnHold}>On Hold</Button>
+                  <Button size="small" variant="outlined" onClick={bulkOffHold}>Off Hold</Button>
+                  <Button size="small" variant="outlined" onClick={bulkMarkNFI}>Mark NFI</Button>
+                  <Button size="small" variant="outlined" onClick={bulkRequestPayment}>Await Payment</Button>
+                  <Button size="small" variant="outlined" color="error" onClick={bulkPaymentFailed}>Payment Failed</Button>
+                  <Button size="small" variant="outlined" onClick={bulkCancel}>Cancel</Button>
+                  <Button size="small" variant="outlined" onClick={bulkMarkExpired}>Mark Expired</Button>
+                  <Button size="small" variant="outlined" onClick={bulkClose}>Close</Button>
+                  <Button size="small" variant="outlined" color="secondary"
                     onClick={() => doUnassign(selection as string[])}>Unassign</Button>
-                  <Button variant="outlined"
+                  <Button size="small" variant="outlined"
                     onClick={() => openReassign(selection as string[])}>Re Assign</Button>
-                  <Button variant="outlined" color="error" onClick={bulkDelete}>Delete</Button>
+                  <Button size="small" variant="outlined" color="error" onClick={bulkDelete}>Delete</Button>
                 </>
               )}
             </>

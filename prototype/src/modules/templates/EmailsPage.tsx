@@ -18,57 +18,103 @@ type EmailTemplate = {
   emailSubject: string;
   fromEmail: string;
   bodyHtml: string;
+  isDefault: boolean;
   createdOn: string;
   createdBy: string;
   updatedOn: string;
   updatedBy: string;
 };
 
+const MERGE_FIELDS = [
+  '{{ApplicantName}}', '{{PermitReference}}', '{{ExpiryDate}}', '{{StartDate}}',
+  '{{Zone}}', '{{Amount}}', '{{VehicleReg}}', '{{RejectionReason}}', '{{EndDate}}',
+];
+
+const LINKED_EVENTS = [
+  'Reject The Application', 'Submit Application', 'Request Support Evidence',
+  'Cancel', 'Suspend', 'Activate', 'Approve', 'Expiration Reminder',
+  'Waiting for pay online by card', 'Insufficient funds for a pay',
+  'Automatic Card Payment Failed', 'Waiting for pay cash', 'Reject Permit Changes',
+  'VisitorDetails', 'Successful refund', 'Refund fail', 'Permit expired',
+  'Approve Address Changes', 'Approve VRN Changes', 'Due To Be Closed - Non payment',
+  'Due to be closed  - No documents received', 'Confirmation Link', 'Reset Link',
+  'Reset Password', 'Visitor voucher activation (Applicant)',
+  'Visitor voucher activation (Visitor)', 'Visitor voucher expire (Visitor)',
+  'Payment card expiration', 'Submit Renewal', 'Forgotten UserName',
+  'Submit Change of Vehicle', 'Visitor Permit Activation Email',
+  'Application Form Email', 'Address Challenge Approved', 'Change Zone',
+  'Change Address Challenge Approved', 'Pre-Approval Link',
+  'Pre-Approval Submission', 'Temporary Vehicle Added', 'Temporary Vehicle removed',
+  'White Mail Reminder',
+];
+
+const SENDER_EMAILS = [
+  'noreply@mnps.gov.uk',
+  'support@mnps.gov.uk',
+  'permits@mnps.gov.uk',
+  'admin@mnps.gov.uk',
+];
+
 const seed = (): EmailTemplate[] => [
   {
     id: 'EM-001', templateName: 'Application Received', permissionType: 'Resident Permit',
-    linkedEvents: ['Application Submitted'],
+    linkedEvents: ['Submit Application'],
     emailSubject: 'Your resident permit application has been received',
     fromEmail: 'noreply@mnps.gov.uk',
     bodyHtml: '<p>Dear {{ApplicantName}},</p><p>We have received your application for a Resident Permit ({{PermitReference}})...</p>',
+    isDefault: true,
     createdOn: '02/01/2024', createdBy: 'System Admin',
     updatedOn: '02/01/2024', updatedBy: 'System Admin',
   },
   {
     id: 'EM-002', templateName: 'Application Approved', permissionType: 'Resident Permit',
-    linkedEvents: ['Application Approved', 'Permit Issued'],
+    linkedEvents: ['Approve'],
     emailSubject: 'Your permit has been approved',
     fromEmail: 'noreply@mnps.gov.uk',
     bodyHtml: '<p>Dear {{ApplicantName}},</p><p>Good news — your permit is now active from {{StartDate}} to {{EndDate}}.</p>',
+    isDefault: true,
     createdOn: '02/01/2024', createdBy: 'System Admin',
     updatedOn: '10/03/2024', updatedBy: 'Sarah Johnson',
   },
   {
     id: 'EM-003', templateName: 'Application Rejected', permissionType: 'Business Permit',
-    linkedEvents: ['Application Rejected'],
+    linkedEvents: ['Reject The Application'],
     emailSubject: 'Update on your permit application',
     fromEmail: 'noreply@mnps.gov.uk',
     bodyHtml: '<p>Dear {{ApplicantName}},</p><p>Unfortunately your application has not been approved. Reason: {{RejectionReason}}.</p>',
+    isDefault: true,
     createdOn: '15/01/2024', createdBy: 'System Admin',
     updatedOn: '15/01/2024', updatedBy: 'System Admin',
   },
   {
     id: 'EM-004', templateName: 'Payment Failed', permissionType: 'Visitor Permit',
-    linkedEvents: ['Payment Failed'],
+    linkedEvents: ['Automatic Card Payment Failed'],
     emailSubject: 'Payment for your permit could not be processed',
     fromEmail: 'noreply@mnps.gov.uk',
     bodyHtml: '<p>Dear {{ApplicantName}},</p><p>We were unable to process your payment. Please try again from your account.</p>',
+    isDefault: false,
     createdOn: '20/02/2024', createdBy: 'Mark Peters',
     updatedOn: '20/02/2024', updatedBy: 'Mark Peters',
   },
   {
     id: 'EM-005', templateName: 'Renewal Reminder', permissionType: 'Resident Permit',
-    linkedEvents: ['30 Days Before Expiry'],
+    linkedEvents: ['Expiration Reminder'],
     emailSubject: 'Your permit is due to expire soon',
     fromEmail: 'noreply@mnps.gov.uk',
     bodyHtml: '<p>Dear {{ApplicantName}},</p><p>Your permit expires on {{ExpiryDate}}. Renew now to avoid a lapse.</p>',
+    isDefault: true,
     createdOn: '05/03/2024', createdBy: 'System Admin',
     updatedOn: '05/03/2024', updatedBy: 'System Admin',
+  },
+  {
+    id: 'EM-006', templateName: 'White Mail Reminder', permissionType: 'All',
+    linkedEvents: ['White Mail Reminder'],
+    emailSubject: 'Physical permit ready for collection',
+    fromEmail: 'permits@mnps.gov.uk',
+    bodyHtml: '<p>Dear {{ApplicantName}},</p><p>Your physical permit is ready. Please collect from the office or wait for delivery.</p>',
+    isDefault: true,
+    createdOn: '10/04/2024', createdBy: 'System Admin',
+    updatedOn: '10/04/2024', updatedBy: 'System Admin',
   },
 ];
 
@@ -78,19 +124,27 @@ export function EmailsPage() {
   const [search, setSearch] = useState('');
   const [target, setTarget] = useState<EmailTemplate | null>(null);
   const [addOpen, setAddOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [selection, setSelection] = useState<GridRowSelectionModel>([]);
 
   // Add template form state
   const [newName, setNewName] = useState('');
   const [newSubject, setNewSubject] = useState('');
   const [newBody, setNewBody] = useState('');
-  const [newEvent, setNewEvent] = useState('Approved');
+  const [newEvent, setNewEvent] = useState('');
   const [newPermType, setNewPermType] = useState('Resident Permit');
+  const [newSender, setNewSender] = useState('noreply@mnps.gov.uk');
   const [newDefault, setNewDefault] = useState(false);
+  const [mergeFieldAnchor, setMergeFieldAnchor] = useState<HTMLElement | null>(null);
 
   const handleAddSave = () => {
-    if (!newName.trim() || !newSubject.trim()) {
-      showToast('Name and Subject are required', 'error');
+    if (!newName.trim() || !newSubject.trim() || !newEvent) {
+      showToast('Name, Subject and Linked Event are required', 'error');
+      return;
+    }
+    // Check duplicate
+    if (rows.some(r => r.templateName.toLowerCase() === newName.trim().toLowerCase() && r.permissionType === newPermType)) {
+      showToast('Template name already exists', 'error');
       return;
     }
     const now = new Date().toLocaleDateString('en-GB');
@@ -100,18 +154,58 @@ export function EmailsPage() {
       permissionType: newPermType,
       linkedEvents: [newEvent],
       emailSubject: newSubject.trim(),
-      fromEmail: 'noreply@mnps.gov.uk',
+      fromEmail: newSender,
       bodyHtml: newBody || `<p>${newSubject}</p>`,
+      isDefault: newDefault,
       createdOn: now,
       createdBy: 'You',
       updatedOn: now,
       updatedBy: 'You',
     };
-    void newDefault;
+    // If set as default, unset other defaults for same event
+    if (newDefault) {
+      setRows((prev) => prev.map(r =>
+        r.linkedEvents.includes(newEvent) ? { ...r, isDefault: false } : r
+      ));
+    }
     setRows((prev) => [newTemplate, ...prev]);
     showToast('Email template created successfully', 'success');
     setAddOpen(false);
-    setNewName(''); setNewSubject(''); setNewBody(''); setNewEvent('Approved'); setNewPermType('Resident Permit'); setNewDefault(false);
+    setNewName(''); setNewSubject(''); setNewBody(''); setNewEvent(''); setNewPermType('Resident Permit'); setNewSender('noreply@mnps.gov.uk'); setNewDefault(false);
+  };
+
+  const handleEditSave = () => {
+    if (!target || !newName.trim() || !newSubject.trim() || !newEvent) {
+      showToast('Name, Subject and Linked Event are required', 'error');
+      return;
+    }
+    const now = new Date().toLocaleDateString('en-GB');
+    // If set as default, unset other defaults for same event
+    if (newDefault) {
+      setRows((prev) => prev.map(r =>
+        r.linkedEvents.includes(newEvent) && r.id !== target.id ? { ...r, isDefault: false } : r
+      ));
+    }
+    setRows(rows.map((r) => r.id === target.id ? {
+      ...r,
+      templateName: newName.trim(),
+      permissionType: newPermType,
+      linkedEvents: [newEvent],
+      emailSubject: newSubject.trim(),
+      fromEmail: newSender,
+      bodyHtml: newBody,
+      isDefault: newDefault,
+      updatedOn: now,
+      updatedBy: 'You',
+    } : r));
+    showToast('Email template updated successfully', 'success');
+    setEditOpen(false);
+    setTarget(null);
+  };
+
+  const insertMergeField = (field: string) => {
+    setNewBody(newBody + field);
+    setMergeFieldAnchor(null);
   };
 
   const filtered = useMemo(() => {
@@ -157,6 +251,10 @@ export function EmailsPage() {
       ),
     },
     { field: 'emailSubject', headerName: 'Email Subject', flex: 1.4, minWidth: 260 },
+    {
+      field: 'isDefault', headerName: 'Default', width: 100,
+      renderCell: (p) => p.value ? <Chip label="Default" size="small" color="primary" /> : null,
+    },
     { field: 'createdOn', headerName: 'Created On', width: 130 },
     { field: 'createdBy', headerName: 'Created By', width: 160 },
     { field: 'updatedOn', headerName: 'Updated On', width: 130 },
@@ -205,7 +303,19 @@ export function EmailsPage() {
             <Stack direction="row" alignItems="center" justifyContent="space-between"
               sx={{ px: 3, py: 2, borderBottom: 1, borderColor: 'divider', bgcolor: 'grey.50' }}>
               <Typography variant="h6">View Email Template</Typography>
-              <IconButton onClick={() => setTarget(null)}><CloseIcon /></IconButton>
+              <Stack direction="row" spacing={1}>
+                <Button size="small" variant="outlined" onClick={() => {
+                  setNewName(target.templateName);
+                  setNewPermType(target.permissionType);
+                  setNewEvent(target.linkedEvents[0]);
+                  setNewSubject(target.emailSubject);
+                  setNewBody(target.bodyHtml);
+                  setNewSender(target.fromEmail);
+                  setNewDefault(target.isDefault);
+                  setEditOpen(true);
+                }}>Edit</Button>
+                <IconButton onClick={() => setTarget(null)}><CloseIcon /></IconButton>
+              </Stack>
             </Stack>
 
             <Box sx={{ flex: 1, overflowY: 'auto', p: 3 }}>
@@ -222,6 +332,10 @@ export function EmailsPage() {
                   <Box>
                     <Typography variant="caption" color="text.secondary">From</Typography>
                     <Typography variant="body2">{target.fromEmail}</Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary">Default</Typography>
+                    <Typography variant="body2">{target.isDefault ? 'Yes' : 'No'}</Typography>
                   </Box>
                 </Stack>
                 <Box>
@@ -259,7 +373,8 @@ export function EmailsPage() {
         )}
       </Drawer>
 
-      <Dialog open={addOpen} onClose={() => setAddOpen(false)} maxWidth="sm" fullWidth>
+      {/* Add Dialog */}
+      <Dialog open={addOpen} onClose={() => setAddOpen(false)} maxWidth="md" fullWidth>
         <DialogTitle>Add Email Template</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
@@ -272,20 +387,60 @@ export function EmailsPage() {
                 <MenuItem key={p} value={p}>{p}</MenuItem>
               ))}
             </TextField>
-            <TextField label="Email Subject" required fullWidth value={newSubject} onChange={(e) => setNewSubject(e.target.value)} />
             <TextField
-              label="Body" multiline rows={4} fullWidth
-              value={newBody} onChange={(e) => setNewBody(e.target.value)}
-              placeholder="<p>Dear {{ApplicantName}},</p>"
-            />
-            <TextField
-              select label="Trigger Event" fullWidth
-              value={newEvent} onChange={(e) => setNewEvent(e.target.value)}
+              select label="Sender Email" fullWidth
+              value={newSender} onChange={(e) => setNewSender(e.target.value)}
             >
-              {['Approved','Rejected','Reminder','Renewal','Payment Failed','Custom'].map((ev) => (
+              {SENDER_EMAILS.map((s) => (
+                <MenuItem key={s} value={s}>{s}</MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              select label="Notification Template (Linked Event)" required fullWidth
+              value={newEvent} onChange={(e) => {
+                setNewEvent(e.target.value);
+                // Auto-enable default if it's the first template for this event
+                const hasDefault = rows.some(r => r.linkedEvents.includes(e.target.value) && r.isDefault);
+                if (!hasDefault) setNewDefault(true);
+              }}
+            >
+              {LINKED_EVENTS.map((ev) => (
                 <MenuItem key={ev} value={ev}>{ev}</MenuItem>
               ))}
             </TextField>
+            <TextField label="Email Subject" required fullWidth value={newSubject} onChange={(e) => setNewSubject(e.target.value)} />
+            <Box>
+              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+                <Typography variant="body2">Body</Typography>
+                <Button size="small" onClick={(e) => setMergeFieldAnchor(e.currentTarget)}>
+                  Insert Merge Field
+                </Button>
+              </Stack>
+              <TextField
+                multiline rows={6} fullWidth
+                value={newBody} onChange={(e) => setNewBody(e.target.value)}
+                placeholder="<p>Dear {{ApplicantName}},</p>"
+              />
+              <MenuItem />
+              {mergeFieldAnchor && (
+                <Dialog open={!!mergeFieldAnchor} onClose={() => setMergeFieldAnchor(null)} maxWidth="xs" fullWidth>
+                  <DialogTitle>Insert Merge Field</DialogTitle>
+                  <DialogContent>
+                    <Stack spacing={0.5}>
+                      {MERGE_FIELDS.map((field) => (
+                        <Button key={field} fullWidth sx={{ justifyContent: 'flex-start' }}
+                          onClick={() => insertMergeField(field)}>
+                          {field}
+                        </Button>
+                      ))}
+                    </Stack>
+                  </DialogContent>
+                  <DialogActions>
+                    <Button onClick={() => setMergeFieldAnchor(null)}>Close</Button>
+                  </DialogActions>
+                </Dialog>
+              )}
+            </Box>
             <FormControlLabel
               control={<Checkbox checked={newDefault} onChange={(e) => setNewDefault(e.target.checked)} />}
               label="Set as default template for this event"
@@ -295,6 +450,61 @@ export function EmailsPage() {
         <DialogActions>
           <Button onClick={() => setAddOpen(false)}>Cancel</Button>
           <Button variant="contained" onClick={handleAddSave}>Create Template</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Dialog */}
+      <Dialog open={editOpen} onClose={() => setEditOpen(false)} maxWidth="md" fullWidth>
+        <DialogTitle>Edit Email Template</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField label="Template Name" required fullWidth value={newName} onChange={(e) => setNewName(e.target.value)} />
+            <TextField
+              select label="Permission Type" fullWidth
+              value={newPermType} onChange={(e) => setNewPermType(e.target.value)}
+            >
+              {['Resident Permit','Business Permit','Visitor Permit','Blue Badge Permit','All'].map((p) => (
+                <MenuItem key={p} value={p}>{p}</MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              select label="Sender Email" fullWidth
+              value={newSender} onChange={(e) => setNewSender(e.target.value)}
+            >
+              {SENDER_EMAILS.map((s) => (
+                <MenuItem key={s} value={s}>{s}</MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              select label="Notification Template (Linked Event)" required fullWidth
+              value={newEvent} onChange={(e) => setNewEvent(e.target.value)}
+            >
+              {LINKED_EVENTS.map((ev) => (
+                <MenuItem key={ev} value={ev}>{ev}</MenuItem>
+              ))}
+            </TextField>
+            <TextField label="Email Subject" required fullWidth value={newSubject} onChange={(e) => setNewSubject(e.target.value)} />
+            <Box>
+              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+                <Typography variant="body2">Body</Typography>
+                <Button size="small" onClick={(e) => setMergeFieldAnchor(e.currentTarget)}>
+                  Insert Merge Field
+                </Button>
+              </Stack>
+              <TextField
+                multiline rows={6} fullWidth
+                value={newBody} onChange={(e) => setNewBody(e.target.value)}
+              />
+            </Box>
+            <FormControlLabel
+              control={<Checkbox checked={newDefault} onChange={(e) => setNewDefault(e.target.checked)} />}
+              label="Set as default template for this event"
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleEditSave}>Save Changes</Button>
         </DialogActions>
       </Dialog>
     </Box>

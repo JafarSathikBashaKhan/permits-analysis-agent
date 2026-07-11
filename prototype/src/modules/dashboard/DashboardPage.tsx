@@ -32,6 +32,8 @@ import {
 } from 'recharts';
 import { PageHeader } from '../../shared/PageHeader';
 import { tokens } from '../../theme';
+import { usePersistentState } from '../../hooks/usePersistentState';
+import { Application } from '../../data/mock';
 
 // ─── Data model (mirrors API shape) ─────────────────────────────────────
 type PermissionTypeCount = {
@@ -84,13 +86,36 @@ export function DashboardPage() {
   const navigate = useNavigate();
   const [tab, setTab] = useState<'applications' | 'financial'>('applications');
   const [timeFilter, setTimeFilter] = useState<'7' | '30'>('7');
+  
+  const [applications] = usePersistentState<Application[]>('prototype:applications:rows', () => []);
+  
+  // Calculate Active counts from persistent data
+  const activeCounts = useMemo(() => {
+    const activeApps = applications.filter(a => a.status === 'Active');
+    const counts: Record<string, number> = {};
+    activeApps.forEach(a => {
+      counts[a.type] = (counts[a.type] || 0) + 1;
+    });
+    return counts;
+  }, [applications]);
+  
+  // Calculate upcoming renewals (Active apps expiring within 30 days)
+  const upcomingRenewals = useMemo(() => {
+    const now = Date.now();
+    const days = timeFilter === '7' ? 7 : 30;
+    const targetDate = now + (days * 24 * 60 * 60 * 1000);
+    return applications.filter(a => {
+      if (a.status !== 'Active') return false;
+      const submittedTime = new Date(a.submitted).getTime();
+      const assumedExpiry = submittedTime + (365 * 24 * 60 * 60 * 1000); // 1 year from submitted
+      return assumedExpiry > now && assumedExpiry <= targetDate;
+    });
+  }, [applications, timeFilter]);
 
   const renewalData = RENEWALS[timeFilter];
   const totalRenewals = useMemo(() => {
-    return renewalData.reduce((sum, row) => {
-      return sum + PERMISSION_TYPE_COUNTS.reduce((s, p) => s + (row[p.permissionTypeName] || 0), 0);
-    }, 0);
-  }, [renewalData]);
+    return upcomingRenewals.length;
+  }, [upcomingRenewals]);
 
   const onCardClick = (p: PermissionTypeCount) => {
     // In real app: menuStore push + navigate. Prototype: pass query.

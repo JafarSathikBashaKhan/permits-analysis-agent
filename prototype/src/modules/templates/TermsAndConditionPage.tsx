@@ -23,6 +23,7 @@ type Template = {
   permissionType: string;
   content: string;
   published: boolean;
+  version: number;
   createdOn: string;
   createdBy: string;
   updatedOn: string;
@@ -33,21 +34,21 @@ const seed = (): Template[] => [
   {
     id: 'TC-001', templateName: 'Resident Permit T&C 2024', permissionType: 'Resident Permit',
     content: '<p>By applying for a resident permit you agree to the terms outlined in this agreement...</p>',
-    published: true,
+    published: true, version: 1,
     createdOn: '02/01/2024', createdBy: 'System Admin',
     updatedOn: '10/06/2024', updatedBy: 'Sarah Johnson',
   },
   {
     id: 'TC-002', templateName: 'Visitor Permit T&C', permissionType: 'Visitor Permit',
     content: '<p>Visitor permits are valid only for the vehicle registered and cannot be transferred...</p>',
-    published: true,
+    published: true, version: 1,
     createdOn: '15/01/2024', createdBy: 'System Admin',
     updatedOn: '15/01/2024', updatedBy: 'System Admin',
   },
   {
     id: 'TC-003', templateName: 'Business Permit T&C v2', permissionType: 'Business Permit',
     content: '<p>Business permits are issued for commercial use and require valid registration...</p>',
-    published: false,
+    published: false, version: 2,
     createdOn: '20/03/2024', createdBy: 'Mark Peters',
     updatedOn: '05/06/2024', updatedBy: 'Mark Peters',
   },
@@ -97,16 +98,28 @@ export function TermsAndConditionPage() {
       const id = `TC-${String(rows.length + 1).padStart(3, '0')}`;
       setRows([...rows, {
         id, templateName: name.trim(), permissionType: permType, content,
-        published: false, createdOn: now, createdBy: 'Current User',
+        published: false, version: 1, createdOn: now, createdBy: 'Current User',
         updatedOn: now, updatedBy: 'Current User',
       }]);
       showToast('Template created successfully', 'success');
     } else if (panel === 'edit' && target) {
-      setRows(rows.map((r) => r.id === target.id ? {
-        ...r, templateName: name.trim(), permissionType: permType, content,
-        updatedOn: now, updatedBy: 'Current User',
-      } : r));
-      showToast('Template updated successfully', 'success');
+      // Versioning: create new version, keep old
+      const nextVersion = target.version + 1;
+      const newId = `${target.id}-v${nextVersion}`;
+      const newTemplate: Template = {
+        id: newId,
+        templateName: name.trim(),
+        permissionType: permType,
+        content,
+        published: false, // New version starts as draft
+        version: nextVersion,
+        createdOn: target.createdOn,
+        createdBy: target.createdBy,
+        updatedOn: now,
+        updatedBy: 'Current User',
+      };
+      setRows([...rows, newTemplate]);
+      showToast(`Template updated (new version ${nextVersion} created)`, 'success');
     }
     setPanel('closed'); setTarget(null);
   };
@@ -143,6 +156,7 @@ export function TermsAndConditionPage() {
       ),
     },
     { field: 'permissionType', headerName: 'Permission Type', width: 170 },
+    { field: 'version', headerName: 'Version', width: 90 },
     {
       field: 'published', headerName: 'Status', width: 120,
       renderCell: (p) => (

@@ -136,6 +136,24 @@ const seedRoles = (): Role[] => [
     isDefaultRole: false,
     modules: BASE_MODULES.map((m) => ({ ...m, perms: { view: true, manage: false } })),
   },
+  {
+    id: 'r6',
+    name: 'CEO',
+    description: 'Limited access to specific Back Office functionalities as assigned',
+    permissionType: ['Residents Permit'],
+    noOfUsers: 1,
+    isDefaultRole: false,
+    modules: BASE_MODULES.map((m) => ({ ...m, perms: { view: true, manage: false } })),
+  },
+  {
+    id: 'r7',
+    name: 'Market Inspector',
+    description: 'Limited access to specific Back Office functionalities as assigned',
+    permissionType: ['Residents Permit', 'Visitor Permit'],
+    noOfUsers: 6,
+    isDefaultRole: false,
+    modules: BASE_MODULES.map((m) => ({ ...m, perms: { view: true, manage: false } })),
+  },
 ];
 
 // ─────────────────────────────────────────────────────────────
@@ -425,6 +443,12 @@ export function RolesPage() {
   };
   const save = (r: Role) => {
     const isEdit = rows.some((x) => x.id === r.id);
+    // Check duplicate role name (case-insensitive, excluding self in edit mode)
+    const nameExists = rows.some((x) => x.id !== r.id && x.name.toLowerCase() === r.name.toLowerCase());
+    if (nameExists) {
+      showToast('A role with this name already exists', 'error');
+      return;
+    }
     setRows((prev) => {
       const exists = prev.some((x) => x.id === r.id);
       return exists ? prev.map((x) => (x.id === r.id ? r : x)) : [r, ...prev];
@@ -433,6 +457,11 @@ export function RolesPage() {
   };
   const confirmDelete = () => {
     if (!deleting) return;
+    if (deleting.noOfUsers > 0) {
+      showToast('Cannot delete role with assigned users', 'error');
+      setDeleting(null);
+      return;
+    }
     setRows((prev) => prev.filter((r) => r.id !== deleting.id));
     showToast('Role deleted successfully', 'success');
     setDeleting(null);

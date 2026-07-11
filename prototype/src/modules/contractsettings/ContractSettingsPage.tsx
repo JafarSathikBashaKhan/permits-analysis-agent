@@ -162,73 +162,77 @@ export function ContractSettingsPage() {
   const [state, setState] = usePersistentState<Record<string, boolean>>('prototype:contract-settings:state', initial);
 
   // Customer
-  const [blueBadgeLimit, setBlueBadgeLimit] = useState(2);
+  const [blueBadgeLimit, setBlueBadgeLimit] = usePersistentState('prototype:contract-settings:blueBadgeLimit', 2);
 
   // Purchase quantity
-  const [minVouchers, setMinVouchers] = useState(1);
-  const [maxVouchers, setMaxVouchers] = useState(50);
-  const [minScratch, setMinScratch] = useState(1);
-  const [maxScratch, setMaxScratch] = useState(5);
+  const [minVouchers, setMinVouchers] = usePersistentState('prototype:contract-settings:minVouchers', 1);
+  const [maxVouchers, setMaxVouchers] = usePersistentState('prototype:contract-settings:maxVouchers', 50);
+  const [minScratch, setMinScratch] = usePersistentState('prototype:contract-settings:minScratch', 1);
+  const [maxScratch, setMaxScratch] = usePersistentState('prototype:contract-settings:maxScratch', 5);
 
   // Fees
-  const [adminFee, setAdminFee] = useState('3.50');
-  const [priceAlert, setPriceAlert] = useState('10');
+  const [adminFee, setAdminFee] = usePersistentState('prototype:contract-settings:adminFee', '3.50');
+  const [priceAlert, setPriceAlert] = usePersistentState('prototype:contract-settings:priceAlert', '10');
 
   // Temporary vehicle
-  const [tempVehFreq, setTempVehFreq] = useState(3);
-  const [tempVehPeriod, setTempVehPeriod] = useState('Days');
-  const [tempVehLimitFreq, setTempVehLimitFreq] = useState(30);
-  const [tempVehLimitPeriod, setTempVehLimitPeriod] = useState('Days');
-  const [tempSwitches, setTempSwitches] = useState(3);
+  const [tempVehFreq, setTempVehFreq] = usePersistentState('prototype:contract-settings:tempVehFreq', 3);
+  const [tempVehPeriod, setTempVehPeriod] = usePersistentState('prototype:contract-settings:tempVehPeriod', 'Days');
+  const [tempVehLimitFreq, setTempVehLimitFreq] = usePersistentState('prototype:contract-settings:tempVehLimitFreq', 30);
+  const [tempVehLimitPeriod, setTempVehLimitPeriod] = usePersistentState('prototype:contract-settings:tempVehLimitPeriod', 'Days');
+  const [tempSwitches, setTempSwitches] = usePersistentState('prototype:contract-settings:tempSwitches', 3);
 
   // Documents Expiration
-  const [docExpFreq, setDocExpFreq] = useState(90);
-  const [docExpPeriod, setDocExpPeriod] = useState('Days');
+  const [docExpFreq, setDocExpFreq] = usePersistentState('prototype:contract-settings:docExpFreq', 90);
+  const [docExpPeriod, setDocExpPeriod] = usePersistentState('prototype:contract-settings:docExpPeriod', 'Days');
 
   // Permission closure
-  const [pfGraceFreq, setPfGraceFreq] = useState(7);
-  const [pfGracePeriod, setPfGracePeriod] = useState('Days');
-  const [pfClosureFreq, setPfClosureFreq] = useState(14);
-  const [pfClosurePeriod, setPfClosurePeriod] = useState('Days');
-  const [seGraceFreq, setSeGraceFreq] = useState(7);
-  const [seGracePeriod, setSeGracePeriod] = useState('Days');
-  const [seClosureFreq, setSeClosureFreq] = useState(21);
-  const [seClosurePeriod, setSeClosurePeriod] = useState('Days');
+  const [pfGraceFreq, setPfGraceFreq] = usePersistentState('prototype:contract-settings:pfGraceFreq', 7);
+  const [pfGracePeriod, setPfGracePeriod] = usePersistentState('prototype:contract-settings:pfGracePeriod', 'Days');
+  const [pfClosureFreq, setPfClosureFreq] = usePersistentState('prototype:contract-settings:pfClosureFreq', 14);
+  const [pfClosurePeriod, setPfClosurePeriod] = usePersistentState('prototype:contract-settings:pfClosurePeriod', 'Days');
+  const [seGraceFreq, setSeGraceFreq] = usePersistentState('prototype:contract-settings:seGraceFreq', 7);
+  const [seGracePeriod, setSeGracePeriod] = usePersistentState('prototype:contract-settings:seGracePeriod', 'Days');
+  const [seClosureFreq, setSeClosureFreq] = usePersistentState('prototype:contract-settings:seClosureFreq', 21);
+  const [seClosurePeriod, setSeClosurePeriod] = usePersistentState('prototype:contract-settings:seClosurePeriod', 'Days');
 
   // Merchant
-  const [merchantPermType, setMerchantPermType] = useState('Resident Permit');
-  const [boProv, setBoProv] = useState('Stripe');
-  const [boId, setBoId] = useState('MERCH-BO-001');
-  const [boUser, setBoUser] = useState('bo-merchant');
-  const [custProv, setCustProv] = useState('Stripe');
-  const [custId, setCustId] = useState('MERCH-CU-001');
-  const [custUser, setCustUser] = useState('cust-merchant');
+  const [merchantPermType, setMerchantPermType] = usePersistentState('prototype:contract-settings:merchantPermType', 'Resident Permit');
+  const [boProv, setBoProv] = usePersistentState('prototype:contract-settings:boProv', 'Stripe');
+  const [boId, setBoId] = usePersistentState('prototype:contract-settings:boId', 'MERCH-BO-001');
+  const [boUser, setBoUser] = usePersistentState('prototype:contract-settings:boUser', 'bo-merchant');
+  const [custProv, setCustProv] = usePersistentState('prototype:contract-settings:custProv', 'Stripe');
+  const [custId, setCustId] = usePersistentState('prototype:contract-settings:custId', 'MERCH-CU-001');
+  const [custUser, setCustUser] = usePersistentState('prototype:contract-settings:custUser', 'cust-merchant');
 
   // Pricing alert reminders
-  const [rem1On, setRem1On] = useState(true);
-  const [rem1Freq, setRem1Freq] = useState('30');
-  const [rem1Period, setRem1Period] = useState('Days');
-  const [rem2On, setRem2On] = useState(false);
-  const [rem2Freq, setRem2Freq] = useState('7');
-  const [rem2Period, setRem2Period] = useState('Days');
-  const [notifyEmails, setNotifyEmails] = useState<string[]>(['bo-alerts@marston.co.uk']);
+  const [rem1On, setRem1On] = usePersistentState('prototype:contract-settings:rem1On', true);
+  const [rem1Freq, setRem1Freq] = usePersistentState('prototype:contract-settings:rem1Freq', '30');
+  const [rem1Period, setRem1Period] = usePersistentState('prototype:contract-settings:rem1Period', 'Days');
+  const [rem2On, setRem2On] = usePersistentState('prototype:contract-settings:rem2On', false);
+  const [rem2Freq, setRem2Freq] = usePersistentState('prototype:contract-settings:rem2Freq', '7');
+  const [rem2Period, setRem2Period] = usePersistentState('prototype:contract-settings:rem2Period', 'Days');
+  const [notifyEmails, setNotifyEmails] = usePersistentState<string[]>('prototype:contract-settings:notifyEmails', ['bo-alerts@marston.co.uk']);
   const [newEmail, setNewEmail] = useState('');
   const remindersDuplicate = rem1On && rem2On && rem1Freq === rem2Freq && rem1Period === rem2Period;
   const showNotifyEmails = rem1On || rem2On;
 
   // Suspension / Dispensation
-  const [suspTown, setSuspTown] = useState(true);
-  const [suspLimitOn, setSuspLimitOn] = useState(false);
-  const [suspLimit, setSuspLimit] = useState(10);
-  const [suspStreetMode, setSuspStreetMode] = useState('Manual Street Entry');
-  const [dispTown, setDispTown] = useState(true);
-  const [dispLimitOn, setDispLimitOn] = useState(false);
-  const [dispLimit, setDispLimit] = useState(5);
-  const [dispStreetMode, setDispStreetMode] = useState('Manual Entry');
+  const [suspTown, setSuspTown] = usePersistentState('prototype:contract-settings:suspTown', true);
+  const [suspLimitOn, setSuspLimitOn] = usePersistentState('prototype:contract-settings:suspLimitOn', false);
+  const [suspLimit, setSuspLimit] = usePersistentState('prototype:contract-settings:suspLimit', 10);
+  const [suspStreetMode, setSuspStreetMode] = usePersistentState('prototype:contract-settings:suspStreetMode', 'Manual Street Entry');
+  const [dispTown, setDispTown] = usePersistentState('prototype:contract-settings:dispTown', true);
+  const [dispLimitOn, setDispLimitOn] = usePersistentState('prototype:contract-settings:dispLimitOn', false);
+  const [dispLimit, setDispLimit] = usePersistentState('prototype:contract-settings:dispLimit', 5);
+  const [dispStreetMode, setDispStreetMode] = usePersistentState('prototype:contract-settings:dispStreetMode', 'Manual Entry');
 
   // Experian (conditional)
-  const [experianOp, setExperianOp] = useState('>=');
-  const [experianScore, setExperianScore] = useState('700');
+  const [experianOp, setExperianOp] = usePersistentState('prototype:contract-settings:experianOp', '>=');
+  const [experianScore, setExperianScore] = usePersistentState('prototype:contract-settings:experianScore', '700');
+
+  // Policy URLs (US-129756)
+  const [dataSharingUrl, setDataSharingUrl] = usePersistentState('prototype:contract-settings:dataSharingUrl', 'https://wokingham.gov.uk/data-sharing');
+  const [cookiePolicyUrl, setCookiePolicyUrl] = usePersistentState('prototype:contract-settings:cookiePolicyUrl', 'https://wokingham.gov.uk/cookies');
 
   const addEmail = () => {
     const e = newEmail.trim();
@@ -527,6 +531,19 @@ export function ContractSettingsPage() {
                   </Grid>
                 </>
               )}
+              <Grid item xs={12}><Divider>Policy URLs (US-129756)</Divider></Grid>
+              <Grid item xs={12} md={6}>
+                <Typography variant="body2" fontWeight={600} mb={0.5}>Data Sharing Policy URL</Typography>
+                <TextField size="small" fullWidth value={dataSharingUrl}
+                  onChange={(e) => setDataSharingUrl(e.target.value)}
+                  placeholder="https://example.gov.uk/data-sharing" />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Typography variant="body2" fontWeight={600} mb={0.5}>Cookie Policy URL</Typography>
+                <TextField size="small" fullWidth value={cookiePolicyUrl}
+                  onChange={(e) => setCookiePolicyUrl(e.target.value)}
+                  placeholder="https://example.gov.uk/cookies" />
+              </Grid>
             </Grid>
           </Section>
         </Box>

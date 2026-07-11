@@ -37,15 +37,12 @@ import { FIELD_LIMITS } from '../../constants/enums';
 // ─────────────────────────────────────────────────────────────
 // Fixtures (mirror real API shape: role, permission groups, users)
 // ─────────────────────────────────────────────────────────────
-const ROLES = [
-  'Super Admin',
-  'Contract Admin',
-  'BO Manager',
-  'BO User',
-  'CEO',
-  'Market Inspector',
-  'Read Only',
-];
+// Role options come from Roles page persistent storage (excluding Super Admin per US-111158)
+function getRoleOptions(rolesData: { id: string; name: string }[]): string[] {
+  return rolesData
+    .filter((r) => r.name.toLowerCase().replace(/\s/g, '') !== 'superadmin')
+    .map((r) => r.name);
+}
 
 type PermissionItem = { id: string; name: string; enabled: boolean };
 type PermissionGroup = { group: string; items: PermissionItem[] };
@@ -106,7 +103,7 @@ type SystemUser = {
   emailAddress: string;
   role: string;
   mobileNumber: string;
-  status: 'Active' | 'Deactive';
+  status: 'Active' | 'Inactive' | 'Invited';
   allowPermitDateChange: boolean;
   agentAssistEnabled: boolean;
   ddi?: string;
@@ -115,6 +112,7 @@ type SystemUser = {
 
 const FIRST = ['Alice', 'Ben', 'Cheryl', 'Danny', 'Eesha', 'Frank', 'Grace', 'Harjeet', 'Ian', 'Jasmine', 'Karan', 'Leila'];
 const LAST = ['Whittaker', "O'Neill", 'Adeyemi', 'Coates', 'Reid', 'Bracknell', 'Marín', 'Turner', 'Patel', 'Chen', 'Rossi', 'Nakamura'];
+const DEFAULT_ROLES = ['Contract Admin', 'BO Manager', 'BO User', 'CEO', 'Market Inspector', 'Read Only'];
 const seedUsers = (): SystemUser[] =>
   Array.from({ length: 24 }, (_, i) => {
     const f = FIRST[i % FIRST.length];
@@ -124,9 +122,9 @@ const seedUsers = (): SystemUser[] =>
       firstName: f,
       lastName: l,
       emailAddress: `${f.toLowerCase()}.${l.toLowerCase().replace(/[^a-z]/g, '')}@marston.co.uk`,
-      role: ROLES[i % ROLES.length],
+      role: DEFAULT_ROLES[i % DEFAULT_ROLES.length],
       mobileNumber: `+44 7700 90${(1000 + i).toString().padStart(4, '0')}`,
-      status: i % 5 === 0 ? 'Deactive' : 'Active',
+      status: i % 7 === 0 ? 'Invited' : i % 5 === 0 ? 'Inactive' : 'Active',
       allowPermitDateChange: i % 3 === 0,
       agentAssistEnabled: i % 4 === 0,
       ddi: i % 4 === 0 ? `020701${(1000 + i).toString().padStart(4, '0')}` : undefined,
@@ -244,6 +242,8 @@ function UserSlidingPanel({
   user,
   onSave,
   onToggleStatus,
+  allUsers,
+  rolesData,
 }: {
   open: boolean;
   onClose: () => void;
@@ -251,6 +251,8 @@ function UserSlidingPanel({
   user: SystemUser | null;
   onSave: (u: SystemUser) => void;
   onToggleStatus: (id: string) => void;
+  allUsers: SystemUser[];
+  rolesData: { id: string; name: string }[];
 }) {
   const [mode, setMode] = useState<PanelMode>(initialMode);
   const [tab, setTab] = useState(0);
@@ -262,17 +264,20 @@ function UserSlidingPanel({
     emailAddress: '',
     role: '',
     mobileNumber: '',
-    status: 'Active',
+    status: 'Invited',
     allowPermitDateChange: false,
     agentAssistEnabled: false,
   });
+  
+  const roleOptions = getRoleOptions(rolesData);
 
   // Sync when panel opens
   useMemo(() => {
     setMode(initialMode);
     setTab(initialMode === 'audit' ? 2 : 0);
-    if (user) setForm(user);
-    else
+    if (user) {
+      setForm(user);
+    } else {
       setForm({
         id: `su-${Date.now()}`,
         firstName: '',
@@ -280,10 +285,11 @@ function UserSlidingPanel({
         emailAddress: '',
         role: '',
         mobileNumber: '',
-        status: 'Active',
+        status: 'Invited',
         allowPermitDateChange: false,
         agentAssistEnabled: false,
       });
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialMode, user?.id]);
 
@@ -294,7 +300,13 @@ function UserSlidingPanel({
     if (!form.firstName.trim()) return 'First Name is required';
     if (!form.lastName.trim()) return 'Last Name is required';
     if (!/^\S+@\S+\.\S+$/.test(form.emailAddress)) return 'Valid email required';
+    // Check email duplication
+    const emailExists = allUsers.some((u) => u.id !== form.id && u.emailAddress.toLowerCase() === form.emailAddress.toLowerCase());
+    if (emailExists) return 'This email already exists';
     if (!/^[+\d\s]{7,20}$/.test(form.mobileNumber)) return 'Valid contact number required';
+    // Check mobile duplication
+    const mobileExists = allUsers.some((u) => u.id !== form.id && u.mobileNumber === form.mobileNumber);
+    if (mobileExists) return 'This number already exists';
     if (!form.role) return 'Role is required';
     if (form.agentAssistEnabled) {
       if (!form.ddi || !/^\d+$/.test(form.ddi)) return 'DDI is required (numeric)';
@@ -415,10 +427,14 @@ function UserSlidingPanel({
                 required
                 fullWidth
                 value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value })}
+                onChange={(e) => {
+                  const newRole = e.target.value;
+                  const isSuperOrContractAdmin = newRole === 'Super Admin' || newRole === 'Contract Admin';
+                  setForm({ ...form, role: newRole, allowPermitDateChange: isSuperOrContractAdmin || form.allowPermitDateChange });
+                }}
                 disabled={readonly}
               >
-                {ROLES.map((r) => (
+                {roleOptions.map((r) => (
                   <MenuItem key={r} value={r}>
                     {r}
                   </MenuItem>
@@ -435,7 +451,7 @@ function UserSlidingPanel({
                 <Switch
                   checked={form.allowPermitDateChange}
                   onChange={(e) => setForm({ ...form, allowPermitDateChange: e.target.checked })}
-                  disabled={readonly}
+                  disabled={readonly || form.role === 'Super Admin' || form.role === 'Contract Admin'}
                 />
               }
               label="Change permit start and end date"
@@ -550,9 +566,12 @@ function UserSlidingPanel({
 export function SystemUsersPage() {
   const showToast = useToast();
   const [rows, setRows] = usePersistentState<SystemUser[]>('prototype:users:system-users:rows', seedUsers);
+  const [rolesData, ] = usePersistentState<{ id: string; name: string }[]>('prototype:users:roles:rows', []);
   const [q, setQ] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Deactive'>('All');
+  const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Inactive' | 'Invited'>('All');
   const [roleFilter, setRoleFilter] = useState<string>('All');
+  
+  const roleOptions = getRoleOptions(rolesData);
 
   const [panelOpen, setPanelOpen] = useState(false);
   const [panelMode, setPanelMode] = useState<PanelMode>('add');
@@ -599,10 +618,10 @@ export function SystemUsersPage() {
   };
   const toggleStatus = (id: string) => {
     const user = rows.find((r) => r.id === id);
-    const nextStatus = user?.status === 'Active' ? 'Deactive' : 'Active';
+    const nextStatus = user?.status === 'Active' ? 'Inactive' : 'Active';
     setRows((prev) =>
       prev.map((r) =>
-        r.id === id ? { ...r, status: r.status === 'Active' ? 'Deactive' : 'Active' } : r
+        r.id === id ? { ...r, status: r.status === 'Active' ? ('Inactive' as const) : ('Active' as const) } : r
       )
     );
     showToast(`User ${nextStatus === 'Active' ? 'activated' : 'deactivated'} successfully`, 'success');
@@ -610,7 +629,7 @@ export function SystemUsersPage() {
   };
 
   const handleBulkDeactivate = () => {
-    setRows((prev) => prev.map((r) => (selection.includes(r.id) ? { ...r, status: 'Deactive' as const } : r)));
+    setRows((prev) => prev.map((r) => (selection.includes(r.id) ? { ...r, status: 'Inactive' as const } : r)));
     showToast(`${selection.length} user(s) deactivated`, 'success');
     setSelection([]);
   };
@@ -698,7 +717,8 @@ export function SystemUsersPage() {
         >
           <MenuItem value="All">All</MenuItem>
           <MenuItem value="Active">Active</MenuItem>
-          <MenuItem value="Deactive">Deactive</MenuItem>
+          <MenuItem value="Inactive">Inactive</MenuItem>
+          <MenuItem value="Invited">Invited</MenuItem>
         </TextField>
         <TextField
           select
@@ -709,7 +729,7 @@ export function SystemUsersPage() {
           onChange={(e) => setRoleFilter(e.target.value)}
         >
           <MenuItem value="All">All</MenuItem>
-          {ROLES.map((r) => (
+          {roleOptions.map((r) => (
             <MenuItem key={r} value={r}>{r}</MenuItem>
           ))}
         </TextField>
@@ -752,6 +772,8 @@ export function SystemUsersPage() {
         user={selected}
         onSave={save}
         onToggleStatus={toggleStatus}
+        allUsers={rows}
+        rolesData={rolesData}
       />
     </>
   );

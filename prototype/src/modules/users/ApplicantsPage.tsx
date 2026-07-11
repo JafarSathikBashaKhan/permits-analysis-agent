@@ -26,7 +26,7 @@ type Applicant = {
   contact: string;
   email: string;
   dob: string;
-  status: 'Active' | 'Inactive' | 'Blocked';
+  status: 'Active' | 'Inactive' | 'Verification Pending';
   blueBadge: boolean;
 };
 
@@ -40,13 +40,14 @@ const APPLICANTS: Applicant[] = Array.from({ length: 40 }).map((_, i) => ({
   contact: `+44 7700 900${String(100 + i).slice(-3)}`,
   email: `${FIRST[i % FIRST.length].toLowerCase()}.${LAST[(i * 3) % LAST.length].toLowerCase().replace(/[^a-z]/g, '')}@example.co.uk`,
   dob: `19${70 + (i % 30)}-0${1 + (i % 9)}-${String(1 + (i % 27)).padStart(2, '0')}`,
-  status: (i % 11 === 0 ? 'Blocked' : i % 7 === 0 ? 'Inactive' : 'Active') as any,
+  status: (i % 13 === 0 ? 'Verification Pending' : i % 7 === 0 ? 'Inactive' : 'Active') as any,
   blueBadge: i % 9 === 0,
 }));
 
 export function ApplicantsPage() {
   const showToast = useToast();
   const [allRows, setAllRows] = usePersistentState<Applicant[]>('prototype:users:applicants:rows', () => [...APPLICANTS]);
+  const [blueBadgeEnabled] = usePersistentState<boolean>('prototype:contract-settings:blue-badge', true);
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('All');
   const [addOpen, setAddOpen] = useState(false);
@@ -54,6 +55,7 @@ export function ApplicantsPage() {
   const [tab, setTab] = useState('overview');
   const [broadcastEmailOpen, setBroadcastEmailOpen] = useState(false);
   const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
+  const [redactConfirmOpen, setRedactConfirmOpen] = useState(false);
   const [selection, setSelection] = useState<GridRowSelectionModel>([]);
 
   const rows = useMemo(() => allRows.filter((a) =>
@@ -97,7 +99,7 @@ export function ApplicantsPage() {
           <TextField placeholder="Search by name, email or contact" value={q} onChange={(e) => setQ(e.target.value)}
             InputProps={{ startAdornment: <InputAdornment position="start"><Search fontSize="small" /></InputAdornment> }} sx={{ flex: 1 }} />
           <TextField select value={status} onChange={(e) => setStatus(e.target.value)} sx={{ minWidth: 180 }} label="Status">
-            {['All','Active','Inactive','Blocked'].map((s) => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+            {['All','Active','Inactive','Verification Pending'].map((s) => <MenuItem key={s} value={s}>{s}</MenuItem>)}
           </TextField>
         </Stack>
       </Paper>
@@ -111,6 +113,7 @@ export function ApplicantsPage() {
               </Typography>
               <Button variant="outlined" size="small" startIcon={<EmailOutlined />} onClick={() => { showToast(`Email sent to ${selection.length} applicant(s)`, 'success'); setSelection([]); }}>Email All</Button>
               <Button variant="outlined" size="small" startIcon={<LockResetOutlined />} onClick={() => { showToast(`Password reset for ${selection.length} applicant(s)`, 'success'); setSelection([]); }}>Reset Password</Button>
+              <Button variant="outlined" size="small" color="warning" onClick={() => setRedactConfirmOpen(true)}>Redact</Button>
               <Button variant="outlined" size="small" color="error" startIcon={<DeleteOutlineOutlined />} onClick={() => { setAllRows((prev) => prev.filter((r) => !selection.includes(r.id))); showToast(`${selection.length} applicant(s) deleted`, 'success'); setSelection([]); }}>Delete</Button>
             </Stack>
           </CardContent>
@@ -158,16 +161,16 @@ export function ApplicantsPage() {
           <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" scrollButtons="auto">
             <Tab value="overview" label="Overview" sx={{ minHeight: 52, textTransform: 'none', fontWeight: 600 }} />
             <Tab value="application" label="Applications" sx={{ minHeight: 52, textTransform: 'none', fontWeight: 600 }} />
-            <Tab value="bluebadge" label="Blue Badges" sx={{ minHeight: 52, textTransform: 'none', fontWeight: 600 }} />
+            {blueBadgeEnabled && <Tab value="bluebadge" label="Blue Badges" sx={{ minHeight: 52, textTransform: 'none', fontWeight: 600 }} />}
             <Tab value="vehicles" label="Vehicles" sx={{ minHeight: 52, textTransform: 'none', fontWeight: 600 }} />
             <Tab value="documents" label="Documents" sx={{ minHeight: 52, textTransform: 'none', fontWeight: 600 }} />
             <Tab value="emails" label="Email History" sx={{ minHeight: 52, textTransform: 'none', fontWeight: 600 }} />
             <Tab value="audit" label="Audit Log" sx={{ minHeight: 52, textTransform: 'none', fontWeight: 600 }} />
           </Tabs>
           <Box sx={{ p: 2.5 }}>
-            {tab === 'overview' && <OverviewPane a={selected} />}
+            {tab === 'overview' && <OverviewPane a={selected} setApplicant={(updates) => setSelected({ ...selected, ...updates })} />}
             {tab === 'application' && <ApplicationsPane />}
-            {tab === 'bluebadge' && <BlueBadgePane hasBadge={selected.blueBadge} />}
+            {blueBadgeEnabled && tab === 'bluebadge' && <BlueBadgePane hasBadge={selected.blueBadge} />}
             {tab === 'vehicles' && <VehiclesPane />}
             {tab === 'documents' && <DocumentsPane />}
             {tab === 'emails' && <EmailsPane />}
@@ -201,6 +204,14 @@ export function ApplicantsPage() {
         message="An email with reset instructions will be sent to the applicant."
         confirmLabel="Send reset link"
       />
+      <ConfirmDialog
+        open={redactConfirmOpen}
+        onClose={() => setRedactConfirmOpen(false)}
+        onConfirm={() => { showToast(`${selection.length} applicant(s) redacted`, 'success'); setSelection([]); setRedactConfirmOpen(false); }}
+        title="Redact applicants?"
+        message={`This will permanently redact personal data for ${selection.length} applicant(s). This action cannot be undone.`}
+        confirmLabel="Redact"
+      />
     </>
   );
 }
@@ -230,21 +241,43 @@ function ApplicantResetButton() {
   );
 }
 
-function OverviewPane({ a }: { a: Applicant }) {
+function OverviewPane({ a, setApplicant }: { a: Applicant; setApplicant: (updates: Partial<Applicant>) => void }) {
+  const showToast = useToast();
+  const [editBlueBadgeOpen, setEditBlueBadgeOpen] = useState(false);
   return (
-    <Grid container spacing={2}>
-      <Fact label="Full name" value={`${a.firstName} ${a.lastName}`} />
-      <Fact label="User name" value={a.email.split('@')[0]} />
-      <Fact label="Email" value={a.email} />
-      <Fact label="Contact" value={a.contact} />
-      <Fact label="Date of birth" value={a.dob} />
-      <Fact label="Applicant type" value="Resident" />
-      <Fact label="Correspondence address" value="Flat 12, Riverside Walk, CC1 3AA" />
-      <Fact label="Blue Badge" value={a.blueBadge ? 'Yes' : 'No'} />
-      <Fact label="Experian pass" value="Passed" />
-      <Fact label="Registered on" value="2025-11-14" />
-      <Fact label="Last login" value="2026-06-30 08:12" />
-    </Grid>
+    <>
+      <Grid container spacing={2}>
+        <Fact label="Full name" value={`${a.firstName} ${a.lastName}`} />
+        <Fact label="User name" value={a.email.split('@')[0]} />
+        <Fact label="Email" value={a.email} />
+        <Fact label="Contact" value={a.contact} />
+        <Fact label="Date of birth" value={a.dob} />
+        <Fact label="Applicant type" value="Resident" />
+        <Fact label="Correspondence address" value="Flat 12, Riverside Walk, CC1 3AA" />
+        <Grid item xs={12} sm={6} md={4}>
+          <Typography variant="caption" sx={{ color: tokens.MUTED, textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>Blue Badge</Typography>
+          <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 0.25 }}>
+            <Typography>{a.blueBadge ? 'Yes' : 'No'}</Typography>
+            {a.blueBadge && (
+              <Button size="small" variant="text" onClick={() => setEditBlueBadgeOpen(true)}>Edit Badge</Button>
+            )}
+          </Stack>
+        </Grid>
+        <Fact label="Experian pass" value="Passed" />
+        <Fact label="Registered on" value="2025-11-14" />
+        <Fact label="Last login" value="2026-06-30 08:12" />
+      </Grid>
+      {a.blueBadge && (
+        <AddBlueBadgeDialog
+          open={editBlueBadgeOpen}
+          onClose={() => setEditBlueBadgeOpen(false)}
+          onSave={(b) => {
+            showToast('Blue badge updated', 'success');
+            setEditBlueBadgeOpen(false);
+          }}
+        />
+      )}
+    </>
   );
 }
 
@@ -284,10 +317,12 @@ function VehiclesPane() {
   const showToast = useToast();
   const [addVehicleOpen, setAddVehicleOpen] = useState(false);
   const [addTempOpen, setAddTempOpen] = useState(false);
+  const [editVehicleOpen, setEditVehicleOpen] = useState(false);
+  const [editingVehicle, setEditingVehicle] = useState<any>(null);
   const [vehicles, setVehicles] = useState([
-    { vrm: 'AB19 XYZ', type: 'Standard', desc: 'Silver Ford Focus',    nick: 'Focus daily',   date: '2026-06-01 09:22' },
-    { vrm: 'BC22 CDE', type: 'Standard', desc: 'White Tesla Model 3',  nick: 'Tesla',         date: '2026-05-11 12:41' },
-    { vrm: 'TMP LOAN', type: 'Temporary', desc: 'Black BMW 3 Series (loaner)', nick: 'Loaner', date: '2026-06-15 10:04' },
+    { vrm: 'AB19 XYZ', type: 'Standard', desc: 'Silver Ford Focus',    nick: 'Focus daily',   date: '2026-06-01 09:22', make: 'Ford', model: 'Focus', colour: 'Silver' },
+    { vrm: 'BC22 CDE', type: 'Standard', desc: 'White Tesla Model 3',  nick: 'Tesla',         date: '2026-05-11 12:41', make: 'Tesla', model: 'Model 3', colour: 'White' },
+    { vrm: 'TMP LOAN', type: 'Temporary', desc: 'Black BMW 3 Series (loaner)', nick: 'Loaner', date: '2026-06-15 10:04', make: 'BMW', model: '3 Series', colour: 'Black' },
   ]);
   return (
     <>
@@ -298,17 +333,30 @@ function VehiclesPane() {
       <SimpleTable columns={['Vehicle number (VRM)','Type','Color, Make, Model','Nick name','Last added date/time','Actions']}
         rows={vehicles.map((v) => [v.vrm, v.type, v.desc, v.nick, v.date,
           <Stack direction="row" spacing={0.5}>
-            <IconButton size="small"><EditOutlined fontSize="small" /></IconButton>
-            <IconButton size="small"><DeleteOutlineOutlined fontSize="small" /></IconButton>
+            <IconButton size="small" onClick={() => { setEditingVehicle(v); setEditVehicleOpen(true); }}><EditOutlined fontSize="small" /></IconButton>
+            <IconButton size="small" onClick={() => { setVehicles((prev) => prev.filter((x) => x.vrm !== v.vrm)); showToast('Vehicle deleted', 'success'); }}><DeleteOutlineOutlined fontSize="small" /></IconButton>
           </Stack>])} />
       <AddVehicleDialog open={addVehicleOpen} onClose={() => setAddVehicleOpen(false)} onSave={(v) => {
-        setVehicles((prev) => [...prev, { vrm: v.vrm, type: 'Standard', desc: `${v.colour} ${v.make} ${v.model}`, nick: v.vrm, date: new Date().toLocaleString('en-GB') }]);
+        setVehicles((prev) => [...prev, { vrm: v.vrm, type: 'Standard', desc: `${v.colour} ${v.make} ${v.model}`, nick: v.vrm, date: new Date().toLocaleString('en-GB'), make: v.make, model: v.model, colour: v.colour }]);
         showToast('Vehicle added', 'success');
       }} />
       <AddVehicleDialog title="Add Temporary Vehicle" defaultTemporary={true} open={addTempOpen} onClose={() => setAddTempOpen(false)} onSave={(v) => {
-        setVehicles((prev) => [...prev, { vrm: v.vrm, type: 'Temporary', desc: `${v.colour} ${v.make} ${v.model}`, nick: v.vrm, date: new Date().toLocaleString('en-GB') }]);
+        setVehicles((prev) => [...prev, { vrm: v.vrm, type: 'Temporary', desc: `${v.colour} ${v.make} ${v.model}`, nick: v.vrm, date: new Date().toLocaleString('en-GB'), make: v.make, model: v.model, colour: v.colour }]);
         showToast('Temporary vehicle added', 'success');
       }} />
+      {editingVehicle && (
+        <AddVehicleDialog
+          title="Edit Vehicle"
+          open={editVehicleOpen}
+          onClose={() => { setEditVehicleOpen(false); setEditingVehicle(null); }}
+          initial={{ vrm: editingVehicle.vrm, make: editingVehicle.make, model: editingVehicle.model, colour: editingVehicle.colour, fuelType: '', vehicleType: '' }}
+          onSave={(v) => {
+            setVehicles((prev) => prev.map((x) => x.vrm === editingVehicle.vrm ? { ...x, vrm: v.vrm, desc: `${v.colour} ${v.make} ${v.model}`, make: v.make, model: v.model, colour: v.colour } : x));
+            showToast('Vehicle updated', 'success');
+            setEditingVehicle(null);
+          }}
+        />
+      )}
     </>
   );
 }
@@ -316,6 +364,8 @@ function VehiclesPane() {
 function DocumentsPane() {
   const showToast = useToast();
   const [open, setOpen] = useState(false);
+  const [replaceOpen, setReplaceOpen] = useState(false);
+  const [replacingDoc, setReplacingDoc] = useState<any>(null);
   const [docs, setDocs] = useState([
     { name: 'Proof of Address.pdf', type: 'Proof of Address', date: '2026-06-24', size: '212 KB', status: 'Approved' },
     { name: 'Utility Bill.pdf',    type: 'Proof of Address', date: '2026-05-30', size: '198 KB', status: 'Approved' },
@@ -328,14 +378,26 @@ function DocumentsPane() {
       <SimpleTable columns={['File Name','Document Type','Uploaded','Size','Status','Actions']}
         rows={docs.map((d) => [d.name, d.type, d.date, d.size, <StatusChip status={d.status} />,
           <Stack direction="row" spacing={0.5}>
-            <IconButton size="small"><DownloadOutlined fontSize="small" /></IconButton>
+            <IconButton size="small" onClick={() => showToast('Download started', 'success')}><DownloadOutlined fontSize="small" /></IconButton>
             <IconButton size="small"><PreviewOutlined fontSize="small" /></IconButton>
-            <IconButton size="small"><DeleteOutlineOutlined fontSize="small" /></IconButton>
+            <IconButton size="small" onClick={() => { setReplacingDoc(d); setReplaceOpen(true); }} title="Replace"><UploadFileOutlined fontSize="small" /></IconButton>
+            <IconButton size="small" onClick={() => { setDocs((prev) => prev.filter((x) => x.name !== d.name)); showToast('Document deleted', 'success'); }}><DeleteOutlineOutlined fontSize="small" /></IconButton>
           </Stack>])} />
       <UploadDocumentDialog open={open} onClose={() => setOpen(false)} onSave={(d) => {
         setDocs((prev) => [...prev, { name: d.fileName, type: d.type, date: new Date().toLocaleDateString('en-GB'), size: d.size, status: 'Pending' }]);
         showToast('Document uploaded', 'success');
       }} />
+      {replacingDoc && (
+        <UploadDocumentDialog
+          open={replaceOpen}
+          onClose={() => { setReplaceOpen(false); setReplacingDoc(null); }}
+          onSave={(d) => {
+            setDocs((prev) => prev.map((x) => x.name === replacingDoc.name ? { ...x, name: d.fileName, size: d.size, date: new Date().toLocaleDateString('en-GB'), status: 'Pending' } : x));
+            showToast('Document replaced', 'success');
+            setReplacingDoc(null);
+          }}
+        />
+      )}
     </>
   );
 }
@@ -355,10 +417,17 @@ function EmailsPane() {
       </Stack>
       <SimpleTable columns={['Sent','Subject','Status','Actions']}
         rows={emails.map((e) => [e.sent, e.subject, e.status, <IconButton size="small"><PreviewOutlined fontSize="small" /></IconButton>])} />
-      <ComposeEmailDialog open={open} onClose={() => setOpen(false)} onSave={(e) => {
-        setEmails((prev) => [...prev, { sent: new Date().toLocaleString('en-GB'), subject: e.subject, status: 'Sent' }]);
-        showToast('Email sent', 'success');
-      }} />
+      <ComposeEmailDialog
+        open={open}
+        onClose={() => setOpen(false)}
+        onSave={(e) => {
+          setEmails((prev) => [...prev, { sent: new Date().toLocaleString('en-GB'), subject: e.subject, status: 'Sent' }]);
+          showToast('Email sent', 'success');
+        }}
+        onSaveDraft={(e) => {
+          showToast('Email saved as draft', 'success');
+        }}
+      />
     </>
   );
 }
@@ -376,6 +445,8 @@ function AuditPane() {
 function AddApplicantDrawer({ onClose, onSave }: { onClose: () => void; onSave: (a: Omit<Applicant, 'id'>) => void }) {
   const showToast = useToast();
   const [experian, setExperian] = useState(false);
+  const [paperReminder, setPaperReminder] = useState(false);
+  const [dataSharingPolicy, setDataSharingPolicy] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -388,7 +459,11 @@ function AddApplicantDrawer({ onClose, onSave }: { onClose: () => void; onSave: 
       showToast('First Name, Last Name and Email are required', 'error');
       return;
     }
-    onSave({ firstName, lastName, email, contact, dob, status: 'Active', blueBadge });
+    if (!dataSharingPolicy) {
+      showToast('Please agree to the data sharing policy', 'error');
+      return;
+    }
+    onSave({ firstName, lastName, email, contact, dob, status: 'Verification Pending', blueBadge });
     onClose();
   };
 
@@ -433,6 +508,15 @@ function AddApplicantDrawer({ onClose, onSave }: { onClose: () => void; onSave: 
           </FormItem>
           <FormItem label="Experian check" full>
             <FormControlLabel control={<Switch checked={experian} onChange={(e) => setExperian(e.target.checked)} />} label="Run Experian address & identity check on save" />
+          </FormItem>
+          <FormItem label="Paper reminder" full>
+            <FormControlLabel control={<Switch checked={paperReminder} onChange={(e) => setPaperReminder(e.target.checked)} />} label="Send permit renewal reminders by post" />
+          </FormItem>
+          <FormItem label="Data sharing policy" full required>
+            <FormControlLabel control={<Switch checked={dataSharingPolicy} onChange={(e) => setDataSharingPolicy(e.target.checked)} />} label="I agree to the data sharing policy" />
+            <Typography variant="caption" sx={{ display: 'block', mt: 0.5, color: tokens.MUTED }}>
+              View <a href="/data-policy" target="_blank" rel="noopener noreferrer">data sharing policy</a>
+            </Typography>
           </FormItem>
         </Grid>
       </Box>

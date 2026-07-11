@@ -39,6 +39,14 @@ export const categories = ['Scratch card', 'Visitor', 'Resident', 'Disabled Bay'
 
 // -------- Applications --------
 export type ApplicationType = 'Permit' | 'Suspension' | 'Dispensation' | 'Exemption';
+export type ApplicationStatus =
+  | 'Pending Approval' | 'In Progress' | 'Under Review' | 'Approved' | 'Active'
+  | 'Rejected' | 'Cancelled' | 'Suspended' | 'On Hold' | 'Awaiting Payment'
+  | 'Payment Failed' | 'Expired' | 'Closed' | 'NFI'
+  | 'Waiting for Customer Info' | 'Request Support Evidence' | 'Internal Referral'
+  | 'Pending Renew' | 'Change Address' | 'Change Zone' | 'Awaiting Customer Info'
+  | 'Evidence Provided' | 'Reinstate' | 'Activate' | 'Reactivate';
+
 export type Application = {
   id: string;
   ref: string;
@@ -46,10 +54,12 @@ export type Application = {
   permission: string;
   type: ApplicationType;
   submitted: string;
-  status: 'Pending Approval' | 'In Progress' | 'Under Review' | 'Approved' | 'Active' | 'Rejected' | 'Cancelled' | 'Suspended' | 'On Hold' | 'Awaiting Payment' | 'Payment Failed' | 'Expired' | 'Closed' | 'NFI';
+  status: ApplicationStatus;
   amount: number;
   zone: string;
   assignedTo: string;
+  startDate?: string;
+  expiryDate?: string;
 };
 
 const APPLICANTS = ['Alice Whittaker','Ben Turner','Cheryl Iyer','Danny O\'Neill','Eesha Patel','Frank Bell','Grace Adeyemi','Harjeet Singh','Isla Robertson','James Coates','Kim Lorenzo','Lena Kowalski','Marcus Reid','Nina Gauthier','Oliver Kwan','Pippa Bracknell','Quentin Ash','Rohit Sharma','Sofia Marín','Tomas Vetter'];

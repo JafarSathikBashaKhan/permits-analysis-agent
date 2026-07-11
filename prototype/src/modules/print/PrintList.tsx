@@ -61,14 +61,15 @@ type Props = {
   activeLabel: 'Print' | 'Active';
   rows: PrintRow[];
   printPartnerEnabled?: boolean;
+  queueKey: string;  // NEW: Persistent key for this queue
 };
 
 export function PrintList({
   eyebrow, title, description,
   searchPlaceholder = 'Search by Reference Number, Applicant Name',
-  activeLabel, rows: initialRows, printPartnerEnabled = true,
+  activeLabel, rows: initialRows, printPartnerEnabled = true, queueKey,
 }: Props) {
-  const [rows, setRows] = useState<PrintRow[]>(initialRows);
+  const [rows, setRows] = usePersistentState<PrintRow[]>(queueKey, initialRows);
   const [search, setSearch] = useState('');
   const [selection, setSelection] = useState<GridRowSelectionModel>([]);
   const [menuAnchor, setMenuAnchor] = useState<{ el: HTMLElement; row: PrintRow } | null>(null);

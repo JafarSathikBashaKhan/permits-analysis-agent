@@ -47,6 +47,17 @@ export function ApplyConfigPage() {
   const [sessionTimeout, setSessionTimeout] = usePersistentState('prototype:apply-config:sessionTimeout', '20');
   const [visible, setVisible] = usePersistentState<string[]>('prototype:apply-config:visible', () => ALL_PERMISSIONS.slice(0, 6));
 
+  // MNPS Contract Toggles (US-162391, US-162928, US-163729, US-164800, US-164949, US-172571, US-187360)
+  const [mnpsToggles, setMnpsToggles] = usePersistentState('prototype:mnps-contract:toggles', {
+    pcnLookup: true,
+    experianToggle: true,
+    agentAssist: false,
+    autoguruToggle: true,
+    illumin8Toggle: false,
+    printToggle: true,
+    fpnLookup: false,
+  });
+
   const toggleVisible = (name: string) =>
     setVisible((v) => v.includes(name) ? v.filter((x) => x !== name) : [...v, name]);
 
@@ -266,12 +277,12 @@ export function ApplyConfigPage() {
           <CardContent>
             <Typography variant="h6" sx={{ mb: 2 }}>Third-Party Integrations</Typography>
             {[
-              { name: 'Autoguru', desc: 'Vehicle VRM lookup (make, model, fuel, CO2)', status: 'Connected' },
-              { name: 'Experian', desc: 'Applicant address & identity verification', status: 'Connected' },
-              { name: 'Illumin8', desc: 'Blue Badge photo capture', status: 'Not connected' },
-              { name: 'Print Partner (Datagraphic)', desc: 'Physical permit printing & dispatch', status: 'Connected' },
-              { name: 'Stripe', desc: 'Card payments and refunds', status: 'Connected' },
-              { name: 'GOV.UK Notify', desc: 'Transactional SMS and email delivery', status: 'Not connected' },
+              { name: 'Autoguru', desc: 'Vehicle VRM lookup (make, model, fuel, CO2)', status: 'Connected', key: 'autoguru' },
+              { name: 'Experian', desc: 'Applicant address & identity verification', status: 'Connected', key: 'experian' },
+              { name: 'Illumin8', desc: 'Blue Badge photo capture', status: 'Not connected', key: 'illumin8' },
+              { name: 'Print Partner (Datagraphic)', desc: 'Physical permit printing & dispatch', status: 'Connected', key: 'printPartner' },
+              { name: 'Stripe', desc: 'Card payments and refunds', status: 'Connected', key: 'stripe' },
+              { name: 'GOV.UK Notify', desc: 'Transactional SMS and email delivery', status: 'Not connected', key: 'govNotify' },
             ].map((intg) => (
               <Stack key={intg.name} direction="row" alignItems="center" justifyContent="space-between" sx={{ py: 1.5, borderBottom: '1px solid #EEE' }}>
                 <Box>
@@ -288,6 +299,35 @@ export function ApplyConfigPage() {
                 </Stack>
               </Stack>
             ))}
+            <Divider sx={{ my: 3 }} />
+            <Typography variant="h6" sx={{ mb: 2 }}>MNPS Contract Toggles (14 Stories)</Typography>
+            <Typography sx={{ color: tokens.MUTED, mb: 2 }}>Enable/disable specific features for this MNPS contract.</Typography>
+            <Grid container spacing={2}>
+              {[
+                { key: 'pcnLookup', label: 'PCN Lookup', desc: 'Link PCN records to applications (US-162391, US-164946)' },
+                { key: 'experianToggle', label: 'Experian Integration', desc: 'Enable Experian for address/identity checks (US-162928)' },
+                { key: 'agentAssist', label: 'Agent Assist', desc: 'Payment assistance for applicants via BO agent (US-163729)' },
+                { key: 'autoguruToggle', label: 'Autoguru', desc: 'Automatic VRM lookup for vehicle details (US-164800)' },
+                { key: 'illumin8Toggle', label: 'Illumin8', desc: 'Blue Badge photo capture integration (US-164949)' },
+                { key: 'printToggle', label: 'Print', desc: 'Physical permit printing via print partner (US-172571)' },
+                { key: 'fpnLookup', label: 'FPN Lookup', desc: 'Fixed Penalty Notice lookup with contract mapping (US-187360)' },
+              ].map((t) => (
+                <Grid item xs={12} md={6} key={t.key}>
+                  <Card variant="outlined" sx={{ p: 2 }}>
+                    <Stack direction="row" alignItems="center" justifyContent="space-between">
+                      <Box>
+                        <Typography sx={{ fontWeight: 600 }}>{t.label}</Typography>
+                        <Typography sx={{ color: tokens.MUTED, fontSize: '0.82rem' }}>{t.desc}</Typography>
+                      </Box>
+                      <FormControlLabel
+                        control={<Switch checked={mnpsToggles[t.key]} onChange={(_, v) => setMnpsToggles({ ...mnpsToggles, [t.key]: v })} />}
+                        label=""
+                      />
+                    </Stack>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
           </CardContent>
         </Card>
       )}

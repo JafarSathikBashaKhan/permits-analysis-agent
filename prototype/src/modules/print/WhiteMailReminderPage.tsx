@@ -13,6 +13,7 @@ export function WhiteMailReminderPage() {
       description="White-mail reminder pipeline for physical permit re-issue and expiry follow-up."
       activeLabel="Active"
       rows={buildPrintRows(apps, 'active')}
+      queueKey="prototype:print:white-mail:rows"
     />
   );
 }

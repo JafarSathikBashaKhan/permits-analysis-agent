@@ -13,6 +13,7 @@ export function PhysicalPermissionPage() {
       description="Physical permit issuing, download and print-partner dispatch."
       activeLabel="Print"
       rows={buildPrintRows(apps, 'print')}
+      queueKey="prototype:print-queue:rows"
     />
   );
 }

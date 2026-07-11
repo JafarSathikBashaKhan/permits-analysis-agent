@@ -2,26 +2,46 @@ import { useState } from 'react';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import {
   Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle,
-  Stack, Tab, Tabs, TextField, Typography, FormControlLabel, Switch, Alert,
+  Stack, Tab, Tabs, TextField, Typography, FormControlLabel, Switch, Alert, MenuItem,
 } from '@mui/material';
 import { PageHeader } from '../../shared/PageHeader';
+import { useToast } from '../../components/Toast';
 
 type AlertConfig = {
   cookieDescription: string;
+  cookieAssignedPages: string[];
   experianMessage: string;
   experianDescription: string;
+  experianAssignedPages: string[];
   correspondenceAddress: string;
+  correspondenceAssignedPages: string[];
   customerNotificationEnabled: boolean;
   customerNotificationDescription: string;
+  customerNotificationAssignedPages: string[];
+  toasterSuccessMessage: string;
+  toasterErrorMessage: string;
+  toasterWarningMessage: string;
 };
+
+const APP_PAGES = [
+  'Buy Now', 'Applications', 'Application Details', 'Users',
+  'Applicants', 'Permission Setup', 'Templates', 'Print', 'Area', 'Dashboard',
+];
 
 const initial: AlertConfig = {
   cookieDescription: '<p>This site uses cookies to enhance your browsing experience...</p>',
+  cookieAssignedPages: ['Buy Now', 'Applications'],
   experianMessage: 'Your details will be verified with Experian.',
   experianDescription: '<p>Experian is used to verify your identity and address...</p>',
+  experianAssignedPages: ['Buy Now'],
   correspondenceAddress: 'Marston Holdings\nCity House\nSutton Park Road\nStockport SK1 3AZ',
+  correspondenceAssignedPages: ['Print'],
   customerNotificationEnabled: true,
   customerNotificationDescription: '<p>Notify customers about updates to their permit.</p>',
+  customerNotificationAssignedPages: ['Applications', 'Applicants'],
+  toasterSuccessMessage: 'Operation completed successfully',
+  toasterErrorMessage: 'An error occurred. Please try again.',
+  toasterWarningMessage: 'Please review the information provided.',
 };
 
 const EDITOR_TOOLBAR = ['B', 'I', 'U', '• List', '1. List', '🔗 Link', 'Align', 'Font'];
@@ -49,6 +69,7 @@ function RichEditor({
 }
 
 export function AlertsAndTooltipsPage() {
+  const showToast = useToast();
   const [tab, setTab] = useState(0);
   const [saved, setSaved] = usePersistentState<AlertConfig>('prototype:templates:alerts:rows', initial);
   const [draft, setDraft] = useState<AlertConfig>(saved);
@@ -59,7 +80,10 @@ export function AlertsAndTooltipsPage() {
   const set = <K extends keyof AlertConfig>(k: K, v: AlertConfig[K]) =>
     setDraft((d) => ({ ...d, [k]: v }));
 
-  const save = () => { setSaved(draft); };
+  const save = () => {
+    setSaved(draft);
+    showToast('Alerts and tooltips saved successfully', 'success');
+  };
 
   const cancel = () => {
     if (dirty) { setConfirmDiscard(true); return; }
@@ -79,12 +103,27 @@ export function AlertsAndTooltipsPage() {
           <Tab label="Experian" />
           <Tab label="Property" />
           <Tab label="Customer Notification" />
+          <Tab label="Toaster Messages" />
         </Tabs>
 
         <Box sx={{ p: 3 }}>
           {tab === 0 && (
-            <RichEditor label="Description" max={1000}
-              value={draft.cookieDescription} onChange={(v) => set('cookieDescription', v)} />
+            <Stack spacing={2.5}>
+              <RichEditor label="Description" max={1000}
+                value={draft.cookieDescription} onChange={(v) => set('cookieDescription', v)} />
+              <TextField
+                select label="Assigned Pages" fullWidth
+                SelectProps={{ multiple: true, renderValue: (sel) => (
+                  <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
+                    {(sel as string[]).map((p) => <Chip key={p} label={p} size="small" />)}
+                  </Stack>
+                )}}
+                value={draft.cookieAssignedPages}
+                onChange={(e) => set('cookieAssignedPages', e.target.value as string[])}
+              >
+                {APP_PAGES.map((p) => <MenuItem key={p} value={p}>{p}</MenuItem>)}
+              </TextField>
+            </Stack>
           )}
 
           {tab === 1 && (
@@ -95,14 +134,40 @@ export function AlertsAndTooltipsPage() {
                 helperText={`${draft.experianMessage.length}/500`} />
               <RichEditor label="Description" max={1000}
                 value={draft.experianDescription} onChange={(v) => set('experianDescription', v)} />
+              <TextField
+                select label="Assigned Pages" fullWidth
+                SelectProps={{ multiple: true, renderValue: (sel) => (
+                  <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
+                    {(sel as string[]).map((p) => <Chip key={p} label={p} size="small" />)}
+                  </Stack>
+                )}}
+                value={draft.experianAssignedPages}
+                onChange={(e) => set('experianAssignedPages', e.target.value as string[])}
+              >
+                {APP_PAGES.map((p) => <MenuItem key={p} value={p}>{p}</MenuItem>)}
+              </TextField>
             </Stack>
           )}
 
           {tab === 2 && (
-            <TextField label="Correspondence Address" fullWidth multiline rows={6}
-              value={draft.correspondenceAddress}
-              onChange={(e) => set('correspondenceAddress', e.target.value.slice(0, 500))}
-              helperText={`${draft.correspondenceAddress.length}/500`} />
+            <Stack spacing={2.5}>
+              <TextField label="Correspondence Address" fullWidth multiline rows={6}
+                value={draft.correspondenceAddress}
+                onChange={(e) => set('correspondenceAddress', e.target.value.slice(0, 500))}
+                helperText={`${draft.correspondenceAddress.length}/500`} />
+              <TextField
+                select label="Assigned Pages" fullWidth
+                SelectProps={{ multiple: true, renderValue: (sel) => (
+                  <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
+                    {(sel as string[]).map((p) => <Chip key={p} label={p} size="small" />)}
+                  </Stack>
+                )}}
+                value={draft.correspondenceAssignedPages}
+                onChange={(e) => set('correspondenceAssignedPages', e.target.value as string[])}
+              >
+                {APP_PAGES.map((p) => <MenuItem key={p} value={p}>{p}</MenuItem>)}
+              </TextField>
+            </Stack>
           )}
 
           {tab === 3 && (
@@ -127,9 +192,38 @@ export function AlertsAndTooltipsPage() {
                   }
                 }}
               />
+              <TextField
+                select label="Assigned Pages" fullWidth
+                SelectProps={{ multiple: true, renderValue: (sel) => (
+                  <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
+                    {(sel as string[]).map((p) => <Chip key={p} label={p} size="small" />)}
+                  </Stack>
+                )}}
+                value={draft.customerNotificationAssignedPages}
+                onChange={(e) => set('customerNotificationAssignedPages', e.target.value as string[])}
+              >
+                {APP_PAGES.map((p) => <MenuItem key={p} value={p}>{p}</MenuItem>)}
+              </TextField>
               {!draft.customerNotificationEnabled && (
                 <Alert severity="info">Switch on to enable customer notifications.</Alert>
               )}
+            </Stack>
+          )}
+
+          {tab === 4 && (
+            <Stack spacing={2.5}>
+              <TextField label="Success Message" fullWidth size="small"
+                value={draft.toasterSuccessMessage}
+                onChange={(e) => set('toasterSuccessMessage', e.target.value.slice(0, 200))}
+                helperText={`${draft.toasterSuccessMessage.length}/200`} />
+              <TextField label="Error Message" fullWidth size="small"
+                value={draft.toasterErrorMessage}
+                onChange={(e) => set('toasterErrorMessage', e.target.value.slice(0, 200))}
+                helperText={`${draft.toasterErrorMessage.length}/200`} />
+              <TextField label="Warning Message" fullWidth size="small"
+                value={draft.toasterWarningMessage}
+                onChange={(e) => set('toasterWarningMessage', e.target.value.slice(0, 200))}
+                helperText={`${draft.toasterWarningMessage.length}/200`} />
             </Stack>
           )}
         </Box>

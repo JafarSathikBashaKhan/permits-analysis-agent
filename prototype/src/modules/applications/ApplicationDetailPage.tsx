@@ -1,5 +1,6 @@
 import {
   Box, Button, Chip, Divider, Grid, IconButton, Menu, MenuItem, Paper, Stack, Tab, Table, TableBody, TableCell, TableHead, TableRow, Tabs, TextField, Typography,
+  Dialog, DialogTitle, DialogContent, DialogActions, FormControlLabel, Checkbox, Select,
 } from '@mui/material';
 import {
   ArrowBack, CheckCircleOutline, CancelOutlined, PauseCircleOutline, MoreVertOutlined, EmailOutlined,
@@ -10,12 +11,13 @@ import {
 import { useMemo, useState, MouseEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { StatusChip } from '../../shared/StatusChip';
-import { applications } from '../../data/mock';
+import { Application, ApplicationStatus } from '../../data/mock';
 import { tokens } from '../../theme';
 import { useToast } from '../../components/Toast';
 import { AddVehicleDialog } from '../../components/dialogs/AddVehicleDialog';
 import { UploadDocumentDialog } from '../../components/dialogs/UploadDocumentDialog';
 import { ComposeEmailDialog } from '../../components/dialogs/ComposeEmailDialog';
+import { ConfirmDialog } from '../../components/dialogs/ConfirmDialog';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { FIELD_LIMITS, BUSINESS_RULES } from '../../constants/enums';
 
@@ -67,21 +69,35 @@ export function ApplicationDetailPage() {
   const { id } = useParams();
   const nav = useNavigate();
   const showToast = useToast();
-  const app = applications.find((a) => a.id === id) ?? applications[0];
+  const [allRows, setAllRows] = usePersistentState<Application[]>('prototype:applications:rows', []);
+  const app = allRows.find((a) => a.id === id) ?? allRows[0];
   const [tab, setTab] = useState<TabKey>('overview');
   const [moreAnchor, setMoreAnchor] = useState<HTMLElement | null>(null);
 
-  const isSuspension = app.type === 'Suspension';
-  const isDispensation = app.type === 'Dispensation';
-  const isVisitor = /visitor/i.test(app.permission);
+  // Workflow action dialogs
+  const [confirmAction, setConfirmAction] = useState<{open: boolean; title: string; message: string; onConfirm: () => void} | null>(null);
+  const [reasonDialog, setReasonDialog] = useState<{open: boolean; title: string; reasonField: string; onSubmit: (reason: string) => void} | null>(null);
+  const [zoneDialog, setZoneDialog] = useState(false);
+  const [selectedZone, setSelectedZone] = useState('Z01 City Centre');
+
+  const isSuspension = app?.type === 'Suspension';
+  const isDispensation = app?.type === 'Dispensation';
+  const isVisitor = app ? /visitor/i.test(app.permission) : false;
 
   // On-Hold extension counter — persisted per application
   const [holdExtensions, setHoldExtensions] = usePersistentState<number>(
-    `prototype:applications:hold-extensions:${app.id}`, 0
+    `prototype:applications:hold-extensions:${app?.id ?? 'unknown'}`, 0
   );
+
+  // Helper to update current application status
+  const updateStatus = (newStatus: ApplicationStatus, toastMessage?: string) => {
+    setAllRows((prev) => prev.map((r) => r.id === app.id ? {...r, status: newStatus} : r));
+    showToast(toastMessage ?? `Status updated to ${newStatus}`, 'success');
+  };
 
   // Filter tabs by application type / category (mirrors real conditional rendering)
   const visibleTabs = useMemo(() => ALL_TABS.filter((t) => {
+    if (!app) return false;
     if (t.key === 'ceo' && !isSuspension) return false;
     if (t.key === 'voucher' && !isVisitor) return false;
     if (t.key === 'address' && !(isSuspension || app.status === 'Active')) return false;
@@ -89,23 +105,136 @@ export function ApplicationDetailPage() {
     if (t.key === 'renewal-docs' && app.status !== 'Expired') return false;
     if (isDispensation && t.key === 'ceo') return false;
     return true;
-  }), [isSuspension, isVisitor, isDispensation, app.status]);
+  }), [isSuspension, isVisitor, isDispensation, app?.status]);
 
-  const actions = headerActionsFor(app.status, isSuspension);
+  const actions = app ? headerActionsFor(app.status, isSuspension) : [];
 
   const handleActionClick = (label: string) => {
-    if (label === 'Extend Postpone') {
-      if (holdExtensions >= BUSINESS_RULES.ON_HOLD_MAX_EXTENSIONS) {
-        showToast('Maximum hold extensions reached', 'error');
-        return;
-      }
-      const next = holdExtensions + 1;
-      setHoldExtensions(next);
-      showToast(`Hold duration extended (${next} of ${BUSINESS_RULES.ON_HOLD_MAX_EXTENSIONS})`, 'success');
-    } else {
-      showToast(`${label} — action recorded`, 'success');
+    switch (label) {
+      case 'Extend Postpone':
+        if (holdExtensions >= BUSINESS_RULES.ON_HOLD_MAX_EXTENSIONS) {
+          showToast('Maximum hold extensions reached', 'error');
+          return;
+        }
+        const next = holdExtensions + 1;
+        setHoldExtensions(next);
+        showToast(`Hold duration extended (${next} of ${BUSINESS_RULES.ON_HOLD_MAX_EXTENSIONS})`, 'success');
+        break;
+      case 'Begin Review':
+        updateStatus('In Progress', 'Application moved to In Progress');
+        break;
+      case 'Approve':
+        setConfirmAction({
+          open: true,
+          title: 'Approve Application',
+          message: 'Are you sure you want to approve this application? This will move it to Approved status.',
+          onConfirm: () => {
+            updateStatus('Approved', 'Application approved successfully');
+            setConfirmAction(null);
+          }
+        });
+        break;
+      case 'Reject':
+        setReasonDialog({
+          open: true,
+          title: 'Reject Application',
+          reasonField: 'Rejection Reason',
+          onSubmit: (reason) => {
+            updateStatus('Rejected', `Application rejected: ${reason}`);
+            setReasonDialog(null);
+          }
+        });
+        break;
+      case 'Cancel Application':
+        setReasonDialog({
+          open: true,
+          title: 'Cancel Application',
+          reasonField: 'Cancellation Reason',
+          onSubmit: (reason) => {
+            updateStatus('Cancelled', `Application cancelled: ${reason}`);
+            setReasonDialog(null);
+          }
+        });
+        break;
+      case 'Suspend Application':
+        setReasonDialog({
+          open: true,
+          title: 'Suspend Application',
+          reasonField: 'Suspension Reason',
+          onSubmit: (reason) => {
+            updateStatus('Suspended', `Application suspended: ${reason}`);
+            setReasonDialog(null);
+          }
+        });
+        break;
+      case 'Resume':
+        updateStatus('Pending Approval', 'Application resumed and moved to Pending Approval');
+        break;
+      case 'Reinstate':
+        updateStatus('Pending Approval', 'Application reinstated and moved to Pending Approval');
+        break;
+      case 'Reactivate':
+        updateStatus('Active', 'Application reactivated successfully');
+        break;
+      case 'Renew':
+        updateStatus('Pending Renew', 'Renewal initiated for this application');
+        break;
+      case 'Activate':
+        updateStatus('Active', 'Application activated successfully');
+        break;
+      case 'Cancel Suspension':
+        updateStatus('Active', 'Suspension cancelled, application is now active');
+        break;
+      default:
+        showToast(`${label} — action recorded`, 'success');
     }
   };
+
+  const handleMoreMenuAction = (action: string) => {
+    setMoreAnchor(null);
+    switch (action) {
+      case 'Request Evidence':
+        updateStatus('Request Support Evidence', 'Evidence requested from applicant');
+        break;
+      case 'Internal Referral':
+        updateStatus('Internal Referral', 'Application referred internally');
+        break;
+      case 'On-Hold':
+        if (holdExtensions >= BUSINESS_RULES.ON_HOLD_MAX_EXTENSIONS) {
+          showToast('Maximum hold extensions reached', 'error');
+          return;
+        }
+        updateStatus('On Hold', 'Application placed on hold');
+        break;
+      case 'Request Customer Information':
+        updateStatus('Waiting for Customer Info', 'Customer information requested');
+        break;
+      case 'Change Zone':
+        setZoneDialog(true);
+        break;
+      case 'Change Address':
+        updateStatus('Change Address', 'Address change initiated');
+        break;
+      case 'Renew':
+        updateStatus('Pending Renew', 'Renewal initiated for this application');
+        break;
+    }
+  };
+
+  const handleZoneChange = () => {
+    setAllRows((prev) => prev.map((r) => r.id === app.id ? {...r, zone: selectedZone} : r));
+    showToast(`Zone changed to ${selectedZone}`, 'success');
+    setZoneDialog(false);
+  };
+
+  if (!app) {
+    return (
+      <Box sx={{ p: 4, textAlign: 'center' }}>
+        <Typography>Application not found</Typography>
+        <Button onClick={() => nav('/applications')} sx={{ mt: 2 }}>Back to applications</Button>
+      </Box>
+    );
+  }
 
   return (
     <>
@@ -143,13 +272,13 @@ export function ApplicationDetailPage() {
             ))}
             <IconButton onClick={(e: MouseEvent<HTMLElement>) => setMoreAnchor(e.currentTarget)}><MoreVertOutlined /></IconButton>
             <Menu anchorEl={moreAnchor} open={!!moreAnchor} onClose={() => setMoreAnchor(null)}>
-              <MenuItem onClick={() => setMoreAnchor(null)}>Request Evidence</MenuItem>
-              <MenuItem onClick={() => setMoreAnchor(null)}>Internal Referral</MenuItem>
-              <MenuItem onClick={() => setMoreAnchor(null)}>On-Hold</MenuItem>
-              <MenuItem onClick={() => setMoreAnchor(null)}>Request Customer Information</MenuItem>
-              <MenuItem onClick={() => setMoreAnchor(null)}>Change Zone</MenuItem>
-              <MenuItem onClick={() => setMoreAnchor(null)}>Change Address</MenuItem>
-              <MenuItem onClick={() => setMoreAnchor(null)}>Renew</MenuItem>
+              <MenuItem onClick={() => handleMoreMenuAction('Request Evidence')}>Request Evidence</MenuItem>
+              <MenuItem onClick={() => handleMoreMenuAction('Internal Referral')}>Internal Referral</MenuItem>
+              <MenuItem onClick={() => handleMoreMenuAction('On-Hold')}>On-Hold</MenuItem>
+              <MenuItem onClick={() => handleMoreMenuAction('Request Customer Information')}>Request Customer Information</MenuItem>
+              <MenuItem onClick={() => handleMoreMenuAction('Change Zone')}>Change Zone</MenuItem>
+              <MenuItem onClick={() => handleMoreMenuAction('Change Address')}>Change Address</MenuItem>
+              <MenuItem onClick={() => handleMoreMenuAction('Renew')}>Renew</MenuItem>
             </Menu>
           </Stack>
         </Stack>
@@ -173,18 +302,87 @@ export function ApplicationDetailPage() {
       {/* Tab panels */}
       {tab === 'overview' && <OverviewPanel app={app} />}
       {tab === 'applicant' && <ApplicantPanel app={app} />}
-      {tab === 'vehicle' && <VehiclePanel />}
-      {tab === 'document' && <DocumentPanel />}
-      {tab === 'email' && <EmailPanel />}
+      {tab === 'vehicle' && <VehiclePanel appId={app.id} />}
+      {tab === 'document' && <DocumentPanel appId={app.id} />}
+      {tab === 'email' && <EmailPanel appId={app.id} />}
       {tab === 'payment' && <PaymentPanel amount={app.amount} />}
       {tab === 'audit' && <AuditPanel app={app} />}
-      {tab === 'notes' && <NotesPanel />}
+      {tab === 'notes' && <NotesPanel appId={app.id} />}
       {tab === 'address' && <AddressAssignPanel />}
       {tab === 'ceo' && <CEOTaskPanel />}
-      {tab === 'renewal-summary' && <RenewalSummaryPanel app={app} />}
+      {tab === 'renewal-summary' && <RenewalSummaryPanel app={app} updateStatus={updateStatus} />}
       {tab === 'renewal-docs' && <RenewalDocsPanel />}
       {tab === 'voucher' && <VoucherPanel />}
       {tab === 'preview' && <PreviewPanel app={app} />}
+
+      {/* Confirmation Dialog */}
+      {confirmAction && (
+        <ConfirmDialog
+          open={confirmAction.open}
+          title={confirmAction.title}
+          message={confirmAction.message}
+          onConfirm={confirmAction.onConfirm}
+          onClose={() => setConfirmAction(null)}
+        />
+      )}
+
+      {/* Reason Dialog */}
+      {reasonDialog && (
+        <Dialog open={reasonDialog.open} onClose={() => setReasonDialog(null)} maxWidth="sm" fullWidth>
+          <DialogTitle>{reasonDialog.title}</DialogTitle>
+          <DialogContent>
+            <TextField
+              label={reasonDialog.reasonField}
+              fullWidth
+              multiline
+              minRows={3}
+              autoFocus
+              sx={{ mt: 1 }}
+              id="reason-field"
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setReasonDialog(null)}>Cancel</Button>
+            <Button
+              variant="contained"
+              onClick={() => {
+                const reasonInput = document.getElementById('reason-field') as HTMLInputElement;
+                const reason = reasonInput?.value?.trim();
+                if (!reason) {
+                  showToast('Reason is required', 'error');
+                  return;
+                }
+                reasonDialog.onSubmit(reason);
+              }}
+            >
+              Submit
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+
+      {/* Zone Change Dialog */}
+      <Dialog open={zoneDialog} onClose={() => setZoneDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Change Zone</DialogTitle>
+        <DialogContent>
+          <TextField
+            select
+            label="New Zone"
+            fullWidth
+            value={selectedZone}
+            onChange={(e) => setSelectedZone(e.target.value)}
+            sx={{ mt: 1 }}
+          >
+            {['Z01 City Centre', 'Z02 Northgate', 'Z03 Southbank', 'Z04 Riverside', 'Z05 Kingsway'].map((z) => (
+              <MenuItem key={z} value={z}>{z}</MenuItem>
+            ))}
+          </TextField>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setZoneDialog(false)}>Cancel</Button>
+          <Button variant="contained" onClick={handleZoneChange}>Change Zone</Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
@@ -255,13 +453,23 @@ function ApplicantPanel({ app }: { app: any }) {
   );
 }
 
-function VehiclePanel() {
+function VehiclePanel({ appId }: { appId: string }) {
   const showToast = useToast();
   const [addVehicleOpen, setAddVehicleOpen] = useState(false);
-  const [vehicles, setVehicles] = useState([
-    { vrm: 'AB19 XYZ', make: 'Ford', model: 'Focus', colour: 'Silver', fuel: 'Petrol', co2: 118, source: 'AutoGuru' },
-    { vrm: 'BC22 CDE', make: 'Tesla', model: 'Model 3', colour: 'White', fuel: 'Electric', co2: 0, source: 'AutoGuru' },
-  ]);
+  const [editVehicle, setEditVehicle] = useState<any>(null);
+  const [vehicles, setVehicles] = usePersistentState<any[]>(
+    `prototype:applications:vehicles:${appId}`,
+    () => [
+      { id: 'v1', vrm: 'AB19 XYZ', make: 'Ford', model: 'Focus', colour: 'Silver', fuel: 'Petrol', co2: 118, source: 'AutoGuru' },
+      { id: 'v2', vrm: 'BC22 CDE', make: 'Tesla', model: 'Model 3', colour: 'White', fuel: 'Electric', co2: 0, source: 'AutoGuru' },
+    ]
+  );
+
+  const handleDeleteVehicle = (id: string) => {
+    setVehicles((prev) => prev.filter((v) => v.id !== id));
+    showToast('Vehicle deleted', 'success');
+  };
+
   return (
     <>
       <PanelPaper title="Vehicles" actions={<Button size="small" variant="contained" startIcon={<AddOutlined />} onClick={() => setAddVehicleOpen(true)}>Add Vehicle</Button>}>
@@ -269,30 +477,50 @@ function VehiclePanel() {
           columns={['VRM','Make','Model','Colour','Fuel','CO₂','Source','Actions']}
           rows={vehicles.map((r) => [r.vrm, r.make, r.model, r.colour, r.fuel, `${r.co2} g/km`, r.source,
             <Stack direction="row" spacing={0.5}>
-              <IconButton size="small"><EditOutlined fontSize="small" /></IconButton>
-              <IconButton size="small"><DeleteOutlineOutlined fontSize="small" /></IconButton>
+              <IconButton size="small" onClick={() => setEditVehicle(r)}><EditOutlined fontSize="small" /></IconButton>
+              <IconButton size="small" onClick={() => handleDeleteVehicle(r.id)}><DeleteOutlineOutlined fontSize="small" /></IconButton>
             </Stack>])}
         />
       </PanelPaper>
       <AddVehicleDialog
-        open={addVehicleOpen}
-        onClose={() => setAddVehicleOpen(false)}
+        open={addVehicleOpen || !!editVehicle}
+        onClose={() => { setAddVehicleOpen(false); setEditVehicle(null); }}
         onSave={(v) => {
-          setVehicles((prev) => [...prev, { vrm: v.vrm, make: v.make, model: v.model, colour: v.colour, fuel: v.fuelType, co2: 0, source: 'Manual' }]);
-          showToast('Vehicle added', 'success');
+          if (editVehicle) {
+            setVehicles((prev) => prev.map((veh) => veh.id === editVehicle.id ? { ...editVehicle, vrm: v.vrm, make: v.make, model: v.model, colour: v.colour, fuel: v.fuelType } : veh));
+            showToast('Vehicle updated', 'success');
+            setEditVehicle(null);
+          } else {
+            setVehicles((prev) => [...prev, { id: `v${Date.now()}`, vrm: v.vrm, make: v.make, model: v.model, colour: v.colour, fuel: v.fuelType, co2: 0, source: 'Manual' }]);
+            showToast('Vehicle added', 'success');
+            setAddVehicleOpen(false);
+          }
         }}
       />
     </>
   );
 }
 
-function DocumentPanel() {
+function DocumentPanel({ appId }: { appId: string }) {
   const showToast = useToast();
   const [uploadOpen, setUploadOpen] = useState(false);
-  const [docs, setDocs] = useState([
-    { name: 'Proof of Address.pdf', type: 'Proof of Address', uploaded: '2026-06-24', size: '212 KB', status: 'Approved' },
-    { name: 'V5C.pdf',              type: 'Vehicle V5C',      uploaded: '2026-06-24', size: '384 KB', status: 'Pending' },
-  ]);
+  const [docs, setDocs] = usePersistentState<any[]>(
+    `prototype:applications:documents:${appId}`,
+    () => [
+      { id: 'd1', name: 'Proof of Address.pdf', type: 'Proof of Address', uploaded: '2026-06-24', size: '212 KB', status: 'Approved' },
+      { id: 'd2', name: 'V5C.pdf',              type: 'Vehicle V5C',      uploaded: '2026-06-24', size: '384 KB', status: 'Pending' },
+    ]
+  );
+
+  const handleDeleteDocument = (id: string) => {
+    setDocs((prev) => prev.filter((d) => d.id !== id));
+    showToast('Document deleted', 'success');
+  };
+
+  const handleDownloadDocument = (name: string) => {
+    showToast(`Downloading ${name}...`, 'info');
+  };
+
   return (
     <>
       <PanelPaper title="Documents" actions={<Button size="small" variant="contained" startIcon={<UploadFileOutlined />} onClick={() => setUploadOpen(true)}>Upload Document</Button>}>
@@ -300,9 +528,9 @@ function DocumentPanel() {
           columns={['File Name','Document Type','Uploaded','Size','Status','Actions']}
           rows={docs.map((r) => [r.name, r.type, r.uploaded, r.size, <StatusChip status={r.status} />,
             <Stack direction="row" spacing={0.5}>
-              <IconButton size="small"><DownloadOutlined fontSize="small" /></IconButton>
+              <IconButton size="small" onClick={() => handleDownloadDocument(r.name)}><DownloadOutlined fontSize="small" /></IconButton>
               <IconButton size="small"><PreviewOutlined fontSize="small" /></IconButton>
-              <IconButton size="small"><DeleteOutlineOutlined fontSize="small" /></IconButton>
+              <IconButton size="small" onClick={() => handleDeleteDocument(r.id)}><DeleteOutlineOutlined fontSize="small" /></IconButton>
             </Stack>])}
         />
       </PanelPaper>
@@ -310,7 +538,7 @@ function DocumentPanel() {
         open={uploadOpen}
         onClose={() => setUploadOpen(false)}
         onSave={(d) => {
-          setDocs((prev) => [...prev, { name: d.fileName, type: d.type, uploaded: new Date().toLocaleDateString('en-GB'), size: d.size, status: 'Pending' }]);
+          setDocs((prev) => [...prev, { id: `d${Date.now()}`, name: d.fileName, type: d.type, uploaded: new Date().toLocaleDateString('en-GB'), size: d.size, status: 'Pending' }]);
           showToast('Document uploaded', 'success');
         }}
       />
@@ -318,13 +546,17 @@ function DocumentPanel() {
   );
 }
 
-function EmailPanel() {
+function EmailPanel({ appId }: { appId: string }) {
   const showToast = useToast();
   const [composeOpen, setComposeOpen] = useState(false);
-  const [emails, setEmails] = useState([
-    { date: '2026-06-24 09:22', to: 'applicant@example.com', subject: 'Application received', status: 'Delivered' },
-    { date: '2026-06-25 14:08', to: 'applicant@example.com', subject: 'Payment required',     status: 'Delivered' },
-  ]);
+  const [emails, setEmails] = usePersistentState<any[]>(
+    `prototype:applications:emails:${appId}`,
+    () => [
+      { id: 'e1', date: '2026-06-24 09:22', to: 'applicant@example.com', subject: 'Application received', status: 'Delivered' },
+      { id: 'e2', date: '2026-06-25 14:08', to: 'applicant@example.com', subject: 'Payment required',     status: 'Delivered' },
+    ]
+  );
+
   return (
     <>
       <PanelPaper title="Email history" actions={<Button size="small" variant="contained" startIcon={<EmailOutlined />} onClick={() => setComposeOpen(true)}>Compose Email</Button>}>
@@ -336,7 +568,7 @@ function EmailPanel() {
         open={composeOpen}
         onClose={() => setComposeOpen(false)}
         onSave={(e) => {
-          setEmails((prev) => [...prev, { date: new Date().toLocaleString('en-GB'), to: e.to, subject: e.subject, status: 'Sent' }]);
+          setEmails((prev) => [...prev, { id: `e${Date.now()}`, date: new Date().toLocaleString('en-GB'), to: e.to, subject: e.subject, status: 'Sent' }]);
           showToast('Email sent', 'success');
         }}
       />
@@ -369,24 +601,54 @@ function AuditPanel({ app }: { app: any }) {
   );
 }
 
-function NotesPanel() {
-  const [notes, setNotes] = useState([
-    { id: 1, author: 'Jafar Basha', when: '2026-06-25', text: 'Called applicant to confirm address change.', visibleToApplicant: false },
-  ]);
+function NotesPanel({ appId }: { appId: string }) {
+  const [notes, setNotes] = usePersistentState<any[]>(
+    `prototype:applications:notes:${appId}`,
+    () => [
+      { id: 1, author: 'Jafar Basha', when: '2026-06-25', text: 'Called applicant to confirm address change.', visibleToApplicant: false },
+    ]
+  );
   const [text, setText] = useState('');
-  const add = () => { if (!text) return; setNotes((n) => [{ id: Date.now(), author: 'You', when: '2026-07-03', text, visibleToApplicant: false }, ...n]); setText(''); };
+  const [visibleToApplicant, setVisibleToApplicant] = useState(false);
+  const showToast = useToast();
+
+  const add = () => {
+    if (!text.trim()) {
+      showToast('Note cannot be empty', 'error');
+      return;
+    }
+    setNotes((n) => [{ id: Date.now(), author: 'You', when: new Date().toLocaleDateString('en-GB'), text: text.trim(), visibleToApplicant }, ...n]);
+    setText('');
+    setVisibleToApplicant(false);
+    showToast('Note added', 'success');
+  };
+
+  const deleteNote = (id: number) => {
+    setNotes((n) => n.filter((note) => note.id !== id));
+    showToast('Note deleted', 'success');
+  };
+
   return (
     <PanelPaper title="Notes">
       <Stack spacing={2}>
         <TextField placeholder="Add a note…" multiline minRows={2} value={text} onChange={(e) => setText(e.target.value)} fullWidth />
-        <Stack direction="row" justifyContent="flex-end"><Button variant="contained" onClick={add}>Add Note</Button></Stack>
+        <Stack direction="row" justifyContent="space-between" alignItems="center">
+          <FormControlLabel
+            control={<Checkbox checked={visibleToApplicant} onChange={(e) => setVisibleToApplicant(e.target.checked)} />}
+            label="Visible to applicant"
+          />
+          <Button variant="contained" onClick={add}>Add Note</Button>
+        </Stack>
         <Divider />
         <Stack spacing={1.5}>
           {notes.map((n) => (
             <Box key={n.id} sx={{ p: 2, bgcolor: '#F8FAFC', borderRadius: 1, border: `1px solid ${tokens.LINE}` }}>
               <Stack direction="row" justifyContent="space-between">
                 <Typography fontWeight={600}>{n.author}</Typography>
-                <Typography variant="caption" color="text.secondary">{n.when}</Typography>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Typography variant="caption" color="text.secondary">{n.when}</Typography>
+                  <IconButton size="small" onClick={() => deleteNote(n.id)}><DeleteOutlineOutlined fontSize="small" /></IconButton>
+                </Stack>
               </Stack>
               <Typography sx={{ mt: 0.75 }}>{n.text}</Typography>
               {n.visibleToApplicant && <Chip size="small" label="Visible to applicant" sx={{ mt: 1 }} />}
@@ -437,8 +699,21 @@ function CEOTaskPanel() {
   );
 }
 
-function RenewalSummaryPanel({ app }: { app: any }) {
+function RenewalSummaryPanel({ app, updateStatus }: { app: any; updateStatus: (status: ApplicationStatus, message?: string) => void }) {
   const showToast = useToast();
+
+  const handleConfirmRenewal = () => {
+    updateStatus('Pending Renew', 'Renewal confirmed successfully');
+  };
+
+  const handleExtendRenewal = () => {
+    showToast('Renewal period extended by 30 days', 'success');
+  };
+
+  const handleCancelRenewal = () => {
+    updateStatus('Active', 'Renewal cancelled, permit remains active');
+  };
+
   return (
     <PanelPaper title="Renewal summary">
       <Grid container spacing={2}>
@@ -450,8 +725,9 @@ function RenewalSummaryPanel({ app }: { app: any }) {
         <Fact label="Documents required" value="Proof of Address, V5C" />
       </Grid>
       <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ mt: 2 }}>
-        <Button variant="text" onClick={() => showToast('Cancelled', 'info')}>Cancel</Button>
-        <Button variant="contained" onClick={() => showToast('Renewal confirmed', 'success')}>Confirm Renewal</Button>
+        <Button variant="outlined" color="error" onClick={handleCancelRenewal}>Cancel Renewal</Button>
+        <Button variant="outlined" onClick={handleExtendRenewal}>Extend Renewal Period</Button>
+        <Button variant="contained" onClick={handleConfirmRenewal}>Confirm Renewal</Button>
       </Stack>
     </PanelPaper>
   );
