@@ -10,6 +10,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import { PageHeader } from '../../shared/PageHeader';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import { useToast } from '../../components/Toast';
 
 const EXPIRATION_PERIODS = ['Days', 'Weeks', 'Months', 'Years'];
 
@@ -58,6 +59,7 @@ const seed = (): DocumentType[] => [
 type PanelMode = 'closed' | 'preview' | 'edit' | 'add';
 
 export function DocumentTypesPage() {
+  const showToast = useToast();
   const [rows, setRows] = usePersistentState<DocumentType[]>('prototype:templates:document-types:rows', seed);
   const [search, setSearch] = useState('');
   const [panel, setPanel] = useState<PanelMode>('closed');
@@ -123,6 +125,7 @@ export function DocumentTypesPage() {
           createdOn: now, createdBy: 'Current User', updatedOn: now, updatedBy: 'Current User',
         },
       ]);
+      showToast('Document Type created successfully', 'success');
     } else if (panel === 'edit' && target) {
       setRows(rows.map((r) => r.id === target.id ? {
         ...r,
@@ -132,6 +135,7 @@ export function DocumentTypesPage() {
         expirationPeriod: period || undefined,
         updatedOn: now, updatedBy: 'Current User',
       } : r));
+      showToast('Document Type updated successfully', 'success');
     }
     setPanel('closed'); setTarget(null);
   };
@@ -139,6 +143,7 @@ export function DocumentTypesPage() {
   const doDelete = () => {
     if (!deleteTarget) return;
     setRows(rows.filter((r) => r.id !== deleteTarget.id));
+    showToast('Document Type deleted successfully', 'success');
     setDeleteTarget(null);
   };
 

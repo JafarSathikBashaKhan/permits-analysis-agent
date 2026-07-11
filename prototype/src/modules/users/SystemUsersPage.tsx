@@ -29,6 +29,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { PageHeader } from '../../shared/PageHeader';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import { useToast } from '../../components/Toast';
 
 // ─────────────────────────────────────────────────────────────
 // Fixtures (mirror real API shape: role, permission groups, users)
@@ -539,6 +540,7 @@ function UserSlidingPanel({
 // List page
 // ─────────────────────────────────────────────────────────────
 export function SystemUsersPage() {
+  const showToast = useToast();
   const [rows, setRows] = usePersistentState<SystemUser[]>('prototype:users:system-users:rows', seedUsers);
   const [q, setQ] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Deactive'>('All');
@@ -579,17 +581,22 @@ export function SystemUsersPage() {
   };
 
   const save = (u: SystemUser) => {
+    const isEdit = rows.some((r) => r.id === u.id);
     setRows((prev) => {
       const exists = prev.some((r) => r.id === u.id);
       return exists ? prev.map((r) => (r.id === u.id ? u : r)) : [u, ...prev];
     });
+    showToast(isEdit ? 'System User updated successfully' : 'System User created successfully', 'success');
   };
   const toggleStatus = (id: string) => {
+    const user = rows.find((r) => r.id === id);
+    const nextStatus = user?.status === 'Active' ? 'Deactive' : 'Active';
     setRows((prev) =>
       prev.map((r) =>
         r.id === id ? { ...r, status: r.status === 'Active' ? 'Deactive' : 'Active' } : r
       )
     );
+    showToast(`User ${nextStatus === 'Active' ? 'activated' : 'deactivated'} successfully`, 'success');
     setPanelOpen(false);
   };
 

@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '../../shared/PageHeader';
 import { applications, systemUsers } from '../../data/mock';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import { useToast } from '../../components/Toast';
 
 const STATUS_COLORS: Record<string, { color: 'default'|'primary'|'success'|'warning'|'error'|'info'; variant: 'filled'|'outlined' }> = {
   'Pending Approval': { color: 'warning', variant: 'outlined' },
@@ -74,6 +75,7 @@ const seed = (): WorkItem[] => applications.slice(0, 18).map((a, i) => {
 type Mode = 'assign' | 'reassign';
 
 export function MyWorkItemsPage() {
+  const showToast = useToast();
   const nav = useNavigate();
   const [rows, setRows] = usePersistentState<WorkItem[]>('prototype:workqueue:my-work:rows', seed);
   const [tab, setTab] = useState(0);
@@ -110,6 +112,7 @@ export function MyWorkItemsPage() {
     setRows(rows.map((r) => panelIds.includes(r.id)
       ? { ...r, bucket: 'assigned', assignedBy: 'Current User', assignedTo: chosenUser }
       : r));
+    showToast(panel === 'reassign' ? 'Work items reassigned successfully' : 'Work items assigned successfully', 'success');
     setPanel(null); setPanelIds([]); setSelection([]);
   };
 

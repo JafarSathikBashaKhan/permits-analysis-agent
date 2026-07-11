@@ -13,6 +13,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { PageHeader } from '../../shared/PageHeader';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import { useToast } from '../../components/Toast';
 
 const PERMISSION_TYPES = [
   'Residents Permit', 'Business Permit', 'Visitor Permit', 'Contractor Permit',
@@ -143,6 +144,7 @@ function GroupPanel({
 }
 
 export function GroupsPage() {
+  const showToast = useToast();
   const [rows, setRows] = usePersistentState<Group[]>('prototype:builder:groups:rows', seedGroups);
   const [q, setQ] = useState('');
   const [panelOpen, setPanelOpen] = useState(false);
@@ -156,11 +158,14 @@ export function GroupsPage() {
     return rows.filter((r) => r.name.toLowerCase().includes(ql));
   }, [rows, q]);
 
-  const save = (g: Group) =>
+  const save = (g: Group) => {
+    const isEdit = rows.some((r) => r.id === g.id);
     setRows((prev) => {
       const exists = prev.some((r) => r.id === g.id);
       return exists ? prev.map((r) => (r.id === g.id ? g : r)) : [g, ...prev];
     });
+    showToast(isEdit ? 'Group updated successfully' : 'Group created successfully', 'success');
+  };
 
   const columns: GridColDef<Group>[] = [
     { field: 'name', headerName: 'Group Name', flex: 1.2, minWidth: 160 },
@@ -231,6 +236,7 @@ export function GroupsPage() {
           {deleting && deleting.linkedPermissions === 0 && (
             <Button variant="contained" endIcon={<ArrowForwardIcon />} onClick={() => {
               setRows((prev) => prev.filter((r) => r.id !== deleting.id));
+              showToast('Group deleted successfully', 'success');
               setDeleting(null);
             }}>Delete</Button>
           )}

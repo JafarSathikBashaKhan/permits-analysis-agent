@@ -27,6 +27,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CloseIcon from '@mui/icons-material/Close';
 import { PageHeader } from '../../shared/PageHeader';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import { useToast } from '../../components/Toast';
 
 // ─────────────────────────────────────────────────────────────
 // Fixtures
@@ -391,6 +392,7 @@ function RolePanel({
 // List page
 // ─────────────────────────────────────────────────────────────
 export function RolesPage() {
+  const showToast = useToast();
   const [rows, setRows] = usePersistentState<Role[]>('prototype:users:roles:rows', seedRoles);
   const [q, setQ] = useState('');
   const [typeFilter, setTypeFilter] = useState('All');
@@ -421,14 +423,17 @@ export function RolesPage() {
     setPanelOpen(true);
   };
   const save = (r: Role) => {
+    const isEdit = rows.some((x) => x.id === r.id);
     setRows((prev) => {
       const exists = prev.some((x) => x.id === r.id);
       return exists ? prev.map((x) => (x.id === r.id ? r : x)) : [r, ...prev];
     });
+    showToast(isEdit ? 'Role updated successfully' : 'Role created successfully', 'success');
   };
   const confirmDelete = () => {
     if (!deleting) return;
     setRows((prev) => prev.filter((r) => r.id !== deleting.id));
+    showToast('Role deleted successfully', 'success');
     setDeleting(null);
   };
 

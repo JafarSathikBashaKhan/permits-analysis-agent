@@ -346,6 +346,7 @@ function AuditPane() {
 /* -------- Add Applicant Drawer -------- */
 
 function AddApplicantDrawer({ onClose }: { onClose: () => void }) {
+  const showToast = useToast();
   const [experian, setExperian] = useState(false);
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -383,7 +384,7 @@ function AddApplicantDrawer({ onClose }: { onClose: () => void }) {
       </Box>
       <Box sx={{ px: 3, py: 2, borderTop: `1px solid ${tokens.LINE}`, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" onClick={onClose}>Add Applicant</Button>
+        <Button variant="contained" onClick={() => { showToast('Applicant created successfully', 'success'); onClose(); }}>Add Applicant</Button>
       </Box>
     </Box>
   );

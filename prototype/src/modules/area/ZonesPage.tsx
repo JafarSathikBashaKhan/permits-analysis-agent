@@ -196,11 +196,14 @@ export function ZonesPage() {
     return rows.filter((r) => r.name.toLowerCase().includes(ql));
   }, [rows, q]);
 
-  const save = (z: Zone) =>
+  const save = (z: Zone) => {
+    const isEdit = rows.some((r) => r.id === z.id);
     setRows((prev) => {
       const exists = prev.some((r) => r.id === z.id);
       return exists ? prev.map((r) => (r.id === z.id ? z : r)) : [z, ...prev];
     });
+    showToast(isEdit ? 'Zone updated successfully' : 'Zone created successfully', 'success');
+  };
 
   const publish = (id: string, s: 'Published' | 'Unpublished') =>
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, status: s } : r)));
@@ -295,9 +298,9 @@ export function ZonesPage() {
           <Button onClick={() => setConfirm(null)}>Cancel</Button>
           <Button variant="contained" endIcon={<ArrowForwardIcon />} onClick={() => {
             if (!confirm) return;
-            if (confirm.kind === 'delete') setRows((prev) => prev.filter((r) => r.id !== confirm.row.id));
-            if (confirm.kind === 'publish') publish(confirm.row.id, 'Published');
-            if (confirm.kind === 'unpublish') publish(confirm.row.id, 'Unpublished');
+            if (confirm.kind === 'delete') { setRows((prev) => prev.filter((r) => r.id !== confirm.row.id)); showToast('Zone deleted successfully', 'success'); }
+            if (confirm.kind === 'publish') { publish(confirm.row.id, 'Published'); showToast('Zone published', 'success'); }
+            if (confirm.kind === 'unpublish') { publish(confirm.row.id, 'Unpublished'); showToast('Zone unpublished', 'info'); }
             setConfirm(null);
           }}>
             {confirm?.kind === 'delete' ? 'Delete' : confirm?.kind === 'publish' ? 'Publish' : 'Unpublish'}

@@ -190,11 +190,14 @@ export function PurchaseReasonPage() {
     return rows.filter((r) => r.reason.toLowerCase().includes(ql) || r.permissionType.toLowerCase().includes(ql));
   }, [rows, q]);
 
-  const save = (r: PurchaseReason) =>
+  const save = (r: PurchaseReason) => {
+    const isEdit = rows.some((x) => x.id === r.id);
     setRows((prev) => {
       const exists = prev.some((x) => x.id === r.id);
       return exists ? prev.map((x) => (x.id === r.id ? r : x)) : [r, ...prev];
     });
+    showToast(isEdit ? 'Purchase Reason updated successfully' : 'Purchase Reason created successfully', 'success');
+  };
 
   const columns: GridColDef<PurchaseReason>[] = [
     {
@@ -275,6 +278,7 @@ export function PurchaseReasonPage() {
           {!deleting?.referenced && (
             <Button variant="contained" endIcon={<ArrowForwardIcon />} onClick={() => {
               if (deleting) setRows((prev) => prev.filter((r) => r.id !== deleting.id));
+              showToast('Purchase Reason deleted successfully', 'success');
               setDeleting(null);
             }}>Delete</Button>
           )}

@@ -20,6 +20,7 @@ import { Street, PropertyRow, TOWNS, seedStreets, BLACKLIST_DURATIONS } from './
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { useToast } from '../../components/Toast';
 import { ImportCsvDialog } from '../../components/dialogs/ImportCsvDialog';
+import { ConfirmDialog } from '../../components/dialogs/ConfirmDialog';
 
 type BlackStreet = Street & { blacklistedUntil: string; reason?: string };
 type BlackProperty = PropertyRow & {
@@ -240,6 +241,7 @@ export function StreetsPage() {
   const [selected, setSelected] = useState<Street | null>(null);
   const [menuAnchor, setMenuAnchor] = useState<{ el: HTMLElement; row: Street } | null>(null);
   const [blacklistOpen, setBlacklistOpen] = useState<{ target?: string; ids: string[] } | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [importOpen, setImportOpen] = useState(false);
 
   const filtered = useMemo(() => {
@@ -251,10 +253,12 @@ export function StreetsPage() {
   const openAdd = () => { setSelected(null); setPanelOpen(true); };
   const openEdit = (s: Street) => { setSelected(s); setPanelOpen(true); };
   const save = (s: Street) => {
+    const isEdit = rows.some((r) => r.id === s.id);
     setRows((prev) => {
       const exists = prev.some((r) => r.id === s.id);
       return exists ? prev.map((r) => (r.id === s.id ? s : r)) : [s, ...prev];
     });
+    showToast(isEdit ? 'Street updated successfully' : 'Street created successfully', 'success');
   };
   const remove = (id: string) => setRows((prev) => prev.filter((r) => r.id !== id));
   const bulkDelete = () => { setRows((prev) => prev.filter((r) => !selection.includes(r.id))); setSelection([]); };
@@ -268,6 +272,7 @@ export function StreetsPage() {
     ]);
     setRows((prev) => prev.filter((r) => !blacklistOpen.ids.includes(r.id)));
     setSelection([]);
+    showToast('Street blacklisted successfully', 'success');
   };
 
   const whiteCols: GridColDef<Street>[] = [
@@ -393,7 +398,7 @@ export function StreetsPage() {
         <MenuItem onClick={() => { if (menuAnchor) { setBlacklistOpen({ target: menuAnchor.row.name, ids: [menuAnchor.row.id] }); setMenuAnchor(null); } }}>
           <BlockIcon fontSize="small" sx={{ mr: 1 }} /> Add to Blacklist
         </MenuItem>
-        <MenuItem onClick={() => { if (menuAnchor) { remove(menuAnchor.row.id); setMenuAnchor(null); } }}>
+        <MenuItem onClick={() => { if (menuAnchor) { setConfirmDeleteId(menuAnchor.row.id); setMenuAnchor(null); } }}>
           <DeleteOutlineIcon fontSize="small" sx={{ mr: 1 }} /> Delete
         </MenuItem>
       </Menu>
@@ -407,6 +412,15 @@ export function StreetsPage() {
         onClose={() => setImportOpen(false)}
         entityName="streets"
         onImport={() => {}}
+      />
+      <ConfirmDialog
+        open={confirmDeleteId !== null}
+        title="Delete Street?"
+        message="This cannot be undone."
+        confirmLabel="Delete"
+        confirmColor="error"
+        onConfirm={() => { remove(confirmDeleteId!); showToast('Street deleted successfully', 'success'); setConfirmDeleteId(null); }}
+        onClose={() => setConfirmDeleteId(null)}
       />
     </>
   );

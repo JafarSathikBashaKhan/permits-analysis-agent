@@ -10,6 +10,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import { PageHeader } from '../../shared/PageHeader';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import { useToast } from '../../components/Toast';
 
 const PERMISSION_TYPES = [
   'Resident Permit', 'Visitor Permit', 'Business Permit', 'Blue Badge',
@@ -57,6 +58,7 @@ type PanelMode = 'closed' | 'view' | 'edit' | 'add';
 const strip = (html: string) => html.replace(/<p>|<\/p>|<br\s*\/?>|&nbsp;/gi, '').trim();
 
 export function TermsAndConditionPage() {
+  const showToast = useToast();
   const [rows, setRows] = usePersistentState<Template[]>('prototype:templates:tnc:rows', seed);
   const [search, setSearch] = useState('');
   const [panel, setPanel] = useState<PanelMode>('closed');
@@ -97,11 +99,13 @@ export function TermsAndConditionPage() {
         published: false, createdOn: now, createdBy: 'Current User',
         updatedOn: now, updatedBy: 'Current User',
       }]);
+      showToast('Template created successfully', 'success');
     } else if (panel === 'edit' && target) {
       setRows(rows.map((r) => r.id === target.id ? {
         ...r, templateName: name.trim(), permissionType: permType, content,
         updatedOn: now, updatedBy: 'Current User',
       } : r));
+      showToast('Template updated successfully', 'success');
     }
     setPanel('closed'); setTarget(null);
   };
@@ -109,6 +113,7 @@ export function TermsAndConditionPage() {
   const doDelete = () => {
     if (!deleteTarget) return;
     setRows(rows.filter((r) => r.id !== deleteTarget.id));
+    showToast('Template deleted successfully', 'success');
     setDeleteTarget(null);
   };
 

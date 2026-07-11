@@ -187,11 +187,14 @@ export function LocationsPage() {
     return rows.filter((r) => r.name.toLowerCase().includes(ql));
   }, [rows, q]);
 
-  const save = (l: Location) =>
+  const save = (l: Location) => {
+    const isEdit = rows.some((r) => r.id === l.id);
     setRows((prev) => {
       const exists = prev.some((r) => r.id === l.id);
       return exists ? prev.map((r) => (r.id === l.id ? l : r)) : [l, ...prev];
     });
+    showToast(isEdit ? 'Location updated successfully' : 'Location created successfully', 'success');
+  };
 
   const columns: GridColDef<Location>[] = [
     { field: 'name', headerName: 'Location Name', flex: 1.4, minWidth: 180 },
@@ -254,6 +257,7 @@ export function LocationsPage() {
           <Button onClick={() => setDeleting(null)}>Cancel</Button>
           <Button variant="contained" endIcon={<ArrowForwardIcon />} onClick={() => {
             if (deleting) setRows((prev) => prev.filter((r) => r.id !== deleting.id));
+            showToast('Location deleted successfully', 'success');
             setDeleting(null);
           }}>Delete</Button>
         </DialogActions>

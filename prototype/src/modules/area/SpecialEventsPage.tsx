@@ -194,11 +194,14 @@ export function SpecialEventsPage() {
     return rows.filter((r) => r.name.toLowerCase().includes(ql));
   }, [rows, q]);
 
-  const save = (e: SpecialEvent) =>
+  const save = (e: SpecialEvent) => {
+    const isEdit = rows.some((r) => r.id === e.id);
     setRows((prev) => {
       const exists = prev.some((r) => r.id === e.id);
       return exists ? prev.map((r) => (r.id === e.id ? e : r)) : [e, ...prev];
     });
+    showToast(isEdit ? 'Special Event updated successfully' : 'Special Event created successfully', 'success');
+  };
 
   const columns: GridColDef<SpecialEvent>[] = [
     { field: 'name', headerName: 'Name', flex: 1.4, minWidth: 180 },
@@ -265,6 +268,7 @@ export function SpecialEventsPage() {
           <Button onClick={() => setDeleting(null)}>Cancel</Button>
           <Button variant="contained" endIcon={<ArrowForwardIcon />} onClick={() => {
             if (deleting) setRows((prev) => prev.filter((r) => r.id !== deleting.id));
+            showToast('Special Event deleted successfully', 'success');
             setDeleting(null);
           }}>Delete</Button>
         </DialogActions>
