@@ -268,6 +268,47 @@ export function StreetsPage() {
   };
   const remove = (id: string) => setRows((prev) => prev.filter((r) => r.id !== id));
   const bulkDelete = () => { setRows((prev) => prev.filter((r) => !selection.includes(r.id))); setSelection([]); };
+
+  // Blacklist edit-expiry & remove-from-blacklist handlers
+  const [editExpiryStreet, setEditExpiryStreet] = useState<BlackStreet | null>(null);
+  const [editExpiryProp, setEditExpiryProp] = useState<BlackProperty | null>(null);
+  const [removeStreetId, setRemoveStreetId] = useState<string | null>(null);
+  const [removePropId, setRemovePropId] = useState<string | null>(null);
+
+  const restoreStreet = (bs: BlackStreet) => {
+    // Add back to white list (strip blacklist fields)
+    const restored: Street = {
+      id: bs.id.replace(/^bs-/, '') || `st-${Date.now()}`,
+      name: bs.name,
+      usrn: bs.usrn,
+      town: bs.town,
+      noOfProperties: bs.noOfProperties,
+      status: 'Active',
+      createdOn: bs.createdOn,
+      createdByUser: bs.createdByUser,
+      updatedOn: new Date().toISOString().slice(0, 10),
+      updatedByUser: 'you',
+      properties: bs.properties || [],
+    };
+    setRows((prev) => (prev.some((r) => r.id === restored.id) ? prev : [restored, ...prev]));
+    setBlackStreets((prev) => prev.filter((r) => r.id !== bs.id));
+    showToast('Street moved back to White List', 'success');
+  };
+
+  const restoreProperty = (bp: BlackProperty) => {
+    setBlackProps((prev) => prev.filter((r) => r.id !== bp.id));
+    showToast('Property removed from blacklist', 'success');
+  };
+
+  const saveExpiryStreet = (id: string, newDate: string) => {
+    setBlackStreets((prev) => prev.map((r) => (r.id === id ? { ...r, blacklistedUntil: newDate } : r)));
+    showToast('Blacklist expiry updated', 'success');
+  };
+  const saveExpiryProp = (id: string, newDate: string) => {
+    setBlackProps((prev) => prev.map((r) => (r.id === id ? { ...r, blacklistedUntil: newDate } : r)));
+    showToast('Blacklist expiry updated', 'success');
+  };
+
   const confirmBlacklist = (duration: string, from?: string, to?: string) => {
     const label = duration === 'Custom Date Range' ? `${from} → ${to}` : duration;
     if (!blacklistOpen) return;
@@ -310,10 +351,10 @@ export function StreetsPage() {
     { field: 'createdByUser', headerName: 'Created By', width: 140 },
     {
       field: 'actions', headerName: 'Actions', width: 100, sortable: false,
-      renderCell: () => (
+      renderCell: (p) => (
         <Stack direction="row" spacing={0.5}>
-          <Tooltip title="Edit expiry"><IconButton size="small"><EditOutlinedIcon fontSize="small" /></IconButton></Tooltip>
-          <Tooltip title="Remove from blacklist"><IconButton size="small"><DeleteOutlineIcon fontSize="small" /></IconButton></Tooltip>
+          <Tooltip title="Edit expiry"><IconButton size="small" onClick={() => setEditExpiryStreet(p.row)}><EditOutlinedIcon fontSize="small" /></IconButton></Tooltip>
+          <Tooltip title="Move to White List"><IconButton size="small" onClick={() => setRemoveStreetId(p.row.id)}><DeleteOutlineIcon fontSize="small" /></IconButton></Tooltip>
         </Stack>
       ),
     },
@@ -328,10 +369,10 @@ export function StreetsPage() {
     { field: 'reason', headerName: 'Reason', flex: 1, minWidth: 160 },
     {
       field: 'actions', headerName: 'Actions', width: 100, sortable: false,
-      renderCell: () => (
+      renderCell: (p) => (
         <Stack direction="row" spacing={0.5}>
-          <Tooltip title="Edit expiry"><IconButton size="small"><EditOutlinedIcon fontSize="small" /></IconButton></Tooltip>
-          <Tooltip title="Remove from blacklist"><IconButton size="small"><DeleteOutlineIcon fontSize="small" /></IconButton></Tooltip>
+          <Tooltip title="Edit expiry"><IconButton size="small" onClick={() => setEditExpiryProp(p.row)}><EditOutlinedIcon fontSize="small" /></IconButton></Tooltip>
+          <Tooltip title="Remove from blacklist"><IconButton size="small" onClick={() => setRemovePropId(p.row.id)}><DeleteOutlineIcon fontSize="small" /></IconButton></Tooltip>
         </Stack>
       ),
     },
@@ -428,6 +469,95 @@ export function StreetsPage() {
         onConfirm={() => { remove(confirmDeleteId!); showToast('Street deleted successfully', 'success'); setConfirmDeleteId(null); }}
         onClose={() => setConfirmDeleteId(null)}
       />
+
+      <ConfirmDialog
+        open={removeStreetId !== null}
+        title="Move Street Back to White List?"
+        message="This street will be removed from the blacklist and re-listed as Active in the White List."
+        confirmLabel="Move to White List"
+        confirmColor="primary"
+        onConfirm={() => {
+          const bs = blackStreets.find((s) => s.id === removeStreetId);
+          if (bs) restoreStreet(bs);
+          setRemoveStreetId(null);
+        }}
+        onClose={() => setRemoveStreetId(null)}
+      />
+
+      <ConfirmDialog
+        open={removePropId !== null}
+        title="Remove Property from Blacklist?"
+        message="This property will no longer be blacklisted."
+        confirmLabel="Remove"
+        confirmColor="primary"
+        onConfirm={() => {
+          const bp = blackProps.find((p) => p.id === removePropId);
+          if (bp) restoreProperty(bp);
+          setRemovePropId(null);
+        }}
+        onClose={() => setRemovePropId(null)}
+      />
+
+      <EditExpiryDialog
+        open={!!editExpiryStreet}
+        current={editExpiryStreet?.blacklistedUntil || ''}
+        title={editExpiryStreet ? `Edit expiry — ${editExpiryStreet.name}` : 'Edit expiry'}
+        onClose={() => setEditExpiryStreet(null)}
+        onSave={(d) => { if (editExpiryStreet) saveExpiryStreet(editExpiryStreet.id, d); setEditExpiryStreet(null); }}
+      />
+      <EditExpiryDialog
+        open={!!editExpiryProp}
+        current={editExpiryProp?.blacklistedUntil || ''}
+        title={editExpiryProp ? `Edit expiry — ${editExpiryProp.name}` : 'Edit expiry'}
+        onClose={() => setEditExpiryProp(null)}
+        onSave={(d) => { if (editExpiryProp) saveExpiryProp(editExpiryProp.id, d); setEditExpiryProp(null); }}
+      />
     </>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Edit-expiry dialog (used for both black streets and black properties)
+// ─────────────────────────────────────────────────────────────
+function EditExpiryDialog({
+  open, current, title, onClose, onSave,
+}: {
+  open: boolean; current: string; title: string;
+  onClose: () => void; onSave: (newDate: string) => void;
+}) {
+  const [mode, setMode] = useState<'date' | 'indefinite'>(current === 'Indefinite' ? 'indefinite' : 'date');
+  const [date, setDate] = useState(current && current !== 'Indefinite' ? current : '');
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+      <DialogTitle>{title}</DialogTitle>
+      <DialogContent>
+        <Stack spacing={2} sx={{ mt: 1 }}>
+          <TextField select label="Type" size="small" value={mode} onChange={(e) => setMode(e.target.value as 'date' | 'indefinite')}>
+            <MenuItem value="date">Specific date</MenuItem>
+            <MenuItem value="indefinite">Indefinite</MenuItem>
+          </TextField>
+          {mode === 'date' && (
+            <TextField
+              label="Blacklisted until"
+              type="date"
+              size="small"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+          )}
+        </Stack>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button
+          variant="contained"
+          disabled={mode === 'date' && !date}
+          onClick={() => onSave(mode === 'indefinite' ? 'Indefinite' : date)}
+        >
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }
