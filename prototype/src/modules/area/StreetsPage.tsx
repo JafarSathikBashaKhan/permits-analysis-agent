@@ -292,13 +292,51 @@ export function StreetsPage() {
     };
     setRows((prev) => (prev.some((r) => r.id === restored.id) ? prev : [restored, ...prev]));
     setBlackStreets((prev) => prev.filter((r) => r.id !== bs.id));
-    showToast('Street moved back to White List', 'success');
   };
 
   const restoreProperty = (bp: BlackProperty) => {
     setBlackProps((prev) => prev.filter((r) => r.id !== bp.id));
+  };
+
+  // Bulk actions for the blacklist tabs
+  const bulkWhiteListStreets = () => {
+    const ids = selection.map(String);
+    const toMove = blackStreets.filter((b) => ids.includes(b.id));
+    toMove.forEach(restoreStreet);
+    setSelection([]);
+    showToast(`${toMove.length} street${toMove.length === 1 ? '' : 's'} moved back to White List`, 'success');
+  };
+  const bulkDeleteBlackStreets = () => {
+    const ids = selection.map(String);
+    setBlackStreets((prev) => prev.filter((b) => !ids.includes(b.id)));
+    const n = ids.length;
+    setSelection([]);
+    showToast(`${n} street${n === 1 ? '' : 's'} deleted from blacklist`, 'success');
+  };
+  const bulkRemoveBlackProps = () => {
+    const ids = selection.map(String);
+    setBlackProps((prev) => prev.filter((b) => !ids.includes(b.id)));
+    const n = ids.length;
+    setSelection([]);
+    showToast(`${n} propert${n === 1 ? 'y' : 'ies'} removed from blacklist`, 'success');
+  };
+  const bulkDeleteBlackProps = () => {
+    const ids = selection.map(String);
+    setBlackProps((prev) => prev.filter((b) => !ids.includes(b.id)));
+    const n = ids.length;
+    setSelection([]);
+    showToast(`${n} propert${n === 1 ? 'y' : 'ies'} deleted from blacklist`, 'success');
+  };
+
+  const singleRestoreStreet = (bs: BlackStreet) => {
+    restoreStreet(bs);
+    showToast('Street moved back to White List', 'success');
+  };
+  const singleRestoreProperty = (bp: BlackProperty) => {
+    restoreProperty(bp);
     showToast('Property removed from blacklist', 'success');
   };
+
 
   const saveExpiryStreet = (id: string, newDate: string) => {
     setBlackStreets((prev) => prev.map((r) => (r.id === id ? { ...r, blacklistedUntil: newDate } : r)));
@@ -396,11 +434,34 @@ export function StreetsPage() {
         } value={q} onChange={(e) => setQ(e.target.value)} sx={{ flex: 1, maxWidth: 420 }} />
         {tab === 0 && selection.length > 0 && (
           <>
+            <Typography variant="body2" sx={{ color: 'text.secondary', mr: 1 }}>{selection.length} Row Selected</Typography>
             <Button variant="outlined" color="warning" startIcon={<BlockIcon />}
               onClick={() => setBlacklistOpen({ target: `${selection.length} streets`, ids: selection.map(String) })}>
               Black List
             </Button>
             <Button variant="outlined" color="error" startIcon={<DeleteOutlineIcon />} onClick={bulkDelete}>
+              Delete
+            </Button>
+          </>
+        )}
+        {tab === 1 && selection.length > 0 && (
+          <>
+            <Typography variant="body2" sx={{ color: 'text.secondary', mr: 1 }}>{selection.length} Row Selected</Typography>
+            <Button variant="outlined" color="primary" onClick={bulkWhiteListStreets}>
+              White List
+            </Button>
+            <Button variant="outlined" color="error" startIcon={<DeleteOutlineIcon />} onClick={bulkDeleteBlackStreets}>
+              Delete
+            </Button>
+          </>
+        )}
+        {tab === 2 && selection.length > 0 && (
+          <>
+            <Typography variant="body2" sx={{ color: 'text.secondary', mr: 1 }}>{selection.length} Row Selected</Typography>
+            <Button variant="outlined" color="primary" onClick={bulkRemoveBlackProps}>
+              Remove from Blacklist
+            </Button>
+            <Button variant="outlined" color="error" startIcon={<DeleteOutlineIcon />} onClick={bulkDeleteBlackProps}>
               Delete
             </Button>
           </>
@@ -425,13 +486,15 @@ export function StreetsPage() {
         )}
         {tab === 1 && (
           <DataGrid<BlackStreet>
-            rows={blackStreets} columns={blackStreetCols} autoHeight
+            rows={blackStreets} columns={blackStreetCols} autoHeight checkboxSelection
+            rowSelectionModel={selection} onRowSelectionModelChange={setSelection}
             pageSizeOptions={[5, 10, 25]}
             initialState={{ pagination: { paginationModel: { pageSize: 10, page: 0 } } }} />
         )}
         {tab === 2 && (
           <DataGrid<BlackProperty>
-            rows={blackProps} columns={blackPropCols} autoHeight
+            rows={blackProps} columns={blackPropCols} autoHeight checkboxSelection
+            rowSelectionModel={selection} onRowSelectionModelChange={setSelection}
             pageSizeOptions={[5, 10, 25]}
             initialState={{ pagination: { paginationModel: { pageSize: 10, page: 0 } } }} />
         )}
@@ -478,7 +541,7 @@ export function StreetsPage() {
         confirmColor="primary"
         onConfirm={() => {
           const bs = blackStreets.find((s) => s.id === removeStreetId);
-          if (bs) restoreStreet(bs);
+          if (bs) singleRestoreStreet(bs);
           setRemoveStreetId(null);
         }}
         onClose={() => setRemoveStreetId(null)}
@@ -492,7 +555,7 @@ export function StreetsPage() {
         confirmColor="primary"
         onConfirm={() => {
           const bp = blackProps.find((p) => p.id === removePropId);
-          if (bp) restoreProperty(bp);
+          if (bp) singleRestoreProperty(bp);
           setRemovePropId(null);
         }}
         onClose={() => setRemovePropId(null)}
