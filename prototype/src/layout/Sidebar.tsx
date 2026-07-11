@@ -117,6 +117,7 @@ const items: NavItem[] = [
   { label: 'Vehicles', to: '/vehicles', icon: <DirectionsCarFilledOutlined fontSize="small" /> },
   { label: 'Notifications', to: '/notifications', icon: <NotificationsNoneOutlined fontSize="small" /> },
   { label: 'Apply Config', to: '/applyconfig', icon: <ToggleOnOutlined fontSize="small" /> },
+  { label: 'Reject Reasons', to: '/rejectreasons', icon: <BlockOutlined fontSize="small" /> },
   { label: 'Form Builder', to: '/formbuilder', icon: <TuneOutlined fontSize="small" /> },
 ];
 

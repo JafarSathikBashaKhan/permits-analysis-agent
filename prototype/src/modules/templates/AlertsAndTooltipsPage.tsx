@@ -119,7 +119,7 @@ export function AlertsAndTooltipsPage() {
                   </Stack>
                 )}}
                 value={draft.cookieAssignedPages}
-                onChange={(e) => set('cookieAssignedPages', e.target.value as string[])}
+                onChange={(e) => set('cookieAssignedPages', typeof e.target.value === 'string' ? [e.target.value] : e.target.value as string[])}
               >
                 {APP_PAGES.map((p) => <MenuItem key={p} value={p}>{p}</MenuItem>)}
               </TextField>
@@ -142,7 +142,7 @@ export function AlertsAndTooltipsPage() {
                   </Stack>
                 )}}
                 value={draft.experianAssignedPages}
-                onChange={(e) => set('experianAssignedPages', e.target.value as string[])}
+                onChange={(e) => set('experianAssignedPages', typeof e.target.value === 'string' ? [e.target.value] : e.target.value as string[])}
               >
                 {APP_PAGES.map((p) => <MenuItem key={p} value={p}>{p}</MenuItem>)}
               </TextField>
@@ -163,7 +163,7 @@ export function AlertsAndTooltipsPage() {
                   </Stack>
                 )}}
                 value={draft.correspondenceAssignedPages}
-                onChange={(e) => set('correspondenceAssignedPages', e.target.value as string[])}
+                onChange={(e) => set('correspondenceAssignedPages', typeof e.target.value === 'string' ? [e.target.value] : e.target.value as string[])}
               >
                 {APP_PAGES.map((p) => <MenuItem key={p} value={p}>{p}</MenuItem>)}
               </TextField>
@@ -200,7 +200,7 @@ export function AlertsAndTooltipsPage() {
                   </Stack>
                 )}}
                 value={draft.customerNotificationAssignedPages}
-                onChange={(e) => set('customerNotificationAssignedPages', e.target.value as string[])}
+                onChange={(e) => set('customerNotificationAssignedPages', typeof e.target.value === 'string' ? [e.target.value] : e.target.value as string[])}
               >
                 {APP_PAGES.map((p) => <MenuItem key={p} value={p}>{p}</MenuItem>)}
               </TextField>

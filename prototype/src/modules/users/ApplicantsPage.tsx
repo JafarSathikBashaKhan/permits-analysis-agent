@@ -17,6 +17,7 @@ import { UploadDocumentDialog } from '../../components/dialogs/UploadDocumentDia
 import { ComposeEmailDialog } from '../../components/dialogs/ComposeEmailDialog';
 import { AddBlueBadgeDialog } from '../../components/dialogs/AddBlueBadgeDialog';
 import { ConfirmDialog } from '../../components/dialogs/ConfirmDialog';
+import { BuyNowDrawer } from '../../components/BuyNowDrawer';
 import { FIELD_LIMITS } from '../../constants/enums';
 
 type Applicant = {
@@ -56,6 +57,7 @@ export function ApplicantsPage() {
   const [broadcastEmailOpen, setBroadcastEmailOpen] = useState(false);
   const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
   const [redactConfirmOpen, setRedactConfirmOpen] = useState(false);
+  const [buyNowOpen, setBuyNowOpen] = useState(false);
   const [selection, setSelection] = useState<GridRowSelectionModel>([]);
 
   const rows = useMemo(() => allRows.filter((a) =>
@@ -282,11 +284,21 @@ function OverviewPane({ a, setApplicant }: { a: Applicant; setApplicant: (update
 }
 
 function ApplicationsPane() {
+  const showToast = useToast();
+  const [buyNowOpen, setBuyNowOpen] = useState(false);
   const rows = [
     ['AP-2026-1001', 'City Centre Resident 2026', 'Permit', '2026-06-24', <StatusChip status="Active" />, '£120.00'],
     ['AP-2026-0942', 'Visitor Book (25 hrs)',    'Permit', '2026-04-10', <StatusChip status="Expired" />, '£25.00'],
   ];
-  return <SimpleTable columns={['Reference','Permission','Type','Submitted','Status','Amount']} rows={rows} />;
+  return (
+    <>
+      <Stack direction="row" justifyContent="flex-end" sx={{ mb: 2 }}>
+        <Button variant="contained" onClick={() => setBuyNowOpen(true)}>Buy Now</Button>
+      </Stack>
+      <SimpleTable columns={['Reference','Permission','Type','Submitted','Status','Amount']} rows={rows} />
+      <BuyNowDrawer open={buyNowOpen} onClose={() => setBuyNowOpen(false)} applicantId="AP-1000" />
+    </>
+  );
 }
 
 function BlueBadgePane({ hasBadge }: { hasBadge: boolean }) {
@@ -423,9 +435,6 @@ function EmailsPane() {
         onSave={(e) => {
           setEmails((prev) => [...prev, { sent: new Date().toLocaleString('en-GB'), subject: e.subject, status: 'Sent' }]);
           showToast('Email sent', 'success');
-        }}
-        onSaveDraft={(e) => {
-          showToast('Email saved as draft', 'success');
         }}
       />
     </>

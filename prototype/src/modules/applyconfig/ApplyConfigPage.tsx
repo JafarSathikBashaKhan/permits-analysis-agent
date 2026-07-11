@@ -48,7 +48,7 @@ export function ApplyConfigPage() {
   const [visible, setVisible] = usePersistentState<string[]>('prototype:apply-config:visible', () => ALL_PERMISSIONS.slice(0, 6));
 
   // MNPS Contract Toggles (US-162391, US-162928, US-163729, US-164800, US-164949, US-172571, US-187360)
-  const [mnpsToggles, setMnpsToggles] = usePersistentState('prototype:mnps-contract:toggles', {
+  const [mnpsToggles, setMnpsToggles] = usePersistentState<Record<string, boolean>>('prototype:mnps-contract:toggles', {
     pcnLookup: true,
     experianToggle: true,
     agentAssist: false,

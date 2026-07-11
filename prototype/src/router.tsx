@@ -37,6 +37,7 @@ import { SystemAuditsPage } from './modules/systemaudits/SystemAuditsPage';
 import { VehiclesPage } from './modules/vehicles/VehiclesPage';
 import { NotificationsPage } from './modules/notifications/NotificationsPage';
 import { ApplyConfigPage } from './modules/applyconfig/ApplyConfigPage';
+import { RejectReasonsPage } from './modules/applyconfig/RejectReasonsPage';
 
 const rawBase = ((import.meta as any).env?.BASE_URL as string) || '/';
 const basename = rawBase.replace(/\/$/, '') || '/';
@@ -109,6 +110,7 @@ export const router = createBrowserRouter(
         { path: 'vehicles', element: <VehiclesPage /> },
         { path: 'notifications', element: <NotificationsPage /> },
         { path: 'applyconfig', element: <ApplyConfigPage /> },
+        { path: 'rejectreasons', element: <RejectReasonsPage /> },
       ],
     },
   ],
