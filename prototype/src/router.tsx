@@ -38,6 +38,7 @@ import { VehiclesPage } from './modules/vehicles/VehiclesPage';
 import { NotificationsPage } from './modules/notifications/NotificationsPage';
 import { ApplyConfigPage } from './modules/applyconfig/ApplyConfigPage';
 import { RejectReasonsPage } from './modules/applyconfig/RejectReasonsPage';
+import { DemoFlowPage } from './modules/demo/DemoFlowPage';
 
 const rawBase = ((import.meta as any).env?.BASE_URL as string) || '/';
 const basename = rawBase.replace(/\/$/, '') || '/';
@@ -111,6 +112,7 @@ export const router = createBrowserRouter(
         { path: 'notifications', element: <NotificationsPage /> },
         { path: 'applyconfig', element: <ApplyConfigPage /> },
         { path: 'rejectreasons', element: <RejectReasonsPage /> },
+        { path: 'demoflow', element: <DemoFlowPage /> },
       ],
     },
   ],

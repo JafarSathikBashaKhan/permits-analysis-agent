@@ -32,6 +32,7 @@ import {
   ExpandLess,
   ExpandMore,
   FiberManualRecord,
+  PlayCircleOutlined,
 } from '@mui/icons-material';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useState } from 'react';
@@ -50,6 +51,7 @@ type NavItem = {
 // grouped by business area for navigation clarity.
 const items: NavItem[] = [
   { label: 'Dashboard', to: '/dashboard', icon: <DashboardOutlined fontSize="small" /> },
+  { label: 'Demo Flow', to: '/demoflow', icon: <PlayCircleOutlined fontSize="small" /> },
   {
     label: 'Applications', to: '/applications', icon: <DescriptionOutlined fontSize="small" />,
     children: [
