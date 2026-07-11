@@ -65,11 +65,14 @@ function StreetSlider({
   });
   const [propInput, setPropInput] = useState('');
   const [error, setError] = useState<string | null>(null);
+  // Read Contract Settings to determine USRN/UPRN auto-generation (US-129426)
+  const [usrnUPRNAuto] = usePersistentState<boolean>('prototype:contract-settings:usrn-uprn-auto', false);
+  const [blacklistProp, setBlacklistProp] = useState<PropertyRow | null>(null);
 
   useMemo(() => {
     if (street) setForm(street);
     else setForm({
-      id: `st-${Date.now()}`, name: '', usrn: '', town: '',
+      id: `st-${Date.now()}`, name: '', usrn: usrnUPRNAuto ? `USRN-${Date.now()}` : '', town: '',
       noOfProperties: 0, status: 'Active',
       createdOn: new Date().toISOString().slice(0, 10),
       createdByUser: 'you',
@@ -83,11 +86,12 @@ function StreetSlider({
 
   const addProp = () => {
     if (!propInput.trim()) return;
+    const newUprn = usrnUPRNAuto ? `UPRN-${Date.now()}-${form.properties.length}` : '';
     setForm({
       ...form,
       properties: [
         ...form.properties,
-        { id: `p-${Date.now()}`, name: propInput.trim(), uprn: '', postcode: '', permissionLimit: 1 },
+        { id: `p-${Date.now()}`, name: propInput.trim(), uprn: newUprn, postcode: '', permissionLimit: 1 },
       ],
     });
     setPropInput('');
@@ -126,8 +130,10 @@ function StreetSlider({
             <TextField label="Street Name" required fullWidth value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               inputProps={{ maxLength: FIELD_LIMITS.STREET_NAME }} />
-            <TextField label="USRN" required fullWidth value={form.usrn}
+            <TextField label="USRN" required={!usrnUPRNAuto} fullWidth value={form.usrn}
               onChange={(e) => setForm({ ...form, usrn: e.target.value })}
+              disabled={usrnUPRNAuto}
+              helperText={usrnUPRNAuto ? 'Auto-generated' : ''}
               inputProps={{ maxLength: FIELD_LIMITS.USRN }} />
           </Stack>
           <TextField select label="Town" required fullWidth value={form.town}
@@ -153,7 +159,7 @@ function StreetSlider({
                 <Typography variant="caption" fontWeight={700} sx={{ flex: 1.2 }}>UPRN</Typography>
                 <Typography variant="caption" fontWeight={700} sx={{ flex: 1 }}>Postcode</Typography>
                 <Typography variant="caption" fontWeight={700} sx={{ width: 130, textAlign: 'center' }}>Permission Limit</Typography>
-                <Typography variant="caption" fontWeight={700} sx={{ width: 40 }}></Typography>
+                <Typography variant="caption" fontWeight={700} sx={{ width: 80, textAlign: 'center' }}>Actions</Typography>
               </Stack>
               {form.properties.map((p) => (
                 <Stack key={p.id} direction="row" alignItems="center" spacing={1} sx={{ px: 1.5, py: 0.75, borderBottom: 1, borderColor: 'divider' }}>
@@ -162,6 +168,7 @@ function StreetSlider({
                     inputProps={{ maxLength: FIELD_LIMITS.PROPERTY_NAME }} />
                   <TextField size="small" variant="standard" value={p.uprn} sx={{ flex: 1.2 }}
                     onChange={(e) => updateProp(p.id, 'uprn', e.target.value)}
+                    disabled={usrnUPRNAuto}
                     inputProps={{ maxLength: FIELD_LIMITS.UPRN }} />
                   <TextField size="small" variant="standard" value={p.postcode} sx={{ flex: 1 }}
                     onChange={(e) => updateProp(p.id, 'postcode', e.target.value)}
@@ -170,9 +177,16 @@ function StreetSlider({
                     inputProps={{ min: 0, max: 99, style: { textAlign: 'center' } }}
                     value={p.permissionLimit}
                     onChange={(e) => updateProp(p.id, 'permissionLimit', +e.target.value)} />
-                  <IconButton size="small" onClick={() => removeProp(p.id)}>
-                    <DeleteOutlineIcon fontSize="small" />
-                  </IconButton>
+                  <Stack direction="row" sx={{ width: 80, justifyContent: 'center' }}>
+                    <Tooltip title="Blacklist Property">
+                      <IconButton size="small" onClick={() => setBlacklistProp(p)}>
+                        <BlockIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <IconButton size="small" onClick={() => removeProp(p.id)}>
+                      <DeleteOutlineIcon fontSize="small" />
+                    </IconButton>
+                  </Stack>
                 </Stack>
               ))}
             </Box>
@@ -187,6 +201,20 @@ function StreetSlider({
           {street ? 'Save Changes' : 'Create'}
         </Button>
       </Stack>
+
+      {/* US-181541: Blacklist Property Dialog */}
+      {blacklistProp && (
+        <BlacklistDialog
+          open={true}
+          onClose={() => setBlacklistProp(null)}
+          target={blacklistProp.name}
+          onConfirm={(duration, from, to) => {
+            // Placeholder: In real app, move property to blackProps state
+            alert(`Property ${blacklistProp.name} blacklisted for ${duration}`);
+            setBlacklistProp(null);
+          }}
+        />
+      )}
     </Drawer>
   );
 }
@@ -249,6 +277,48 @@ export function StreetsPage() {
   const [blacklistOpen, setBlacklistOpen] = useState<{ target?: string; ids: string[] } | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [importOpen, setImportOpen] = useState(false);
+
+  // Auto-restore expired blacklisted streets/properties on mount (US-143508)
+  useMemo(() => {
+    const now = new Date().toISOString().slice(0, 10);
+    const expiredStreets = blackStreets.filter((bs) => {
+      if (bs.blacklistedUntil === 'Indefinite' || bs.blacklistedUntil === 'Mark Indefinite') return false;
+      const untilDate = bs.blacklistedUntil.includes('→')
+        ? bs.blacklistedUntil.split('→')[1].trim()
+        : bs.blacklistedUntil;
+      return untilDate < now;
+    });
+    const expiredProps = blackProps.filter((bp) => {
+      if (bp.blacklistedUntil === 'Indefinite' || bp.blacklistedUntil === 'Mark Indefinite') return false;
+      const untilDate = bp.blacklistedUntil.includes('→')
+        ? bp.blacklistedUntil.split('→')[1].trim()
+        : bp.blacklistedUntil;
+      return untilDate < now;
+    });
+    if (expiredStreets.length > 0) {
+      expiredStreets.forEach((bs) => {
+        const restored: Street = {
+          id: bs.id.replace(/^bs-/, '') || `st-${Date.now()}`,
+          name: bs.name,
+          usrn: bs.usrn,
+          town: bs.town,
+          noOfProperties: bs.noOfProperties,
+          status: 'Active',
+          createdOn: bs.createdOn,
+          createdByUser: bs.createdByUser,
+          updatedOn: new Date().toISOString().slice(0, 10),
+          updatedByUser: 'system',
+          properties: bs.properties || [],
+        };
+        setRows((prev) => (prev.some((r) => r.id === restored.id) ? prev : [restored, ...prev]));
+      });
+      setBlackStreets((prev) => prev.filter((bs) => !expiredStreets.some((e) => e.id === bs.id)));
+    }
+    if (expiredProps.length > 0) {
+      setBlackProps((prev) => prev.filter((bp) => !expiredProps.some((e) => e.id === bp.id)));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const filtered = useMemo(() => {
     const ql = q.trim().toLowerCase();
@@ -469,7 +539,22 @@ export function StreetsPage() {
         <Box sx={{ flex: 1 }} />
         {tab === 0 && (
           <>
-            <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => showToast('Sample downloaded', 'success')}>Download Sample</Button>
+            <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => {
+              // Generate CSV sample (US-148740)
+              const csvContent = [
+                'Street Name,Zone Name,Property Name / Number,UPRN,Postcode,USRN,Town,Permission Limits',
+                'Baker Street,Zone A,1A,1000000100,CC1 1AA,USRN-20000,Colchester,1',
+                'Church Lane,Zone B,2B,1000000200,CC2 2BB,USRN-20001,Chelmsford,2',
+              ].join('\n');
+              const blob = new Blob([csvContent], { type: 'text/csv' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'streets-import-sample.csv';
+              a.click();
+              URL.revokeObjectURL(url);
+              showToast('Sample CSV downloaded', 'success');
+            }}>Download Sample</Button>
             <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => setImportOpen(true)}>Import</Button>
             <Button variant="contained" startIcon={<AddIcon />} onClick={openAdd}>Add Street</Button>
           </>
@@ -521,7 +606,10 @@ export function StreetsPage() {
         open={importOpen}
         onClose={() => setImportOpen(false)}
         entityName="streets"
-        onImport={() => {}}
+        onImport={(rowCount: number) => {
+          // Bulk import placeholder (US-125848) - in real app, parse CSV and create streets
+          showToast(`${rowCount} street(s) imported successfully`, 'success');
+        }}
       />
       <ConfirmDialog
         open={confirmDeleteId !== null}

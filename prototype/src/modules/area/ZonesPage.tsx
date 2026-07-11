@@ -215,29 +215,63 @@ export function ZonesPage() {
 
   const bulkPublish = () => {
     const ids = new Set(selection.map(String));
-    setRows((prev) => prev.map((r) => ids.has(String(r.id)) ? { ...r, status: 'Published' } : r));
+    const selected = rows.filter((r) => ids.has(String(r.id)));
+    const unpublishedCount = selected.filter((r) => r.status === 'Unpublished').length;
+    const publishedCount = selected.filter((r) => r.status === 'Published').length;
+    // US-163644: Better validation messages
+    if (unpublishedCount === 0) {
+      showToast('All selected zones are already published', 'info');
+      return;
+    }
+    if (publishedCount > 0 && unpublishedCount > 0) {
+      if (!window.confirm(`${publishedCount} out of ${ids.size} zones cannot be published. Do you want to proceed with publishing the remaining ${unpublishedCount} zone(s)?`)) {
+        return;
+      }
+    }
+    setRows((prev) => prev.map((r) => ids.has(String(r.id)) && r.status === 'Unpublished' ? { ...r, status: 'Published' } : r));
     setSelection([]);
-    showToast(`${ids.size} zone(s) published`, 'success');
+    showToast(`${unpublishedCount} zone(s) published successfully`, 'success');
   };
 
   const bulkUnpublish = () => {
     const ids = new Set(selection.map(String));
-    setRows((prev) => prev.map((r) => ids.has(String(r.id)) ? { ...r, status: 'Unpublished' } : r));
+    const selected = rows.filter((r) => ids.has(String(r.id)));
+    const publishedCount = selected.filter((r) => r.status === 'Published').length;
+    const unpublishedCount = selected.filter((r) => r.status === 'Unpublished').length;
+    // US-163644: Better validation messages
+    if (publishedCount === 0) {
+      showToast('All selected zones are already unpublished', 'info');
+      return;
+    }
+    if (unpublishedCount > 0 && publishedCount > 0) {
+      if (!window.confirm(`${unpublishedCount} out of ${ids.size} are in draft and cannot be unpublished. Do you want to proceed with unpublishing the remaining ${publishedCount} zone(s)?`)) {
+        return;
+      }
+    }
+    setRows((prev) => prev.map((r) => ids.has(String(r.id)) && r.status === 'Published' ? { ...r, status: 'Unpublished' } : r));
     setSelection([]);
-    showToast(`${ids.size} zone(s) unpublished`, 'info');
+    showToast(`${publishedCount} zone(s) unpublished successfully`, 'info');
   };
 
   const bulkDelete = () => {
     const ids = new Set(selection.map(String));
-    const unpublished = rows.filter((r) => ids.has(String(r.id)) && r.status === 'Unpublished');
+    const selected = rows.filter((r) => ids.has(String(r.id)));
+    const unpublished = selected.filter((r) => r.status === 'Unpublished');
+    const published = selected.filter((r) => r.status === 'Published');
+    // US-163644: Better validation messages
     if (unpublished.length === 0) {
-      showToast('Only unpublished zones can be deleted', 'error');
+      showToast('Only unpublished zones can be deleted. All selected zones are published.', 'error');
       return;
+    }
+    if (published.length > 0 && unpublished.length > 0) {
+      if (!window.confirm(`${published.length} out of ${ids.size} zones are published and cannot be deleted. Do you want to proceed with deleting the remaining ${unpublished.length} zone(s)?`)) {
+        return;
+      }
     }
     const toDelete = new Set(unpublished.map((r) => String(r.id)));
     setRows(rows.filter((r) => !toDelete.has(String(r.id))));
     setSelection([]);
-    showToast(`${unpublished.length} zone(s) deleted`, 'success');
+    showToast(`${unpublished.length} zone(s) deleted successfully`, 'success');
   };
 
   const columns: GridColDef<Zone>[] = [
@@ -266,7 +300,22 @@ export function ZonesPage() {
         description="Group streets into zones. Zones must be published before permissions can be issued against them."
         actions={
           <Stack direction="row" spacing={1}>
-            <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => showToast('Sample downloaded', 'info')}>Download Sample</Button>
+            <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => {
+              // Generate CSV sample (US-148740)
+              const csvContent = [
+                'Zone Name,Street Names (comma-separated),Is Back Office Use',
+                'Zone A,"Baker Street,Church Lane",Yes',
+                'Zone B,"High Street,Kingsway",No',
+              ].join('\n');
+              const blob = new Blob([csvContent], { type: 'text/csv' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'zones-import-sample.csv';
+              a.click();
+              URL.revokeObjectURL(url);
+              showToast('Sample CSV downloaded', 'info');
+            }}>Download Sample</Button>
             <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => setImportOpen(true)}>Import</Button>
             <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setSelected(null); setPanelOpen(true); }}>Add Zone</Button>
           </Stack>
@@ -327,15 +376,15 @@ export function ZonesPage() {
         </DialogTitle>
         <DialogContent>
           {confirm?.kind === 'delete' &&
-            <Typography>Permanently delete <b>{confirm.row.name}</b>? Only unpublished zones can be deleted.</Typography>}
+            <Typography>Permanently delete <b>{confirm.row.name}</b>? This zone is unpublished and can be safely deleted.</Typography>}
           {confirm?.kind === 'publish' &&
-            <Typography>Publish <b>{confirm.row.name}</b>? Permit types will be able to reference this zone.</Typography>}
+            <Typography>Are you sure you want to publish <b>{confirm.row.name}</b>? Permit types will be able to reference this zone.</Typography>}
           {confirm?.kind === 'unpublish' && (
             <>
               <Alert severity="warning" sx={{ mb: 1 }}>
                 Any active permissions currently linked to this zone will remain valid but no new permits can be issued.
               </Alert>
-              <Typography>Unpublish <b>{confirm.row.name}</b>?</Typography>
+              <Typography>Are you sure you want to unpublish <b>{confirm.row.name}</b>?</Typography>
             </>
           )}
         </DialogContent>

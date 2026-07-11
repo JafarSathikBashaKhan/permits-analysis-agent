@@ -244,7 +244,22 @@ export function SpecialEventsPage() {
         description="Time-bounded events that override normal permit rules for specific streets."
         actions={
           <Stack direction="row" spacing={1}>
-            <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => showToast('Sample downloaded', 'info')}>Download Sample</Button>
+            <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => {
+              // Generate CSV sample (US-148740)
+              const csvContent = [
+                'Event Name,Start Date,End Date,Street Names (comma-separated),Permission Names (comma-separated)',
+                'Christmas Market,2026-12-15,2026-12-22,"Baker Street,Church Lane","Residents Permit,Visitor Permit"',
+                'Marathon 2026,2026-04-15,2026-04-16,"High Street,Kingsway","Business Permit"',
+              ].join('\n');
+              const blob = new Blob([csvContent], { type: 'text/csv' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'special-events-import-sample.csv';
+              a.click();
+              URL.revokeObjectURL(url);
+              showToast('Sample CSV downloaded', 'info');
+            }}>Download Sample</Button>
             <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setSelected(null); setPanelOpen(true); }}>Add Event</Button>
           </Stack>
         } />

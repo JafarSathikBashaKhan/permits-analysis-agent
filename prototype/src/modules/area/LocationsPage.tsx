@@ -232,7 +232,22 @@ export function LocationsPage() {
         description="Named collections of streets used by parking enforcement and physical permit logistics."
         actions={
           <Stack direction="row" spacing={1}>
-            <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => showToast('Sample downloaded', 'info')}>Download Sample</Button>
+            <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => {
+              // Generate CSV sample (US-148740)
+              const csvContent = [
+                'Location Name,Street Names (comma-separated)',
+                'Central Depot,"Baker Street,Church Lane"',
+                'North Yard,"High Street,Kingsway"',
+              ].join('\n');
+              const blob = new Blob([csvContent], { type: 'text/csv' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'locations-import-sample.csv';
+              a.click();
+              URL.revokeObjectURL(url);
+              showToast('Sample CSV downloaded', 'info');
+            }}>Download Sample</Button>
             <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => setImportOpen(true)}>Import</Button>
             <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setSelected(null); setPanelOpen(true); }}>Add Location</Button>
           </Stack>
@@ -290,7 +305,10 @@ export function LocationsPage() {
         open={importOpen}
         onClose={() => setImportOpen(false)}
         entityName="locations"
-        onImport={() => {}}
+        onImport={(rowCount: number) => {
+          // Bulk import placeholder (US-148740, US-178185) - in real app, parse CSV and create locations
+          showToast(`${rowCount} location(s) imported successfully`, 'success');
+        }}
       />
     </>
   );
