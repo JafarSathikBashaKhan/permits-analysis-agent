@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import {
   Box, Chip, MenuItem, Stack, TextField, Typography, Button, Tooltip, IconButton,
 } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { PageHeader } from '../../shared/PageHeader';
@@ -106,6 +106,7 @@ export function SystemAuditsPage() {
   const [moduleFilter, setModuleFilter] = useState('All');
   const [userFilter, setUserFilter] = useState('All');
   const [eventFilter, setEventFilter] = useState('All');
+  const [selection, setSelection] = useState<GridRowSelectionModel>([]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -136,6 +137,23 @@ export function SystemAuditsPage() {
     URL.revokeObjectURL(url);
   };
 
+  const exportSelected = () => {
+    const ids = new Set(selection.map(String));
+    const selectedRows = filtered.filter(r => ids.has(String(r.id)));
+    const header = 'Audit ID,Date & Time,Event Type,Description,User Role,User Name,Module\n';
+    const body = selectedRows.map((r) =>
+      [r.id, r.eventDate, r.eventType, `"${r.eventDescription.replace(/"/g, '""')}"`, r.roleName, r.userName, r.module].join(',')
+    ).join('\n');
+    const blob = new Blob([header + body], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `system-audit-selected-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setSelection([]);
+  };
+
   const cols: GridColDef[] = [
     { field: 'eventDate', headerName: 'Date & Time', width: 200 },
     { field: 'eventType', headerName: 'Event Type/Name', width: 200,
@@ -161,7 +179,13 @@ export function SystemAuditsPage() {
             <Tooltip title="Refresh">
               <IconButton size="small"><RefreshIcon /></IconButton>
             </Tooltip>
-            <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={exportCsv}>Export CSV</Button>
+            {selection.length > 0 ? (
+              <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={exportSelected}>
+                Export {selection.length} Selected
+              </Button>
+            ) : (
+              <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={exportCsv}>Export CSV</Button>
+            )}
           </Stack>
         } />
 
@@ -197,6 +221,9 @@ export function SystemAuditsPage() {
 
       <Box sx={{ height: 620, bgcolor: 'background.paper', borderRadius: 1 }}>
         <DataGrid rows={filtered} columns={cols} getRowId={(r) => r.id} density="compact"
+          checkboxSelection
+          rowSelectionModel={selection}
+          onRowSelectionModelChange={setSelection}
           pageSizeOptions={[10, 25, 50, 100]}
           initialState={{
             pagination: { paginationModel: { pageSize: 25 } },

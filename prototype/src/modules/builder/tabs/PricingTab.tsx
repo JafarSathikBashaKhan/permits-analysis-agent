@@ -99,6 +99,7 @@ export function PricingTab({ permissionId = 'default' }: { permissionId?: string
   const [state, setState] = useState<PricingState>(DEFAULT_STATE);
   const [importOpen, setImportOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const currency = '£'; // Real app reads from selectedLocation.currency
 
   // Load
@@ -123,6 +124,24 @@ export function PricingTab({ permissionId = 'default' }: { permissionId?: string
     () => (['hour', 'day', 'week', 'month'] as DurationKey[]).filter((k) => state.enabledDurations[k]),
     [state.enabledDurations],
   );
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadedFile(file);
+      showToast(`File "${file.name}" selected`, 'success');
+    }
+  };
+
+  const processImport = () => {
+    if (!uploadedFile) {
+      showToast('Please select a CSV file first', 'error');
+      return;
+    }
+    showToast(`Processed ${uploadedFile.name} — pricing updated (prototype simulation)`, 'success');
+    setImportOpen(false);
+    setUploadedFile(null);
+  };
 
   return (
     <Stack spacing={2.5}>
@@ -196,15 +215,22 @@ export function PricingTab({ permissionId = 'default' }: { permissionId?: string
           </Alert>
           <Paper variant="outlined" sx={{ p: 3, textAlign: 'center', borderStyle: 'dashed' }}>
             <CloudUploadIcon sx={{ fontSize: 40, color: tokens.MUTED, mb: 1 }} />
-            <Typography variant="body2" color="text.secondary">Drop CSV here or click to browse</Typography>
-            <Button variant="outlined" size="small" sx={{ mt: 1.5 }} onClick={() => showToast('File chooser coming soon', 'info')}>Choose File</Button>
+            <Typography variant="body2" color="text.secondary">
+              {uploadedFile ? uploadedFile.name : 'Drop CSV here or click to browse'}
+            </Typography>
+            <Button variant="outlined" size="small" component="label" sx={{ mt: 1.5 }}>
+              Choose File
+              <input type="file" accept=".csv" hidden onChange={handleFileUpload} />
+            </Button>
           </Paper>
         </DialogContent>
         <DialogActions>
-          <Button startIcon={<CloudDownloadIcon />} onClick={() => alert('Sample downloaded (prototype).')}>
+          <Button startIcon={<CloudDownloadIcon />} onClick={() => { 
+            showToast('Sample CSV downloaded (prototype)', 'success');
+          }}>
             Download Sample
           </Button>
-          <Button variant="contained" onClick={() => { setImportOpen(false); alert('Imported (prototype).'); }}>
+          <Button variant="contained" onClick={processImport} disabled={!uploadedFile}>
             Upload
           </Button>
         </DialogActions>

@@ -4,7 +4,7 @@ import {
   IconButton, MenuItem, Stack, TextField, Typography, Menu, Divider,
   Accordion, AccordionSummary, AccordionDetails, Alert, Chip,
 } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import DownloadIcon from '@mui/icons-material/Download';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -187,6 +187,7 @@ export function SpecialEventsPage() {
   const [selected, setSelected] = useState<SpecialEvent | null>(null);
   const [menuAnchor, setMenuAnchor] = useState<{ el: HTMLElement; row: SpecialEvent } | null>(null);
   const [deleting, setDeleting] = useState<SpecialEvent | null>(null);
+  const [selection, setSelection] = useState<GridRowSelectionModel>([]);
 
   const filtered = useMemo(() => {
     const ql = q.trim().toLowerCase();
@@ -201,6 +202,13 @@ export function SpecialEventsPage() {
       return exists ? prev.map((r) => (r.id === e.id ? e : r)) : [e, ...prev];
     });
     showToast(isEdit ? 'Special Event updated successfully' : 'Special Event created successfully', 'success');
+  };
+
+  const bulkDelete = () => {
+    const ids = new Set(selection.map(String));
+    setRows(rows.filter((r) => !ids.has(String(r.id))));
+    setSelection([]);
+    showToast(`${ids.size} event(s) deleted`, 'success');
   };
 
   const columns: GridColDef<SpecialEvent>[] = [
@@ -237,15 +245,26 @@ export function SpecialEventsPage() {
           </Stack>
         } />
 
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} mb={2}>
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} mb={2} alignItems="center">
         <TextField size="small" placeholder="Search…" value={q}
           onChange={(e) => setQ(e.target.value)} sx={{ flex: 1, maxWidth: 420 }} />
+        {selection.length > 0 && (
+          <>
+            <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+              {selection.length} Row Selected
+            </Typography>
+            <Button variant="outlined" color="error" onClick={bulkDelete}>Delete</Button>
+          </>
+        )}
       </Stack>
 
       <Box sx={{ bgcolor: 'background.paper', border: 1, borderColor: 'divider', borderRadius: 1 }}>
         <DataGrid<SpecialEvent> rows={filtered} columns={columns} autoHeight
           pageSizeOptions={[5, 10, 25]}
-          initialState={{ pagination: { paginationModel: { pageSize: 10, page: 0 } } }} />
+          initialState={{ pagination: { paginationModel: { pageSize: 10, page: 0 } } }}
+          checkboxSelection
+          rowSelectionModel={selection}
+          onRowSelectionModelChange={setSelection} />
       </Box>
 
       <Menu anchorEl={menuAnchor?.el} open={!!menuAnchor} onClose={() => setMenuAnchor(null)}>

@@ -3,7 +3,7 @@ import {
   Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle,
   IconButton, Stack, Tab, Tabs, TextField, Typography, Alert, Menu, MenuItem,
 } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -15,6 +15,7 @@ import { usePersistentState } from '../../hooks/usePersistentState';
 import { useToast } from '../../components/Toast';
 import { AddPricingDialog } from '../../components/dialogs/AddPricingDialog';
 import { ImportCsvDialog } from '../../components/dialogs/ImportCsvDialog';
+import { ConfirmDialog } from '../../components/dialogs/ConfirmDialog';
 
 const PERM_TYPES = ['Residents Permit', 'Business Permit', 'Visitor Permit', 'Suspension', 'Dispensation'];
 const SUB_TYPES = ['Standard', 'Concession', 'Trade', 'Event', 'Other'];
@@ -64,8 +65,10 @@ export function PricingPage() {
   const [nonzonal, setNonzonal] = usePersistentState<Pricing[]>('prototype:pricing:nonzonal', () => seedPricing('nonzonal'));
   const [rule, setRule] = usePersistentState<Pricing[]>('prototype:pricing:rule', () => seedPricing('rule'));
   const [q, setQ] = useState('');
+  const [selection, setSelection] = useState<GridRowSelectionModel>([]);
   const [menuAnchor, setMenuAnchor] = useState<{ el: HTMLElement; row: Pricing } | null>(null);
   const [deleting, setDeleting] = useState<Pricing | null>(null);
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
   const [addPricingOpen, setAddPricingOpen] = useState(false);
 
@@ -107,6 +110,14 @@ export function PricingPage() {
 
   const columns = tab === 0 ? columnsZonal : columnsNonZonal;
 
+  const bulkDelete = () => {
+    const ids = new Set(selection.map(String));
+    setCurrentRows((prev) => prev.filter((r) => !ids.has(String(r.id))));
+    setSelection([]);
+    showToast(`${ids.size} deleted`, 'success');
+    setConfirmBulkDelete(false);
+  };
+
   return (
     <>
       <PageHeader eyebrow="Permission Setup" title="Pricing"
@@ -122,12 +133,24 @@ export function PricingPage() {
         <TextField size="small" placeholder="Search Pricing" value={q}
           onChange={(e) => setQ(e.target.value)} sx={{ flex: 1, maxWidth: 420 }} />
         <Box sx={{ flex: 1 }} />
+        {selection.length > 0 && (
+          <>
+            <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+              {selection.length} Row Selected
+            </Typography>
+            <Button variant="outlined" color="error" startIcon={<DeleteOutlineIcon />}
+              onClick={() => setConfirmBulkDelete(true)}>Delete</Button>
+          </>
+        )}
         <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => setImportOpen(true)}>Import</Button>
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => setAddPricingOpen(true)}>Add Pricing</Button>
       </Stack>
 
       <Box sx={{ bgcolor: 'background.paper', border: 1, borderColor: 'divider', borderRadius: 1 }}>
         <DataGrid<Pricing> rows={filtered} columns={columns} autoHeight
+          checkboxSelection
+          rowSelectionModel={selection}
+          onRowSelectionModelChange={setSelection}
           pageSizeOptions={[5, 10, 25]}
           initialState={{ pagination: { paginationModel: { pageSize: 10, page: 0 } } }} />
       </Box>
@@ -206,6 +229,16 @@ export function PricingPage() {
           }]);
           showToast('Pricing added', 'success');
         }}
+      />
+
+      <ConfirmDialog
+        open={confirmBulkDelete}
+        onClose={() => setConfirmBulkDelete(false)}
+        onConfirm={bulkDelete}
+        title="Delete Pricing?"
+        message={`Are you sure you want to delete ${selection.length} selected pricing rule${selection.length === 1 ? '' : 's'}?`}
+        confirmText="Delete"
+        severity="error"
       />
     </>
   );

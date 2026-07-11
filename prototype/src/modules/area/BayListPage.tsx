@@ -3,7 +3,7 @@ import {
   Box, Button, Dialog, DialogActions, DialogContent, DialogTitle,
   IconButton, MenuItem, Stack, TextField, Typography, Menu, Alert,
 } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -124,6 +124,7 @@ export function BayListPage() {
   const [menuAnchor, setMenuAnchor] = useState<{ el: HTMLElement; row: Bay } | null>(null);
   const [importOpen, setImportOpen] = useState(false);
   const [deleting, setDeleting] = useState<Bay | null>(null);
+  const [selection, setSelection] = useState<GridRowSelectionModel>([]);
 
   const filtered = useMemo(() => {
     const ql = q.trim().toLowerCase();
@@ -137,6 +138,13 @@ export function BayListPage() {
       const exists = prev.some((r) => r.id === b.id);
       return exists ? prev.map((r) => (r.id === b.id ? b : r)) : [b, ...prev];
     });
+
+  const bulkDelete = () => {
+    const ids = new Set(selection.map(String));
+    setRows(rows.filter((r) => !ids.has(String(r.id))));
+    setSelection([]);
+    showToast(`${ids.size} bay(s) deleted`, 'success');
+  };
 
   const columns: GridColDef<Bay>[] = [
     {
@@ -181,9 +189,17 @@ export function BayListPage() {
           </Stack>
         } />
 
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} mb={2}>
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} mb={2} alignItems="center">
         <TextField size="small" placeholder="Search" value={q}
           onChange={(e) => setQ(e.target.value)} sx={{ flex: 1, maxWidth: 420 }} />
+        {selection.length > 0 && (
+          <>
+            <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+              {selection.length} Row Selected
+            </Typography>
+            <Button variant="outlined" color="error" onClick={bulkDelete}>Delete</Button>
+          </>
+        )}
       </Stack>
 
       <Box sx={{ bgcolor: 'background.paper', border: 1, borderColor: 'divider', borderRadius: 1 }}>
@@ -192,7 +208,10 @@ export function BayListPage() {
           initialState={{
             pagination: { paginationModel: { pageSize: 10, page: 0 } },
             sorting: { sortModel: [{ field: 'createdOn', sort: 'desc' }] },
-          }} />
+          }}
+          checkboxSelection
+          rowSelectionModel={selection}
+          onRowSelectionModelChange={setSelection} />
       </Box>
 
       <Menu anchorEl={menuAnchor?.el} open={!!menuAnchor} onClose={() => setMenuAnchor(null)}>

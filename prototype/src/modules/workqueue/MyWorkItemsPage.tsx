@@ -116,6 +116,27 @@ export function MyWorkItemsPage() {
     setPanel(null); setPanelIds([]); setSelection([]);
   };
 
+  const bulkApprove = () => {
+    const ids = selection.map(String);
+    setRows(rows.map((r) => ids.includes(r.id) ? { ...r, workQueueStatus: 'Approved' } : r));
+    setSelection([]);
+    showToast(`${ids.length} work item(s) approved`, 'success');
+  };
+
+  const bulkReject = () => {
+    const ids = selection.map(String);
+    setRows(rows.map((r) => ids.includes(r.id) ? { ...r, workQueueStatus: 'Rejected' } : r));
+    setSelection([]);
+    showToast(`${ids.length} work item(s) rejected`, 'success');
+  };
+
+  const bulkDelete = () => {
+    const ids = new Set(selection.map(String));
+    setRows(rows.filter((r) => !ids.has(r.id)));
+    setSelection([]);
+    showToast(`${ids.size} work item(s) deleted`, 'success');
+  };
+
   const panelRows = rows.filter((r) => panelIds.includes(r.id));
   const removePanelId = (id: string) => setPanelIds(panelIds.filter((x) => x !== id));
 
@@ -184,17 +205,20 @@ export function MyWorkItemsPage() {
           <Box sx={{ flex: 1 }} />
           {selection.length > 0 && (
             <>
-              <Typography variant="body2" color="text.secondary">{selection.length} Row Selected</Typography>
+              <Typography variant="body2" color="text.secondary">{selection.length} Row(s) Selected</Typography>
               {bucket === 'unassigned' && (
                 <Button variant="outlined" startIcon={<PersonAddAltIcon />}
                   onClick={() => openAssign(selection as string[])}>Assign</Button>
               )}
               {bucket === 'assigned' && (
                 <>
+                  <Button variant="outlined" onClick={bulkApprove}>Approve</Button>
+                  <Button variant="outlined" color="warning" onClick={bulkReject}>Reject</Button>
                   <Button variant="outlined" color="secondary"
                     onClick={() => doUnassign(selection as string[])}>Unassign</Button>
                   <Button variant="outlined"
                     onClick={() => openReassign(selection as string[])}>Re Assign</Button>
+                  <Button variant="outlined" color="error" onClick={bulkDelete}>Delete</Button>
                 </>
               )}
             </>

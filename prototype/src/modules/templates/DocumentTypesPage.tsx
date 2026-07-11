@@ -3,7 +3,7 @@ import {
   Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Drawer,
   IconButton, MenuItem, Stack, TextField, Typography, Alert, Divider,
 } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CloseIcon from '@mui/icons-material/Close';
@@ -65,6 +65,7 @@ export function DocumentTypesPage() {
   const [panel, setPanel] = useState<PanelMode>('closed');
   const [target, setTarget] = useState<DocumentType | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<DocumentType | null>(null);
+  const [selection, setSelection] = useState<GridRowSelectionModel>([]);
 
   const [docTypeName, setDocTypeName] = useState('');
   const [subTypes, setSubTypes] = useState<string[]>([]);
@@ -147,6 +148,13 @@ export function DocumentTypesPage() {
     setDeleteTarget(null);
   };
 
+  const bulkDelete = () => {
+    const ids = new Set(selection.map(String));
+    setRows(rows.filter((r) => !ids.has(String(r.id))));
+    setSelection([]);
+    showToast(`${ids.size} document type(s) deleted`, 'success');
+  };
+
   const cols: GridColDef[] = [
     {
       field: 'documentType', headerName: 'Document Type', flex: 1.4, minWidth: 200,
@@ -177,13 +185,21 @@ export function DocumentTypesPage() {
     <Box>
       <PageHeader eyebrow="Templates" title="Document Types" description="Document type catalogue with sub-types and optional expiration." />
 
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 2 }}>
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 2 }} alignItems="center">
         <TextField
           size="small" placeholder="Search by Document Type"
           value={search} onChange={(e) => setSearch(e.target.value)}
           sx={{ minWidth: 280 }}
         />
         <Box sx={{ flex: 1 }} />
+        {selection.length > 0 && (
+          <>
+            <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+              {selection.length} Row Selected
+            </Typography>
+            <Button variant="outlined" color="error" onClick={bulkDelete}>Delete</Button>
+          </>
+        )}
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setTarget(null); setPanel('add'); }}>
           Add Document Type
         </Button>
@@ -193,7 +209,9 @@ export function DocumentTypesPage() {
         <DataGrid rows={filtered} columns={cols} getRowId={(r) => r.id} density="compact"
           pageSizeOptions={[10, 25, 50]}
           initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
-          checkboxSelection disableRowSelectionOnClick />
+          checkboxSelection disableRowSelectionOnClick
+          rowSelectionModel={selection}
+          onRowSelectionModelChange={setSelection} />
       </Box>
 
       <Drawer anchor="right" open={panel !== 'closed'} onClose={() => { setPanel('closed'); setTarget(null); }}

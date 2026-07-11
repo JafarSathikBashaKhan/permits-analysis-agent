@@ -177,9 +177,37 @@ export function BuilderDesignPage() {
           </Button>
           <IconButton onClick={openMenu}><MoreVertOutlined /></IconButton>
           <Menu anchorEl={anchor} open={!!anchor} onClose={closeMenu}>
-            <MenuItem onClick={closeMenu}>Clone permission</MenuItem>
-            <MenuItem onClick={closeMenu}>View history</MenuItem>
-            <MenuItem onClick={closeMenu} sx={{ color: '#C62828' }}>Delete</MenuItem>
+            <MenuItem onClick={() => {
+              const newId = `P-${Date.now()}`;
+              const entry: Permission = {
+                id: newId,
+                name: `${name || 'Untitled'} (Copy)`,
+                type: (type || 'Resident') as Permission['type'],
+                group: group || 'General',
+                category: (category || 'Resident') as Permission['category'],
+                status: 'Draft',
+                prefix: '',
+                price: 0,
+                version: 1,
+                lastUpdated: new Date().toISOString().slice(0, 10),
+                createdBy: 'You',
+                zones: 0,
+                documents: 0,
+              };
+              setBuilderRows((prev) => [entry, ...prev]);
+              showToast('Permission cloned', 'success');
+              nav(`/builder/${newId}`);
+              closeMenu();
+            }}>Clone permission</MenuItem>
+            <MenuItem onClick={() => { showToast('View history — coming soon', 'info'); closeMenu(); }}>View history</MenuItem>
+            <MenuItem onClick={() => {
+              if (id && id !== 'new') {
+                setBuilderRows((prev) => prev.filter((r) => r.id !== id));
+                showToast('Permission deleted', 'success');
+                nav('/builder');
+              }
+              closeMenu();
+            }} sx={{ color: '#C62828' }}>Delete</MenuItem>
           </Menu>
         </Stack>
       </Box>

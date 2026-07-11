@@ -3,7 +3,7 @@ import {
   Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle,
   Drawer, IconButton, MenuItem, Stack, TextField, Typography, Divider, FormControlLabel, Checkbox,
 } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import { PageHeader } from '../../shared/PageHeader';
@@ -78,6 +78,7 @@ export function EmailsPage() {
   const [search, setSearch] = useState('');
   const [target, setTarget] = useState<EmailTemplate | null>(null);
   const [addOpen, setAddOpen] = useState(false);
+  const [selection, setSelection] = useState<GridRowSelectionModel>([]);
 
   // Add template form state
   const [newName, setNewName] = useState('');
@@ -121,6 +122,19 @@ export function EmailsPage() {
     );
   }, [rows, search]);
 
+  const bulkSetDefault = () => {
+    const ids = new Set(selection.map(String));
+    showToast(`${ids.size} template(s) set as default`, 'success');
+    setSelection([]);
+  };
+
+  const bulkDelete = () => {
+    const ids = new Set(selection.map(String));
+    setRows(rows.filter((r) => !ids.has(String(r.id))));
+    setSelection([]);
+    showToast(`${ids.size} template(s) deleted`, 'success');
+  };
+
   const cols: GridColDef[] = [
     {
       field: 'templateName', headerName: 'Template Name', flex: 1.3, minWidth: 210,
@@ -160,16 +174,28 @@ export function EmailsPage() {
         }
       />
 
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 2 }}>
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 2 }} alignItems="center">
         <TextField size="small" placeholder="Search by Template Name, Permission Type"
           value={search} onChange={(e) => setSearch(e.target.value)} sx={{ minWidth: 320 }} />
+        <Box sx={{ flex: 1 }} />
+        {selection.length > 0 && (
+          <>
+            <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+              {selection.length} Row Selected
+            </Typography>
+            <Button variant="outlined" onClick={bulkSetDefault}>Set Default</Button>
+            <Button variant="outlined" color="error" onClick={bulkDelete}>Delete</Button>
+          </>
+        )}
       </Stack>
 
       <Box sx={{ height: 560, bgcolor: 'background.paper', borderRadius: 1 }}>
         <DataGrid rows={filtered} columns={cols} getRowId={(r) => r.id} density="compact"
           pageSizeOptions={[10, 25, 50]}
           initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
-          disableRowSelectionOnClick />
+          checkboxSelection disableRowSelectionOnClick
+          rowSelectionModel={selection}
+          onRowSelectionModelChange={setSelection} />
       </Box>
 
       <Drawer anchor="right" open={!!target} onClose={() => setTarget(null)}

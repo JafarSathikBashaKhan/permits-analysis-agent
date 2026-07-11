@@ -10,8 +10,10 @@ import PrintIcon from '@mui/icons-material/Print';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CloseIcon from '@mui/icons-material/Close';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { PageHeader } from '../../shared/PageHeader';
 import { applications } from '../../data/mock';
+import { ConfirmDialog } from '../../components/dialogs/ConfirmDialog';
 
 export type PrintRow = {
   id: string;
@@ -72,6 +74,7 @@ export function PrintList({
   const [previewRow, setPreviewRow] = useState<PrintRow | null>(null);
   const [confirmPrint, setConfirmPrint] = useState<{ ids: string[]; kind: 'row' | 'bulk' } | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -90,6 +93,14 @@ export function PrintList({
     setRows(rows.map((r) => ids.includes(r.id) ? { ...r, physicalStatus: 'active' } : r));
     setToast(`Sent to print partner — Success: ${ids.length}, Failed: 0`);
     setSelection([]); setConfirmPrint(null);
+  };
+
+  const bulkDelete = () => {
+    const ids = new Set(selection.map(String));
+    setRows(rows.filter((r) => !ids.has(String(r.id))));
+    setSelection([]);
+    setToast(`${ids.size} deleted`);
+    setConfirmDelete(false);
   };
 
   const cols: GridColDef[] = [
@@ -140,15 +151,17 @@ export function PrintList({
           <Box sx={{ flex: 1 }} />
           {selection.length > 0 && (
             <>
-              <Typography variant="body2" color="text.secondary">{selection.length} Rows Selected</Typography>
-              <Button variant="outlined" startIcon={<DownloadIcon />}
-                onClick={() => doDownload(selection as string[])}>Download</Button>
+              <Typography variant="body2" color="text.secondary">{selection.length} Row Selected</Typography>
               {printPartnerEnabled && (
-                <Button variant="contained" startIcon={<PrintIcon />}
+                <Button variant="outlined" startIcon={<PrintIcon />}
                   onClick={() => setConfirmPrint({ ids: selection as string[], kind: 'bulk' })}>
                   Send to Print
                 </Button>
               )}
+              <Button variant="outlined" startIcon={<DownloadIcon />}
+                onClick={() => doDownload(selection as string[])}>Download</Button>
+              <Button variant="outlined" color="error" startIcon={<DeleteOutlineIcon />}
+                onClick={() => setConfirmDelete(true)}>Delete</Button>
             </>
           )}
         </Stack>
@@ -235,6 +248,17 @@ export function PrintList({
           {toast}
         </Alert>
       )}
+
+      {/* Delete confirmation */}
+      <ConfirmDialog
+        open={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        onConfirm={bulkDelete}
+        title="Delete Documents?"
+        message={`Are you sure you want to delete ${selection.length} selected document${selection.length === 1 ? '' : 's'}?`}
+        confirmText="Delete"
+        severity="error"
+      />
     </Box>
   );
 }

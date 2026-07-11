@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import {
   Box, Button, Card, CardContent, Chip, IconButton, Stack, Tab, Tabs, TextField,
-  Typography, MenuItem, Divider, List, ListItem, ListItemAvatar, ListItemText, Avatar, Badge, Menu,
+  Typography, MenuItem, Divider, List, ListItem, ListItemAvatar, ListItemText, Avatar, Badge,
 } from '@mui/material';
 import { PageHeader } from '../../shared/PageHeader';
 import { tokens } from '../../theme';
@@ -78,7 +78,7 @@ export function NotificationsPage() {
   const [tab, setTab] = useState<'inbox' | 'settings' | 'history'>('inbox');
   const [cat, setCat] = useState<Category | 'All'>('All');
   const [q, setQ] = useState('');
-  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const unread = items.filter((n) => !n.read).length;
   const filtered = useMemo(() => items.filter((n) => {
@@ -87,9 +87,36 @@ export function NotificationsPage() {
     return true;
   }), [items, cat, q]);
 
-  const markAll = () => setItems((prev) => prev.map((n) => ({ ...n, read: true })));
-  const remove = (id: string) => setItems((prev) => prev.filter((n) => n.id !== id));
+  const markAll = () => {
+    setItems((prev) => prev.map((n) => ({ ...n, read: true })));
+    showToast('All marked as read', 'success');
+  };
+  const remove = (id: string) => {
+    setItems((prev) => prev.filter((n) => n.id !== id));
+    setSelected(prev => { const n = new Set(prev); n.delete(id); return n; });
+  };
   const toggle = (id: string) => setItems((prev) => prev.map((n) => n.id === id ? { ...n, read: !n.read } : n));
+
+  const toggleSelect = (id: string) => {
+    setSelected(prev => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+  };
+
+  const bulkMarkRead = () => {
+    setItems(prev => prev.map(n => selected.has(n.id) ? { ...n, read: true } : n));
+    setSelected(new Set());
+    showToast(`${selected.size} marked as read`, 'success');
+  };
+
+  const bulkDelete = () => {
+    setItems(prev => prev.filter(n => !selected.has(n.id)));
+    setSelected(new Set());
+    showToast('Selected notifications deleted', 'success');
+  };
 
   return (
     <Box>
@@ -99,10 +126,26 @@ export function NotificationsPage() {
         description="System alerts, user activity and background job outcomes across the contract."
         actions={
           <>
-            <Button variant="outlined" startIcon={<DoneAllOutlined />} onClick={markAll} disabled={unread === 0}>
-              Mark all read
-            </Button>
-            <Button variant="outlined" startIcon={<SettingsOutlined />} onClick={() => setTab('settings')}>Preferences</Button>
+            {selected.size > 0 ? (
+              <>
+                <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+                  {selected.size} Selected
+                </Typography>
+                <Button variant="outlined" startIcon={<DoneAllOutlined />} onClick={bulkMarkRead}>
+                  Mark Read
+                </Button>
+                <Button variant="outlined" color="error" startIcon={<DeleteOutline />} onClick={bulkDelete}>
+                  Delete
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outlined" startIcon={<DoneAllOutlined />} onClick={markAll} disabled={unread === 0}>
+                  Mark all read
+                </Button>
+                <Button variant="outlined" startIcon={<SettingsOutlined />} onClick={() => setTab('settings')}>Preferences</Button>
+              </>
+            )}
           </>
         }
       />
@@ -138,10 +181,11 @@ export function NotificationsPage() {
               )}
               {filtered.map((n, i) => {
                 const s = SEV_STYLE[n.severity];
+                const isSelected = selected.has(n.id);
                 return (
                   <Box key={n.id}>
                     <ListItem
-                      sx={{ py: 1.5, bgcolor: n.read ? 'transparent' : '#F7FAFD' }}
+                      sx={{ py: 1.5, bgcolor: isSelected ? '#E3F2FD' : n.read ? 'transparent' : '#F7FAFD' }}
                       secondaryAction={
                         <Stack direction="row" spacing={0.5}>
                           <IconButton size="small" onClick={() => toggle(n.id)} title={n.read ? 'Mark unread' : 'Mark read'}><MailOutlineOutlined fontSize="small" /></IconButton>
@@ -150,6 +194,15 @@ export function NotificationsPage() {
                       }
                     >
                       <ListItemAvatar>
+                        <IconButton size="small" onClick={() => toggleSelect(n.id)} sx={{ mr: 1 }}>
+                          <Box sx={{
+                            width: 20, height: 20, border: 2, borderColor: isSelected ? 'primary.main' : 'divider',
+                            bgcolor: isSelected ? 'primary.main' : 'transparent', borderRadius: 0.5,
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          }}>
+                            {isSelected && <CheckCircleOutlined sx={{ fontSize: 14, color: 'white' }} />}
+                          </Box>
+                        </IconButton>
                         <Avatar sx={{ bgcolor: s.bg, color: s.fg, width: 40, height: 40 }}>{s.icon}</Avatar>
                       </ListItemAvatar>
                       <ListItemText
@@ -198,9 +251,9 @@ export function NotificationsPage() {
                   <Typography sx={{ color: tokens.MUTED, fontSize: '0.85rem' }}>{desc}</Typography>
                 </Box>
                 <Stack direction="row" spacing={1}>
-                  <Chip label="In-app" color="primary" size="small" onClick={() => {}} />
-                  <Chip label="Email" variant="outlined" size="small" onClick={() => {}} />
-                  <Chip label="SMS" variant="outlined" size="small" onClick={() => {}} />
+                  <Chip label="In-app" color="primary" size="small" onClick={() => showToast('In-app enabled', 'info')} />
+                  <Chip label="Email" variant="outlined" size="small" onClick={() => showToast('Email enabled', 'info')} />
+                  <Chip label="SMS" variant="outlined" size="small" onClick={() => showToast('SMS enabled', 'info')} />
                 </Stack>
               </Stack>
             ))}

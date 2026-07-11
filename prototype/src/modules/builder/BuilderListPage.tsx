@@ -12,10 +12,12 @@ import { Link as RouterLink } from 'react-router-dom';
 import { permissions, Permission } from '../../data/mock';
 import { tokens } from '../../theme';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import { useToast } from '../../components/Toast';
 
 export const BUILDER_ROWS_KEY = 'prototype:builder:list:rows';
 
 export function BuilderListPage() {
+  const showToast = useToast();
   const [q, setQ] = useState('');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -43,6 +45,37 @@ export function BuilderListPage() {
     const s = new Set(selected);
     if (s.has(id)) s.delete(id); else s.add(id);
     setSelected(s);
+  };
+
+  const bulkPublish = () => {
+    setAllRows((prev) => prev.map((r) => selected.has(r.id) ? { ...r, status: 'Published' } : r));
+    showToast(`${selected.size} permission(s) published`, 'success');
+    setSelected(new Set());
+  };
+
+  const bulkUnpublish = () => {
+    setAllRows((prev) => prev.map((r) => selected.has(r.id) ? { ...r, status: 'Draft' } : r));
+    showToast(`${selected.size} permission(s) unpublished`, 'success');
+    setSelected(new Set());
+  };
+
+  const bulkClone = () => {
+    const toClone = allRows.filter((r) => selected.has(r.id));
+    const clones = toClone.map((r) => ({
+      ...r,
+      id: `P-${Date.now()}-${Math.random()}`,
+      name: `${r.name} (Copy)`,
+      status: 'Draft' as const,
+    }));
+    setAllRows((prev) => [...clones, ...prev]);
+    showToast(`${clones.length} permission(s) cloned`, 'success');
+    setSelected(new Set());
+  };
+
+  const bulkDelete = () => {
+    setAllRows((prev) => prev.filter((r) => !selected.has(r.id)));
+    showToast(`${selected.size} permission(s) deleted`, 'success');
+    setSelected(new Set());
   };
 
   return (
@@ -78,6 +111,17 @@ export function BuilderListPage() {
             sx={{ flex: 1, maxWidth: 540 }}
           />
           <Box sx={{ flex: 1 }} />
+          {selected.size > 0 && (
+            <>
+              <Typography variant="body2" color="text.secondary" sx={{ mr: 2 }}>
+                {selected.size} Selected
+              </Typography>
+              <Button size="small" variant="outlined" sx={{ mr: 1 }} onClick={bulkPublish}>Publish</Button>
+              <Button size="small" variant="outlined" sx={{ mr: 1 }} onClick={bulkUnpublish}>Unpublish</Button>
+              <Button size="small" variant="outlined" sx={{ mr: 1 }} onClick={bulkClone}>Clone</Button>
+              <Button size="small" variant="outlined" color="error" onClick={bulkDelete}>Delete</Button>
+            </>
+          )}
           <Tooltip title="Columns"><IconButton sx={{ color: tokens.NAVY }}><ViewColumnOutlined /></IconButton></Tooltip>
           <Tooltip title="Filter"><IconButton sx={{ color: tokens.NAVY }}><FilterListOutlined /></IconButton></Tooltip>
         </Stack>

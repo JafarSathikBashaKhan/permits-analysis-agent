@@ -3,7 +3,7 @@ import {
   Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Drawer,
   IconButton, MenuItem, Stack, TextField, Typography, Divider, Chip,
 } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CloseIcon from '@mui/icons-material/Close';
@@ -64,6 +64,7 @@ export function TermsAndConditionPage() {
   const [panel, setPanel] = useState<PanelMode>('closed');
   const [target, setTarget] = useState<Template | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Template | null>(null);
+  const [selection, setSelection] = useState<GridRowSelectionModel>([]);
 
   const [name, setName] = useState('');
   const [permType, setPermType] = useState('');
@@ -117,6 +118,20 @@ export function TermsAndConditionPage() {
     setDeleteTarget(null);
   };
 
+  const bulkPublish = () => {
+    const ids = new Set(selection.map(String));
+    setRows((prev) => prev.map((r) => ids.has(String(r.id)) ? { ...r, published: true } : r));
+    setSelection([]);
+    showToast(`${ids.size} template(s) published`, 'success');
+  };
+
+  const bulkDelete = () => {
+    const ids = new Set(selection.map(String));
+    setRows(rows.filter((r) => !ids.has(String(r.id))));
+    setSelection([]);
+    showToast(`${ids.size} template(s) deleted`, 'success');
+  };
+
   const cols: GridColDef[] = [
     {
       field: 'templateName', headerName: 'Template Name', flex: 1.4, minWidth: 220,
@@ -154,10 +169,19 @@ export function TermsAndConditionPage() {
       <PageHeader eyebrow="Templates" title="Terms and Condition"
         description="Terms & Conditions templates linked to permission types." />
 
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 2 }}>
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={1.5} sx={{ mb: 2 }} alignItems="center">
         <TextField size="small" placeholder="Search by Template Name, Permission Type"
           value={search} onChange={(e) => setSearch(e.target.value)} sx={{ minWidth: 320 }} />
         <Box sx={{ flex: 1 }} />
+        {selection.length > 0 && (
+          <>
+            <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+              {selection.length} Row Selected
+            </Typography>
+            <Button variant="outlined" onClick={bulkPublish}>Publish</Button>
+            <Button variant="outlined" color="error" onClick={bulkDelete}>Delete</Button>
+          </>
+        )}
         <Button variant="contained" startIcon={<AddIcon />} onClick={() => { setTarget(null); setPanel('add'); }}>
           Add Template
         </Button>
@@ -167,7 +191,9 @@ export function TermsAndConditionPage() {
         <DataGrid rows={filtered} columns={cols} getRowId={(r) => r.id} density="compact"
           pageSizeOptions={[10, 25, 50]}
           initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
-          checkboxSelection disableRowSelectionOnClick />
+          checkboxSelection disableRowSelectionOnClick
+          rowSelectionModel={selection}
+          onRowSelectionModelChange={setSelection} />
       </Box>
 
       <Drawer anchor="right" open={panel !== 'closed'} onClose={() => { setPanel('closed'); setTarget(null); }}

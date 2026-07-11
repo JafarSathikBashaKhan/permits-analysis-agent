@@ -4,7 +4,7 @@ import {
   IconButton, MenuItem, Stack, TextField, Tooltip, Typography, Menu, Divider,
   Accordion, AccordionSummary, AccordionDetails, Alert, RadioGroup, FormControlLabel, Radio,
 } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -189,6 +189,7 @@ export function ZonesPage() {
   const [menuAnchor, setMenuAnchor] = useState<{ el: HTMLElement; row: Zone } | null>(null);
   const [confirm, setConfirm] = useState<{ kind: 'delete' | 'publish' | 'unpublish'; row: Zone } | null>(null);
   const [importOpen, setImportOpen] = useState(false);
+  const [selection, setSelection] = useState<GridRowSelectionModel>([]);
 
   const filtered = useMemo(() => {
     const ql = q.trim().toLowerCase();
@@ -207,6 +208,33 @@ export function ZonesPage() {
 
   const publish = (id: string, s: 'Published' | 'Unpublished') =>
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, status: s } : r)));
+
+  const bulkPublish = () => {
+    const ids = new Set(selection.map(String));
+    setRows((prev) => prev.map((r) => ids.has(String(r.id)) ? { ...r, status: 'Published' } : r));
+    setSelection([]);
+    showToast(`${ids.size} zone(s) published`, 'success');
+  };
+
+  const bulkUnpublish = () => {
+    const ids = new Set(selection.map(String));
+    setRows((prev) => prev.map((r) => ids.has(String(r.id)) ? { ...r, status: 'Unpublished' } : r));
+    setSelection([]);
+    showToast(`${ids.size} zone(s) unpublished`, 'info');
+  };
+
+  const bulkDelete = () => {
+    const ids = new Set(selection.map(String));
+    const unpublished = rows.filter((r) => ids.has(String(r.id)) && r.status === 'Unpublished');
+    if (unpublished.length === 0) {
+      showToast('Only unpublished zones can be deleted', 'error');
+      return;
+    }
+    const toDelete = new Set(unpublished.map((r) => String(r.id)));
+    setRows(rows.filter((r) => !toDelete.has(String(r.id))));
+    setSelection([]);
+    showToast(`${unpublished.length} zone(s) deleted`, 'success');
+  };
 
   const columns: GridColDef<Zone>[] = [
     { field: 'name', headerName: 'Zone Name', flex: 1.2, minWidth: 160 },
@@ -240,15 +268,28 @@ export function ZonesPage() {
           </Stack>
         } />
 
-      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} mb={2}>
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} mb={2} alignItems="center">
         <TextField size="small" placeholder="Search by Zone Name" value={q}
           onChange={(e) => setQ(e.target.value)} sx={{ flex: 1, maxWidth: 420 }} />
+        {selection.length > 0 && (
+          <>
+            <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+              {selection.length} Row Selected
+            </Typography>
+            <Button variant="outlined" onClick={bulkPublish}>Publish</Button>
+            <Button variant="outlined" onClick={bulkUnpublish}>Unpublish</Button>
+            <Button variant="outlined" color="error" onClick={bulkDelete}>Delete</Button>
+          </>
+        )}
       </Stack>
 
       <Box sx={{ bgcolor: 'background.paper', border: 1, borderColor: 'divider', borderRadius: 1 }}>
         <DataGrid<Zone> rows={filtered} columns={columns} autoHeight
           pageSizeOptions={[5, 10, 25]}
-          initialState={{ pagination: { paginationModel: { pageSize: 10, page: 0 } } }} />
+          initialState={{ pagination: { paginationModel: { pageSize: 10, page: 0 } } }}
+          checkboxSelection
+          rowSelectionModel={selection}
+          onRowSelectionModelChange={setSelection} />
       </Box>
 
       <Menu anchorEl={menuAnchor?.el} open={!!menuAnchor} onClose={() => setMenuAnchor(null)}>

@@ -1,19 +1,22 @@
 import { useMemo, useState } from 'react';
 import {
-  Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Drawer,
-  IconButton, MenuItem, Stack, TextField, Typography, Autocomplete, Divider,
+  Box, Button, Chip, IconButton, Stack, TextField, Typography, MenuItem, Divider, Drawer,
+  Dialog, DialogActions, DialogContent, DialogTitle, Autocomplete,
 } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import CloseIcon from '@mui/icons-material/Close';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import AddIcon from '@mui/icons-material/Add';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import { PageHeader } from '../../shared/PageHeader';
 import { systemUsers } from '../../data/mock';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { useToast } from '../../components/Toast';
+import { ConfirmDialog } from '../../components/dialogs/ConfirmDialog';
 
 type TaskStatus = 'Assigned' | 'Completed' | 'Cancelled' | 'Unassigned';
 type Attachment = { name: string; kind: 'image' | 'pdf' };
@@ -65,8 +68,11 @@ export function SuspensionsPage() {
   const [tasks, setTasks] = usePersistentState<CeoTask[]>('prototype:suspensions:rows', seed);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'All' | TaskStatus>('All');
+  const [selection, setSelection] = useState<GridRowSelectionModel>([]);
   const [evidenceTarget, setEvidenceTarget] = useState<CeoTask | null>(null);
   const [addOpen, setAddOpen] = useState(false);
+  const [confirmCancel, setConfirmCancel] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const [newTitle, setNewTitle] = useState('');
   const [newCategory, setNewCategory] = useState('Bay Suspension');
@@ -102,6 +108,22 @@ export function SuspensionsPage() {
     }, ...tasks]);
     resetForm(); setAddOpen(false);
     showToast('Task created successfully', 'success');
+  };
+
+  const bulkCancel = () => {
+    const ids = new Set(selection.map(String));
+    setTasks(tasks.map(t => ids.has(String(t.id)) ? { ...t, taskStatus: 'Cancelled' } : t));
+    setSelection([]);
+    showToast(`${ids.size} cancelled`, 'success');
+    setConfirmCancel(false);
+  };
+
+  const bulkDelete = () => {
+    const ids = new Set(selection.map(String));
+    setTasks(tasks.filter(t => !ids.has(String(t.id))));
+    setSelection([]);
+    showToast(`${ids.size} deleted`, 'success');
+    setConfirmDelete(false);
   };
 
   const cols: GridColDef[] = [
@@ -144,10 +166,25 @@ export function SuspensionsPage() {
           {['All', 'Assigned', 'Completed', 'Unassigned', 'Cancelled'].map((s) =>
             <MenuItem key={s} value={s}>{s}</MenuItem>)}
         </TextField>
+        <Box sx={{ flex: 1 }} />
+        {selection.length > 0 && (
+          <>
+            <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+              {selection.length} Row Selected
+            </Typography>
+            <Button variant="outlined" startIcon={<CancelOutlinedIcon />}
+              onClick={() => setConfirmCancel(true)}>Cancel</Button>
+            <Button variant="outlined" color="error" startIcon={<DeleteOutlineIcon />}
+              onClick={() => setConfirmDelete(true)}>Delete</Button>
+          </>
+        )}
       </Stack>
 
       <Box sx={{ height: 580, bgcolor: 'background.paper', borderRadius: 1 }}>
         <DataGrid rows={filtered} columns={cols} getRowId={(r) => r.id} density="compact"
+          checkboxSelection
+          rowSelectionModel={selection}
+          onRowSelectionModelChange={setSelection}
           pageSizeOptions={[10, 25, 50]}
           initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
           disableRowSelectionOnClick />
@@ -246,6 +283,26 @@ export function SuspensionsPage() {
           <Button onClick={() => setEvidenceTarget(null)}>Close</Button>
         </DialogActions>
       </Dialog>
+
+      <ConfirmDialog
+        open={confirmCancel}
+        onClose={() => setConfirmCancel(false)}
+        onConfirm={bulkCancel}
+        title="Cancel Tasks?"
+        message={`Are you sure you want to cancel ${selection.length} selected task${selection.length === 1 ? '' : 's'}?`}
+        confirmText="Cancel Tasks"
+        severity="warning"
+      />
+
+      <ConfirmDialog
+        open={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        onConfirm={bulkDelete}
+        title="Delete Tasks?"
+        message={`Are you sure you want to delete ${selection.length} selected task${selection.length === 1 ? '' : 's'}?`}
+        confirmText="Delete"
+        severity="error"
+      />
     </Box>
   );
 }

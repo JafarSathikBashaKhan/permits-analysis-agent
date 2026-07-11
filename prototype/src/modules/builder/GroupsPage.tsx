@@ -4,7 +4,7 @@ import {
   IconButton, MenuItem, Stack, TextField, Tooltip, Typography, Alert, Divider,
   Menu, RadioGroup, FormControlLabel, Radio, Switch,
 } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -151,6 +151,7 @@ export function GroupsPage() {
   const [selected, setSelected] = useState<Group | null>(null);
   const [menuAnchor, setMenuAnchor] = useState<{ el: HTMLElement; row: Group } | null>(null);
   const [deleting, setDeleting] = useState<Group | null>(null);
+  const [selection, setSelection] = useState<GridRowSelectionModel>([]);
 
   const filtered = useMemo(() => {
     const ql = q.trim().toLowerCase();
@@ -165,6 +166,18 @@ export function GroupsPage() {
       return exists ? prev.map((r) => (r.id === g.id ? g : r)) : [g, ...prev];
     });
     showToast(isEdit ? 'Group updated successfully' : 'Group created successfully', 'success');
+  };
+
+  const bulkDelete = () => {
+    const ids = new Set(selection.map(String));
+    const deletable = rows.filter((r) => ids.has(r.id) && r.linkedPermissions === 0);
+    if (deletable.length === 0) {
+      showToast('Selected groups cannot be deleted (linked to permissions)', 'error');
+      return;
+    }
+    setRows((prev) => prev.filter((r) => !ids.has(r.id) || r.linkedPermissions > 0));
+    setSelection([]);
+    showToast(`${deletable.length} group(s) deleted`, 'success');
   };
 
   const columns: GridColDef<Group>[] = [
@@ -203,8 +216,21 @@ export function GroupsPage() {
           onChange={(e) => setQ(e.target.value)} sx={{ flex: 1, maxWidth: 420 }} />
       </Stack>
 
+      {selection.length > 0 && (
+        <Stack direction="row" alignItems="center" spacing={1.5} mb={2} sx={{ p: 2, bgcolor: 'grey.50', border: 1, borderColor: 'divider', borderRadius: 1 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+            {selection.length} Group(s) Selected
+          </Typography>
+          <Button variant="outlined" color="error" onClick={bulkDelete}>Delete</Button>
+        </Stack>
+      )}
+
       <Box sx={{ bgcolor: 'background.paper', border: 1, borderColor: 'divider', borderRadius: 1 }}>
         <DataGrid<Group> rows={filtered} columns={columns} autoHeight
+          checkboxSelection
+          disableRowSelectionOnClick
+          rowSelectionModel={selection}
+          onRowSelectionModelChange={setSelection}
           pageSizeOptions={[5, 10, 25]}
           initialState={{ pagination: { paginationModel: { pageSize: 10, page: 0 } } }} />
       </Box>

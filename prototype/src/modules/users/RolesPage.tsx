@@ -19,7 +19,7 @@ import {
   Alert,
   Divider,
 } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -399,6 +399,7 @@ export function RolesPage() {
   const [panelOpen, setPanelOpen] = useState(false);
   const [selected, setSelected] = useState<Role | null>(null);
   const [deleting, setDeleting] = useState<Role | null>(null);
+  const [selection, setSelection] = useState<GridRowSelectionModel>([]);
 
   const filtered = useMemo(() => {
     const ql = q.trim().toLowerCase();
@@ -435,6 +436,33 @@ export function RolesPage() {
     setRows((prev) => prev.filter((r) => r.id !== deleting.id));
     showToast('Role deleted successfully', 'success');
     setDeleting(null);
+  };
+
+  const bulkDelete = () => {
+    const ids = new Set(selection.map(String));
+    const deletable = rows.filter((r) => ids.has(r.id) && r.noOfUsers === 0 && !r.isDefaultRole);
+    if (deletable.length === 0) {
+      showToast('Selected roles cannot be deleted (default roles or roles with assigned users)', 'error');
+      return;
+    }
+    setRows((prev) => prev.filter((r) => !ids.has(r.id) || r.noOfUsers > 0 || r.isDefaultRole));
+    setSelection([]);
+    showToast(`${deletable.length} role(s) deleted`, 'success');
+  };
+
+  const bulkDuplicate = () => {
+    const ids = new Set(selection.map(String));
+    const toDupe = rows.filter((r) => ids.has(r.id));
+    const dupes = toDupe.map((r) => ({
+      ...r,
+      id: `r-${Date.now()}-${Math.random()}`,
+      name: `${r.name} (Copy)`,
+      noOfUsers: 0,
+      isDefaultRole: false,
+    }));
+    setRows((prev) => [...dupes, ...prev]);
+    setSelection([]);
+    showToast(`${dupes.length} role(s) duplicated`, 'success');
   };
 
   const columns: GridColDef<Role>[] = [
@@ -524,11 +552,25 @@ export function RolesPage() {
         </TextField>
       </Stack>
 
+      {selection.length > 0 && (
+        <Stack direction="row" alignItems="center" spacing={1.5} mb={2} sx={{ p: 2, bgcolor: 'grey.50', border: 1, borderColor: 'divider', borderRadius: 1 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+            {selection.length} Role(s) Selected
+          </Typography>
+          <Button variant="outlined" onClick={bulkDuplicate}>Duplicate</Button>
+          <Button variant="outlined" color="error" onClick={bulkDelete}>Delete</Button>
+        </Stack>
+      )}
+
       <Box sx={{ bgcolor: 'background.paper', border: 1, borderColor: 'divider', borderRadius: 1 }}>
         <DataGrid<Role>
           rows={filtered}
           columns={columns}
           autoHeight
+          checkboxSelection
+          disableRowSelectionOnClick
+          rowSelectionModel={selection}
+          onRowSelectionModelChange={setSelection}
           pageSizeOptions={[5, 10, 25]}
           initialState={{ pagination: { paginationModel: { pageSize: 10, page: 0 } } }}
         />

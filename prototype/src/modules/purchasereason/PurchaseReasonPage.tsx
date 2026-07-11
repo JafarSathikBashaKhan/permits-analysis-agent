@@ -4,7 +4,7 @@ import {
   IconButton, MenuItem, Stack, TextField, Typography, Alert, Divider,
   RadioGroup, FormControlLabel, Radio, Checkbox,
 } from '@mui/material';
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -15,6 +15,7 @@ import { PageHeader } from '../../shared/PageHeader';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { useToast } from '../../components/Toast';
 import { ImportCsvDialog } from '../../components/dialogs/ImportCsvDialog';
+import { ConfirmDialog } from '../../components/dialogs/ConfirmDialog';
 
 const FIELD_TYPES = ['Text', 'Number', 'Single Select', 'Multi Select', 'Date', 'Checkbox', 'Radio'];
 
@@ -179,9 +180,11 @@ export function PurchaseReasonPage() {
   const showToast = useToast();
   const [rows, setRows] = usePersistentState<PurchaseReason[]>('prototype:purchase-reason:rows', seedReasons);
   const [q, setQ] = useState('');
+  const [selection, setSelection] = useState<GridRowSelectionModel>([]);
   const [panelOpen, setPanelOpen] = useState(false);
   const [selected, setSelected] = useState<PurchaseReason | null>(null);
   const [deleting, setDeleting] = useState<PurchaseReason | null>(null);
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
 
   const filtered = useMemo(() => {
@@ -197,6 +200,14 @@ export function PurchaseReasonPage() {
       return exists ? prev.map((x) => (x.id === r.id ? r : x)) : [r, ...prev];
     });
     showToast(isEdit ? 'Purchase Reason updated successfully' : 'Purchase Reason created successfully', 'success');
+  };
+
+  const bulkDelete = () => {
+    const ids = new Set(selection.map(String));
+    setRows(rows.filter(r => !ids.has(String(r.id))));
+    setSelection([]);
+    showToast(`${ids.size} deleted`, 'success');
+    setConfirmBulkDelete(false);
   };
 
   const columns: GridColDef<PurchaseReason>[] = [
@@ -249,10 +260,23 @@ export function PurchaseReasonPage() {
       <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} mb={2}>
         <TextField size="small" placeholder="Search by Purchase Reason, Permission Type" value={q}
           onChange={(e) => setQ(e.target.value)} sx={{ flex: 1, maxWidth: 420 }} />
+        <Box sx={{ flex: 1 }} />
+        {selection.length > 0 && (
+          <>
+            <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+              {selection.length} Row Selected
+            </Typography>
+            <Button variant="outlined" color="error" startIcon={<DeleteOutlineIcon />}
+              onClick={() => setConfirmBulkDelete(true)}>Delete</Button>
+          </>
+        )}
       </Stack>
 
       <Box sx={{ bgcolor: 'background.paper', border: 1, borderColor: 'divider', borderRadius: 1 }}>
         <DataGrid<PurchaseReason> rows={filtered} columns={columns} autoHeight
+          checkboxSelection
+          rowSelectionModel={selection}
+          onRowSelectionModelChange={setSelection}
           pageSizeOptions={[5, 10, 25]}
           initialState={{ pagination: { paginationModel: { pageSize: 10, page: 0 } } }} />
       </Box>
@@ -290,6 +314,16 @@ export function PurchaseReasonPage() {
         onClose={() => setImportOpen(false)}
         entityName="purchase reasons"
         onImport={() => {}}
+      />
+
+      <ConfirmDialog
+        open={confirmBulkDelete}
+        onClose={() => setConfirmBulkDelete(false)}
+        onConfirm={bulkDelete}
+        title="Delete Purchase Reasons?"
+        message={`Are you sure you want to delete ${selection.length} selected purchase reason${selection.length === 1 ? '' : 's'}?`}
+        confirmText="Delete"
+        severity="error"
       />
     </>
   );
