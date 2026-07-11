@@ -13,6 +13,7 @@ import { tokens } from '../../theme';
 import { ApplicationFormTab } from './tabs/ApplicationFormTab';
 import { PricingTab } from './tabs/PricingTab';
 import { RulesTab } from './tabs/RulesTab';
+import { CustomFieldsTab } from './tabs/CustomFieldsTab';
 import {
   PermissionLabelSection, PaymentSettingsSection, DiscountSettingsSection,
   DocumentTypeSettingsSection, MerchantSettingsSection, RenewalsAndRemindersSection,
@@ -40,7 +41,7 @@ type Group = {
 
 const seedGroups = (): Group[] => [];
 
-type TopTab = 'permissions' | 'rules' | 'pricing' | 'application-form';
+type TopTab = 'permissions' | 'rules' | 'pricing' | 'application-form' | 'custom-fields';
 
 const PERMISSION_SUBS = [
   'Basic Information',
@@ -242,6 +243,7 @@ export function BuilderDesignPage() {
           <Tab label="Rules" value="rules" sx={topTabSx} />
           <Tab label="Pricing" value="pricing" sx={topTabSx} />
           <Tab label="Application Form" value="application-form" sx={topTabSx} />
+          <Tab label="Custom Fields" value="custom-fields" sx={topTabSx} />
         </Tabs>
       </Box>
 
@@ -501,6 +503,7 @@ export function BuilderDesignPage() {
         {topTab === 'rules' && <RulesTab permissionId={id || 'default'} />}
         {topTab === 'pricing' && <PricingTab permissionId={id || 'default'} />}
         {topTab === 'application-form' && <ApplicationFormTab permissionId={id || 'default'} />}
+        {topTab === 'custom-fields' && <CustomFieldsTab permissionId={id || 'default'} />}
       </Box>
     </Box>
   );

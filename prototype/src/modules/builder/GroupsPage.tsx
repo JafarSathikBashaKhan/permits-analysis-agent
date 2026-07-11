@@ -170,14 +170,34 @@ export function GroupsPage() {
 
   const bulkDelete = () => {
     const ids = new Set(selection.map(String));
-    const deletable = rows.filter((r) => ids.has(r.id) && r.linkedPermissions === 0);
-    if (deletable.length === 0) {
-      showToast('Selected groups cannot be deleted (linked to permissions)', 'error');
+    const toDelete = rows.filter((r) => ids.has(r.id));
+    const activeLinked = toDelete.filter((r) => r.linkedPermissions > 0);
+    const inactiveOnly = toDelete.filter((r) => r.linkedPermissions === 0);
+
+    if (toDelete.length === 0) return;
+
+    // All selected have active links
+    if (activeLinked.length === toDelete.length) {
+      showToast('The selected groups are currently linked to active permissions and cannot be deleted', 'error');
       return;
     }
-    setRows((prev) => prev.filter((r) => !ids.has(r.id) || r.linkedPermissions > 0));
+
+    // Mixed active + inactive
+    if (activeLinked.length > 0 && inactiveOnly.length > 0) {
+      if (!confirm(`${activeLinked.length} group(s) have active permissions and cannot be deleted. Do you want to proceed deleting the remaining ${inactiveOnly.length} groups?`)) {
+        return;
+      }
+      setRows((prev) => prev.filter((r) => !ids.has(r.id) || r.linkedPermissions > 0));
+      setSelection([]);
+      showToast(`${inactiveOnly.length} group(s) deleted successfully`, 'success');
+      return;
+    }
+
+    // All inactive
+    if (!confirm(`Are you sure want to delete all the selected ${toDelete.length} Groups?`)) return;
+    setRows((prev) => prev.filter((r) => !ids.has(r.id)));
     setSelection([]);
-    showToast(`${deletable.length} group(s) deleted`, 'success');
+    showToast('Groups deleted successfully', 'success');
   };
 
   const columns: GridColDef<Group>[] = [
