@@ -290,8 +290,8 @@ export function SuspensionsPage() {
         onConfirm={bulkCancel}
         title="Cancel Tasks?"
         message={`Are you sure you want to cancel ${selection.length} selected task${selection.length === 1 ? '' : 's'}?`}
-        confirmText="Cancel Tasks"
-        severity="warning"
+        confirmLabel="Cancel Tasks"
+        confirmColor="warning"
       />
 
       <ConfirmDialog
@@ -300,8 +300,8 @@ export function SuspensionsPage() {
         onConfirm={bulkDelete}
         title="Delete Tasks?"
         message={`Are you sure you want to delete ${selection.length} selected task${selection.length === 1 ? '' : 's'}?`}
-        confirmText="Delete"
-        severity="error"
+        confirmLabel="Delete"
+        confirmColor="error"
       />
     </Box>
   );

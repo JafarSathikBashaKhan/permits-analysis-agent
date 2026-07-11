@@ -9,15 +9,24 @@ import { useToast } from '../../components/Toast';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { ConfirmDialog } from '../../components/dialogs/ConfirmDialog';
 
+type PrintQueueRow = {
+  id: string;
+  ref: string;
+  applicant: string;
+  permission: string;
+  requested: string;
+  status: 'Ready' | 'Sent' | 'Awaiting Approval' | 'Printed';
+};
+
 export function PrintQueuePage() {
   const showToast = useToast();
-  const [rows, setRows] = usePersistentState('prototype:print-queue:rows', () => printQueue);
+  const [rows, setRows] = usePersistentState<PrintQueueRow[]>('prototype:print-queue:rows', () => printQueue as PrintQueueRow[]);
   const [selection, setSelection] = useState<GridRowSelectionModel>([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const markPrinted = () => {
     const ids = new Set(selection.map(String));
-    setRows(rows.map(r => ids.has(String(r.id)) ? { ...r, status: 'Printed' } : r));
+    setRows(rows.map(r => ids.has(String(r.id)) ? { ...r, status: 'Printed' as const } : r));
     setSelection([]);
     showToast(`${ids.size} marked as printed`, 'success');
   };
@@ -72,8 +81,8 @@ export function PrintQueuePage() {
         onConfirm={bulkDelete}
         title="Delete Queue Items?"
         message={`Are you sure you want to delete ${selection.length} selected item${selection.length === 1 ? '' : 's'}?`}
-        confirmText="Delete"
-        severity="error"
+        confirmLabel="Delete"
+        confirmColor="error"
       />
     </>
   );

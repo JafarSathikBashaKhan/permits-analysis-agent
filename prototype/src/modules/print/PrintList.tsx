@@ -256,8 +256,8 @@ export function PrintList({
         onConfirm={bulkDelete}
         title="Delete Documents?"
         message={`Are you sure you want to delete ${selection.length} selected document${selection.length === 1 ? '' : 's'}?`}
-        confirmText="Delete"
-        severity="error"
+        confirmLabel="Delete"
+        confirmColor="error"
       />
     </Box>
   );

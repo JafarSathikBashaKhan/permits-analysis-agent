@@ -322,8 +322,8 @@ export function PurchaseReasonPage() {
         onConfirm={bulkDelete}
         title="Delete Purchase Reasons?"
         message={`Are you sure you want to delete ${selection.length} selected purchase reason${selection.length === 1 ? '' : 's'}?`}
-        confirmText="Delete"
-        severity="error"
+        confirmLabel="Delete"
+        confirmColor="error"
       />
     </>
   );

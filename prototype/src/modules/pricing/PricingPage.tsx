@@ -237,8 +237,8 @@ export function PricingPage() {
         onConfirm={bulkDelete}
         title="Delete Pricing?"
         message={`Are you sure you want to delete ${selection.length} selected pricing rule${selection.length === 1 ? '' : 's'}?`}
-        confirmText="Delete"
-        severity="error"
+        confirmLabel="Delete"
+        confirmColor="error"
       />
     </>
   );
