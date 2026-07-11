@@ -3,6 +3,7 @@ import {
   MenuItem, Stack, TextField, Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { FIELD_LIMITS } from '../../constants/enums';
 
 export type EmailPayload = {
   id: string;
@@ -61,6 +62,8 @@ export function ComposeEmailDialog({ open, onClose, onSave, defaultTo = '', isBr
             <TextField
               label="To" required fullWidth
               value={to} onChange={(e) => setTo(e.target.value)}
+              type="email"
+              inputProps={{ maxLength: FIELD_LIMITS.EMAIL }}
             />
           )}
           <TextField

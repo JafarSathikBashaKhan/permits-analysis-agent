@@ -23,6 +23,7 @@ import PoundIcon from '@mui/icons-material/CurrencyPound';
 import { PageHeader } from '../../shared/PageHeader';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { useToast } from '../../components/Toast';
+import { FIELD_LIMITS } from '../../constants/enums';
 
 // ---------- Mock lookups ----------
 const POSTCODE_PROPERTIES: Record<string, { uprn: string; addressLine: string; streetName: string; town: string; postCode: string }[]> = {
@@ -248,6 +249,7 @@ export function FormBuilderPage() {
                     <TextField size="small" label="Postcode *" value={postcode}
                       onChange={(e) => setPostcode(e.target.value.toUpperCase())}
                       error={!!errors.postcode} helperText={errors.postcode || 'Try RG1 1AA, RG2 8BB or RG4 5CC.'}
+                      inputProps={{ maxLength: FIELD_LIMITS.POSTCODE }}
                       sx={{ flex: 1 }} />
                     <Button variant="outlined" onClick={() => showToast(postcode ? `Looking up ${postcode}…` : 'Enter a postcode first', postcode ? 'info' : 'warning')}>Find</Button>
                   </Stack>

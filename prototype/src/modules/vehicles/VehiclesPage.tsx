@@ -16,6 +16,7 @@ import { tokens } from '../../theme';
 import { useToast } from '../../components/Toast';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { AddVehicleDialog } from '../../components/dialogs/AddVehicleDialog';
+import { FUEL_TYPE_OPTIONS } from '../../constants/enums';
 
 type FuelType = 'Petrol' | 'Diesel' | 'Electric' | 'Hybrid' | 'LPG';
 type Status = 'Active' | 'Pending' | 'Suspended' | 'Expired' | 'Temporary';
@@ -183,7 +184,8 @@ export function VehiclesPage() {
               sx={{ minWidth: 320 }}
             />
             <TextField select size="small" label="Fuel" value={fuelFilter} onChange={(e) => setFuelFilter(e.target.value as any)} sx={{ minWidth: 160 }}>
-              {(['All', 'Petrol', 'Diesel', 'Electric', 'Hybrid', 'LPG'] as const).map((f) => <MenuItem key={f} value={f}>{f}</MenuItem>)}
+              <MenuItem value="All">All</MenuItem>
+              {FUEL_TYPE_OPTIONS.map((o) => <MenuItem key={o.id} value={o.label}>{o.label}</MenuItem>)}
             </TextField>
             <TextField select size="small" label="Status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as any)} sx={{ minWidth: 160 }}>
               {(['All', 'Active', 'Pending', 'Suspended', 'Expired', 'Temporary'] as const).map((s) => <MenuItem key={s} value={s}>{s}</MenuItem>)}

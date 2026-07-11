@@ -3,6 +3,7 @@ import {
   FormControlLabel, MenuItem, Stack, TextField,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
+import { FUEL_TYPE_OPTIONS, VEHICLE_TYPE_OPTIONS } from '../../constants/enums';
 
 export type VehiclePayload = {
   id: string;
@@ -26,8 +27,8 @@ type Props = {
   initial?: Partial<Pick<VehiclePayload, 'vrm' | 'make' | 'model' | 'colour' | 'fuelType' | 'vehicleType' | 'temporary' | 'validUntil'>>;
 };
 
-const FUEL_TYPES = ['Petrol', 'Diesel', 'Electric', 'Hybrid', 'LPG'];
-const VEHICLE_TYPES = ['Car', 'Van', 'Motorcycle', 'HGV'];
+const FUEL_TYPES = FUEL_TYPE_OPTIONS.map((o) => o.label);
+const VEHICLE_TYPES = VEHICLE_TYPE_OPTIONS.map((o) => o.label);
 
 export function AddVehicleDialog({ open, onClose, onSave, title = 'Add Vehicle', defaultTemporary = false, initial }: Props) {
   const [vrm, setVrm] = useState('');

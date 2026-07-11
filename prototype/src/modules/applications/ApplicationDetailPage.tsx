@@ -16,6 +16,8 @@ import { useToast } from '../../components/Toast';
 import { AddVehicleDialog } from '../../components/dialogs/AddVehicleDialog';
 import { UploadDocumentDialog } from '../../components/dialogs/UploadDocumentDialog';
 import { ComposeEmailDialog } from '../../components/dialogs/ComposeEmailDialog';
+import { usePersistentState } from '../../hooks/usePersistentState';
+import { FIELD_LIMITS, BUSINESS_RULES } from '../../constants/enums';
 
 type TabKey =
   | 'overview' | 'applicant' | 'vehicle' | 'document' | 'email'
@@ -73,6 +75,11 @@ export function ApplicationDetailPage() {
   const isDispensation = app.type === 'Dispensation';
   const isVisitor = /visitor/i.test(app.permission);
 
+  // On-Hold extension counter — persisted per application
+  const [holdExtensions, setHoldExtensions] = usePersistentState<number>(
+    `prototype:applications:hold-extensions:${app.id}`, 0
+  );
+
   // Filter tabs by application type / category (mirrors real conditional rendering)
   const visibleTabs = useMemo(() => ALL_TABS.filter((t) => {
     if (t.key === 'ceo' && !isSuspension) return false;
@@ -85,6 +92,20 @@ export function ApplicationDetailPage() {
   }), [isSuspension, isVisitor, isDispensation, app.status]);
 
   const actions = headerActionsFor(app.status, isSuspension);
+
+  const handleActionClick = (label: string) => {
+    if (label === 'Extend Postpone') {
+      if (holdExtensions >= BUSINESS_RULES.ON_HOLD_MAX_EXTENSIONS) {
+        showToast('Maximum hold extensions reached', 'error');
+        return;
+      }
+      const next = holdExtensions + 1;
+      setHoldExtensions(next);
+      showToast(`Hold duration extended (${next} of ${BUSINESS_RULES.ON_HOLD_MAX_EXTENSIONS})`, 'success');
+    } else {
+      showToast(`${label} — action recorded`, 'success');
+    }
+  };
 
   return (
     <>
@@ -104,9 +125,19 @@ export function ApplicationDetailPage() {
           </Box>
           <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
             <StatusChip status={app.status} />
+            {app.status === 'On Hold' && (
+              <Typography variant="caption" sx={{ color: tokens.MUTED }}>
+                Extended {holdExtensions} of {BUSINESS_RULES.ON_HOLD_MAX_EXTENSIONS} times
+              </Typography>
+            )}
             {actions.map((a) => (
-              <Button key={a.label} variant={a.variant ?? 'outlined'} color={a.color as any}
-                onClick={() => showToast(`${a.label} — action recorded`, 'success')}>
+              <Button
+                key={a.label}
+                variant={a.variant ?? 'outlined'}
+                color={a.color as any}
+                disabled={a.label === 'Extend Postpone' && holdExtensions >= BUSINESS_RULES.ON_HOLD_MAX_EXTENSIONS}
+                onClick={() => handleActionClick(a.label)}
+              >
                 {a.label}
               </Button>
             ))}
@@ -372,10 +403,16 @@ function AddressAssignPanel() {
   return (
     <PanelPaper title="Add address and assign">
       <Grid container spacing={2}>
-        <FormItem label="Postcode search"><TextField placeholder="Enter postcode" fullWidth /></FormItem>
+        <FormItem label="Postcode search">
+          <TextField placeholder="Enter postcode" fullWidth inputProps={{ maxLength: FIELD_LIMITS.POSTCODE }} />
+        </FormItem>
         <FormItem label="Select address"><TextField select fullWidth defaultValue=""><MenuItem value="">Select an address</MenuItem></TextField></FormItem>
-        <FormItem label="USRN"><TextField placeholder="Auto-populated" fullWidth /></FormItem>
-        <FormItem label="UPRN"><TextField placeholder="Auto-populated" fullWidth /></FormItem>
+        <FormItem label="USRN">
+          <TextField placeholder="Auto-populated" fullWidth inputProps={{ maxLength: FIELD_LIMITS.USRN }} />
+        </FormItem>
+        <FormItem label="UPRN">
+          <TextField placeholder="Auto-populated" fullWidth inputProps={{ maxLength: FIELD_LIMITS.UPRN }} />
+        </FormItem>
         <FormItem label="Zone"><TextField placeholder="Auto-detected from address" fullWidth /></FormItem>
       </Grid>
       <Stack direction="row" spacing={1} justifyContent="flex-end" sx={{ mt: 2 }}>

@@ -8,7 +8,7 @@ import {
 import { useMemo, useState, MouseEvent } from 'react';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useToast } from '../../components/Toast';
-import { permissions, permissionTypes, groupsByType, categories, Permission } from '../../data/mock';
+import { permissions, groupsByType, Permission } from '../../data/mock';
 import { tokens } from '../../theme';
 import { ApplicationFormTab } from './tabs/ApplicationFormTab';
 import { PricingTab } from './tabs/PricingTab';
@@ -20,6 +20,7 @@ import {
 } from './tabs/PermissionSubSections';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { BUILDER_ROWS_KEY } from './BuilderListPage';
+import { PERMISSION_TYPE_OPTIONS, PERMISSION_CATEGORY_OPTIONS, BUSINESS_RULES } from '../../constants/enums';
 
 type TopTab = 'permissions' | 'rules' | 'pricing' | 'application-form';
 
@@ -80,6 +81,9 @@ export function BuilderDesignPage() {
     adminFee: '',
   });
   const gsSet = <K extends keyof typeof gs>(k: K, v: (typeof gs)[K]) => setGs((p) => ({ ...p, [k]: v }));
+
+  // Permission limit (Basic Information)
+  const [permissionLimit, setPermissionLimit] = useState('');
 
   const availableGroups = type ? (groupsByType[type] ?? []) : Object.values(groupsByType).flat();
 
@@ -235,7 +239,7 @@ export function BuilderDesignPage() {
                   <FormRow label="Type">
                     <Select displayEmpty value={type} onChange={(e) => { setType(e.target.value); setGroup(''); }} fullWidth>
                       <MenuItem value=""><em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select</em></MenuItem>
-                      {permissionTypes.map((t) => <MenuItem key={t} value={t}>{t}</MenuItem>)}
+                      {PERMISSION_TYPE_OPTIONS.map((o) => <MenuItem key={o.id} value={o.label}>{o.label}</MenuItem>)}
                     </Select>
                   </FormRow>
                   <FormRow label="Group">
@@ -247,8 +251,19 @@ export function BuilderDesignPage() {
                   <FormRow label="Category">
                     <Select displayEmpty value={category} onChange={(e) => setCategory(e.target.value)} fullWidth>
                       <MenuItem value=""><em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select</em></MenuItem>
-                      {categories.map((c) => <MenuItem key={c} value={c}>{c}</MenuItem>)}
+                      {PERMISSION_CATEGORY_OPTIONS.map((o) => <MenuItem key={o.id} value={o.label}>{o.label}</MenuItem>)}
                     </Select>
+                  </FormRow>
+                  <FormRow label="Permission Limit" optional>
+                    <TextField
+                      placeholder={`${BUSINESS_RULES.PERMISSION_LIMIT_MIN}–${BUSINESS_RULES.PERMISSION_LIMIT_MAX}`}
+                      type="number"
+                      value={permissionLimit}
+                      onChange={(e) => setPermissionLimit(e.target.value)}
+                      inputProps={{ min: BUSINESS_RULES.PERMISSION_LIMIT_MIN, max: BUSINESS_RULES.PERMISSION_LIMIT_MAX }}
+                      helperText={`${BUSINESS_RULES.PERMISSION_LIMIT_MIN}–${BUSINESS_RULES.PERMISSION_LIMIT_MAX} permits per property`}
+                      sx={{ maxWidth: 200 }}
+                    />
                   </FormRow>
                   <FormRow label="Description" optional>
                     <TextField
@@ -418,9 +433,12 @@ export function BuilderDesignPage() {
                   <FormRow label="Admin fee for Permission" optional>
                     <TextField
                       placeholder="Enter Admin Fee"
+                      type="number"
                       value={gs.adminFee}
                       onChange={(e) => gsSet('adminFee', e.target.value)}
                       InputProps={{ startAdornment: <InputAdornment position="start">£</InputAdornment> }}
+                      inputProps={{ min: BUSINESS_RULES.ADMIN_FEE_MIN, max: BUSINESS_RULES.ADMIN_FEE_MAX, step: 0.01 }}
+                      helperText={`£${BUSINESS_RULES.ADMIN_FEE_MIN} – £${BUSINESS_RULES.ADMIN_FEE_MAX.toLocaleString()}`}
                     />
                   </FormRow>
                 </>

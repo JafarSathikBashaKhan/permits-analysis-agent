@@ -30,6 +30,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { PageHeader } from '../../shared/PageHeader';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { useToast } from '../../components/Toast';
+import { FIELD_LIMITS } from '../../constants/enums';
 
 // ─────────────────────────────────────────────────────────────
 // Fixtures (mirror real API shape: role, permission groups, users)
@@ -373,6 +374,7 @@ function UserSlidingPanel({
                 value={form.firstName}
                 onChange={(e) => setForm({ ...form, firstName: e.target.value })}
                 disabled={readonly}
+                inputProps={{ maxLength: FIELD_LIMITS.FIRST_NAME }}
               />
               <TextField
                 label="Last Name"
@@ -381,6 +383,7 @@ function UserSlidingPanel({
                 value={form.lastName}
                 onChange={(e) => setForm({ ...form, lastName: e.target.value })}
                 disabled={readonly}
+                inputProps={{ maxLength: FIELD_LIMITS.LAST_NAME }}
               />
             </Stack>
             <TextField
@@ -391,15 +394,18 @@ function UserSlidingPanel({
               value={form.emailAddress}
               onChange={(e) => setForm({ ...form, emailAddress: e.target.value })}
               disabled={readonly}
+              inputProps={{ maxLength: FIELD_LIMITS.EMAIL }}
             />
             <Stack direction="row" spacing={2}>
               <TextField
                 label="Contact Number"
+                type="tel"
                 required
                 fullWidth
                 value={form.mobileNumber}
                 onChange={(e) => setForm({ ...form, mobileNumber: e.target.value })}
                 disabled={readonly}
+                inputProps={{ maxLength: FIELD_LIMITS.MOBILE_NUMBER }}
               />
               <TextField
                 select

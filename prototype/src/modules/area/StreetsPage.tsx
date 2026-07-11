@@ -21,6 +21,7 @@ import { usePersistentState } from '../../hooks/usePersistentState';
 import { useToast } from '../../components/Toast';
 import { ImportCsvDialog } from '../../components/dialogs/ImportCsvDialog';
 import { ConfirmDialog } from '../../components/dialogs/ConfirmDialog';
+import { FIELD_LIMITS } from '../../constants/enums';
 
 type BlackStreet = Street & { blacklistedUntil: string; reason?: string };
 type BlackProperty = PropertyRow & {
@@ -123,9 +124,11 @@ function StreetSlider({
         <Stack spacing={2}>
           <Stack direction="row" spacing={2}>
             <TextField label="Street Name" required fullWidth value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })} />
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              inputProps={{ maxLength: FIELD_LIMITS.STREET_NAME }} />
             <TextField label="USRN" required fullWidth value={form.usrn}
-              onChange={(e) => setForm({ ...form, usrn: e.target.value })} />
+              onChange={(e) => setForm({ ...form, usrn: e.target.value })}
+              inputProps={{ maxLength: FIELD_LIMITS.USRN }} />
           </Stack>
           <TextField select label="Town" required fullWidth value={form.town}
             onChange={(e) => setForm({ ...form, town: e.target.value })}>
@@ -155,11 +158,14 @@ function StreetSlider({
               {form.properties.map((p) => (
                 <Stack key={p.id} direction="row" alignItems="center" spacing={1} sx={{ px: 1.5, py: 0.75, borderBottom: 1, borderColor: 'divider' }}>
                   <TextField size="small" variant="standard" value={p.name} sx={{ flex: 1.4 }}
-                    onChange={(e) => updateProp(p.id, 'name', e.target.value)} />
+                    onChange={(e) => updateProp(p.id, 'name', e.target.value)}
+                    inputProps={{ maxLength: FIELD_LIMITS.PROPERTY_NAME }} />
                   <TextField size="small" variant="standard" value={p.uprn} sx={{ flex: 1.2 }}
-                    onChange={(e) => updateProp(p.id, 'uprn', e.target.value)} />
+                    onChange={(e) => updateProp(p.id, 'uprn', e.target.value)}
+                    inputProps={{ maxLength: FIELD_LIMITS.UPRN }} />
                   <TextField size="small" variant="standard" value={p.postcode} sx={{ flex: 1 }}
-                    onChange={(e) => updateProp(p.id, 'postcode', e.target.value)} />
+                    onChange={(e) => updateProp(p.id, 'postcode', e.target.value)}
+                    inputProps={{ maxLength: FIELD_LIMITS.POSTCODE }} />
                   <TextField size="small" variant="standard" type="number" sx={{ width: 130 }}
                     inputProps={{ min: 0, max: 99, style: { textAlign: 'center' } }}
                     value={p.permissionLimit}

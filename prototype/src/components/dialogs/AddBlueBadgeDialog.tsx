@@ -3,6 +3,7 @@ import {
   Stack, TextField,
 } from '@mui/material';
 import { useState } from 'react';
+import { FIELD_LIMITS } from '../../constants/enums';
 
 export type BlueBadgePayload = {
   id: string;
@@ -49,6 +50,8 @@ export function AddBlueBadgeDialog({ open, onClose, onSave }: Props) {
           <TextField
             label="Badge Number" required fullWidth
             value={badgeNumber} onChange={(e) => setBadgeNumber(e.target.value)}
+            inputProps={{ maxLength: FIELD_LIMITS.BLUE_BADGE_NUMBER }}
+            helperText={`Max ${FIELD_LIMITS.BLUE_BADGE_NUMBER} characters`}
           />
           <Stack direction="row" spacing={2}>
             <TextField

@@ -1,4 +1,4 @@
-import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, MenuItem, Paper, Stack, TextField } from '@mui/material';
+import { Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, MenuItem, Paper, Stack, TextField } from '@mui/material';
 import { Add, Search, DownloadOutlined, FileUploadOutlined, EventRepeatOutlined } from '@mui/icons-material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { useMemo, useState } from 'react';
@@ -9,6 +9,12 @@ import { StatusChip } from '../../shared/StatusChip';
 import { applications, Application } from '../../data/mock';
 import { ExtendDurationDialog } from '../../components/dialogs/ExtendDurationDialog';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import { APPLICATION_STATUS_OPTIONS, APPLICATION_STATUS_LABELS, statusChipColor } from '../../constants/enums';
+
+/** Reverse-map status label → numeric id for chip colouring */
+const STATUS_LABEL_TO_ID: Record<string, number> = Object.fromEntries(
+  Object.entries(APPLICATION_STATUS_LABELS).map(([id, label]) => [label, Number(id)])
+);
 
 const TYPE_LABELS: Record<string, string> = {
   permit: 'Permit',
@@ -81,7 +87,11 @@ export function ApplicationsListPage() {
     { field: 'submitted',  headerName: 'Submitted',   width: 130 },
     { field: 'amount',     headerName: 'Amount',      width: 100, valueFormatter: (v) => `£${v}` },
     { field: 'assignedTo', headerName: 'Assigned to', width: 150 },
-    { field: 'status',     headerName: 'Status',      width: 170, renderCell: (p) => <StatusChip status={p.value} /> },
+    { field: 'status',     headerName: 'Status',      width: 170, renderCell: (p) => {
+      const statusId = STATUS_LABEL_TO_ID[p.value as string];
+      const color = statusId ? statusChipColor(statusId) : 'default';
+      return <Chip label={p.value} size="small" color={color} />;
+    } },
   ];
 
   return (
@@ -106,7 +116,8 @@ export function ApplicationsListPage() {
           <TextField placeholder="Search by reference or applicant" value={q} onChange={(e) => setQ(e.target.value)}
             InputProps={{ startAdornment: <InputAdornment position="start"><Search fontSize="small" /></InputAdornment> }} sx={{ flex: 1 }} />
           <TextField select value={status} onChange={(e) => setStatus(e.target.value)} sx={{ minWidth: 200 }} label="Status">
-            {['All','Pending Approval','In Progress','Under Review','Approved','Active','Awaiting Payment','On Hold','Rejected','Cancelled','Suspended','Expired','Closed','NFI'].map((s) => <MenuItem key={s} value={s}>{s}</MenuItem>)}
+            <MenuItem value="All">All</MenuItem>
+            {APPLICATION_STATUS_OPTIONS.map((o) => <MenuItem key={o.id} value={o.label}>{o.label}</MenuItem>)}
           </TextField>
           <TextField select value={zone} onChange={(e) => setZone(e.target.value)} sx={{ minWidth: 180 }} label="Zone">
             <MenuItem value="All">All</MenuItem>

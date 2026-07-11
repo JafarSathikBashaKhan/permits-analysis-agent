@@ -17,6 +17,7 @@ import {
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { tokens } from '../../../theme';
+import { REFUND_POLICY_OPTIONS, VEHICLE_TYPE_OPTIONS, FUEL_TYPE_OPTIONS } from '../../../constants/enums';
 
 type SectionKey = 'refund' | 'autoApproval' | 'vehicle' | 'template';
 
@@ -67,15 +68,9 @@ const DEFAULT_STATE: RulesState = {
   template: { activeTab: 'physical', permitMode: 'physical' },
 };
 
-const REFUND_POLICIES = [
-  'Only if greater than 6 months', 'Only if greater than 3 months',
-  'Only if greater than 1 month',  'Only if greater than 3 weeks',
-  'Only if greater than 2 weeks',  'Only if greater than 1 week',
-  'Full months remaining', 'Days remaining', 'Unused vouchers',
-];
-
-const VEHICLE_TYPES = ['Car', 'Motorcycle', 'Van', 'Lorry', 'Bus', 'Taxi'];
-const FUEL_TYPES = ['Petrol', 'Diesel', 'Electric', 'Hybrid', 'LPG'];
+const REFUND_POLICIES = REFUND_POLICY_OPTIONS.map((o) => o.label);
+const VEHICLE_TYPES = VEHICLE_TYPE_OPTIONS.map((o) => o.label);
+const FUEL_TYPES = FUEL_TYPE_OPTIONS.map((o) => o.label);
 const ENGINE_SIZES = ['Up to 1000cc', '1001–1500cc', '1501–2000cc', '2001–3000cc', 'Over 3000cc'];
 const CO2_BANDS = ['A (0 g/km)', 'B (1–100 g/km)', 'C (101–120 g/km)', 'D (121–150 g/km)', 'E (151+ g/km)'];
 const TAX_BANDS = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];

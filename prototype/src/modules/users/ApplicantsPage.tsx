@@ -17,6 +17,7 @@ import { UploadDocumentDialog } from '../../components/dialogs/UploadDocumentDia
 import { ComposeEmailDialog } from '../../components/dialogs/ComposeEmailDialog';
 import { AddBlueBadgeDialog } from '../../components/dialogs/AddBlueBadgeDialog';
 import { ConfirmDialog } from '../../components/dialogs/ConfirmDialog';
+import { FIELD_LIMITS } from '../../constants/enums';
 
 type Applicant = {
   id: string;
@@ -392,17 +393,17 @@ function AddApplicantDrawer({ onClose, onSave }: { onClose: () => void; onSave: 
             </TextField>
           </FormItem>
           <FormItem label="First Name" required>
-            <TextField placeholder="Enter First Name" fullWidth value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+            <TextField placeholder="Enter First Name" fullWidth value={firstName} onChange={(e) => setFirstName(e.target.value)} inputProps={{ maxLength: FIELD_LIMITS.FIRST_NAME }} />
           </FormItem>
           <FormItem label="Last Name" required>
-            <TextField placeholder="Enter Last Name" fullWidth value={lastName} onChange={(e) => setLastName(e.target.value)} />
+            <TextField placeholder="Enter Last Name" fullWidth value={lastName} onChange={(e) => setLastName(e.target.value)} inputProps={{ maxLength: FIELD_LIMITS.LAST_NAME }} />
           </FormItem>
           <FormItem label="User Name" required><TextField placeholder="Enter User Name" fullWidth /></FormItem>
           <FormItem label="Email" required>
-            <TextField type="email" placeholder="Enter Email" fullWidth value={email} onChange={(e) => setEmail(e.target.value)} />
+            <TextField type="email" placeholder="Enter Email" fullWidth value={email} onChange={(e) => setEmail(e.target.value)} inputProps={{ maxLength: FIELD_LIMITS.EMAIL }} />
           </FormItem>
           <FormItem label="Contact Number">
-            <TextField placeholder="+44 7700 900 000" fullWidth value={contact} onChange={(e) => setContact(e.target.value)} />
+            <TextField type="tel" placeholder="+44 7700 900 000" fullWidth value={contact} onChange={(e) => setContact(e.target.value)} inputProps={{ maxLength: FIELD_LIMITS.MOBILE_NUMBER }} />
           </FormItem>
           <FormItem label="Date of Birth">
             <TextField type="date" InputLabelProps={{ shrink: true }} fullWidth value={dob} onChange={(e) => setDob(e.target.value)} />

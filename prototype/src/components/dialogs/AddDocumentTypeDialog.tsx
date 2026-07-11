@@ -1,12 +1,14 @@
 import {
   Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle,
-  FormControlLabel, FormGroup, FormLabel, Stack, TextField, Typography,
+  FormControlLabel, FormGroup, FormLabel, MenuItem, Stack, TextField, Typography,
 } from '@mui/material';
 import { useState } from 'react';
+import { DOCUMENT_CATEGORY_OPTIONS } from '../../constants/enums';
 
 export type DocumentTypePayload = {
   id: string;
   name: string;
+  category: string;
   description: string;
   required: boolean;
   maxFileSizeMB: number;
@@ -24,22 +26,23 @@ const FORMAT_OPTIONS = ['PDF', 'JPG', 'PNG', 'DOCX'];
 
 export function AddDocumentTypeDialog({ open, onClose, onSave }: Props) {
   const [name, setName] = useState('');
+  const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const [required, setRequired] = useState(false);
   const [maxFileSizeMB, setMaxFileSizeMB] = useState('');
   const [formats, setFormats] = useState<string[]>([]);
 
-  const reset = () => { setName(''); setDescription(''); setRequired(false); setMaxFileSizeMB(''); setFormats([]); };
+  const reset = () => { setName(''); setCategory(''); setDescription(''); setRequired(false); setMaxFileSizeMB(''); setFormats([]); };
 
   const toggleFormat = (f: string) =>
     setFormats((prev) => prev.includes(f) ? prev.filter((x) => x !== f) : [...prev, f]);
 
-  const canSave = name && maxFileSizeMB && formats.length > 0;
+  const canSave = name && category && maxFileSizeMB && formats.length > 0;
 
   const handleSave = () => {
     onSave({
       id: `DT-${Date.now()}`,
-      name, description, required,
+      name, category, description, required,
       maxFileSizeMB: parseFloat(maxFileSizeMB),
       acceptedFormats: formats,
       createdAt: new Date().toISOString(),
@@ -59,6 +62,14 @@ export function AddDocumentTypeDialog({ open, onClose, onSave }: Props) {
             label="Name" required fullWidth
             value={name} onChange={(e) => setName(e.target.value)}
           />
+          <TextField
+            select label="Category" required fullWidth
+            value={category} onChange={(e) => setCategory(e.target.value)}
+          >
+            {DOCUMENT_CATEGORY_OPTIONS.map((o) => (
+              <MenuItem key={o.id} value={o.label}>{o.label}</MenuItem>
+            ))}
+          </TextField>
           <TextField
             label="Description" multiline rows={3} fullWidth
             value={description} onChange={(e) => setDescription(e.target.value)}

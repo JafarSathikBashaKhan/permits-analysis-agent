@@ -4,6 +4,7 @@ import {
 } from '@mui/material';
 import UploadFileOutlined from '@mui/icons-material/UploadFileOutlined';
 import { useState } from 'react';
+import { DOCUMENT_CATEGORY_OPTIONS } from '../../constants/enums';
 
 export type DocumentPayload = {
   id: string;
@@ -20,13 +21,7 @@ type Props = {
   onSave: (doc: DocumentPayload) => void;
 };
 
-const DOC_TYPES = [
-  'Proof of Address',
-  'Proof of Identity',
-  'Vehicle Log Book',
-  'Insurance',
-  'Other',
-];
+const DOC_TYPES = DOCUMENT_CATEGORY_OPTIONS.map((o) => o.label);
 
 export function UploadDocumentDialog({ open, onClose, onSave }: Props) {
   const [docType, setDocType] = useState('');

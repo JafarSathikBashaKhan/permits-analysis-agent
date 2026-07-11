@@ -26,6 +26,7 @@ import { useToast } from '../../components/Toast';
 import { Section } from '../../shared/Section';
 import { FieldHint } from '../../shared/FieldHint';
 import { usePersistentState } from '../../hooks/usePersistentState';
+import { DURATION_PERIOD_OPTIONS, BUSINESS_RULES, FIELD_LIMITS } from '../../constants/enums';
 
 // ─── Left-nav sections (scroll-spy) ─────────────────────────────────────
 const NAV_SECTIONS: { id: string; label: string }[] = [
@@ -84,7 +85,7 @@ const OTHERS_TOGGLES: ToggleDef[] = [
   { key: 'visitorPortal',    label: 'Visitor portal',                   hint: 'Enables the visitor-facing portal.', defaultOn: true },
 ];
 
-const PERIODS = ['Hours', 'Days', 'Weeks', 'Months', 'Years'];
+const PERIODS = DURATION_PERIOD_OPTIONS.map((o) => o.label);
 
 // ─── Scroll-spy left nav ────────────────────────────────────────────────
 function ScrollSpyNav() {
@@ -291,7 +292,11 @@ export function ContractSettingsPage() {
               <Grid item xs={12} md={4}>
                 <Typography variant="body2" fontWeight={600} mb={0.5}>Admin fee for Permission</Typography>
                 <TextField value={adminFee} size="small" fullWidth onChange={(e) => setAdminFee(e.target.value)}
-                  InputProps={{ startAdornment: <InputAdornment position="start">£</InputAdornment> }} />
+                  type="number"
+                  InputProps={{ startAdornment: <InputAdornment position="start">£</InputAdornment> }}
+                  inputProps={{ min: BUSINESS_RULES.ADMIN_FEE_MIN, max: BUSINESS_RULES.ADMIN_FEE_MAX, step: 0.01 }}
+                  helperText={`£${BUSINESS_RULES.ADMIN_FEE_MIN} – £${BUSINESS_RULES.ADMIN_FEE_MAX.toLocaleString()}`}
+                />
               </Grid>
               <Grid item xs={12} md={4}>
                 <Typography variant="body2" fontWeight={600} mb={0.5}>Price alert threshold
@@ -440,6 +445,8 @@ export function ContractSettingsPage() {
                       <TextField size="small" placeholder="email@example.com" value={newEmail}
                         onChange={(e) => setNewEmail(e.target.value)}
                         onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addEmail(); } }}
+                        type="email"
+                        inputProps={{ maxLength: FIELD_LIMITS.EMAIL }}
                         sx={{ flex: 1, maxWidth: 340 }} />
                       <Button variant="outlined" onClick={addEmail} disabled={notifyEmails.length >= 10}>Add</Button>
                     </Stack>
