@@ -1,6 +1,7 @@
 import {
   Box, Button, IconButton, MenuItem, Paper, Select, Stack, Tab, Tabs, TextField, Typography, Divider, Menu, Link as MuiLink,
   Radio, RadioGroup, FormControlLabel, Checkbox, InputAdornment, Tooltip, Alert,
+  Dialog, DialogTitle, DialogContent, DialogActions, List, ListItem, ListItemIcon, ListItemText, Chip,
 } from '@mui/material';
 import {
   SaveOutlined, UploadOutlined, MoreVertOutlined, ChevronRight, ErrorOutlineOutlined, AddOutlined,
@@ -22,7 +23,7 @@ import {
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { BUILDER_ROWS_KEY } from './BuilderListPage';
 import { PERMISSION_TYPE_OPTIONS, PERMISSION_CATEGORY_OPTIONS, BUSINESS_RULES } from '../../constants/enums';
-import { checkPrefixDuplicate } from './publishValidation';
+import { checkPrefixDuplicate, validatePermissionForPublish, getErrorCountBySection, ValidationError } from './publishValidation';
 import { UnsavedChangesGuard } from '../../hooks/UnsavedChangesGuard';
 
 type Group = {
@@ -106,6 +107,9 @@ export function BuilderDesignPage() {
   // Permission limit (Basic Information)
   const [permissionLimit, setPermissionLimit] = useState('');
 
+  // US-155975 — validation errors dialog state
+  const [publishErrors, setPublishErrors] = useState<ValidationError[] | null>(null);
+
   const [persistedGroups] = usePersistentState<Group[]>('prototype:builder:groups:rows', seedGroups);
   const allGroups = useMemo(
     () => (persistedGroups && persistedGroups.length > 0 ? persistedGroups : []),
@@ -132,8 +136,34 @@ export function BuilderDesignPage() {
   const dirty = currentSnapshot !== baseline;
 
   // Shared persist function used by both Save Draft and the Unsaved Changes guard.
-  const persistEntry = (status: 'Draft' | 'Published'): { ok: boolean; error?: string } => {
+  const persistEntry = (status: 'Draft' | 'Published'): { ok: boolean; error?: string; errors?: ValidationError[] } => {
     const newId = isNew ? `P-${Date.now()}` : (id ?? `P-${Date.now()}`);
+
+    // US-155975 — full mandatory-field validation before Publish.
+    if (status === 'Published') {
+      const composed = {
+        name, type, group, category, description,
+        generalSettings: {
+          startDatePolicy: gs.startDatePolicy,
+          prefix: gs.prefix,
+          termsAndConditions: gs.termsAndConditions,
+          displayDescription: gs.displayDescription,
+          permitMode: gs.permitMode,
+          specialEvent: gs.specialEvent,
+        },
+        zones: (perm?.zones ?? 0) > 0 ? new Array(perm?.zones ?? 0).fill(0) : [],
+        paymentSettings: (perm as any)?.paymentSettings,
+        documentTypes: (perm as any)?.documentTypes,
+        pricing: (perm as any)?.pricing,
+        applicationForms: (perm as any)?.applicationForms,
+        rules: (perm as any)?.rules ?? { vehicle: {}, template: {}, refund: {} },
+        specialEvents: (perm as any)?.specialEvents,
+      };
+      const result = validatePermissionForPublish(composed);
+      if (!result.valid) {
+        return { ok: false, error: 'Please fix the mandatory fields before publishing.', errors: result.errors };
+      }
+    }
 
     // US-188673 — prefix duplicate validation across permission types (per contract).
     if (gs.prefix?.trim()) {
@@ -212,6 +242,7 @@ export function BuilderDesignPage() {
             onClick={() => {
               const r = persistEntry('Published');
               if (r.ok) showToast('Permission published', 'success');
+              else if (r.errors && r.errors.length > 0) setPublishErrors(r.errors);
               else showToast(r.error || 'Publish blocked', 'error');
             }}
             sx={{ fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}
@@ -556,6 +587,42 @@ export function BuilderDesignPage() {
           }
         }}
       />
+
+      {/* US-155975 — Publish validation errors dialog */}
+      <Dialog open={!!publishErrors} onClose={() => setPublishErrors(null)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <ErrorOutlineOutlined color="error" />
+          Please fix the following before publishing
+        </DialogTitle>
+        <DialogContent dividers>
+          {publishErrors && Object.entries(getErrorCountBySection(publishErrors)).map(([section, count]) => (
+            <Box key={section} sx={{ mb: 2 }}>
+              <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{section}</Typography>
+                <Chip label={count} size="small" color="error" />
+              </Stack>
+              <List dense disablePadding>
+                {publishErrors.filter(e => e.section === section).map((e, i) => (
+                  <ListItem key={i} sx={{ py: 0.25 }}>
+                    <ListItemIcon sx={{ minWidth: 28 }}>
+                      <ErrorOutlineOutlined fontSize="small" color="error" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={e.field}
+                      secondary={e.message}
+                      primaryTypographyProps={{ fontSize: '0.875rem', fontWeight: 500 }}
+                      secondaryTypographyProps={{ fontSize: '0.8rem' }}
+                    />
+                  </ListItem>
+                ))}
+              </List>
+            </Box>
+          ))}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPublishErrors(null)} variant="contained">OK</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
