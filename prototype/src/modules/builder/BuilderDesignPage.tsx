@@ -109,6 +109,46 @@ export function BuilderDesignPage() {
 
   // US-155975 — validation errors dialog state
   const [publishErrors, setPublishErrors] = useState<ValidationError[] | null>(null);
+  // Sticky field-level errors: once the user attempts Publish, keep them visible
+  // per-section (they auto-clear when the field is filled).
+  const [showFieldErrors, setShowFieldErrors] = useState(false);
+
+  // Live validation preview — computed on every render so sub-section badges
+  // and inline red text stay in sync with the current form state.
+  const liveValidation = useMemo(() => {
+    const composed = {
+      name, type, group, category, description,
+      generalSettings: {
+        startDatePolicy: gs.startDatePolicy,
+        prefix: gs.prefix,
+        termsAndConditions: gs.termsAndConditions,
+        displayDescription: gs.displayDescription,
+        permitMode: gs.permitMode,
+        specialEvent: gs.specialEvent,
+      },
+      zones: (perm?.zones ?? 0) > 0 ? new Array(perm?.zones ?? 0).fill(0) : [],
+      paymentSettings: (perm as any)?.paymentSettings,
+      documentTypes: (perm as any)?.documentTypes,
+      pricing: (perm as any)?.pricing,
+      applicationForms: (perm as any)?.applicationForms,
+      rules: (perm as any)?.rules ?? { vehicle: {}, template: {}, refund: {} },
+      specialEvents: (perm as any)?.specialEvents,
+    };
+    return validatePermissionForPublish(composed);
+  }, [name, type, group, category, description, gs, perm]);
+
+  // Section → error count (for sub-nav badges)
+  const sectionErrorCount = useMemo(
+    () => getErrorCountBySection(liveValidation.errors),
+    [liveValidation]
+  );
+
+  // Helper: has this field been flagged and should we render red text?
+  const fieldError = (section: string, field: string): string | null => {
+    if (!showFieldErrors) return null;
+    const e = liveValidation.errors.find((x) => x.section === section && x.field === field);
+    return e ? e.message : null;
+  };
 
   const [persistedGroups] = usePersistentState<Group[]>('prototype:builder:groups:rows', seedGroups);
   const allGroups = useMemo(
@@ -241,9 +281,29 @@ export function BuilderDesignPage() {
             startIcon={<UploadOutlined />}
             onClick={() => {
               const r = persistEntry('Published');
-              if (r.ok) showToast('Permission published', 'success');
-              else if (r.errors && r.errors.length > 0) setPublishErrors(r.errors);
-              else showToast(r.error || 'Publish blocked', 'error');
+              if (r.ok) {
+                showToast('Permission published', 'success');
+                setShowFieldErrors(false);
+              } else if (r.errors && r.errors.length > 0) {
+                setShowFieldErrors(true);
+                setPublishErrors(r.errors);
+                // Jump to first failing Permissions sub-section
+                const firstPermSub = r.errors.find((e) =>
+                  (PERMISSION_SUBS as readonly string[]).includes(e.section)
+                );
+                if (firstPermSub) {
+                  setTopTab('permissions');
+                  setSub(firstPermSub.section as PermissionSub);
+                } else if (r.errors[0].section.startsWith('Rules')) {
+                  setTopTab('rules');
+                } else if (r.errors[0].section === 'Pricing') {
+                  setTopTab('pricing');
+                } else if (r.errors[0].section === 'Application Form') {
+                  setTopTab('application-form');
+                }
+              } else {
+                showToast(r.error || 'Publish blocked', 'error');
+              }
             }}
             sx={{ fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}
           >
@@ -289,13 +349,49 @@ export function BuilderDesignPage() {
       {/* Top-level tabs */}
       <Box sx={{ px: 3, pt: 2, bgcolor: tokens.PAPER, borderBottom: `1px solid ${tokens.LINE}` }}>
         <Tabs value={topTab} onChange={(_, v) => setTopTab(v)}>
-          <Tab label="Permissions" value="permissions" sx={topTabSx} />
-          <Tab label="Rules" value="rules" sx={topTabSx} />
-          <Tab label="Pricing" value="pricing" sx={topTabSx} />
-          <Tab label="Application Form" value="application-form" sx={topTabSx} />
+          <Tab
+            label={<TabLabelWithBadge label="Permissions" count={showFieldErrors ? (
+              Object.entries(sectionErrorCount).filter(([s]) => (PERMISSION_SUBS as readonly string[]).includes(s)).reduce((n, [, c]) => n + c, 0)
+            ) : 0} />}
+            value="permissions"
+            sx={topTabSx}
+          />
+          <Tab
+            label={<TabLabelWithBadge label="Rules" count={showFieldErrors ? (
+              Object.entries(sectionErrorCount).filter(([s]) => s.startsWith('Rules')).reduce((n, [, c]) => n + c, 0)
+            ) : 0} />}
+            value="rules"
+            sx={topTabSx}
+          />
+          <Tab
+            label={<TabLabelWithBadge label="Pricing" count={showFieldErrors ? (sectionErrorCount['Pricing'] ?? 0) : 0} />}
+            value="pricing"
+            sx={topTabSx}
+          />
+          <Tab
+            label={<TabLabelWithBadge label="Application Form" count={showFieldErrors ? (sectionErrorCount['Application Form'] ?? 0) : 0} />}
+            value="application-form"
+            sx={topTabSx}
+          />
           <Tab label="Custom Fields" value="custom-fields" sx={topTabSx} />
         </Tabs>
       </Box>
+
+      {/* Global publish-error banner */}
+      {showFieldErrors && liveValidation.errors.length > 0 && (
+        <Alert
+          severity="error"
+          icon={<ErrorOutlineOutlined />}
+          action={
+            <Button color="inherit" size="small" onClick={() => setPublishErrors(liveValidation.errors)}>
+              View all ({liveValidation.errors.length})
+            </Button>
+          }
+          sx={{ mx: 3, mt: 2 }}
+        >
+          {liveValidation.errors.length} field(s) still need to be filled before you can publish.
+        </Alert>
+      )}
 
       {/* Body */}
       <Box sx={{ px: 3, py: 3, minHeight: 'calc(100vh - 210px)' }}>
@@ -306,6 +402,7 @@ export function BuilderDesignPage() {
               <Stack spacing={0.25}>
                 {PERMISSION_SUBS.map((s) => {
                   const active = s === sub;
+                  const errCount = showFieldErrors ? (sectionErrorCount[s] ?? 0) : 0;
                   return (
                     <Box
                       key={s}
@@ -317,10 +414,19 @@ export function BuilderDesignPage() {
                         color: active ? tokens.NAVY : tokens.INK,
                         fontWeight: active ? 700 : 500,
                         fontSize: '0.9rem',
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                         '&:hover': { bgcolor: active ? '#E3ECF7' : '#F4F6F9' },
                       }}
                     >
-                      {s}
+                      <span>{s}</span>
+                      {errCount > 0 && (
+                        <Chip
+                          label={errCount}
+                          size="small"
+                          color="error"
+                          sx={{ height: 20, minWidth: 20, '& .MuiChip-label': { px: 0.75, fontSize: '0.7rem', fontWeight: 700 } }}
+                        />
+                      )}
                     </Box>
                   );
                 })}
@@ -336,11 +442,13 @@ export function BuilderDesignPage() {
                   </Typography>
                   <Divider sx={{ my: 2 }} />
 
-                  <FormRow label="Permission Name">
-                    <TextField placeholder="Enter Permission Name" value={name} onChange={(e) => setName(e.target.value)} />
+                  <FormRow label="Permission Name" required error={fieldError('Basic Information', 'Permission Name')}>
+                    <TextField placeholder="Enter Permission Name" value={name} onChange={(e) => setName(e.target.value)}
+                      error={!!fieldError('Basic Information', 'Permission Name')} fullWidth />
                   </FormRow>
-                  <FormRow label="Type">
+                  <FormRow label="Type" required error={fieldError('Basic Information', 'Type')}>
                     <Select displayEmpty value={type} onChange={(e) => { setType(e.target.value); setGroup(''); }} fullWidth
+                      error={!!fieldError('Basic Information', 'Type')}
                       disabled={isPublished}>
                       <MenuItem value=""><em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select</em></MenuItem>
                       {PERMISSION_TYPE_OPTIONS.map((o) => <MenuItem key={o.id} value={o.label}>{o.label}</MenuItem>)}
@@ -351,8 +459,9 @@ export function BuilderDesignPage() {
                       </Typography>
                     )}
                   </FormRow>
-                  <FormRow label="Group">
-                    <Select displayEmpty value={group} onChange={(e) => setGroup(e.target.value)} fullWidth>
+                  <FormRow label="Group" required error={fieldError('Basic Information', 'Group')}>
+                    <Select displayEmpty value={group} onChange={(e) => setGroup(e.target.value)} fullWidth
+                      error={!!fieldError('Basic Information', 'Group')}>
                       <MenuItem value=""><em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select</em></MenuItem>
                       {availableGroups.map((g) => <MenuItem key={g} value={g}>{g}</MenuItem>)}
                     </Select>
@@ -374,12 +483,14 @@ export function BuilderDesignPage() {
                       sx={{ maxWidth: 200 }}
                     />
                   </FormRow>
-                  <FormRow label="Description" optional>
+                  <FormRow label="Description" required error={fieldError('Basic Information', 'Description')}>
                     <TextField
                       placeholder="Enter Description"
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       multiline minRows={4}
+                      fullWidth
+                      error={!!fieldError('Basic Information', 'Description')}
                     />
                   </FormRow>
                 </>
@@ -442,8 +553,9 @@ export function BuilderDesignPage() {
                     </RadioGroup>
                   </FormRow>
 
-                  <FormRow label="Start Date Policy">
-                    <Select displayEmpty value={gs.startDatePolicy} onChange={(e) => gsSet('startDatePolicy', e.target.value)} fullWidth>
+                  <FormRow label="Start Date Policy" required error={fieldError('General Settings', 'Start Date Settings')}>
+                    <Select displayEmpty value={gs.startDatePolicy} onChange={(e) => gsSet('startDatePolicy', e.target.value)} fullWidth
+                      error={!!fieldError('General Settings', 'Start Date Settings')}>
                       <MenuItem value=""><em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select</em></MenuItem>
                       <MenuItem value="immediate">Immediate</MenuItem>
                       <MenuItem value="next-day">Next Day</MenuItem>
@@ -470,13 +582,14 @@ export function BuilderDesignPage() {
                     </Stack>
                   </FormRow>
 
-                  <FormRow label="Prefix" info="Prefix will be prepended to every permit number (US-137749). Max 10 alphanumeric characters.">
+                  <FormRow label="Prefix" required info="Prefix will be prepended to every permit number (US-137749). Max 10 alphanumeric characters." error={fieldError('General Settings', 'Prefix')}>
                     <Stack spacing={0.5} sx={{ width: '100%' }}>
                       <TextField
                         placeholder="Enter Prefix"
                         value={gs.prefix}
                         onChange={(e) => gsSet('prefix', e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10))}
                         disabled={isPublished}
+                        error={!!fieldError('General Settings', 'Prefix')}
                         inputProps={{ maxLength: 10, style: { textTransform: 'uppercase', fontFamily: 'monospace' } }}
                         helperText={gs.prefix ? `Applications will be numbered like "${gs.prefix}-XXXXXXXX"` : ''}
                       />
@@ -488,8 +601,9 @@ export function BuilderDesignPage() {
                     </Stack>
                   </FormRow>
 
-                  <FormRow label="Terms and Conditions">
-                    <Select displayEmpty value={gs.termsAndConditions} onChange={(e) => gsSet('termsAndConditions', e.target.value)} fullWidth>
+                  <FormRow label="Terms and Conditions" required error={fieldError('General Settings', 'Terms & Conditions')}>
+                    <Select displayEmpty value={gs.termsAndConditions} onChange={(e) => gsSet('termsAndConditions', e.target.value)} fullWidth
+                      error={!!fieldError('General Settings', 'Terms & Conditions')}>
                       <MenuItem value=""><em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select</em></MenuItem>
                       <MenuItem value="standard">Standard T&C v1</MenuItem>
                       <MenuItem value="visitor">Visitor T&C v2</MenuItem>
@@ -497,16 +611,18 @@ export function BuilderDesignPage() {
                     </Select>
                   </FormRow>
 
-                  <FormRow label="Display Description" optional>
+                  <FormRow label="Display Description" required error={fieldError('General Settings', 'Display Description')}>
                     <TextField
                       placeholder="Enter Display Description"
                       value={gs.displayDescription}
                       onChange={(e) => gsSet('displayDescription', e.target.value)}
                       multiline minRows={3}
+                      fullWidth
+                      error={!!fieldError('General Settings', 'Display Description')}
                     />
                   </FormRow>
 
-                  <FormRow label="Permit Mode">
+                  <FormRow label="Permit Mode" required error={fieldError('General Settings', 'Permit Mode')}>
                     <Stack spacing={1}>
                       <RadioGroup row value={gs.permitMode} onChange={(e) => gsSet('permitMode', e.target.value)}>
                         <FormControlLabel value="virtual" control={<Radio />} label="Virtual Permit" sx={{ mr: 4 }} />
@@ -635,13 +751,25 @@ const topTabSx = {
   minHeight: 48,
 };
 
-function FormRow({ label, children, optional, info }: { label: string; children: React.ReactNode; optional?: boolean; info?: string }) {
+function TabLabelWithBadge({ label, count }: { label: string; count: number }) {
+  return (
+    <Stack direction="row" alignItems="center" spacing={1}>
+      <span>{label}</span>
+      {count > 0 && (
+        <Chip label={count} size="small" color="error" sx={{ height: 18, minWidth: 18, '& .MuiChip-label': { px: 0.6, fontSize: '0.68rem', fontWeight: 700 } }} />
+      )}
+    </Stack>
+  );
+}
+
+function FormRow({ label, children, optional, info, required, error }: { label: string; children: React.ReactNode; optional?: boolean; info?: string; required?: boolean; error?: string | null }) {
   return (
     <Stack data-field={label} direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'flex-start' }} sx={{ mb: 2.5 }}>
       <Box sx={{ width: { md: 220 }, pt: { md: 1 } }}>
         <Stack direction="row" alignItems="center" spacing={0.75}>
           <Typography sx={{ fontSize: '0.95rem', color: tokens.INK, fontWeight: 500 }}>
             {label}
+            {required && <Typography component="span" sx={{ color: '#C62828', ml: 0.4 }}>*</Typography>}
             {optional && <Typography component="span" sx={{ color: tokens.MUTED, fontSize: '0.8rem', ml: 0.75 }}>(optional)</Typography>}
           </Typography>
           {info && (
@@ -651,7 +779,15 @@ function FormRow({ label, children, optional, info }: { label: string; children:
           )}
         </Stack>
       </Box>
-      <Box sx={{ flex: 1 }}>{children}</Box>
+      <Box sx={{ flex: 1 }}>
+        {children}
+        {error && (
+          <Typography sx={{ color: '#C62828', fontSize: '0.75rem', mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <ErrorOutlineOutlined sx={{ fontSize: 14 }} />
+            {error}
+          </Typography>
+        )}
+      </Box>
     </Stack>
   );
 }
