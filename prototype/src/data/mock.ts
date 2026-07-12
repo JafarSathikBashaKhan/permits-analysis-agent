@@ -45,7 +45,9 @@ export type ApplicationStatus =
   | 'Payment Failed' | 'Expired' | 'Closed' | 'NFI'
   | 'Waiting for Customer Info' | 'Request Support Evidence' | 'Internal Referral'
   | 'Pending Renew' | 'Change Address' | 'Change Zone' | 'Awaiting Customer Info'
-  | 'Evidence Provided' | 'Reinstate' | 'Activate' | 'Reactivate';
+  | 'Evidence Provided' | 'Reinstate' | 'Activate' | 'Reactivate'
+  | 'Waiting for Payment' | 'Waiting List' | 'Address Challenge Approved'
+  | 'Change Address Challenge';
 
 export type Application = {
   id: string;
@@ -63,7 +65,7 @@ export type Application = {
 };
 
 const APPLICANTS = ['Alice Whittaker','Ben Turner','Cheryl Iyer','Danny O\'Neill','Eesha Patel','Frank Bell','Grace Adeyemi','Harjeet Singh','Isla Robertson','James Coates','Kim Lorenzo','Lena Kowalski','Marcus Reid','Nina Gauthier','Oliver Kwan','Pippa Bracknell','Quentin Ash','Rohit Sharma','Sofia Marín','Tomas Vetter'];
-const STATUSES = ['Pending Approval','In Progress','Under Review','Approved','Active','Rejected','Cancelled','Suspended','On Hold','Awaiting Payment','Payment Failed','Expired','Closed','NFI'] as const;
+const STATUSES = ['Pending Approval','In Progress','Under Review','Approved','Active','Rejected','Cancelled','Suspended','On Hold','Awaiting Payment','Payment Failed','Expired','Closed','NFI','Waiting List','Change Address','Change Zone','Pending Renew'] as const;
 const ZONES = ['Z01 City Centre','Z02 Northgate','Z03 Southbank','Z04 Riverside','Z05 Kingsway'];
 
 const APP_TYPES: ApplicationType[] = ['Permit', 'Permit', 'Permit', 'Suspension', 'Dispensation', 'Exemption', 'Permit', 'Permit'];

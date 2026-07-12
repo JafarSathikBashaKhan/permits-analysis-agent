@@ -1,16 +1,17 @@
 import { Box, Button, Card, CardContent, Chip, Dialog, DialogActions, DialogContent, DialogTitle, InputAdornment, MenuItem, Paper, Stack, TextField, Typography } from '@mui/material';
-import { Add, Search, DownloadOutlined, FileUploadOutlined, EventRepeatOutlined, DeleteOutline, CheckCircle, Cancel } from '@mui/icons-material';
-import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
+import { Add, Search, DownloadOutlined, FileUploadOutlined, EventRepeatOutlined, DeleteOutline, CheckCircle, Cancel, ListAltOutlined } from '@mui/icons-material';
+import { DataGrid, GridColDef, GridRowSelectionModel, GridSortModel } from '@mui/x-data-grid';
 import { useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '../../components/Toast';
 import { PageHeader } from '../../shared/PageHeader';
-import { StatusChip } from '../../shared/StatusChip';
 import { applications, Application } from '../../data/mock';
 import { ExtendDurationDialog } from '../../components/dialogs/ExtendDurationDialog';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { APPLICATION_STATUS_OPTIONS, APPLICATION_STATUS_LABELS, statusChipColor } from '../../constants/enums';
 import { generateApplicationNumber, resolvePrefixForPermission } from '../../utils/applicationNumber';
+import { readStartEnd, computeStartEnd } from './helpers/startDate';
+import { pushAudit } from './helpers/auditLog';
 
 /** Reverse-map status label → numeric id for chip colouring */
 const STATUS_LABEL_TO_ID: Record<string, number> = Object.fromEntries(
@@ -27,16 +28,19 @@ const TYPE_LABELS: Record<string, string> = {
 export function ApplicationsListPage() {
   const nav = useNavigate();
   const showToast = useToast();
-  const [params] = useSearchParams();
+  const [params, setParams] = useSearchParams();
   const typeParam = (params.get('type') ?? '').toLowerCase();
   const typeLabel = TYPE_LABELS[typeParam];
+  const isLicence = typeParam === 'licence' || typeParam === 'license';
+  const waitingListOnly = params.get('view') === 'waiting-list';
   const [q, setQ] = useState('');
-  const [status, setStatus] = useState('All');
+  const [status, setStatus] = useState<string>(waitingListOnly ? 'Waiting List' : 'All');
   const [zone, setZone] = useState('All');
   const [assignee, setAssignee] = useState('All');
   const [extendOpen, setExtendOpen] = useState(false);
   const [newAppOpen, setNewAppOpen] = useState(false);
   const [selection, setSelection] = useState<GridRowSelectionModel>([]);
+  const [sortModel, setSortModel] = useState<GridSortModel>([{ field: 'submitted', sort: 'desc' }]);
 
   const [allRows, setAllRows] = usePersistentState<Application[]>('prototype:applications:rows', () => [...applications]);
 
@@ -67,6 +71,12 @@ export function ApplicationsListPage() {
       assignedTo: 'Unassigned',
     };
     setAllRows((prev) => [newApp, ...prev]);
+    pushAudit(id, {
+      actor: 'You', actorRole: 'BO User',
+      eventName: 'Application Created (BO)',
+      eventDescription: `BO user created new application ${ref} for ${newApplicant.trim()}.`,
+      eventCategory: 'System Action',
+    });
     showToast(`Application ${ref} created`, 'success');
     setNewAppOpen(false);
     setNewApplicant(''); setNewVrm('');
@@ -75,21 +85,40 @@ export function ApplicationsListPage() {
   const zones = useMemo(() => Array.from(new Set(allRows.map((a) => a.zone))), [allRows]);
   const assignees = useMemo(() => Array.from(new Set(allRows.map((a) => a.assignedTo))), [allRows]);
 
-  const rows = useMemo(() => allRows.filter((a) =>
+  // Enrich rows with start/expiry/vrm for the list view
+  const enrichedRows = useMemo(() => allRows.map((a) => {
+    const dyn = readStartEnd(a.id) ?? (a.status === 'Active' ? computeStartEnd(a.id, a.submitted) : undefined);
+    let vrm = '';
+    try {
+      const raw = localStorage.getItem(`prototype:applications:vehicles:${a.id}`);
+      if (raw) {
+        const list = JSON.parse(raw);
+        if (Array.isArray(list) && list.length > 0) vrm = list[0].vrm ?? '';
+      }
+    } catch { /* ignore */ }
+    return { ...a, startDate: a.startDate ?? dyn?.startDate ?? '', expiryDate: a.expiryDate ?? dyn?.endDate ?? '', vrm };
+  }), [allRows]);
+
+  const rows = useMemo(() => enrichedRows.filter((a) =>
     (!typeLabel || a.type === typeLabel) &&
     (status === 'All' || a.status === status) &&
     (zone === 'All' || a.zone === zone) &&
     (assignee === 'All' || a.assignedTo === assignee) &&
-    (q === '' || a.ref.toLowerCase().includes(q.toLowerCase()) || a.applicant.toLowerCase().includes(q.toLowerCase()))
-  ), [allRows, q, status, zone, assignee, typeLabel]);
+    (q === '' || a.ref.toLowerCase().includes(q.toLowerCase()) || a.applicant.toLowerCase().includes(q.toLowerCase()) || (a.vrm && a.vrm.toLowerCase().includes(q.toLowerCase())))
+  ), [enrichedRows, q, status, zone, assignee, typeLabel]);
 
   const cols: GridColDef[] = [
     { field: 'ref',        headerName: 'Reference',   width: 150 },
     { field: 'applicant',  headerName: 'Applicant',   flex: 1,   minWidth: 180 },
-    { field: 'permission', headerName: 'Permission',  flex: 1.4, minWidth: 220 },
-    { field: 'type',       headerName: 'Type',        width: 120 },
+    { field: 'permission', headerName: 'Permission',  flex: 1.2, minWidth: 200 },
+    { field: 'type',       headerName: 'Type',        width: 110 },
+    ...(!isLicence ? [{ field: 'vrm', headerName: 'VRM', width: 120, renderCell: (p: any) => (
+      p.value ? <Typography fontFamily="monospace" variant="body2">{p.value}</Typography> : <Typography variant="caption" color="text.secondary">—</Typography>
+    ) } as GridColDef] : []),
     { field: 'zone',       headerName: 'Zone',        width: 160 },
-    { field: 'submitted',  headerName: 'Submitted',   width: 130 },
+    { field: 'submitted',  headerName: 'Submitted',   width: 120 },
+    { field: 'startDate',  headerName: 'Start',       width: 110, renderCell: (p) => p.value || <Typography variant="caption" color="text.secondary">—</Typography> },
+    { field: 'expiryDate', headerName: 'Expiry',      width: 110, renderCell: (p) => p.value || <Typography variant="caption" color="text.secondary">—</Typography> },
     { field: 'amount',     headerName: 'Amount',      width: 100, valueFormatter: (v) => `£${v}` },
     { field: 'assignedTo', headerName: 'Assigned to', width: 150 },
     { field: 'status',     headerName: 'Status',      width: 170, renderCell: (p) => {
@@ -127,6 +156,15 @@ export function ApplicationsListPage() {
           : 'Review, action and progress permit applications from all channels.'}
         actions={
           <Stack direction="row" spacing={1}>
+            <Button variant={waitingListOnly ? 'contained' : 'outlined'} startIcon={<ListAltOutlined />}
+              onClick={() => {
+                const next = new URLSearchParams(params);
+                if (waitingListOnly) { next.delete('view'); setStatus('All'); }
+                else { next.set('view', 'waiting-list'); setStatus('Waiting List'); }
+                setParams(next);
+              }} data-testid="waiting-list-filter">
+              {waitingListOnly ? 'Show all' : 'Waiting List'}
+            </Button>
             <Button variant="outlined" startIcon={<EventRepeatOutlined />} onClick={() => setExtendOpen(true)}>Extend Duration</Button>
             <Button variant="outlined" startIcon={<FileUploadOutlined />} onClick={() => showToast('Exporting…', 'info')}>Export</Button>
             <Button variant="outlined" startIcon={<DownloadOutlined />} onClick={() => showToast('Downloading…', 'info')}>Download</Button>
@@ -180,6 +218,8 @@ export function ApplicationsListPage() {
             checkboxSelection 
             rowSelectionModel={selection}
             onRowSelectionModelChange={setSelection}
+            sortModel={sortModel}
+            onSortModelChange={setSortModel}
           />
         </Box>
       </Paper>
