@@ -18,6 +18,7 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { tokens } from '../../../theme';
 import { REFUND_POLICY_OPTIONS, VEHICLE_TYPE_OPTIONS, FUEL_TYPE_OPTIONS } from '../../../constants/enums';
+import type { ValidationError } from '../publishValidation';
 
 type SectionKey = 'refund' | 'autoApproval' | 'vehicle' | 'template';
 
@@ -77,7 +78,17 @@ const TAX_BANDS = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
 const EURO_STANDARDS = ['Euro 3', 'Euro 4', 'Euro 5', 'Euro 6'];
 const EXPERIAN_OPERATORS = ['Greater than', 'Greater than or equal to', 'Less than', 'Less than or equal to', 'Equal to'];
 
-export function RulesTab({ permissionId = 'default' }: { permissionId?: string }) {
+export function RulesTab({
+  permissionId = 'default',
+  showErrors = false,
+  validationErrors = [],
+  permitMode,
+}: {
+  permissionId?: string;
+  showErrors?: boolean;
+  validationErrors?: ValidationError[];
+  permitMode?: string;
+}) {
   const storageKey = `prototype:rules:${permissionId}`;
   const [state, setState] = useState<RulesState>(DEFAULT_STATE);
   const [active, setActive] = useState<SectionKey>('refund');
@@ -101,7 +112,21 @@ export function RulesTab({ permissionId = 'default' }: { permissionId?: string }
   const patchVeh    = (p: Partial<RulesState['vehicle']>) => setState((s) => ({ ...s, vehicle: { ...s.vehicle, ...p } }));
   const patchTpl    = (p: Partial<RulesState['template']>) => setState((s) => ({ ...s, template: { ...s.template, ...p } }));
 
-  // Per-section error indicators
+  // Look up validator messages for the current permission (US-155975).
+  // Only shown once the user has attempted Publish.
+  const validatorFieldError = (section: string, field: string): string | null => {
+    if (!showErrors) return null;
+    const e = validationErrors.find((x) => x.section === section && x.field === field);
+    return e ? e.message : null;
+  };
+
+  const refundPolicyError       = validatorFieldError('Rules > Refund Settings',  'Refund Policy');
+  const refundChargeError       = validatorFieldError('Rules > Refund Settings',  'Cancellation Charge');
+  const plateChangeLimitError   = validatorFieldError('Rules > Vehicle Settings', 'Number Plate Change Limit');
+  const physicalPermitError     = validatorFieldError('Rules > Template Settings', 'Physical Permit Print');
+  const whiteMailReminderError  = validatorFieldError('Rules > Template Settings', 'White Mail Reminder');
+
+  // Per-section error indicators — merge live checks + validator flags
   const errors = useMemo(() => {
     const e: Record<SectionKey, number> = { refund: 0, autoApproval: 0, vehicle: 0, template: 0 };
     if (state.refund.applicable === 'yes') {
@@ -112,8 +137,11 @@ export function RulesTab({ permissionId = 'default' }: { permissionId?: string }
     if (!anyAutoOn) e.autoApproval++;
     if (!state.vehicle.plateChangeLimit) e.vehicle++;
     if (state.vehicle.multipleAllowed === 'enable' && !state.vehicle.countOfVehicles) e.vehicle++;
+    // Validator-driven counts (physical permit templates)
+    if (physicalPermitError) e.template++;
+    if (whiteMailReminderError) e.template++;
     return e;
-  }, [state]);
+  }, [state, physicalPermitError, whiteMailReminderError]);
 
   const NAV: { key: SectionKey; label: string }[] = [
     { key: 'refund',       label: 'Refund Settings' },
@@ -151,17 +179,22 @@ export function RulesTab({ permissionId = 'default' }: { permissionId?: string }
       {/* Right details */}
       <Box sx={{ p: 3 }}>
         {active === 'refund' && (
-          <RefundSection state={state.refund} onChange={patchRefund} />
+          <RefundSection state={state.refund} onChange={patchRefund}
+            policyError={refundPolicyError} chargeError={refundChargeError} />
         )}
         {active === 'autoApproval' && (
           <AutoApprovalSection state={state.autoApproval} onChange={patchAuto}
             error={errors.autoApproval > 0} />
         )}
         {active === 'vehicle' && (
-          <VehicleSection state={state.vehicle} onChange={patchVeh} />
+          <VehicleSection state={state.vehicle} onChange={patchVeh}
+            plateChangeLimitError={plateChangeLimitError} />
         )}
         {active === 'template' && (
-          <TemplateSection state={state.template} onChange={patchTpl} />
+          <TemplateSection state={state.template} onChange={patchTpl}
+            permitMode={permitMode}
+            physicalPermitError={physicalPermitError}
+            whiteMailReminderError={whiteMailReminderError} />
         )}
       </Box>
     </Paper>
@@ -169,13 +202,20 @@ export function RulesTab({ permissionId = 'default' }: { permissionId?: string }
 }
 
 // ─── Refund Settings ─────────────────────────────────────────────────────
-function RefundSection({ state, onChange }: {
+function RefundSection({ state, onChange, policyError, chargeError }: {
   state: RulesState['refund'];
   onChange: (p: Partial<RulesState['refund']>) => void;
+  policyError?: string | null;
+  chargeError?: string | null;
 }) {
   return (
     <>
       <SectionHeader title="Refund Settings" />
+      {(policyError || chargeError) && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Refund is applicable — please complete the required fields to publish.
+        </Alert>
+      )}
       <FieldRow label="Refund Applicable">
         <RadioGroup row value={state.applicable}
           onChange={(_, v) => onChange({
@@ -189,8 +229,9 @@ function RefundSection({ state, onChange }: {
 
       {state.applicable === 'yes' && (
         <>
-          <FieldRow label="Refund Policy" required>
+          <FieldRow label="Refund Policy" required error={policyError}>
             <TextField select size="small" fullWidth value={state.policy}
+              error={!!policyError}
               onChange={(e) => onChange({ policy: e.target.value })}>
               <MenuItem value="">— Select policy —</MenuItem>
               {REFUND_POLICIES.map((p) => <MenuItem key={p} value={p}>{p}</MenuItem>)}
@@ -205,8 +246,9 @@ function RefundSection({ state, onChange }: {
             </RadioGroup>
           </FieldRow>
 
-          <FieldRow label="Cancellation Charge" required>
+          <FieldRow label="Cancellation Charge" required error={chargeError}>
             <TextField size="small" type="number"
+              error={!!chargeError}
               value={state.cancellationCharge}
               onChange={(e) => {
                 const raw = e.target.value;
@@ -270,20 +312,25 @@ function AutoApprovalSection({ state, onChange, error }: {
 }
 
 // ─── Vehicle Settings ────────────────────────────────────────────────────
-function VehicleSection({ state, onChange }: {
+function VehicleSection({ state, onChange, plateChangeLimitError }: {
   state: RulesState['vehicle'];
   onChange: (p: Partial<RulesState['vehicle']>) => void;
+  plateChangeLimitError?: string | null;
 }) {
   return (
     <>
       <SectionHeader title="Vehicle Settings" />
+      {plateChangeLimitError && (
+        <Alert severity="error" sx={{ mb: 2 }}>{plateChangeLimitError}</Alert>
+      )}
 
       <Typography sx={{ fontWeight: 700, mt: 1, mb: 1, color: '#1976D2', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '.08em' }}>
         Maximum Limit
       </Typography>
 
-      <FieldRow label="Number Plate Change Limit" required>
+      <FieldRow label="Number Plate Change Limit" required error={plateChangeLimitError}>
         <TextField size="small" type="number" value={state.plateChangeLimit}
+          error={!!plateChangeLimitError}
           onChange={(e) => onChange({ plateChangeLimit: e.target.value })}
           inputProps={{ min: 0, max: 100000 }} sx={{ maxWidth: 200 }} />
       </FieldRow>
@@ -369,11 +416,20 @@ function VehicleSection({ state, onChange }: {
 }
 
 // ─── Template Settings ───────────────────────────────────────────────────
-function TemplateSection({ state, onChange }: {
+function TemplateSection({ state, onChange, permitMode, physicalPermitError, whiteMailReminderError }: {
   state: RulesState['template'];
   onChange: (p: Partial<RulesState['template']>) => void;
+  permitMode?: string;
+  physicalPermitError?: string | null;
+  whiteMailReminderError?: string | null;
 }) {
-  const showPhysical = state.permitMode === 'physical';
+  // Use permitMode from General Settings when passed (drives validator),
+  // otherwise fall back to the tab's own local permitMode setting.
+  const effectiveMode: 'physical' | 'virtual' =
+    permitMode === 'physical' || permitMode === 'both' ? 'physical'
+    : permitMode === 'virtual' ? 'virtual'
+    : state.permitMode;
+  const showPhysical = effectiveMode === 'physical';
   const tabs: { key: RulesState['template']['activeTab']; label: string }[] =
     showPhysical
       ? [{ key: 'physical', label: 'Physical Permission Print' }, { key: 'whitemail', label: 'White Mail Reminder' }]
@@ -386,6 +442,11 @@ function TemplateSection({ state, onChange }: {
   return (
     <>
       <SectionHeader title="Template Settings" />
+      {(physicalPermitError || whiteMailReminderError) && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          Physical permit mode requires both a Physical Permission Print template and a White Mail Reminder template before publishing.
+        </Alert>
+      )}
 
       <FieldRow label="Permit Mode">
         <RadioGroup row value={state.permitMode}
@@ -396,35 +457,43 @@ function TemplateSection({ state, onChange }: {
       </FieldRow>
 
       <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-        {tabs.map((t) => (
-          <Chip key={t.key} label={t.label} clickable
-            color={state.activeTab === t.key ? 'primary' : 'default'}
-            variant={state.activeTab === t.key ? 'filled' : 'outlined'}
-            onClick={() => onChange({ activeTab: t.key })} />
-        ))}
+        {tabs.map((t) => {
+          const hasErr =
+            (t.key === 'physical'  && !!physicalPermitError) ||
+            (t.key === 'whitemail' && !!whiteMailReminderError);
+          return (
+            <Chip key={t.key} label={t.label} clickable
+              color={state.activeTab === t.key ? 'primary' : (hasErr ? 'error' : 'default')}
+              variant={state.activeTab === t.key ? 'filled' : 'outlined'}
+              onClick={() => onChange({ activeTab: t.key })} />
+          );
+        })}
       </Stack>
 
       {state.activeTab === 'physical' && showPhysical && (
         <TemplateEditor
           title="Physical Permission Print"
           info="Configure the printed permit layout and merge fields. Applies when a physical permit is issued."
-          mergeFields={['{{ApplicantName}}', '{{Vrm}}', '{{PermitNumber}}', '{{StartDate}}', '{{ExpiryDate}}']} />
+          mergeFields={['{{ApplicantName}}', '{{Vrm}}', '{{PermitNumber}}', '{{StartDate}}', '{{ExpiryDate}}']}
+          error={physicalPermitError} />
       )}
       {state.activeTab === 'whitemail' && (
         <TemplateEditor
           title="White Mail Reminder"
           info="Reminder letter posted when the applicant is nearing expiry and has not renewed digitally."
-          mergeFields={['{{ApplicantName}}', '{{PermitNumber}}', '{{ExpiryDate}}', '{{RenewalUrl}}']} />
+          mergeFields={['{{ApplicantName}}', '{{PermitNumber}}', '{{ExpiryDate}}', '{{RenewalUrl}}']}
+          error={whiteMailReminderError} />
       )}
     </>
   );
 }
 
-function TemplateEditor({ title, info, mergeFields }: { title: string; info: string; mergeFields: string[] }) {
+function TemplateEditor({ title, info, mergeFields, error }: { title: string; info: string; mergeFields: string[]; error?: string | null }) {
   return (
-    <Paper variant="outlined" sx={{ p: 2 }}>
-      <Typography sx={{ fontWeight: 700, mb: 1 }}>{title}</Typography>
-      <Alert severity="info" sx={{ mb: 2 }}>{info}</Alert>
+    <Paper variant="outlined" sx={{ p: 2, border: error ? '1px solid #C62828' : undefined }}>
+      <Typography sx={{ fontWeight: 700, mb: 1 }}>{title}{error && <span style={{ color: '#B71C1C', marginLeft: 4 }}>*</span>}</Typography>
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {!error && <Alert severity="info" sx={{ mb: 2 }}>{info}</Alert>}
       <TextField label="Subject" size="small" fullWidth defaultValue={title} sx={{ mb: 2 }} />
       <TextField label="Body" size="small" fullWidth multiline rows={8}
         defaultValue={`Dear {{ApplicantName}},\n\nThis is regarding your permit ${title.toLowerCase()}.\n\nRegards,\nMarston Permits Team`} />
@@ -448,13 +517,18 @@ function SectionHeader({ title }: { title: string }) {
   );
 }
 
-function FieldRow({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+function FieldRow({ label, required, error, children }: { label: string; required?: boolean; error?: string | null; children: React.ReactNode }) {
   return (
     <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'flex-start' }} sx={{ mb: 2.5 }}>
       <Typography sx={{ fontWeight: 500, minWidth: 240, pt: { md: 1 } }}>
         {label}{required && <span style={{ color: '#B71C1C', marginLeft: 4 }}>*</span>}
       </Typography>
-      <Box sx={{ flex: 1, minWidth: 0 }}>{children}</Box>
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        {children}
+        {error && (
+          <Typography sx={{ color: '#C62828', fontSize: '0.75rem', mt: 0.5 }}>{error}</Typography>
+        )}
+      </Box>
     </Stack>
   );
 }

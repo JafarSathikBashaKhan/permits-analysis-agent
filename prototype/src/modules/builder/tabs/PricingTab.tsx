@@ -93,7 +93,11 @@ const DEFAULT_STATE: PricingState = {
 };
 
 // ─── Main component ──────────────────────────────────────────────────────
-export function PricingTab({ permissionId = 'default' }: { permissionId?: string }) {
+export function PricingTab({ permissionId = 'default', showErrors = false, error = null }: {
+  permissionId?: string;
+  showErrors?: boolean;
+  error?: string | null;
+}) {
   const showToast = useToast();
   const storageKey = `prototype:pricing:${permissionId}`;
   const [state, setState] = useState<PricingState>(DEFAULT_STATE);
@@ -145,6 +149,9 @@ export function PricingTab({ permissionId = 'default' }: { permissionId?: string
 
   return (
     <Stack spacing={2.5}>
+      {showErrors && error && (
+        <Alert severity="error">{error}</Alert>
+      )}
       {/* Mode selector */}
       <Paper variant="outlined" sx={{ p: 2 }}>
         <Typography sx={{ fontWeight: 700, mb: 1.5 }}>Pricing Method</Typography>

@@ -57,7 +57,7 @@ function SectionHeader({ title, actions }: { title: string; actions?: React.Reac
   );
 }
 
-function FieldRow({ label, required, optional, info, children }: { label: string; required?: boolean; optional?: boolean; info?: string; children: React.ReactNode }) {
+function FieldRow({ label, required, optional, info, error, children }: { label: string; required?: boolean; optional?: boolean; info?: string; error?: string | null; children: React.ReactNode }) {
   return (
     <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'flex-start' }} sx={{ mb: 2.5 }}>
       <Box sx={{ width: { md: 220 }, pt: { md: 1 } }}>
@@ -72,15 +72,30 @@ function FieldRow({ label, required, optional, info, children }: { label: string
           </Typography>
         )}
       </Box>
-      <Box sx={{ flex: 1 }}>{children}</Box>
+      <Box sx={{ flex: 1 }}>
+        {children}
+        {error && (
+          <Typography sx={{ color: '#C62828', fontSize: '0.75rem', mt: 0.5 }}>
+            {error}
+          </Typography>
+        )}
+      </Box>
     </Stack>
   );
 }
 
+/**
+ * Shared prop shape for permission sub-sections that participate in publish
+ * validation. `showErrors` is toggled by the parent once the user has clicked
+ * Publish; `error` is the message the validator returned for this section (or
+ * null if the section is currently valid).
+ */
+export type SubSectionProps = { permissionId: string; showErrors?: boolean; error?: string | null };
+
 // ═════════════════════════════════════════════════════════════════════════
 //   PERMISSION LABEL
 // ═════════════════════════════════════════════════════════════════════════
-export function PermissionLabelSection({ permissionId }: { permissionId: string }) {
+export function PermissionLabelSection({ permissionId }: SubSectionProps) {
   type State = {
     displayLabel: string;
     shortCode: string;
@@ -136,7 +151,7 @@ export function PermissionLabelSection({ permissionId }: { permissionId: string 
 // ═════════════════════════════════════════════════════════════════════════
 //   PAYMENT SETTINGS
 // ═════════════════════════════════════════════════════════════════════════
-export function PaymentSettingsSection({ permissionId }: { permissionId: string }) {
+export function PaymentSettingsSection({ permissionId, showErrors, error }: SubSectionProps) {
   type State = {
     creditCard: boolean; debitCard: boolean; costCentre: boolean; scratchVoucher: boolean; freeOfCharge: boolean;
     paymentMode: 'immediate' | 'invoice' | 'onApproval';
@@ -148,15 +163,24 @@ export function PaymentSettingsSection({ permissionId }: { permissionId: string 
     paymentMode: 'immediate', invoiceDays: '14', partialPaymentAllowed: false,
   });
   const patch = (p: Partial<State>) => set((prev) => ({ ...prev, ...p }));
+  const hasMethods = s.creditCard || s.debitCard || s.costCentre || s.scratchVoucher || s.freeOfCharge;
+  const methodsError = showErrors && !hasMethods
+    ? (error || 'At least one payment method is required to publish this permission')
+    : null;
 
   return (
     <>
       <SectionHeader title="Payment Settings" />
-      <Alert severity="info" icon={<InfoOutlinedIcon />} sx={{ mb: 2 }}>
-        Configure which payment methods this permission accepts and how charges are collected.
-      </Alert>
+      {methodsError && (
+        <Alert severity="error" sx={{ mb: 2 }}>{methodsError}</Alert>
+      )}
+      {!methodsError && (
+        <Alert severity="info" icon={<InfoOutlinedIcon />} sx={{ mb: 2 }}>
+          Configure which payment methods this permission accepts and how charges are collected.
+        </Alert>
+      )}
 
-      <FieldRow label="Accepted Payment Methods" required>
+      <FieldRow label="Accepted Payment Methods" required error={methodsError}>
         <Stack>
           <FormControlLabel control={<Checkbox checked={s.creditCard}     onChange={(_, c) => patch({ creditCard: c })} />}     label="Credit Card" />
           <FormControlLabel control={<Checkbox checked={s.debitCard}      onChange={(_, c) => patch({ debitCard: c })} />}      label="Debit Card" />
@@ -193,7 +217,7 @@ export function PaymentSettingsSection({ permissionId }: { permissionId: string 
 //   DISCOUNT SETTINGS
 // ═════════════════════════════════════════════════════════════════════════
 type DiscountRow = { id: string; name: string; type: 'percentage' | 'fixed'; amount: string; criteria: string; active: boolean };
-export function DiscountSettingsSection({ permissionId }: { permissionId: string }) {
+export function DiscountSettingsSection({ permissionId }: SubSectionProps) {
   type State = { enabled: boolean; rows: DiscountRow[] };
   const [s, set] = usePersistentState<State>(`prototype:discountSettings:${permissionId}`, {
     enabled: true,
@@ -264,7 +288,7 @@ export function DiscountSettingsSection({ permissionId }: { permissionId: string
 //   DOCUMENT TYPE SETTINGS
 // ═════════════════════════════════════════════════════════════════════════
 type DocRow = { id: string; name: string; required: boolean; formats: string[]; maxSize: string; expiryDays: string };
-export function DocumentTypeSettingsSection({ permissionId }: { permissionId: string }) {
+export function DocumentTypeSettingsSection({ permissionId, showErrors, error }: SubSectionProps) {
   type State = { rows: DocRow[] };
   const [s, set] = usePersistentState<State>(`prototype:documentTypes:${permissionId}`, {
     rows: [
@@ -278,12 +302,25 @@ export function DocumentTypeSettingsSection({ permissionId }: { permissionId: st
   const rmRow  = (id: string) => set((p) => ({ ...p, rows: p.rows.filter((r) => r.id !== id) }));
   const upRow  = (id: string, patch: Partial<DocRow>) => set((p) => ({ ...p, rows: p.rows.map((r) => r.id === id ? { ...r, ...patch } : r) }));
 
+  const enabledRows = s.rows.filter((r) => r.name.trim().length > 0);
+  const docsError = showErrors && enabledRows.length === 0
+    ? (error || 'At least one document type should be checked and enabled to publish')
+    : null;
+
   return (
     <>
       <SectionHeader title="Document Type Settings" />
-      <Alert severity="info" icon={<InfoOutlinedIcon />} sx={{ mb: 2 }}>
-        Required documents are enforced in the Buy Now and Applications flows.
-      </Alert>
+      {docsError && (
+        <Alert severity="error" sx={{ mb: 2 }}>{docsError}</Alert>
+      )}
+      {!docsError && (
+        <Alert severity="info" icon={<InfoOutlinedIcon />} sx={{ mb: 2 }}>
+          Required documents are enforced in the Buy Now and Applications flows.
+        </Alert>
+      )}
+      <Typography sx={{ fontSize: '0.95rem', color: tokens.INK, fontWeight: 500, mb: 1 }}>
+        Documents<span style={{ color: '#B71C1C', marginLeft: 4 }}>*</span>
+      </Typography>
       <Table size="small">
         <TableHead>
           <TableRow>
@@ -325,7 +362,7 @@ export function DocumentTypeSettingsSection({ permissionId }: { permissionId: st
 // ═════════════════════════════════════════════════════════════════════════
 //   MERCHANT SETTINGS
 // ═════════════════════════════════════════════════════════════════════════
-export function MerchantSettingsSection({ permissionId }: { permissionId: string }) {
+export function MerchantSettingsSection({ permissionId }: SubSectionProps) {
   type State = {
     merchantId: string; merchantAccount: string; gateway: 'worldpay' | 'stripe' | 'opayo' | 'adyen';
     testMode: boolean; threeDSecure: boolean; savePaymentMethod: boolean;
@@ -382,7 +419,7 @@ export function MerchantSettingsSection({ permissionId }: { permissionId: string
 // ═════════════════════════════════════════════════════════════════════════
 //   RENEWALS AND REMINDERS
 // ═════════════════════════════════════════════════════════════════════════
-export function RenewalsAndRemindersSection({ permissionId }: { permissionId: string }) {
+export function RenewalsAndRemindersSection({ permissionId }: SubSectionProps) {
   type State = {
     autoRenew: boolean;
     renewalOpenDays: string; renewalWindow: string;
@@ -457,7 +494,7 @@ export function RenewalsAndRemindersSection({ permissionId }: { permissionId: st
 //   EMAIL TEMPLATES
 // ═════════════════════════════════════════════════════════════════════════
 type EmailKey = 'application' | 'approval' | 'rejection' | 'renewal' | 'expiry' | 'cancellation';
-export function EmailTemplatesSection({ permissionId }: { permissionId: string }) {
+export function EmailTemplatesSection({ permissionId }: SubSectionProps) {
   type State = Record<EmailKey, { enabled: boolean; subject: string; body: string }>;
   const DEFAULTS: State = {
     application:  { enabled: true, subject: 'Application received',       body: 'Dear {{ApplicantName}},\n\nWe have received your application for {{PermitType}}.\nReference: {{ApplicationRef}}.\n\nRegards,\nMarston Permits' },
@@ -507,7 +544,7 @@ export function EmailTemplatesSection({ permissionId }: { permissionId: string }
 // ═════════════════════════════════════════════════════════════════════════
 //   VISITOR PORTAL SETTINGS
 // ═════════════════════════════════════════════════════════════════════════
-export function VisitorPortalSettingsSection({ permissionId }: { permissionId: string }) {
+export function VisitorPortalSettingsSection({ permissionId }: SubSectionProps) {
   type State = {
     enabled: boolean;
     maxVisitorsPerHost: string; maxDailyPermits: string; maxMonthlyPermits: string;

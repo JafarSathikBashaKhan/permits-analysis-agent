@@ -113,9 +113,73 @@ export function BuilderDesignPage() {
   // per-section (they auto-clear when the field is filled).
   const [showFieldErrors, setShowFieldErrors] = useState(false);
 
-  // Live validation preview — computed on every render so sub-section badges
-  // and inline red text stay in sync with the current form state.
+  // A tick that bumps whenever the user navigates tabs / sub-sections, forcing
+  // liveValidation to re-read persisted sub-section state from localStorage so
+  // the sub-nav + top-tab badges stay in sync.
+  const validationTick = `${topTab}|${sub}|${showFieldErrors}`;
+
+  // Read persisted sub-section state so the validator sees the true form state
+  // (sub-sections write to per-permission localStorage keys).
+  const readComposedFromStorage = () => {
+    const pid = id || 'default';
+    const readJson = <T,>(key: string): T | null => {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? (JSON.parse(raw) as T) : null;
+      } catch { return null; }
+    };
+    const payment = readJson<{ creditCard: boolean; debitCard: boolean; costCentre: boolean; scratchVoucher: boolean; freeOfCharge: boolean }>(`prototype:paymentSettings:${pid}`);
+    const methods: string[] = [];
+    if (payment) {
+      if (payment.creditCard)     methods.push('creditCard');
+      if (payment.debitCard)      methods.push('debitCard');
+      if (payment.costCentre)     methods.push('costCentre');
+      if (payment.scratchVoucher) methods.push('scratchVoucher');
+      if (payment.freeOfCharge)   methods.push('freeOfCharge');
+    } else {
+      // First-visit default in PaymentSettingsSection has credit + debit enabled.
+      methods.push('creditCard', 'debitCard');
+    }
+
+    const docs = readJson<{ rows: Array<{ name?: string }> }>(`prototype:documentTypes:${pid}`);
+    const documentTypes = (docs?.rows ?? []).filter((r) => (r.name || '').trim().length > 0);
+    const documentTypesDefault = docs === null
+      ? [{ name: 'Proof of Residency' }, { name: 'Vehicle Ownership (V5C)' }, { name: 'Utility Bill' }]
+      : documentTypes;
+
+    const rules = readJson<{
+      refund: { applicable: 'yes' | 'no'; policy: string; cancellationCharge: string };
+      vehicle: { plateChangeLimit: string };
+      template: { activeTab: string; permitMode: string };
+    }>(`prototype:rules:${pid}`);
+    // The rules tab persists `template.permitMode` for the tab widget but the
+    // validator uses General Settings' permitMode; we merge the template
+    // fields the validator expects (defaulting to empty so it flags when
+    // physical mode is chosen and no template configured).
+    const composedRules = {
+      refund:   rules?.refund   ?? { applicable: 'no', policy: '', cancellationCharge: '' },
+      vehicle:  rules?.vehicle  ?? { plateChangeLimit: '3' },
+      template: {
+        physicalPermit:    '', // TemplateEditor uses defaultValue only — never persists
+        whiteMailReminder: '',
+      },
+    };
+
+    const pricing = readJson<Record<string, unknown>>(`prototype:pricing:${pid}`);
+
+    const form = readJson<{ pages?: unknown[]; selectedTemplate?: unknown }>(`prototype:applicationForm:${pid}`);
+    const applicationForms = form && (form.selectedTemplate || (Array.isArray(form.pages) && form.pages.length > 0))
+      ? [{ id: 'form-1' }]
+      : [];
+
+    return { methods, documentTypes: documentTypesDefault, rules: composedRules, pricing, applicationForms };
+  };
+
+  // Live validation preview — recomputed whenever any tracked state changes.
+  // Sub-section persisted state is re-read on every tab/sub navigation via
+  // `validationTick` so the badges stay accurate.
   const liveValidation = useMemo(() => {
+    const store = readComposedFromStorage();
     const composed = {
       name, type, group, category, description,
       generalSettings: {
@@ -127,15 +191,16 @@ export function BuilderDesignPage() {
         specialEvent: gs.specialEvent,
       },
       zones: (perm?.zones ?? 0) > 0 ? new Array(perm?.zones ?? 0).fill(0) : [],
-      paymentSettings: (perm as any)?.paymentSettings,
-      documentTypes: (perm as any)?.documentTypes,
-      pricing: (perm as any)?.pricing,
-      applicationForms: (perm as any)?.applicationForms,
-      rules: (perm as any)?.rules ?? { vehicle: {}, template: {}, refund: {} },
+      paymentSettings: { methods: store.methods },
+      documentTypes: store.documentTypes,
+      pricing: store.pricing ?? (perm as any)?.pricing,
+      applicationForms: store.applicationForms,
+      rules: store.rules,
       specialEvents: (perm as any)?.specialEvents,
     };
     return validatePermissionForPublish(composed);
-  }, [name, type, group, category, description, gs, perm]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name, type, group, category, description, gs, perm, validationTick]);
 
   // Section → error count (for sub-nav badges)
   const sectionErrorCount = useMemo(
@@ -181,6 +246,7 @@ export function BuilderDesignPage() {
 
     // US-155975 — full mandatory-field validation before Publish.
     if (status === 'Published') {
+      const store = readComposedFromStorage();
       const composed = {
         name, type, group, category, description,
         generalSettings: {
@@ -192,11 +258,11 @@ export function BuilderDesignPage() {
           specialEvent: gs.specialEvent,
         },
         zones: (perm?.zones ?? 0) > 0 ? new Array(perm?.zones ?? 0).fill(0) : [],
-        paymentSettings: (perm as any)?.paymentSettings,
-        documentTypes: (perm as any)?.documentTypes,
-        pricing: (perm as any)?.pricing,
-        applicationForms: (perm as any)?.applicationForms,
-        rules: (perm as any)?.rules ?? { vehicle: {}, template: {}, refund: {} },
+        paymentSettings: { methods: store.methods },
+        documentTypes: store.documentTypes,
+        pricing: store.pricing ?? (perm as any)?.pricing,
+        applicationForms: store.applicationForms,
+        rules: store.rules,
         specialEvents: (perm as any)?.specialEvents,
       };
       const result = validatePermissionForPublish(composed);
@@ -498,14 +564,14 @@ export function BuilderDesignPage() {
 
               {sub !== 'Basic Information' && sub !== 'General Settings' && sub !== 'Zone Mapping' && (
                 <>
-                  {sub === 'Permission Label'        && <PermissionLabelSection        permissionId={id || 'default'} />}
-                  {sub === 'Payment Settings'        && <PaymentSettingsSection        permissionId={id || 'default'} />}
-                  {sub === 'Discount Settings'       && <DiscountSettingsSection       permissionId={id || 'default'} />}
-                  {sub === 'Document Type Settings'  && <DocumentTypeSettingsSection   permissionId={id || 'default'} />}
-                  {sub === 'Merchant Settings'       && <MerchantSettingsSection       permissionId={id || 'default'} />}
-                  {sub === 'Renewals and Reminders'  && <RenewalsAndRemindersSection   permissionId={id || 'default'} />}
-                  {sub === 'Email Templates'         && <EmailTemplatesSection         permissionId={id || 'default'} />}
-                  {sub === 'Visitor Portal Settings' && <VisitorPortalSettingsSection  permissionId={id || 'default'} />}
+                  {sub === 'Permission Label'        && <PermissionLabelSection        permissionId={id || 'default'} showErrors={showFieldErrors} />}
+                  {sub === 'Payment Settings'        && <PaymentSettingsSection        permissionId={id || 'default'} showErrors={showFieldErrors} error={fieldError('Payment Settings', 'Payment Methods')} />}
+                  {sub === 'Discount Settings'       && <DiscountSettingsSection       permissionId={id || 'default'} showErrors={showFieldErrors} />}
+                  {sub === 'Document Type Settings'  && <DocumentTypeSettingsSection   permissionId={id || 'default'} showErrors={showFieldErrors} error={fieldError('Document Type Settings', 'Documents')} />}
+                  {sub === 'Merchant Settings'       && <MerchantSettingsSection       permissionId={id || 'default'} showErrors={showFieldErrors} />}
+                  {sub === 'Renewals and Reminders'  && <RenewalsAndRemindersSection   permissionId={id || 'default'} showErrors={showFieldErrors} />}
+                  {sub === 'Email Templates'         && <EmailTemplatesSection         permissionId={id || 'default'} showErrors={showFieldErrors} />}
+                  {sub === 'Visitor Portal Settings' && <VisitorPortalSettingsSection  permissionId={id || 'default'} showErrors={showFieldErrors} />}
                 </>
               )}
 
@@ -686,9 +752,22 @@ export function BuilderDesignPage() {
           </Stack>
         )}
 
-        {topTab === 'rules' && <RulesTab permissionId={id || 'default'} />}
-        {topTab === 'pricing' && <PricingTab permissionId={id || 'default'} />}
-        {topTab === 'application-form' && <ApplicationFormTab permissionId={id || 'default'} />}
+        {topTab === 'rules' && <RulesTab
+          permissionId={id || 'default'}
+          showErrors={showFieldErrors}
+          validationErrors={liveValidation.errors}
+          permitMode={gs.permitMode}
+        />}
+        {topTab === 'pricing' && <PricingTab
+          permissionId={id || 'default'}
+          showErrors={showFieldErrors}
+          error={fieldError('Pricing', 'Pricing Configuration')}
+        />}
+        {topTab === 'application-form' && <ApplicationFormTab
+          permissionId={id || 'default'}
+          showErrors={showFieldErrors}
+          error={fieldError('Application Form', 'Forms')}
+        />}
         {topTab === 'custom-fields' && <CustomFieldsTab permissionId={id || 'default'} />}
       </Box>
 

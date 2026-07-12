@@ -148,7 +148,11 @@ type Vehicle = { id: string; vrm: string; make: string; model: string; colour: s
 type DocFile = { name: string; size: number };
 
 // â”€â”€â”€ Component â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-export function ApplicationFormTab({ permissionId = 'default' }: { permissionId?: string }) {
+export function ApplicationFormTab({ permissionId = 'default', showErrors = false, error = null }: {
+  permissionId?: string;
+  showErrors?: boolean;
+  error?: string | null;
+}) {
   const storageKey = `prototype:applicationForm:${permissionId}`;
   // Template + draft state (mirrors real basicInformationData.isDraftAvailable)
   const [selectedTemplate, setSelectedTemplate] = useState<typeof TEMPLATES[number] | null>(null);
@@ -159,7 +163,6 @@ export function ApplicationFormTab({ permissionId = 'default' }: { permissionId?
   const [changeTemplatePopupOpen, setChangeTemplatePopupOpen] = useState(false);
   const [publishConfirmOpen, setPublishConfirmOpen] = useState(false);
   const [flash, setFlash] = useState<string | null>(null);
-  const [applicationFormError] = useState(0);                        // "Configure at least 1 form to publish"
 
   // Builder canvas state (used inside edit mode) â€” pages hold components
   const [pages, setPages] = useState<BuilderPage[]>([]);
@@ -331,8 +334,8 @@ export function ApplicationFormTab({ permissionId = 'default' }: { permissionId?
 
   return (
     <Box className="form-builder" sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-      {applicationFormError > 0 && (
-        <Alert severity="error">Configure at least 1 form to publish</Alert>
+      {showErrors && error && (
+        <Alert severity="error">{error}</Alert>
       )}
 
       {!showPreview ? (
@@ -372,7 +375,11 @@ export function ApplicationFormTab({ permissionId = 'default' }: { permissionId?
                 <Button
                   variant="contained"
                   disabled={!selectedTemplate}
-                  sx={{ borderRadius: 2, textTransform: 'none' }}
+                  color={showErrors && error ? 'error' : 'primary'}
+                  sx={{
+                    borderRadius: 2, textTransform: 'none',
+                    ...(showErrors && error ? { boxShadow: '0 0 0 2px rgba(198,40,40,0.35)' } : {}),
+                  }}
                   onClick={openEditor}>
                   EDIT
                 </Button>
