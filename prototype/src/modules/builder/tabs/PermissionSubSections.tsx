@@ -57,7 +57,7 @@ function SectionHeader({ title, actions }: { title: string; actions?: React.Reac
   );
 }
 
-function FieldRow({ label, required, optional, children }: { label: string; required?: boolean; optional?: boolean; children: React.ReactNode }) {
+function FieldRow({ label, required, optional, info, children }: { label: string; required?: boolean; optional?: boolean; info?: string; children: React.ReactNode }) {
   return (
     <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'flex-start' }} sx={{ mb: 2.5 }}>
       <Box sx={{ width: { md: 220 }, pt: { md: 1 } }}>
@@ -66,6 +66,11 @@ function FieldRow({ label, required, optional, children }: { label: string; requ
           {required && <span style={{ color: '#B71C1C', marginLeft: 4 }}>*</span>}
           {optional && <Typography component="span" sx={{ color: tokens.MUTED, fontSize: '0.8rem', ml: 0.75 }}>(optional)</Typography>}
         </Typography>
+        {info && (
+          <Typography variant="caption" sx={{ color: tokens.MUTED, display: 'block', mt: 0.5 }}>
+            {info}
+          </Typography>
+        )}
       </Box>
       <Box sx={{ flex: 1 }}>{children}</Box>
     </Stack>
@@ -510,6 +515,8 @@ export function VisitorPortalSettingsSection({ permissionId }: { permissionId: s
     allowedDays: string[]; startHour: string; endHour: string;
     portalUrl: string; welcomeMessage: string;
     requireVrm: boolean; requireVisitorName: boolean; requireContactNumber: boolean;
+    // US-198805 — Start Session at Start of Day
+    startSessionAtStartOfDay: boolean;
   };
   const [s, set] = usePersistentState<State>(`prototype:visitorPortal:${permissionId}`, {
     enabled: true,
@@ -518,6 +525,7 @@ export function VisitorPortalSettingsSection({ permissionId }: { permissionId: s
     allowedDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], startHour: '08:00', endHour: '20:00',
     portalUrl: 'https://visitors.marston.example', welcomeMessage: 'Welcome to Marston Visitor Portal.',
     requireVrm: true, requireVisitorName: true, requireContactNumber: false,
+    startSessionAtStartOfDay: false, // per AC — default disabled
   });
   const patch = (p: Partial<State>) => set((prev) => ({ ...prev, ...p }));
   const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -574,6 +582,23 @@ export function VisitorPortalSettingsSection({ permissionId }: { permissionId: s
             <Stack direction="row" spacing={2}>
               <TextField size="small" type="time" label="Start" InputLabelProps={{ shrink: true }} value={s.startHour} onChange={(e) => patch({ startHour: e.target.value })} sx={{ maxWidth: 160 }} />
               <TextField size="small" type="time" label="End"   InputLabelProps={{ shrink: true }} value={s.endHour}   onChange={(e) => patch({ endHour: e.target.value })} sx={{ maxWidth: 160 }} />
+            </Stack>
+          </FieldRow>
+
+          <Divider sx={{ my: 2 }}><Chip label="Camera enforcement compatibility" /></Divider>
+          <FieldRow label="Start session at the start of the day"
+            info="US-198805. When enabled, any voucher activated on a given day is sent to Illuminate with a start time of 00:01 (and end time 23:59 for single-day vouchers). This prevents PCNs when the visitor drove past a camera before activating.">
+            <Stack direction="row" spacing={3} alignItems="center">
+              <FormControlLabel
+                control={<Radio checked={s.startSessionAtStartOfDay === true}
+                  onChange={() => patch({ startSessionAtStartOfDay: true })} />}
+                label="Enable"
+              />
+              <FormControlLabel
+                control={<Radio checked={s.startSessionAtStartOfDay === false}
+                  onChange={() => patch({ startSessionAtStartOfDay: false })} />}
+                label="Disable"
+              />
             </Stack>
           </FieldRow>
 

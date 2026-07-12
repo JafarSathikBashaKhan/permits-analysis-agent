@@ -22,6 +22,8 @@ import {
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { BUILDER_ROWS_KEY } from './BuilderListPage';
 import { PERMISSION_TYPE_OPTIONS, PERMISSION_CATEGORY_OPTIONS, BUSINESS_RULES } from '../../constants/enums';
+import { checkPrefixDuplicate } from './publishValidation';
+import { UnsavedChangesGuard } from '../../hooks/UnsavedChangesGuard';
 
 type Group = {
   id: string;
@@ -111,6 +113,61 @@ export function BuilderDesignPage() {
   );
   const availableGroups = type ? allGroups.filter(g => g.permissionType === type && g.status === 'Active').map(g => g.name) : allGroups.filter(g => g.status === 'Active').map(g => g.name);
 
+  // US-188673 — lock Type + Prefix after publish
+  const isPublished = perm?.status === 'Published';
+
+  // US-164796 — track dirty state to trigger the unsaved-changes guard
+  const [baseline, setBaseline] = useState(() => JSON.stringify({
+    name: perm?.name ?? '', type: perm?.type ?? '', group: perm?.group ?? '',
+    category: perm?.category ?? '', description: '', permissionLimit: '',
+    gs: {
+      specialEvent: 'disable', startDatePolicy: '', permitDaysSelection: 'disable',
+      retentionDays: '90', prefix: perm?.prefix ?? '', termsAndConditions: '',
+      displayDescription: '', permitMode: 'both', backOfficeUse: false,
+      vatApplicable: false, hoursOfOperation: false, enableExperianCheck: false,
+      businessName: false, businessAddress: false, commentBox: false, adminFee: '',
+    },
+  }));
+  const currentSnapshot = JSON.stringify({ name, type, group, category, description, permissionLimit, gs });
+  const dirty = currentSnapshot !== baseline;
+
+  // Shared persist function used by both Save Draft and the Unsaved Changes guard.
+  const persistEntry = (status: 'Draft' | 'Published'): { ok: boolean; error?: string } => {
+    const newId = isNew ? `P-${Date.now()}` : (id ?? `P-${Date.now()}`);
+
+    // US-188673 — prefix duplicate validation across permission types (per contract).
+    if (gs.prefix?.trim()) {
+      const dupMsg = checkPrefixDuplicate(gs.prefix, type || 'Permit', newId, builderRows);
+      if (dupMsg) return { ok: false, error: dupMsg };
+    }
+
+    const entry: Permission = {
+      id: newId,
+      name: name || 'Untitled',
+      type: (type || 'Permit') as Permission['type'],
+      group: group || 'General',
+      category: (category || 'Resident') as Permission['category'],
+      status,
+      prefix: gs.prefix?.trim().toUpperCase() || '',
+      price: 0,
+      version: (perm?.version ?? 0) + 1,
+      lastUpdated: new Date().toISOString().slice(0, 10),
+      createdBy: perm?.createdBy ?? 'You',
+      zones: perm?.zones ?? 0,
+      documents: perm?.documents ?? 0,
+    };
+    setBuilderRows((prev) => {
+      const exists = prev.some((r) => r.id === newId);
+      return exists
+        ? prev.map((r) => r.id === newId ? { ...r, ...entry } : r)
+        : [entry, ...prev];
+    });
+    // Reset baseline so guard clears
+    setBaseline(currentSnapshot);
+    if (isNew) nav(`/builder/${newId}`, { replace: true });
+    return { ok: true };
+  };
+
   return (
     <Box sx={{ mx: -3, my: -3 }}>
       {/* Top action bar */}
@@ -141,28 +198,9 @@ export function BuilderDesignPage() {
             variant="outlined"
             startIcon={<SaveOutlined />}
             onClick={() => {
-              const newId = isNew ? `P-${Date.now()}` : (id ?? `P-${Date.now()}`);
-              const entry: Permission = {
-                id: newId,
-                name: name || 'Untitled',
-                type: (type || 'Resident') as Permission['type'],
-                group: group || 'General',
-                category: (category || 'Resident') as Permission['category'],
-                status: 'Draft',
-                prefix: '',
-                price: 0,
-                version: 1,
-                lastUpdated: new Date().toISOString().slice(0, 10),
-                createdBy: 'You',
-                zones: 0,
-                documents: 0,
-              };
-              setBuilderRows((prev) => {
-                const exists = prev.some((r) => r.id === newId);
-                return exists ? prev.map((r) => r.id === newId ? { ...r, name: entry.name, type: entry.type, group: entry.group, category: entry.category, status: 'Draft', lastUpdated: entry.lastUpdated } : r) : [entry, ...prev];
-              });
-              showToast('Draft saved', 'success');
-              if (isNew) nav(`/builder/${newId}`);
+              const r = persistEntry('Draft');
+              if (r.ok) showToast('Draft saved', 'success');
+              else showToast(r.error || 'Save failed', 'error');
             }}
             sx={{ fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}
           >
@@ -172,28 +210,9 @@ export function BuilderDesignPage() {
             variant="contained"
             startIcon={<UploadOutlined />}
             onClick={() => {
-              const newId = isNew ? `P-${Date.now()}` : (id ?? `P-${Date.now()}`);
-              const entry: Permission = {
-                id: newId,
-                name: name || 'Untitled',
-                type: (type || 'Resident') as Permission['type'],
-                group: group || 'General',
-                category: (category || 'Resident') as Permission['category'],
-                status: 'Published',
-                prefix: '',
-                price: 0,
-                version: 1,
-                lastUpdated: new Date().toISOString().slice(0, 10),
-                createdBy: 'You',
-                zones: 0,
-                documents: 0,
-              };
-              setBuilderRows((prev) => {
-                const exists = prev.some((r) => r.id === newId);
-                return exists ? prev.map((r) => r.id === newId ? { ...r, name: entry.name, type: entry.type, group: entry.group, category: entry.category, status: 'Published', lastUpdated: entry.lastUpdated } : r) : [entry, ...prev];
-              });
-              showToast('Permission published', 'success');
-              if (isNew) nav(`/builder/${newId}`);
+              const r = persistEntry('Published');
+              if (r.ok) showToast('Permission published', 'success');
+              else showToast(r.error || 'Publish blocked', 'error');
             }}
             sx={{ fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}
           >
@@ -290,10 +309,16 @@ export function BuilderDesignPage() {
                     <TextField placeholder="Enter Permission Name" value={name} onChange={(e) => setName(e.target.value)} />
                   </FormRow>
                   <FormRow label="Type">
-                    <Select displayEmpty value={type} onChange={(e) => { setType(e.target.value); setGroup(''); }} fullWidth>
+                    <Select displayEmpty value={type} onChange={(e) => { setType(e.target.value); setGroup(''); }} fullWidth
+                      disabled={isPublished}>
                       <MenuItem value=""><em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select</em></MenuItem>
                       {PERMISSION_TYPE_OPTIONS.map((o) => <MenuItem key={o.id} value={o.label}>{o.label}</MenuItem>)}
                     </Select>
+                    {isPublished && (
+                      <Typography variant="caption" sx={{ color: tokens.MUTED, mt: 0.5, display: 'block' }}>
+                        Type cannot be changed after the permission is published (US-188673).
+                      </Typography>
+                    )}
                   </FormRow>
                   <FormRow label="Group">
                     <Select displayEmpty value={group} onChange={(e) => setGroup(e.target.value)} fullWidth>
@@ -414,8 +439,22 @@ export function BuilderDesignPage() {
                     </Stack>
                   </FormRow>
 
-                  <FormRow label="Prefix" info="Prefix will be prepended to every permit number.">
-                    <TextField placeholder="Enter Prefix" value={gs.prefix} onChange={(e) => gsSet('prefix', e.target.value)} />
+                  <FormRow label="Prefix" info="Prefix will be prepended to every permit number (US-137749). Max 10 alphanumeric characters.">
+                    <Stack spacing={0.5} sx={{ width: '100%' }}>
+                      <TextField
+                        placeholder="Enter Prefix"
+                        value={gs.prefix}
+                        onChange={(e) => gsSet('prefix', e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10))}
+                        disabled={isPublished}
+                        inputProps={{ maxLength: 10, style: { textTransform: 'uppercase', fontFamily: 'monospace' } }}
+                        helperText={gs.prefix ? `Applications will be numbered like "${gs.prefix}-XXXXXXXX"` : ''}
+                      />
+                      {isPublished && (
+                        <Typography variant="caption" sx={{ color: tokens.MUTED }}>
+                          Prefix cannot be changed after the permission is published (US-188673).
+                        </Typography>
+                      )}
+                    </Stack>
                   </FormRow>
 
                   <FormRow label="Terms and Conditions">
@@ -505,6 +544,18 @@ export function BuilderDesignPage() {
         {topTab === 'application-form' && <ApplicationFormTab permissionId={id || 'default'} />}
         {topTab === 'custom-fields' && <CustomFieldsTab permissionId={id || 'default'} />}
       </Box>
+
+      {/* US-164796 — unsaved-changes guard */}
+      <UnsavedChangesGuard
+        dirty={dirty}
+        onSave={() => {
+          const r = persistEntry('Draft');
+          if (!r.ok) {
+            showToast(r.error || 'Save failed', 'error');
+            throw new Error(r.error || 'Save failed');
+          }
+        }}
+      />
     </Box>
   );
 }

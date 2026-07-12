@@ -10,6 +10,7 @@ import { applications, Application } from '../../data/mock';
 import { ExtendDurationDialog } from '../../components/dialogs/ExtendDurationDialog';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { APPLICATION_STATUS_OPTIONS, APPLICATION_STATUS_LABELS, statusChipColor } from '../../constants/enums';
+import { generateApplicationNumber, resolvePrefixForPermission } from '../../utils/applicationNumber';
 
 /** Reverse-map status label → numeric id for chip colouring */
 const STATUS_LABEL_TO_ID: Record<string, number> = Object.fromEntries(
@@ -49,10 +50,13 @@ export function ApplicationsListPage() {
 
   const handleCreateApp = () => {
     if (!newApplicant.trim()) { showToast('Applicant name is required', 'error'); return; }
+    // US-137749 — generate application number from configured permission prefix
+    const prefix = resolvePrefixForPermission(newPermType);
+    const ref = generateApplicationNumber(prefix);
     const id = `A-${Date.now()}`;
     const newApp: Application = {
       id,
-      ref: `AP-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`,
+      ref,
       applicant: newApplicant.trim(),
       permission: newPermType,
       type: 'Permit',
@@ -63,7 +67,7 @@ export function ApplicationsListPage() {
       assignedTo: 'Unassigned',
     };
     setAllRows((prev) => [newApp, ...prev]);
-    showToast('Application created successfully', 'success');
+    showToast(`Application ${ref} created`, 'success');
     setNewAppOpen(false);
     setNewApplicant(''); setNewVrm('');
   };

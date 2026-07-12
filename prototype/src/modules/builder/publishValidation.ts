@@ -146,3 +146,35 @@ export function getErrorCountBySection(errors: ValidationError[]): Record<string
     return acc;
   }, {} as Record<string, number>);
 }
+
+/**
+ * US-188673 — Prefix duplicate validation (per-type semantics).
+ *
+ * Rules:
+ *   - Same prefix WITHIN the same permission type -> allowed.
+ *   - Same prefix across DIFFERENT permission types (same contract) -> BLOCKED.
+ *   - Same prefix across different contracts -> BLOCKED. (Single-contract prototype
+ *     treats all rows as one contract, so this collapses into the rule above.)
+ *
+ * Returns null if OK, or an error message string if a duplicate is found.
+ */
+export function checkPrefixDuplicate(
+  prefix: string,
+  type: string,
+  currentPermissionId: string | undefined,
+  allPermissions: Array<{ id: string; prefix?: string; type?: string; status?: string }>,
+): string | null {
+  const cleanPrefix = String(prefix ?? '').trim().toUpperCase();
+  if (!cleanPrefix) return null;
+  const cleanType = String(type ?? '').trim().toLowerCase();
+  for (const p of allPermissions) {
+    if (!p || p.id === currentPermissionId) continue;
+    const otherPrefix = String(p.prefix ?? '').trim().toUpperCase();
+    if (otherPrefix !== cleanPrefix) continue;
+    const otherType = String(p.type ?? '').trim().toLowerCase();
+    if (otherType !== cleanType) {
+      return `Prefix "${cleanPrefix}" is already used by another permission type ("${p.type}"). Prefixes must be unique across permission types.`;
+    }
+  }
+  return null;
+}
