@@ -13,6 +13,9 @@ export type Permission = {
   version: number;
   lastUpdated: string;
   createdBy: string;
+  createdOn?: string;
+  updatedBy?: string;
+  updatedOn?: string;
   zones: number;
   documents: number;
 };
