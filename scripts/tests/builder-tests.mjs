@@ -196,6 +196,7 @@ async function testUS188673(page) {
   const page = await ctx.newPage();
   page.on('pageerror', (err) => console.log(`  ⚠ page error: ${err.message}`));
 
+  const startedAt = new Date();
   try { await testUS155975(page); }
   catch (e) { record('US-155975.fatal', 'Test crashed', false, e.message); }
 
@@ -203,6 +204,7 @@ async function testUS188673(page) {
   catch (e) { record('US-188673.fatal', 'Test crashed', false, e.message); }
 
   await browser.close();
+  const endedAt = new Date();
 
   console.log('\n─── SUMMARY ─────────────────');
   const passed = results.filter((r) => r.passed).length;
@@ -212,11 +214,86 @@ async function testUS188673(page) {
   const byStory = {};
   for (const r of results) {
     const story = r.id.split('.')[0];
-    byStory[story] = byStory[story] || { pass: 0, fail: 0 };
+    byStory[story] = byStory[story] || { pass: 0, fail: 0, items: [] };
     if (r.passed) byStory[story].pass++; else byStory[story].fail++;
+    byStory[story].items.push(r);
   }
   for (const [story, s] of Object.entries(byStory)) {
     console.log(`  ${story}: ${s.pass} passed, ${s.fail} failed`);
   }
+
+  // ─── Write report files ───────────────────────────────────────────────────
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const url = await import('node:url');
+  const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+  const outDir = path.resolve(__dirname, '..', '..', 'test-results');
+  fs.mkdirSync(outDir, { recursive: true });
+
+  // JSON
+  const json = {
+    suite: 'Builder',
+    started: startedAt.toISOString(),
+    ended: endedAt.toISOString(),
+    durationMs: endedAt - startedAt,
+    total: results.length, passed, failed,
+    stories: byStory,
+  };
+  fs.writeFileSync(path.join(outDir, 'builder-report.json'), JSON.stringify(json, null, 2));
+
+  // JUnit XML (CI-friendly)
+  const escapeXml = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+  xml += `<testsuites tests="${results.length}" failures="${failed}" time="${(json.durationMs / 1000).toFixed(2)}">\n`;
+  for (const [story, s] of Object.entries(byStory)) {
+    xml += `  <testsuite name="${story}" tests="${s.items.length}" failures="${s.fail}">\n`;
+    for (const r of s.items) {
+      xml += `    <testcase classname="${story}" name="${escapeXml(r.name)}">`;
+      if (!r.passed) xml += `<failure message="${escapeXml(r.detail || 'assertion failed')}"/>`;
+      xml += '</testcase>\n';
+    }
+    xml += '  </testsuite>\n';
+  }
+  xml += '</testsuites>\n';
+  fs.writeFileSync(path.join(outDir, 'builder-report.xml'), xml);
+
+  // HTML
+  const rowHtml = (r) => `<tr class="${r.passed ? 'p' : 'f'}"><td>${r.id}</td><td>${r.passed ? '✅' : '❌'}</td><td>${escapeXml(r.name)}</td><td><code>${escapeXml(r.detail || '')}</code></td></tr>`;
+  const storiesHtml = Object.entries(byStory).map(([story, s]) => `
+    <section>
+      <h2>${story} <span class="pill ${s.fail === 0 ? 'ok' : 'bad'}">${s.pass}/${s.items.length}</span></h2>
+      <table><thead><tr><th>ID</th><th></th><th>Assertion</th><th>Detail</th></tr></thead><tbody>${s.items.map(rowHtml).join('')}</tbody></table>
+    </section>`).join('');
+  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Builder Test Report</title>
+<style>
+body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:2rem;color:#1F2937;max-width:1200px}
+h1{font-size:1.75rem;margin:0 0 0.5rem}
+.summary{background:#F4F6F9;border:1px solid #E5E7EB;border-radius:8px;padding:1rem;margin-bottom:1.5rem}
+.pill{display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.75rem;font-weight:700;vertical-align:middle}
+.pill.ok{background:#DCFCE7;color:#166534}
+.pill.bad{background:#FEE2E2;color:#991B1B}
+table{width:100%;border-collapse:collapse;margin:0.5rem 0 2rem;font-size:0.85rem}
+th,td{border-bottom:1px solid #E5E7EB;padding:8px 10px;text-align:left;vertical-align:top}
+th{background:#F9FAFB;font-weight:600}
+tr.p td:nth-child(2){color:#166534}
+tr.f{background:#FEF2F2}
+code{background:#F3F4F6;padding:1px 4px;border-radius:3px;font-size:0.75rem}
+</style></head>
+<body>
+<h1>Builder Test Report</h1>
+<div class="summary">
+  <strong>Suite:</strong> Builder<br>
+  <strong>Total:</strong> ${results.length} · <strong>Passed:</strong> <span class="pill ok">${passed}</span> · <strong>Failed:</strong> <span class="pill ${failed ? 'bad' : 'ok'}">${failed}</span><br>
+  <strong>Started:</strong> ${startedAt.toLocaleString()} · <strong>Duration:</strong> ${(json.durationMs / 1000).toFixed(1)}s
+</div>
+${storiesHtml}
+</body></html>`;
+  fs.writeFileSync(path.join(outDir, 'builder-report.html'), html);
+
+  console.log(`\nReports written to ${outDir}:`);
+  console.log('  builder-report.html  ← open in browser');
+  console.log('  builder-report.json');
+  console.log('  builder-report.xml   (JUnit)');
+
   process.exit(failed > 0 ? 1 : 0);
 })();

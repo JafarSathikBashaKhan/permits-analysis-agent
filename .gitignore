@@ -17,3 +17,5 @@ knowledge/ui-inventory/package.json
 
 # local env (contains PAT + credentials)
 .env
+
+test-results/
