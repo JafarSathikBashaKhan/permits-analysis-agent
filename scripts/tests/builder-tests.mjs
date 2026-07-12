@@ -232,6 +232,16 @@ async function testUS188673(page) {
   await browser.close();
   const endedAt = new Date();
 
+  // Merge in pure-validator unit-test results if present
+  const validatorFile = path.resolve(__dirname, '..', '..', 'test-results', 'validator-results.json');
+  if (fs.existsSync(validatorFile)) {
+    try {
+      const v = JSON.parse(fs.readFileSync(validatorFile, 'utf8'));
+      for (const r of v.results || []) results.push({ ...r, shot: '' });
+      console.log(`\n(loaded ${v.results?.length ?? 0} validator unit-test results)`);
+    } catch (e) { console.log(`  ⚠ could not read validator-results.json: ${e.message}`); }
+  }
+
   console.log('\n─── SUMMARY ─────────────────');
   const passed = results.filter((r) => r.passed).length;
   const failed = results.filter((r) => !r.passed).length;

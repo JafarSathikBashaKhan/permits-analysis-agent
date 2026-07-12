@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:builder": "npx tsx scripts/tests/builder-us155975-validator.mts && node scripts/tests/builder-tests.mjs"
   },
   "keywords": [],
   "author": "",
@@ -13,5 +14,11 @@
   "dependencies": {
     "@playwright/test": "^1.61.1",
     "playwright": "^1.61.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true
   }
 }
