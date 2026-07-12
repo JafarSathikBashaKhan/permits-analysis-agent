@@ -169,9 +169,9 @@ async function main() {
   await banner(`Typing Group Name: "${NAMES.group}"`);
   await fillIn('Group Name', NAMES.group);
 
-  await banner('Picking Permission Type: Resident');
+  await banner('Picking Permission Type: Suspension (matches Builder Type list)');
   try {
-    await pickSelect('Permission Type', 'Resident');
+    await pickSelect('Permission Type', 'Suspension');
   } catch (e) {
     console.warn('Permission Type select skipped:', e.message);
   }
@@ -181,7 +181,7 @@ async function main() {
   await pause(1400);
   await banner(`✓ Group "${NAMES.group}" created`, 1600);
 
-  // 4) PERMISSION BUILDER
+  // 4) PERMISSION BUILDER — fill all mandatory fields, then Publish
   await banner('Step 4 — Permission Setup › Permission Builder');
   await page.goto(`${BASE}/builder`, { waitUntil: 'domcontentloaded' });
   await pause(700);
@@ -191,19 +191,63 @@ async function main() {
   await page.goto(`${BASE}/builder/new`, { waitUntil: 'domcontentloaded' });
   await pause(1200);
 
+  // Helper: pick option from a Select scoped by data-field label.
+  const pickFieldSelect = async (fieldLabel, optionText) => {
+    const combo = page.locator(`[data-field="${fieldLabel}"] [role="combobox"]`).first();
+    await combo.waitFor({ state: 'visible', timeout: 8000 });
+    await combo.click();
+    await pause(300);
+    try {
+      await page
+        .getByRole('option', { name: new RegExp(`^${optionText}$`, 'i') })
+        .first()
+        .click({ timeout: 4000 });
+    } catch (e) {
+      await page.keyboard.press('Escape').catch(() => {});
+      throw e;
+    }
+    await pause(300);
+  };
+  const fillField = async (fieldLabel, value) => {
+    const input = page
+      .locator(`[data-field="${fieldLabel}"] input, [data-field="${fieldLabel}"] textarea`)
+      .first();
+    await input.waitFor({ state: 'visible', timeout: 8000 });
+    await input.fill(String(value));
+    await pause(200);
+  };
+
   await banner(`Typing Permission Name: "${NAMES.permission}"`);
-  const permInput = page
-    .locator(
-      'input[placeholder*="Permission Name" i], input[placeholder*="permission name" i], input[placeholder*="Name" i]'
-    )
-    .first();
-  await permInput.waitFor({ state: 'visible', timeout: 8000 });
-  await permInput.fill(NAMES.permission);
-  await pause(400);
+  await fillField('Permission Name', NAMES.permission);
+
+  await banner('Picking Type: Suspension');
+  await pickFieldSelect('Type', 'Suspension');
+
+  await banner(`Picking Group: "${NAMES.group}"`);
+  try {
+    await pickFieldSelect('Group', NAMES.group);
+  } catch (e) {
+    console.warn('Group select — our just-created group not found, picking first available:', e.message);
+    // Fallback: open combobox and pick the first non-empty option.
+    const combo = page.locator('[data-field="Group"] [role="combobox"]').first();
+    await combo.click();
+    await pause(300);
+    await page.getByRole('option').nth(1).click().catch(() => {});
+    await pause(300);
+  }
+
+  await banner('Picking Category: Suspension');
+  await pickFieldSelect('Category', 'Suspension');
+
+  await banner('Typing Permission Limit: 5');
+  try { await fillField('Permission Limit', '5'); } catch (e) { console.warn('Permission Limit skipped:', e.message); }
+
+  await banner('Typing Description');
+  try { await fillField('Description', `Demo permission created by end-to-end driver ${suffix}`); } catch (e) { console.warn('Description skipped:', e.message); }
 
   await banner('Clicking Publish — makes it available in Buy Now');
   await clickPageButton(/^Publish$/i);
-  await pause(2000);
+  await pause(2500);
   await banner(`✓ Permission "${NAMES.permission}" published`, 1800);
 
   // 5) APPLICATIONS

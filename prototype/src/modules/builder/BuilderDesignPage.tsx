@@ -519,7 +519,7 @@ const topTabSx = {
 
 function FormRow({ label, children, optional, info }: { label: string; children: React.ReactNode; optional?: boolean; info?: string }) {
   return (
-    <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'flex-start' }} sx={{ mb: 2.5 }}>
+    <Stack data-field={label} direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'flex-start' }} sx={{ mb: 2.5 }}>
       <Box sx={{ width: { md: 220 }, pt: { md: 1 } }}>
         <Stack direction="row" alignItems="center" spacing={0.75}>
           <Typography sx={{ fontSize: '0.95rem', color: tokens.INK, fontWeight: 500 }}>
