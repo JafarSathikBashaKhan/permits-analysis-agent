@@ -784,35 +784,53 @@ export function BuilderDesignPage() {
       />
 
       {/* US-155975 — Publish validation errors dialog */}
-      <Dialog open={!!publishErrors} onClose={() => setPublishErrors(null)} maxWidth="sm" fullWidth>
+      <Dialog open={!!publishErrors} onClose={() => setPublishErrors(null)} maxWidth="md" fullWidth>
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <ErrorOutlineOutlined color="error" />
-          Please fix the following before publishing
+          Please fix the following before publishing ({publishErrors?.length ?? 0})
         </DialogTitle>
-        <DialogContent dividers>
-          {publishErrors && Object.entries(getErrorCountBySection(publishErrors)).map(([section, count]) => (
-            <Box key={section} sx={{ mb: 2 }}>
-              <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 0.5 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{section}</Typography>
-                <Chip label={count} size="small" color="error" />
-              </Stack>
-              <List dense disablePadding>
-                {publishErrors.filter(e => e.section === section).map((e, i) => (
-                  <ListItem key={i} sx={{ py: 0.25 }}>
-                    <ListItemIcon sx={{ minWidth: 28 }}>
-                      <ErrorOutlineOutlined fontSize="small" color="error" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={e.field}
-                      secondary={e.message}
-                      primaryTypographyProps={{ fontSize: '0.875rem', fontWeight: 500 }}
-                      secondaryTypographyProps={{ fontSize: '0.8rem' }}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            </Box>
-          ))}
+        <DialogContent dividers sx={{ maxHeight: '60vh' }}>
+          {publishErrors && Object.entries(getErrorCountBySection(publishErrors)).map(([section, count]) => {
+            const jumpTo = () => {
+              setPublishErrors(null);
+              if ((PERMISSION_SUBS as readonly string[]).includes(section)) {
+                setTopTab('permissions');
+                setSub(section as PermissionSub);
+              } else if (section.startsWith('Rules')) {
+                setTopTab('rules');
+              } else if (section === 'Pricing') {
+                setTopTab('pricing');
+              } else if (section === 'Application Form') {
+                setTopTab('application-form');
+              }
+            };
+            return (
+              <Box key={section} sx={{ mb: 2, p: 1.5, borderRadius: 1, border: '1px solid #F5C6C6', bgcolor: '#FFF5F5', cursor: 'pointer', '&:hover': { bgcolor: '#FFEEEE' } }} onClick={jumpTo}>
+                <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#C62828' }}>{section}</Typography>
+                    <Chip label={count} size="small" color="error" />
+                  </Stack>
+                  <Typography variant="caption" sx={{ color: tokens.NAVY, fontWeight: 600 }}>Go to section →</Typography>
+                </Stack>
+                <List dense disablePadding>
+                  {publishErrors.filter(e => e.section === section).map((e, i) => (
+                    <ListItem key={i} sx={{ py: 0.25 }}>
+                      <ListItemIcon sx={{ minWidth: 28 }}>
+                        <ErrorOutlineOutlined fontSize="small" color="error" />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={e.field}
+                        secondary={e.message}
+                        primaryTypographyProps={{ fontSize: '0.875rem', fontWeight: 500 }}
+                        secondaryTypographyProps={{ fontSize: '0.8rem' }}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </Box>
+            );
+          })}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setPublishErrors(null)} variant="contained">OK</Button>
