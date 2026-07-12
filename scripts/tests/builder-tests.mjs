@@ -11,10 +11,27 @@ const BASE = 'http://localhost:5173';
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const results = [];
-function record(id, name, passed, detail = '') {
-  results.push({ id, name, passed, detail });
+let currentPage = null; // set by runner
+const path = await import('node:path');
+const url = await import('node:url');
+const fs = await import('node:fs');
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
+const SHOTS_DIR = path.resolve(__dirname, '..', '..', 'test-results', 'screenshots');
+fs.mkdirSync(SHOTS_DIR, { recursive: true });
+
+async function snap(page, id) {
+  const file = `${id.replace(/[^A-Za-z0-9._-]/g, '_')}.png`;
+  const abs = path.join(SHOTS_DIR, file);
+  try {
+    await page.screenshot({ path: abs, fullPage: false });
+    return `screenshots/${file}`;
+  } catch { return ''; }
+}
+
+function record(id, name, passed, detail = '', shot = '') {
+  results.push({ id, name, passed, detail, shot });
   const icon = passed ? '✅' : '❌';
-  console.log(`${icon} ${id} — ${name}${detail ? `\n   ${detail}` : ''}`);
+  console.log(`${icon} ${id} — ${name}${detail ? `\n   ${detail}` : ''}${shot ? `\n   📸 ${shot}` : ''}`);
 }
 
 async function resetBuilderStorage(page) {
@@ -52,7 +69,8 @@ async function testUS155975(page) {
 
   const dialog = page.locator('.MuiDialog-root:visible');
   const dialogOpen = (await dialog.count()) > 0;
-  record('US-155975.ac1', 'Dialog opens on Publish with empty form', dialogOpen);
+  const shotDialog = dialogOpen ? await snap(page, 'US-155975.ac1.dialog') : '';
+  record('US-155975.ac1', 'Dialog opens on Publish with empty form', dialogOpen, '', shotDialog);
   if (!dialogOpen) return;
 
   const title = await dialog.locator('.MuiDialogTitle-root').innerText();
@@ -63,8 +81,10 @@ async function testUS155975(page) {
   const sections = (await dialog.locator('.MuiTypography-subtitle2').allTextContents()).map((s) => s.trim());
   const required = ['Basic Information', 'General Settings', 'Pricing', 'Application Form'];
   const missing = required.filter((s) => !sections.includes(s));
+  const shotSections = await snap(page, 'US-155975.ac3.sections');
   record('US-155975.ac3', 'Dialog lists every failing section', missing.length === 0,
-    `sections=${JSON.stringify(sections)}${missing.length ? `; missing=${JSON.stringify(missing)}` : ''}`);
+    `sections=${JSON.stringify(sections)}${missing.length ? `; missing=${JSON.stringify(missing)}` : ''}`,
+    shotSections);
 
   const fields = (await dialog.locator('.MuiListItemText-primary').allTextContents()).map((s) => s.trim());
   const requiredFields = ['Permission Name', 'Type', 'Group', 'Description'];
@@ -75,12 +95,14 @@ async function testUS155975(page) {
   await dialog.locator('.MuiTypography-subtitle2', { hasText: 'Pricing' }).click();
   await wait(500);
   const pricingTabAria = await page.getByRole('tab', { name: /pricing/i }).getAttribute('aria-selected');
+  const shotJump = await snap(page, 'US-155975.ac5.pricing-tab');
   record('US-155975.ac5', 'Clicking section jumps to that tab', pricingTabAria === 'true',
-    `pricing aria-selected=${pricingTabAria}`);
+    `pricing aria-selected=${pricingTabAria}`, shotJump);
 
   const permsBadge = await page.getByRole('tab', { name: /permissions/i }).locator('.MuiChip-root').innerText().catch(() => '');
   const hasBadge = /^\d+$/.test(permsBadge.trim());
-  record('US-155975.ac6', 'Top tab shows error badge', hasBadge, `permissions badge="${permsBadge}"`);
+  const shotBadges = await snap(page, 'US-155975.ac6.badges');
+  record('US-155975.ac6', 'Top tab shows error badge', hasBadge, `permissions badge="${permsBadge}"`, shotBadges);
 
   const banner = await page.locator('.MuiAlert-standardError').first().innerText().catch(() => '');
   const bannerOk = /still need to be filled/i.test(banner);
@@ -100,7 +122,8 @@ async function testUS155975(page) {
   const title2 = await dlg2.locator('.MuiDialogTitle-root').innerText();
   const count2 = parseInt(title2.match(/\((\d+)\)/)?.[1] ?? '0', 10);
   const count1 = parseInt(title.match(/\((\d+)\)/)?.[1] ?? '0', 10);
-  record('US-155975.ac8', 'Filling fields reduces error count', count2 < count1, `before=${count1}, after=${count2}`);
+  const shotAfter = await snap(page, 'US-155975.ac8.count-reduced');
+  record('US-155975.ac8', 'Filling fields reduces error count', count2 < count1, `before=${count1}, after=${count2}`, shotAfter);
 
   await page.getByRole('button', { name: 'OK' }).click();
   await wait(300);
@@ -127,12 +150,14 @@ async function testUS188673(page) {
   await wait(600);
 
   const typeDisabled = await page.locator('[data-field="Type"] .Mui-disabled').first().count();
-  record('US-188673.ac1', 'Type disabled after publish', typeDisabled > 0);
+  const shotType = await snap(page, 'US-188673.ac1.type-disabled');
+  record('US-188673.ac1', 'Type disabled after publish', typeDisabled > 0, '', shotType);
 
   await page.getByText('General Settings', { exact: true }).click();
   await wait(400);
   const prefixDisabled = await page.locator('[data-field="Prefix"] input[disabled]').count();
-  record('US-188673.ac2', 'Prefix disabled after publish', prefixDisabled > 0);
+  const shotPrefix = await snap(page, 'US-188673.ac2.prefix-disabled');
+  record('US-188673.ac2', 'Prefix disabled after publish', prefixDisabled > 0, '', shotPrefix);
 
   const lockCaption = await page.locator('[data-field="Prefix"]').innerText();
   const hasNote = /cannot be changed after the permission is published/i.test(lockCaption);
@@ -155,8 +180,9 @@ async function testUS188673(page) {
   await wait(800);
   const toastText = await page.locator('.MuiSnackbar-root, .MuiAlert-root').last().innerText().catch(() => '');
   const dupBlocked = /prefix.*already used|unique across permission types/i.test(toastText);
+  const shotDup = await snap(page, 'US-188673.ac4.duplicate-toast');
   record('US-188673.ac4', 'Duplicate prefix across types blocked', dupBlocked,
-    `toast="${toastText.slice(0, 200).replace(/\n/g, ' ')}"`);
+    `toast="${toastText.slice(0, 200).replace(/\n/g, ' ')}"`, shotDup);
 
   // Same prefix within SAME type — allowed
   await page.getByText('Basic Information', { exact: true }).click();
@@ -169,8 +195,9 @@ async function testUS188673(page) {
   await wait(1000);
   const toast2 = await page.locator('.MuiSnackbar-root, .MuiAlert-root').last().innerText().catch(() => '');
   const sameTypeOk = !/prefix.*already used/i.test(toast2);
+  const shotSame = await snap(page, 'US-188673.ac5.same-type-ok');
   record('US-188673.ac5', 'Same prefix within same type allowed', sameTypeOk,
-    `toast="${toast2.slice(0, 200).replace(/\n/g, ' ')}"`);
+    `toast="${toast2.slice(0, 200).replace(/\n/g, ' ')}"`, shotSame);
 
   // Prefix normalization: uppercase alphanumeric ≤10 chars
   await page.goto(`${BASE}/builder/new`);
@@ -181,10 +208,9 @@ async function testUS188673(page) {
   await page.locator('[data-field="Prefix"] input').fill('ab-cd 12$3EXTRA-TRUNCATED');
   await wait(200);
   const normalized = await page.locator('[data-field="Prefix"] input').inputValue();
-  // Assert format rules (uppercase, alphanumeric only, ≤10 chars) — not exact length,
-  // because Playwright fill interacts with native maxLength attr differently across builds.
   const ok = /^[A-Z0-9]+$/.test(normalized) && normalized.length > 0 && normalized.length <= 10;
-  record('US-188673.ac6', 'Prefix normalized (uppercase alphanumeric ≤10)', ok, `got="${normalized}"`);
+  const shotNorm = await snap(page, 'US-188673.ac6.prefix-normalized');
+  record('US-188673.ac6', 'Prefix normalized (uppercase alphanumeric ≤10)', ok, `got="${normalized}"`, shotNorm);
 }
 
 // Runner ─────────────────────────────────────────────────────────────────────
@@ -223,10 +249,6 @@ async function testUS188673(page) {
   }
 
   // ─── Write report files ───────────────────────────────────────────────────
-  const fs = await import('node:fs');
-  const path = await import('node:path');
-  const url = await import('node:url');
-  const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
   const outDir = path.resolve(__dirname, '..', '..', 'test-results');
   fs.mkdirSync(outDir, { recursive: true });
 
@@ -258,15 +280,15 @@ async function testUS188673(page) {
   fs.writeFileSync(path.join(outDir, 'builder-report.xml'), xml);
 
   // HTML
-  const rowHtml = (r) => `<tr class="${r.passed ? 'p' : 'f'}"><td>${r.id}</td><td>${r.passed ? '✅' : '❌'}</td><td>${escapeXml(r.name)}</td><td><code>${escapeXml(r.detail || '')}</code></td></tr>`;
+  const rowHtml = (r) => `<tr class="${r.passed ? 'p' : 'f'}"><td>${r.id}</td><td>${r.passed ? '✅' : '❌'}</td><td>${escapeXml(r.name)}</td><td><code>${escapeXml(r.detail || '')}</code></td><td>${r.shot ? `<a href="${r.shot}" target="_blank"><img src="${r.shot}" class="thumb"/></a>` : ''}</td></tr>`;
   const storiesHtml = Object.entries(byStory).map(([story, s]) => `
     <section>
       <h2>${story} <span class="pill ${s.fail === 0 ? 'ok' : 'bad'}">${s.pass}/${s.items.length}</span></h2>
-      <table><thead><tr><th>ID</th><th></th><th>Assertion</th><th>Detail</th></tr></thead><tbody>${s.items.map(rowHtml).join('')}</tbody></table>
+      <table><thead><tr><th>ID</th><th></th><th>Assertion</th><th>Detail</th><th>Screenshot</th></tr></thead><tbody>${s.items.map(rowHtml).join('')}</tbody></table>
     </section>`).join('');
   const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>Builder Test Report</title>
 <style>
-body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:2rem;color:#1F2937;max-width:1200px}
+body{font-family:-apple-system,Segoe UI,Roboto,sans-serif;margin:2rem;color:#1F2937;max-width:1400px}
 h1{font-size:1.75rem;margin:0 0 0.5rem}
 .summary{background:#F4F6F9;border:1px solid #E5E7EB;border-radius:8px;padding:1rem;margin-bottom:1.5rem}
 .pill{display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.75rem;font-weight:700;vertical-align:middle}
@@ -278,6 +300,8 @@ th{background:#F9FAFB;font-weight:600}
 tr.p td:nth-child(2){color:#166534}
 tr.f{background:#FEF2F2}
 code{background:#F3F4F6;padding:1px 4px;border-radius:3px;font-size:0.75rem}
+img.thumb{width:220px;height:auto;border:1px solid #D1D5DB;border-radius:4px;cursor:zoom-in;transition:transform 0.15s}
+img.thumb:hover{transform:scale(1.5);z-index:10;position:relative;box-shadow:0 8px 24px rgba(0,0,0,0.25)}
 </style></head>
 <body>
 <h1>Builder Test Report</h1>
