@@ -44,7 +44,20 @@ function usePersistentState<T>(key: string, initial: T): [T, (v: T | ((p: T) => 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(key);
-      setState(raw ? { ...(initial as object), ...JSON.parse(raw) } as T : initial);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        // Only merge when both sides are plain objects. For primitives / arrays,
+        // use the parsed value directly — spreading a string would produce a
+        // character-index object like {"0":"£"}.
+        const isPlainObject = (v: any) => v && typeof v === 'object' && !Array.isArray(v);
+        if (isPlainObject(initial) && isPlainObject(parsed)) {
+          setState({ ...(initial as any), ...parsed } as T);
+        } else {
+          setState(parsed as T);
+        }
+      } else {
+        setState(initial);
+      }
     } catch { /* ignore */ }
     setHydrated(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -418,72 +431,107 @@ export function PaymentSettingsSection({ permissionId, showErrors, error }: SubS
 }
 
 // ═════════════════════════════════════════════════════════════════════════
-//   DISCOUNT SETTINGS
+//   DISCOUNT SETTINGS — US-25058
 // ═════════════════════════════════════════════════════════════════════════
-type DiscountRow = { id: string; name: string; type: 'percentage' | 'fixed'; amount: string; criteria: string; active: boolean };
+
+/**
+ * US-25058 — Discount Settings has two mandatory numeric fields
+ * (Blue Badge discount, Pension discount), each with a Percentage /
+ * Currency radio next to it. Screen is always editable. Percentage
+ * accepts 0–100 with one decimal; Currency accepts 0–1000 with two.
+ * Draft has no validation.
+ */
+type DiscountKind = 'percentage' | 'currency';
+type DiscountFieldState = { value: string; kind: DiscountKind };
+
+function validateDiscountValue(value: string, kind: DiscountKind): string | null {
+  const raw = (value || '').trim();
+  if (raw === '') return null; // blank allowed for drafts
+  if (kind === 'percentage') {
+    if (!/^\d+(\.\d)?$/.test(raw)) return 'Percentage must be between 0 and 100. ';
+    const n = Number(raw);
+    if (Number.isNaN(n) || n < 0 || n > 100) return 'Percentage must be between 0 and 100. ';
+    return null;
+  }
+  // currency
+  if (!/^\d+(\.\d{1,2})?$/.test(raw)) return 'Amount must be between 0 and 1000. ';
+  const n = Number(raw);
+  if (Number.isNaN(n) || n < 0 || n > 1000) return 'Amount must be between 0 and 1000. ';
+  return null;
+}
+
 export function DiscountSettingsSection({ permissionId }: SubSectionProps) {
-  type State = { enabled: boolean; rows: DiscountRow[] };
+  type State = { blueBadge: DiscountFieldState; pension: DiscountFieldState };
   const [s, set] = usePersistentState<State>(`prototype:discountSettings:${permissionId}`, {
-    enabled: true,
-    rows: [
-      { id: 'd-1', name: 'Concession (60+)',   type: 'percentage', amount: '20', criteria: 'Age >= 60',              active: true },
-      { id: 'd-2', name: 'Blue Badge holder',  type: 'percentage', amount: '50', criteria: 'Has valid Blue Badge',   active: true },
-      { id: 'd-3', name: 'Early renewal',      type: 'fixed',      amount: '10', criteria: 'Renewed 30+ days early', active: false },
-    ],
+    blueBadge: { value: '', kind: 'percentage' },
+    pension:   { value: '', kind: 'percentage' },
   });
-  const addRow = () => set((p) => ({ ...p, rows: [...p.rows, { id: `d-${Date.now()}`, name: '', type: 'percentage', amount: '', criteria: '', active: true }] }));
-  const rmRow  = (id: string) => set((p) => ({ ...p, rows: p.rows.filter((r) => r.id !== id) }));
-  const upRow  = (id: string, patch: Partial<DiscountRow>) => set((p) => ({ ...p, rows: p.rows.map((r) => r.id === id ? { ...r, ...patch } : r) }));
+  const [mnpsCurrency] = usePersistentState<string>('prototype:mnps-contract:currency', '£');
+  const patchField = (which: 'blueBadge' | 'pension', patch: Partial<DiscountFieldState>) =>
+    set((prev) => ({ ...prev, [which]: { ...prev[which], ...patch } }));
+
+  const blueBadgeError = validateDiscountValue(s.blueBadge.value, s.blueBadge.kind);
+  const pensionError   = validateDiscountValue(s.pension.value,   s.pension.kind);
+
+  const renderField = (
+    label: string,
+    which: 'blueBadge' | 'pension',
+    field: DiscountFieldState,
+    error: string | null,
+  ) => (
+    <FieldRow label={label} required>
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="flex-start" sx={{ width: '100%' }}>
+        <Stack sx={{ width: 220 }}>
+          <TextField
+            size="small"
+            placeholder={field.kind === 'percentage' ? '0.0' : '0.00'}
+            value={field.value}
+            onChange={(e) => patchField(which, { value: e.target.value })}
+            error={!!error}
+            InputProps={{
+              startAdornment: field.kind === 'currency'
+                ? <InputAdornment position="start" data-testid={`discount-${which}-currency-symbol`}>{mnpsCurrency || '£'}</InputAdornment>
+                : undefined,
+              endAdornment: field.kind === 'percentage'
+                ? <InputAdornment position="end">%</InputAdornment>
+                : undefined,
+            }}
+            inputProps={{ 'data-testid': `discount-${which}-input`, inputMode: 'decimal' } as any}
+          />
+          {error && (
+            <Typography variant="caption" data-testid={`discount-${which}-error`} sx={{ color: '#B91C1C', mt: 0.25 }}>
+              {error}
+            </Typography>
+          )}
+        </Stack>
+        <RadioGroup
+          row
+          value={field.kind}
+          onChange={(_, v) => patchField(which, { kind: v as DiscountKind })}
+        >
+          <FormControlLabel
+            value="percentage"
+            control={<Radio inputProps={{ 'data-testid': `discount-${which}-kind-percentage` } as any} />}
+            label="Percentage"
+          />
+          <FormControlLabel
+            value="currency"
+            control={<Radio inputProps={{ 'data-testid': `discount-${which}-kind-currency` } as any} />}
+            label="Currency"
+          />
+        </RadioGroup>
+      </Stack>
+    </FieldRow>
+  );
 
   return (
     <>
-      <SectionHeader title="Discount Settings" actions={
-        <FormControlLabel control={<Switch checked={s.enabled} onChange={(_, c) => set((p) => ({ ...p, enabled: c }))} />} label="Enable discounts" />
-      } />
-      {!s.enabled && <Alert severity="warning" sx={{ mb: 2 }}>Discounts are disabled — enable to configure rules.</Alert>}
-      {s.enabled && (
-        <>
-          <Alert severity="info" icon={<InfoOutlinedIcon />} sx={{ mb: 2 }}>
-            Discounts are applied at checkout when applicant data matches the criteria.
-          </Alert>
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 700 }}>Discount Name</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Type</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Amount</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Criteria</TableCell>
-                <TableCell sx={{ fontWeight: 700 }}>Active</TableCell>
-                <TableCell width={48} />
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {s.rows.map((r) => (
-                <TableRow key={r.id}>
-                  <TableCell><TextField size="small" fullWidth value={r.name} onChange={(e) => upRow(r.id, { name: e.target.value })} /></TableCell>
-                  <TableCell>
-                    <TextField select size="small" value={r.type} onChange={(e) => upRow(r.id, { type: e.target.value as DiscountRow['type'] })} sx={{ minWidth: 130 }}>
-                      <MenuItem value="percentage">Percentage</MenuItem>
-                      <MenuItem value="fixed">Fixed (£)</MenuItem>
-                    </TextField>
-                  </TableCell>
-                  <TableCell>
-                    <TextField size="small" value={r.amount} onChange={(e) => upRow(r.id, { amount: e.target.value })}
-                      InputProps={{
-                        startAdornment: r.type === 'fixed' ? <InputAdornment position="start">£</InputAdornment> : undefined,
-                        endAdornment:   r.type === 'percentage' ? <InputAdornment position="end">%</InputAdornment> : undefined,
-                      }} sx={{ maxWidth: 130 }} />
-                  </TableCell>
-                  <TableCell><TextField size="small" fullWidth value={r.criteria} onChange={(e) => upRow(r.id, { criteria: e.target.value })} /></TableCell>
-                  <TableCell><Switch checked={r.active} onChange={(_, c) => upRow(r.id, { active: c })} /></TableCell>
-                  <TableCell><IconButton size="small" color="error" onClick={() => rmRow(r.id)}><DeleteOutlineIcon fontSize="small" /></IconButton></TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <Button size="small" startIcon={<AddIcon />} onClick={addRow} sx={{ mt: 1.5 }}>Add Discount</Button>
-        </>
-      )}
+      <SectionHeader title="Discount Settings" />
+      <Alert severity="info" icon={<InfoOutlinedIcon />} sx={{ mb: 2 }}>
+        Enter the discount value for each category and choose whether it is a percentage or a currency amount. The screen is always editable and no validation is required to save as draft.
+      </Alert>
+      {renderField('Blue Badge Discount', 'blueBadge', s.blueBadge, blueBadgeError)}
+      {renderField('Pension Discount',    'pension',   s.pension,   pensionError)}
     </>
   );
 }
