@@ -6,7 +6,7 @@ import {
 import {
   SaveOutlined, UploadOutlined, MoreVertOutlined, ChevronRight, ErrorOutlineOutlined, AddOutlined,
 } from '@mui/icons-material';
-import { useMemo, useState, MouseEvent } from 'react';
+import { useEffect, useMemo, useState, MouseEvent } from 'react';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useToast } from '../../components/Toast';
 import { permissions, Permission } from '../../data/mock';
@@ -226,7 +226,28 @@ export function BuilderDesignPage() {
   // US-188673 — lock Type + Prefix after publish
   const isPublished = perm?.status === 'Published';
 
-  // US-164796 — track dirty state to trigger the unsaved-changes guard
+  // US-139062 — inline duplicate-name validation for Basic Information.
+  const nameInlineError = useMemo(() => {
+    const trimmed = name.trim().toLowerCase();
+    if (!trimmed) return '';
+    const dup = builderRows.some((r) => r.id !== id && r.name.trim().toLowerCase() === trimmed);
+    return dup ? 'The permission name already exists.' : '';
+  }, [name, builderRows, id]);
+
+  // US-139062 — Auto-save on tab / sub-section change.
+  // Only persists silently when all Basic Information mandatory fields are filled
+  // (so we don't overwrite an unsaved draft with invalid state).
+  const [prevNav, setPrevNav] = useState({ topTab, sub });
+  useEffect(() => {
+    if (prevNav.topTab === topTab && prevNav.sub === sub) return;
+    setPrevNav({ topTab, sub });
+    if (isNew) return; // don't auto-persist a brand-new entry
+    if (currentSnapshot === baseline) return; // nothing dirty
+    const canAutoSave = !!name.trim() && !!type.trim() && !!group.trim() && !!description.trim();
+    if (!canAutoSave) return;
+    persistEntry('Draft');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topTab, sub]);
   const [baseline, setBaseline] = useState(() => JSON.stringify({
     name: perm?.name ?? '', type: perm?.type ?? '', group: perm?.group ?? '',
     category: perm?.category ?? '', description: perm?.description ?? '', permissionLimit: '',
@@ -539,9 +560,12 @@ export function BuilderDesignPage() {
                   </Typography>
                   <Divider sx={{ my: 2 }} />
 
-                  <FormRow label="Permission Name" required error={fieldError('Basic Information', 'Permission Name')}>
-                    <TextField placeholder="Enter Permission Name" value={name} onChange={(e) => setName(e.target.value)}
-                      error={!!fieldError('Basic Information', 'Permission Name')} fullWidth />
+                  <FormRow label="Permission Name" required error={fieldError('Basic Information', 'Permission Name') || nameInlineError}>
+                    <TextField placeholder="Enter Permission Name" value={name}
+                      onChange={(e) => setName(e.target.value.slice(0, 100))}
+                      inputProps={{ maxLength: 100, 'data-testid': 'basic-name-input' }}
+                      helperText={`${name.length}/100`}
+                      error={!!(fieldError('Basic Information', 'Permission Name') || nameInlineError)} fullWidth />
                   </FormRow>
                   <FormRow label="Type" required error={fieldError('Basic Information', 'Type')}>
                     <Select displayEmpty value={type} onChange={(e) => { setType(e.target.value); setGroup(''); }} fullWidth
@@ -584,7 +608,9 @@ export function BuilderDesignPage() {
                     <TextField
                       placeholder="Enter Description"
                       value={description}
-                      onChange={(e) => setDescription(e.target.value)}
+                      onChange={(e) => setDescription(e.target.value.slice(0, 500))}
+                      inputProps={{ maxLength: 500, 'data-testid': 'basic-description-input' }}
+                      helperText={`${description.length}/500`}
                       multiline minRows={4}
                       fullWidth
                       error={!!fieldError('Basic Information', 'Description')}
