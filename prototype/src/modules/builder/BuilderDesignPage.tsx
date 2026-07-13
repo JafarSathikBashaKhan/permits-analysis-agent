@@ -105,6 +105,7 @@ export function BuilderDesignPage() {
     zoneRelated: 'zonal',
     zoneIds: [] as string[],
     changeZoneLimit: '', // US-180626 — visible only when group is Zonal.
+    freePermission: 'disable' as 'enable' | 'disable', // US-179406 — Free Permission toggle
     backOfficeUse: false,
     vatApplicable: false,
     hoursOfOperation: false,
@@ -252,6 +253,8 @@ export function BuilderDesignPage() {
 
   // US-155975 — validation errors dialog state
   const [publishErrors, setPublishErrors] = useState<ValidationError[] | null>(null);
+  // US-179406 — Free Permission confirmation prompt state.
+  const [freePermissionPrompt, setFreePermissionPrompt] = useState<null | 'enable' | 'disable'>(null);
 
   // US-161880 — Zone Mapping: persistent zone sets per permission.
   // Each set is { id, zoneIds[] }. Labelled Zone Set 1, Zone Set 2... by position.
@@ -1227,6 +1230,38 @@ export function BuilderDesignPage() {
                     </FormRow>
                   )}
 
+                  {/* US-179406 — Free Permission toggle. Enable/Disable via confirmation prompt. */}
+                  <FormRow label="Free Permission" optional info="When enabled, this permission is issued at zero cost even if pricing is configured. Configured pricing is preserved and reapplied if this option is later disabled.">
+                    <Stack spacing={0.5}>
+                      <RadioGroup
+                        row
+                        value={gs.freePermission}
+                        onChange={(e) => {
+                          const next = e.target.value as 'enable' | 'disable';
+                          // Only open the confirmation prompt if the value is actually changing.
+                          if (next !== gs.freePermission) setFreePermissionPrompt(next);
+                        }}
+                        data-testid="free-permission-radio-group"
+                      >
+                        <FormControlLabel
+                          value="enable"
+                          control={<Radio inputProps={{ 'data-testid': 'free-permission-enable' } as any} />}
+                          label="Enable"
+                        />
+                        <FormControlLabel
+                          value="disable"
+                          control={<Radio inputProps={{ 'data-testid': 'free-permission-disable' } as any} />}
+                          label="Disable"
+                        />
+                      </RadioGroup>
+                      {gs.freePermission === 'enable' && (
+                        <Typography data-testid="free-permission-status" variant="caption" sx={{ color: tokens.NAVY, fontWeight: 600 }}>
+                          Free Permission is enabled — this permission will be issued at zero cost. Configured pricing remains saved but is not applied.
+                        </Typography>
+                      )}
+                    </Stack>
+                  </FormRow>
+
 
                   <Typography data-testid="other-settings-heading" sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1rem', color: tokens.INK, mt: 2 }}>
                     Other Settings
@@ -1358,6 +1393,55 @@ export function BuilderDesignPage() {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setPublishErrors(null)} variant="contained">OK</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* US-179406 — Free Permission enable/disable confirmation prompt */}
+      <Dialog
+        open={!!freePermissionPrompt}
+        onClose={() => setFreePermissionPrompt(null)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{ 'data-testid': 'free-permission-dialog' } as any}
+      >
+        <DialogTitle sx={{ fontFamily: tokens.HEADING, fontWeight: 700 }}>
+          {freePermissionPrompt === 'enable' ? 'Enable Free Permission?' : 'Disable Free Permission?'}
+        </DialogTitle>
+        <DialogContent dividers>
+          <Typography data-testid="free-permission-dialog-message" sx={{ fontSize: '0.9rem', color: tokens.INK }}>
+            {freePermissionPrompt === 'enable'
+              ? 'Enabling this option will make this permission free, even if a pricing is configured. No charges will be applied.'
+              : 'Disabling this option will remove the free status from this permission. Configured pricing will now be applied.'}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            data-testid="free-permission-dialog-cancel"
+            onClick={() => setFreePermissionPrompt(null)}
+            sx={{ textTransform: 'none' }}
+          >
+            Cancel
+          </Button>
+          <Button
+            data-testid="free-permission-dialog-confirm"
+            variant="contained"
+            color={freePermissionPrompt === 'enable' ? 'primary' : 'error'}
+            onClick={() => {
+              if (freePermissionPrompt) {
+                gsSet('freePermission', freePermissionPrompt);
+                showToast(
+                  freePermissionPrompt === 'enable'
+                    ? 'Free Permission enabled. No charges will be applied.'
+                    : 'Free Permission disabled. Configured pricing will now be applied.',
+                  'success',
+                );
+              }
+              setFreePermissionPrompt(null);
+            }}
+            sx={{ textTransform: 'none' }}
+          >
+            {freePermissionPrompt === 'enable' ? 'Enable' : 'Disable'}
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
