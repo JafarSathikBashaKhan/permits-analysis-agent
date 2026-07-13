@@ -293,7 +293,7 @@ function ApplicationsPane() {
   return (
     <>
       <Stack direction="row" justifyContent="flex-end" sx={{ mb: 2 }}>
-        <Button variant="contained" onClick={() => setBuyNowOpen(true)}>Buy Now</Button>
+        <Button variant="contained" onClick={() => setBuyNowOpen(true)} data-testid="applicant-buy-now">Buy Now</Button>
       </Stack>
       <SimpleTable columns={['Reference','Permission','Type','Submitted','Status','Amount']} rows={rows} />
       <BuyNowDrawer open={buyNowOpen} onClose={() => setBuyNowOpen(false)} applicantId="AP-1000" />

@@ -204,6 +204,16 @@ export function BuyNowDrawer({
 
   return (
     <Drawer anchor="right" open={open} onClose={onClose} PaperProps={{ sx: { width: 900, maxWidth: '90vw' } }}>
+      {/* US-165020 — hidden diagnostic values for automated verification of the pricing formula */}
+      {selectedPerm && (
+        <>
+          <span style={{ display: 'none' }} data-testid="buynow-hidden-base">{pricing.basePrice.toFixed(2)}</span>
+          <span style={{ display: 'none' }} data-testid="buynow-hidden-admin-fee">{pricing.adminFee.toFixed(2)}</span>
+          <span style={{ display: 'none' }} data-testid="buynow-hidden-tier">{pricing.tierPrice.toFixed(2)}</span>
+          <span style={{ display: 'none' }} data-testid="buynow-hidden-diesel">{pricing.dieselSurcharge.toFixed(2)}</span>
+          <span style={{ display: 'none' }} data-testid="buynow-hidden-total">{pricing.total.toFixed(2)}</span>
+        </>
+      )}
       <Stack
         direction="row"
         alignItems="center"
@@ -255,6 +265,7 @@ export function BuyNowDrawer({
                 <Grid item xs={12} sm={6} key={p.id}>
                   <Card
                     variant="outlined"
+                    data-testid={`buynow-perm-card-${p.id}`}
                     sx={{
                       cursor: 'pointer',
                       transition: 'all 0.2s',
@@ -413,7 +424,7 @@ export function BuyNowDrawer({
                     <Stack spacing={1}>
                       <Stack direction="row" justifyContent="space-between">
                         <Typography variant="body2">Base Price:</Typography>
-                        <Typography variant="body2" fontWeight={600}>
+                        <Typography variant="body2" fontWeight={600} data-testid="buynow-base-price">
                           £{pricing.basePrice.toFixed(2)}
                         </Typography>
                       </Stack>
@@ -435,7 +446,7 @@ export function BuyNowDrawer({
                       )}
                       <Stack direction="row" justifyContent="space-between">
                         <Typography variant="body2">Admin Fee:</Typography>
-                        <Typography variant="body2" fontWeight={600}>
+                        <Typography variant="body2" fontWeight={600} data-testid="buynow-admin-fee">
                           £{pricing.adminFee.toFixed(2)}
                         </Typography>
                       </Stack>
@@ -444,7 +455,7 @@ export function BuyNowDrawer({
                         <Typography variant="h6" fontWeight={700}>
                           Total:
                         </Typography>
-                        <Typography variant="h6" fontWeight={700} color="primary.main">
+                        <Typography variant="h6" fontWeight={700} color="primary.main" data-testid="buynow-total">
                           £{pricing.total.toFixed(2)}
                         </Typography>
                       </Stack>
@@ -499,7 +510,7 @@ export function BuyNowDrawer({
               </Button>
             )}
             {activeStep < STEPS.length - 1 && (
-              <Button variant="contained" onClick={handleNext} endIcon={<ArrowForwardIcon />} disabled={!canProceed()}>
+              <Button variant="contained" onClick={handleNext} endIcon={<ArrowForwardIcon />} disabled={!canProceed()} data-testid="buynow-next">
                 Save and Continue
               </Button>
             )}

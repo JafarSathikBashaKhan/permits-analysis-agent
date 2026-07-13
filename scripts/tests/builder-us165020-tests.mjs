@@ -269,6 +269,67 @@ async function testErrorClearsWhenFixed(page) {
     errBefore && !errAfter, `before=${errBefore} after=${errAfter}`);
 }
 
+async function testExampleScenarioBase25AdminFee5Total30(page) {
+  // End-to-end AC example scenario:
+  //   Base cost £25 + Admin fee £5 = Total £30 at checkout.
+  await page.goto(BASE);
+  await page.waitForLoadState('networkidle');
+  await page.evaluate(() => {
+    // 1) Seed a Published permission with basePrice=25, adminFee=5, type=Permit.
+    const perms = [{
+      id: 'P-PARKINGBAY',
+      name: 'Parking Bay Permission',
+      type: 'Permit',
+      group: 'City Centre',
+      category: 'Resident',
+      status: 'Published',
+      prefix: 'PB',
+      description: 'AC scenario permission',
+      price: 25,
+      version: 1,
+      lastUpdated: '2026-07-13',
+      createdBy: 'QA',
+      zones: 1,
+      documents: 0,
+      basePrice: 25,
+      adminFee: 5,
+    }];
+    localStorage.setItem('prototype:builder:list:rows', JSON.stringify(perms));
+    // 2) Ensure tier pricing + diesel surcharge are OFF so the total is exactly base + admin.
+    localStorage.setItem('prototype:contract-settings:state', JSON.stringify({
+      tierPricing: false, dieselSurcharge: false,
+    }));
+  });
+  // 3) Go to Applicants and open the first applicant's detail view.
+  await page.goto(`${BASE}/applicants`);
+  await page.waitForLoadState('networkidle');
+  await wait(400);
+  // Row action: click the first "Edit" icon button to open detail (setSelected).
+  const editBtn = page.locator('button[title="Edit"]').first();
+  await editBtn.click();
+  await wait(300);
+  // 4) Switch to Applications tab.
+  await page.getByRole('tab', { name: 'Applications' }).click();
+  await wait(300);
+  // 5) Click Buy Now.
+  await page.getByTestId('applicant-buy-now').click();
+  await wait(500);
+  // 6) Ensure the "Permit" type is selected (default) and click the seeded card.
+  await page.getByTestId('buynow-perm-card-P-PARKINGBAY').click();
+  await wait(400);
+  // 7) Read the hidden pricing diagnostics — no need to navigate the stepper.
+  const base = (await page.getByTestId('buynow-hidden-base').textContent()).trim();
+  const admin = (await page.getByTestId('buynow-hidden-admin-fee').textContent()).trim();
+  const tier = (await page.getByTestId('buynow-hidden-tier').textContent()).trim();
+  const diesel = (await page.getByTestId('buynow-hidden-diesel').textContent()).trim();
+  const total = (await page.getByTestId('buynow-hidden-total').textContent()).trim();
+  const shot = await snap(page, 'US-165020.scenario.base25adminFee5total30');
+  const ok = base === '25.00' && admin === '5.00' && tier === '0.00' && diesel === '0.00' && total === '30.00';
+  record('US-165020.scenario.exampleBase25AdminFee5Total30',
+    'AC example: Base £25 + Admin £5 = Total £30 at checkout (Parking Bay Permission)',
+    ok, `base=${base} adminFee=${admin} tier=${tier} diesel=${diesel} total=${total}`, shot);
+}
+
 // ---------- Runner ----------
 
 (async () => {
@@ -289,6 +350,7 @@ async function testErrorClearsWhenFixed(page) {
     ['override persists',            testValueOverridesDefaultAndPersists],
     ['audit event on commit',        testAuditEventWrittenOnCommit],
     ['error clears when fixed',      testErrorClearsWhenFixed],
+    ['AC scenario base+admin=total', testExampleScenarioBase25AdminFee5Total30],
   ];
 
   for (const [name, fn] of suites) {
