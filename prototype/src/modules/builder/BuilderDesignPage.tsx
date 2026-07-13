@@ -100,7 +100,7 @@ export function BuilderDesignPage() {
     retentionDays: '7',
     prefix: '',
     termsAndConditions: '',
-    displayDescription: '',
+    displayDescription: 'Purchase your permission with ease',
     permitMode: 'both',
     backOfficeUse: false,
     vatApplicable: false,
@@ -899,14 +899,22 @@ export function BuilderDesignPage() {
                   </FormRow>
 
                   <FormRow label="Display Description" required error={fieldError('General Settings', 'Display Description')}>
-                    <TextField
-                      placeholder="Enter Display Description"
-                      value={gs.displayDescription}
-                      onChange={(e) => gsSet('displayDescription', e.target.value)}
-                      multiline minRows={3}
-                      fullWidth
-                      error={!!fieldError('General Settings', 'Display Description')}
-                    />
+                    <Stack spacing={0.5} sx={{ width: '100%' }}>
+                      <TextField
+                        placeholder="Enter Display Description"
+                        value={gs.displayDescription}
+                        onChange={(e) => gsSet('displayDescription', e.target.value.slice(0, 1000))}
+                        multiline minRows={3}
+                        fullWidth
+                        inputProps={{ maxLength: 1000, 'data-testid': 'display-description-input' }}
+                        error={!!fieldError('General Settings', 'Display Description')}
+                      />
+                      <Stack direction="row" justifyContent="flex-end">
+                        <Typography data-testid="display-description-counter" variant="caption" sx={{ color: (gs.displayDescription || '').length >= 1000 ? '#B42318' : tokens.MUTED }}>
+                          {(gs.displayDescription || '').length}/1000
+                        </Typography>
+                      </Stack>
+                    </Stack>
                   </FormRow>
 
                   <FormRow label="Permit Mode" required error={fieldError('General Settings', 'Permit Mode')}>
