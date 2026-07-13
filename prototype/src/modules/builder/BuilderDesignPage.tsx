@@ -139,18 +139,18 @@ export function BuilderDesignPage() {
         return raw ? (JSON.parse(raw) as T) : null;
       } catch { return null; }
     };
-    const payment = readJson<{ creditCard: boolean; debitCard: boolean; costCentre: boolean; scratchVoucher: boolean; freeOfCharge: boolean }>(`prototype:paymentSettings:${pid}`);
+    // US-135723 — Payment methods: 7 online + 4 offline, all default UNCHECKED.
+    // Publish requires at least one method to be checked; drafts allow zero.
+    const PAYMENT_METHOD_KEYS = [
+      'useRegisteredCard', 'payNow', 'payAfterApproval', 'payMonthly', 'payQuarterly', 'agentAssist', 'wallet',
+      'postalPayment', 'payOnCollection', 'invoice', 'costCentreBudget',
+    ] as const;
+    const payment = readJson<Record<string, boolean>>(`prototype:paymentSettings:${pid}`);
     const methods: string[] = [];
     if (payment) {
-      if (payment.creditCard)     methods.push('creditCard');
-      if (payment.debitCard)      methods.push('debitCard');
-      if (payment.costCentre)     methods.push('costCentre');
-      if (payment.scratchVoucher) methods.push('scratchVoucher');
-      if (payment.freeOfCharge)   methods.push('freeOfCharge');
-    } else {
-      // First-visit default in PaymentSettingsSection has credit + debit enabled.
-      methods.push('creditCard', 'debitCard');
+      for (const k of PAYMENT_METHOD_KEYS) if (payment[k]) methods.push(k);
     }
+    // Draft with zero methods is allowed by design — do NOT seed defaults here.
 
     const docs = readJson<{ rows: Array<{ name?: string }> }>(`prototype:documentTypes:${pid}`);
     const documentTypes = (docs?.rows ?? []).filter((r) => (r.name || '').trim().length > 0);

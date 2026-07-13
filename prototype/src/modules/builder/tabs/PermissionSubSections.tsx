@@ -266,42 +266,101 @@ export function PermissionLabelSection({ permissionId }: SubSectionProps) {
 // ═════════════════════════════════════════════════════════════════════════
 //   PAYMENT SETTINGS
 // ═════════════════════════════════════════════════════════════════════════
+
+/**
+ * US-135723 — Payment Settings: pre-defined methods grouped into
+ * Online and Offline. Save-as-draft allows any/all unchecked; publish
+ * requires at least one method (validation lives in publishValidation.ts).
+ */
+const ONLINE_PAYMENT_METHODS = [
+  { key: 'useRegisteredCard', label: 'Use Registered Card', info: 'Charge the card the applicant has already saved to their profile — no card entry required at checkout.' },
+  { key: 'payNow',            label: 'Pay Now',             info: 'Applicant pays the full amount by card at the point of application.' },
+  { key: 'payAfterApproval',  label: 'Pay After Approval',  info: 'Payment is only collected once the application has been reviewed and approved by the back office.' },
+  { key: 'payMonthly',        label: 'Pay Monthly',         info: 'Split the total into equal monthly instalments collected automatically each month.' },
+  { key: 'payQuarterly',      label: 'Pay Quarterly',       info: 'Split the total into four instalments collected every three months over the permission term.' },
+  { key: 'agentAssist',       label: 'Agent Assist',        info: 'A back-office agent takes payment on behalf of the applicant (phone / counter transaction).' },
+  { key: 'wallet',            label: 'Wallet',              info: 'Applicant pays from a pre-loaded wallet balance held against their account.' },
+] as const;
+const OFFLINE_PAYMENT_METHODS = [
+  { key: 'postalPayment',    label: 'Postal Payment',        info: 'Applicant posts a cheque or postal order that is banked by the back office and reconciled manually.' },
+  { key: 'payOnCollection',  label: 'Pay on Collection',     info: 'Payment is taken in-person when the physical permit is collected from the office.' },
+  { key: 'invoice',          label: 'Invoice',               info: 'Applicant is billed via an invoice sent by post or email and settles it out of band.' },
+  { key: 'costCentreBudget', label: 'Cost Centre / Budget Code', info: 'Charge is booked against an internal cost centre or budget code — no cash handling required.' },
+] as const;
+const ALL_PAYMENT_METHODS = [...ONLINE_PAYMENT_METHODS, ...OFFLINE_PAYMENT_METHODS];
+type PaymentMethodKey =
+  | typeof ONLINE_PAYMENT_METHODS[number]['key']
+  | typeof OFFLINE_PAYMENT_METHODS[number]['key'];
+
 export function PaymentSettingsSection({ permissionId, showErrors, error }: SubSectionProps) {
-  type State = {
-    creditCard: boolean; debitCard: boolean; costCentre: boolean; scratchVoucher: boolean; freeOfCharge: boolean;
+  type State = Record<PaymentMethodKey, boolean> & {
     paymentMode: 'immediate' | 'invoice' | 'onApproval';
     invoiceDays: string;
     partialPaymentAllowed: boolean;
   };
-  const [s, set] = usePersistentState<State>(`prototype:paymentSettings:${permissionId}`, {
-    creditCard: true, debitCard: true, costCentre: false, scratchVoucher: false, freeOfCharge: false,
-    paymentMode: 'immediate', invoiceDays: '14', partialPaymentAllowed: false,
-  });
+  const defaultState = ALL_PAYMENT_METHODS.reduce<Partial<State>>(
+    (acc, m) => { (acc as any)[m.key] = false; return acc; },
+    { paymentMode: 'immediate', invoiceDays: '14', partialPaymentAllowed: false },
+  ) as State;
+  const [s, set] = usePersistentState<State>(`prototype:paymentSettings:${permissionId}`, defaultState);
   const patch = (p: Partial<State>) => set((prev) => ({ ...prev, ...p }));
-  const hasMethods = s.creditCard || s.debitCard || s.costCentre || s.scratchVoucher || s.freeOfCharge;
+  const hasMethods = ALL_PAYMENT_METHODS.some((m) => (s as any)[m.key]);
   const methodsError = showErrors && !hasMethods
     ? (error || 'At least one payment method is required to publish this permission')
     : null;
+
+  const renderGroup = (
+    title: string,
+    testidPrefix: 'online' | 'offline',
+    methods: readonly { key: string; label: string; info: string }[],
+  ) => (
+    <Box sx={{ mb: 2 }} data-testid={`payment-group-${testidPrefix}`}>
+      <Typography variant="subtitle2" sx={{ fontWeight: 700, color: tokens.INK, mb: 0.5 }}>
+        {title}
+      </Typography>
+      <Stack>
+        {methods.map((m) => (
+          <Box key={m.key} sx={{ borderTop: '1px solid #EEF1F5', py: 0.75 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={!!(s as any)[m.key]}
+                  onChange={(_, c) => patch({ [m.key]: c } as any)}
+                  inputProps={{ 'data-testid': `payment-method-${m.key}` } as any}
+                />
+              }
+              label={
+                <Stack>
+                  <Typography variant="body2" fontWeight={600}>{m.label}</Typography>
+                  <Typography variant="caption" sx={{ color: tokens.MUTED }} data-testid={`payment-method-info-${m.key}`}>
+                    {m.info}
+                  </Typography>
+                </Stack>
+              }
+              sx={{ alignItems: 'flex-start', m: 0 }}
+            />
+          </Box>
+        ))}
+      </Stack>
+    </Box>
+  );
 
   return (
     <>
       <SectionHeader title="Payment Settings" />
       {methodsError && (
-        <Alert severity="error" sx={{ mb: 2 }}>{methodsError}</Alert>
+        <Alert severity="error" sx={{ mb: 2 }} data-testid="payment-methods-error">{methodsError}</Alert>
       )}
       {!methodsError && (
         <Alert severity="info" icon={<InfoOutlinedIcon />} sx={{ mb: 2 }}>
-          Configure which payment methods this permission accepts and how charges are collected.
+          Select the payment methods applicants can use to pay for this permission. You can save the permission as draft with no methods selected, but at least one method is required before you can publish.
         </Alert>
       )}
 
       <FieldRow label="Accepted Payment Methods" required error={methodsError}>
-        <Stack>
-          <FormControlLabel control={<Checkbox checked={s.creditCard}     onChange={(_, c) => patch({ creditCard: c })} />}     label="Credit Card" />
-          <FormControlLabel control={<Checkbox checked={s.debitCard}      onChange={(_, c) => patch({ debitCard: c })} />}      label="Debit Card" />
-          <FormControlLabel control={<Checkbox checked={s.costCentre}     onChange={(_, c) => patch({ costCentre: c })} />}     label="Cost Centre / Purchase Order" />
-          <FormControlLabel control={<Checkbox checked={s.scratchVoucher} onChange={(_, c) => patch({ scratchVoucher: c })} />} label="Scratch Voucher" />
-          <FormControlLabel control={<Checkbox checked={s.freeOfCharge}   onChange={(_, c) => patch({ freeOfCharge: c })} />}   label="Free of Charge (£0.00)" />
+        <Stack sx={{ width: '100%' }}>
+          {renderGroup('Online Payments', 'online', ONLINE_PAYMENT_METHODS)}
+          {renderGroup('Offline Payments', 'offline', OFFLINE_PAYMENT_METHODS)}
         </Stack>
       </FieldRow>
 
