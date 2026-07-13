@@ -9,7 +9,7 @@ import {
 import { useEffect, useMemo, useState, MouseEvent } from 'react';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import { useToast } from '../../components/Toast';
-import { permissions, Permission } from '../../data/mock';
+import { permissions, zones as allZones, Permission } from '../../data/mock';
 import { tokens } from '../../theme';
 import { ApplicationFormTab } from './tabs/ApplicationFormTab';
 import { PricingConfigurationTab } from './tabs/PricingConfigurationTab';
@@ -102,6 +102,8 @@ export function BuilderDesignPage() {
     termsAndConditions: '',
     displayDescription: 'Purchase your permission with ease',
     permitMode: 'both',
+    zoneRelated: 'zonal',
+    zoneIds: [] as string[],
     backOfficeUse: false,
     vatApplicable: false,
     hoursOfOperation: false,
@@ -344,6 +346,14 @@ export function BuilderDesignPage() {
 
     // US-155975 — full mandatory-field validation before Publish.
     if (status === 'Published') {
+      // US-138267 — Zone Related: zonal + zero zones blocks Publish.
+      if (gs.zoneRelated === 'zonal' && (gs.zoneIds || []).length === 0) {
+        return {
+          ok: false,
+          error: 'Please select at least one zone',
+          errors: [{ section: 'General Settings', field: 'Zone Related', message: 'Please select at least one zone' }],
+        };
+      }
       const store = readComposedFromStorage();
       const composed = {
         name, type, group, category, description,
@@ -917,50 +927,116 @@ export function BuilderDesignPage() {
                     </Stack>
                   </FormRow>
 
-                  <FormRow label="Permit Mode" required error={fieldError('General Settings', 'Permit Mode')}>
-                    <Stack spacing={1}>
-                      <RadioGroup row value={gs.permitMode} onChange={(e) => gsSet('permitMode', e.target.value)}>
-                        <FormControlLabel value="virtual" control={<Radio />} label="Virtual Permit" sx={{ mr: 4 }} />
-                        <FormControlLabel value="physical" control={<Radio />} label="Physical Permit" sx={{ mr: 4 }} />
-                        <FormControlLabel value="both" control={<Radio />} label="Both" />
-                      </RadioGroup>
+                  <FormRow label="Permit Mode" required info="Select at least one delivery mode: Physical Permit and/or Virtual Permit. Both cannot be un-checked." error={fieldError('General Settings', 'Permit Mode')}>
+                    <Stack spacing={0.5}>
                       <Stack direction="row" spacing={4}>
                         <FormControlLabel
-                          control={<Checkbox checked={gs.backOfficeUse} onChange={(e) => gsSet('backOfficeUse', e.target.checked)} />}
-                          label="Back Office Use"
+                          control={
+                            <Checkbox
+                              data-testid="permit-mode-physical"
+                              checked={gs.permitMode === 'physical' || gs.permitMode === 'both'}
+                              onChange={(e) => {
+                                const physicalOn = e.target.checked;
+                                const virtualOn = gs.permitMode === 'virtual' || gs.permitMode === 'both';
+                                // Enforce min-1: if unchecking last, ignore the change.
+                                if (!physicalOn && !virtualOn) return;
+                                const next = physicalOn && virtualOn ? 'both' : (physicalOn ? 'physical' : 'virtual');
+                                gsSet('permitMode', next);
+                              }}
+                            />
+                          }
+                          label="Physical Permit"
                         />
                         <FormControlLabel
-                          control={<Checkbox checked={gs.vatApplicable} onChange={(e) => gsSet('vatApplicable', e.target.checked)} />}
-                          label="VAT Applicable"
-                        />
-                        <FormControlLabel
-                          control={<Checkbox checked={gs.hoursOfOperation} onChange={(e) => gsSet('hoursOfOperation', e.target.checked)} />}
-                          label="Hours of Operation"
+                          control={
+                            <Checkbox
+                              data-testid="permit-mode-virtual"
+                              checked={gs.permitMode === 'virtual' || gs.permitMode === 'both'}
+                              onChange={(e) => {
+                                const virtualOn = e.target.checked;
+                                const physicalOn = gs.permitMode === 'physical' || gs.permitMode === 'both';
+                                if (!virtualOn && !physicalOn) return;
+                                const next = virtualOn && physicalOn ? 'both' : (virtualOn ? 'virtual' : 'physical');
+                                gsSet('permitMode', next);
+                              }}
+                            />
+                          }
+                          label="Virtual Permit"
                         />
                       </Stack>
+                      <Typography data-testid="permit-mode-hint" variant="caption" sx={{ color: tokens.MUTED }}>
+                        At least one mode must remain selected.
+                      </Typography>
                     </Stack>
                   </FormRow>
 
+                  <FormRow label="Zone Related" required info="Choose whether this permission is tied to specific parking zones. When Zonal, pick one or more from the multi-select." error={gs.zoneRelated === 'zonal' && gs.zoneIds.length === 0 && showFieldErrors ? 'Please select at least one zone' : ''}>
+                    <Stack spacing={1}>
+                      <RadioGroup row value={gs.zoneRelated} onChange={(e) => gsSet('zoneRelated', e.target.value as 'zonal' | 'non-zonal')}>
+                        <FormControlLabel value="zonal" control={<Radio data-testid="zone-related-zonal" />} label="Zonal" sx={{ mr: 4 }} />
+                        <FormControlLabel value="non-zonal" control={<Radio data-testid="zone-related-non-zonal" />} label="Non-Zonal" />
+                      </RadioGroup>
+                      {gs.zoneRelated === 'zonal' && (
+                        <Stack spacing={0.5}>
+                          <Select
+                            multiple
+                            displayEmpty
+                            value={gs.zoneIds}
+                            onChange={(e) => gsSet('zoneIds', typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value as string[])}
+                            renderValue={(selected) => (selected as string[]).length === 0
+                              ? <em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select zones</em>
+                              : (selected as string[]).map((zid) => allZones.find((z) => z.id === zid)?.name || zid).join(', ')
+                            }
+                            SelectDisplayProps={{ 'data-testid': 'zone-multi-select' } as any}
+                            fullWidth
+                            error={gs.zoneIds.length === 0}
+                          >
+                            {allZones.map((z) => (
+                              <MenuItem key={z.id} value={z.id} data-testid={`zone-opt-${z.id}`}>
+                                <Checkbox checked={gs.zoneIds.includes(z.id)} />
+                                {z.name}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                          {gs.zoneIds.length === 0 && (
+                            <Typography data-testid="zone-required-error" variant="caption" sx={{ color: '#B42318' }}>
+                              Please select at least one zone
+                            </Typography>
+                          )}
+                        </Stack>
+                      )}
+                    </Stack>
+                  </FormRow>
+
+                  <Typography data-testid="other-settings-heading" sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1rem', color: tokens.INK, mt: 2 }}>
+                    Other Settings
+                  </Typography>
+                  <Divider sx={{ my: 1.5 }} />
+
                   <FormRow label="Other Settings" optional>
                     <Stack spacing={1}>
-                      <Stack direction="row" spacing={4}>
+                      <Stack direction="row" spacing={4} flexWrap="wrap">
                         <FormControlLabel
-                          control={<Checkbox checked={gs.enableExperianCheck} onChange={(e) => gsSet('enableExperianCheck', e.target.checked)} />}
-                          label="Enable Experian Check"
+                          control={<Checkbox data-testid="os-back-office" checked={gs.backOfficeUse} onChange={(e) => gsSet('backOfficeUse', e.target.checked)} />}
+                          label="Back-office Use"
                         />
                         <FormControlLabel
-                          control={<Checkbox checked={gs.businessName} onChange={(e) => gsSet('businessName', e.target.checked)} />}
+                          control={<Checkbox data-testid="os-vat" checked={gs.vatApplicable} onChange={(e) => gsSet('vatApplicable', e.target.checked)} />}
+                          label="VAT Applicable"
+                        />
+                        <FormControlLabel
+                          control={<Checkbox data-testid="os-hours" checked={gs.hoursOfOperation} onChange={(e) => gsSet('hoursOfOperation', e.target.checked)} />}
+                          label="Hours of Operation"
+                        />
+                        <FormControlLabel
+                          control={<Checkbox data-testid="os-business-name" checked={gs.businessName} onChange={(e) => gsSet('businessName', e.target.checked)} />}
                           label="Business Name"
                         />
                         <FormControlLabel
-                          control={<Checkbox checked={gs.businessAddress} onChange={(e) => gsSet('businessAddress', e.target.checked)} />}
-                          label="Business Address"
+                          control={<Checkbox data-testid="os-experian" checked={gs.enableExperianCheck} onChange={(e) => gsSet('enableExperianCheck', e.target.checked)} />}
+                          label="Enable Experian Check"
                         />
                       </Stack>
-                      <FormControlLabel
-                        control={<Checkbox checked={gs.commentBox} onChange={(e) => gsSet('commentBox', e.target.checked)} />}
-                        label="Comment Box"
-                      />
                     </Stack>
                   </FormRow>
 
