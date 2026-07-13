@@ -269,6 +269,21 @@ export function BuilderDesignPage() {
     return dup ? 'The permission name already exists.' : '';
   }, [name, builderRows, id]);
 
+  // US-135721 — live prefix validation.
+  //   * Required: empty prefix -> "This field is required".
+  //   * Cross-type duplicate within same contract -> exact AC message.
+  const prefixInlineError = useMemo(() => {
+    const raw = (gs.prefix || '').trim().toUpperCase();
+    if (!raw) return 'This field is required';
+    const dupCross = builderRows.some((r) =>
+      r.id !== id &&
+      String(r.prefix || '').trim().toUpperCase() === raw &&
+      String(r.type || '').trim().toLowerCase() !== String(type || '').trim().toLowerCase()
+    );
+    if (dupCross) return 'This prefix is already in use for another permission type';
+    return '';
+  }, [gs.prefix, builderRows, id, type]);
+
   // US-139062 — Auto-save on tab / sub-section change.
   // Only persists silently when all Basic Information mandatory fields are filled
   // (so we don't overwrite an unsaved draft with invalid state).
@@ -830,15 +845,15 @@ export function BuilderDesignPage() {
                     </Stack>
                   </FormRow>
 
-                  <FormRow label="Prefix" required info="Prefix will be prepended to every permit number (US-137749). Max 10 alphanumeric characters." error={fieldError('General Settings', 'Prefix')}>
+                  <FormRow label="Prefix" required info="Enter a unique alphanumeric prefix up to 10 characters. This prefix will appear at the start of the application number (e.g., 'RP' in RP-8XF93Z2K)." error={prefixInlineError || fieldError('General Settings', 'Prefix')}>
                     <Stack spacing={0.5} sx={{ width: '100%' }}>
                       <TextField
                         placeholder="Enter Prefix"
                         value={gs.prefix}
                         onChange={(e) => gsSet('prefix', e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10))}
                         disabled={isPublished}
-                        error={!!fieldError('General Settings', 'Prefix')}
-                        inputProps={{ maxLength: 10, style: { textTransform: 'uppercase', fontFamily: 'monospace' } }}
+                        error={!!prefixInlineError || !!fieldError('General Settings', 'Prefix')}
+                        inputProps={{ maxLength: 10, 'data-testid': 'prefix-input', style: { textTransform: 'uppercase', fontFamily: 'monospace' } }}
                         helperText={gs.prefix ? `Applications will be numbered like "${gs.prefix}-XXXXXXXX"` : ''}
                       />
                       {isPublished && (
