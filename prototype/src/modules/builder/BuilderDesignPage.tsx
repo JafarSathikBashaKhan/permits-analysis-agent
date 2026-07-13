@@ -20,6 +20,7 @@ import {
   DocumentTypeSettingsSection, MerchantSettingsSection, RenewalsAndRemindersSection,
   EmailTemplatesSection, VisitorPortalSettingsSection,
 } from './tabs/PermissionSubSections';
+import { SpecialEventSection } from './tabs/SpecialEventSection';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { BUILDER_ROWS_KEY } from './BuilderListPage';
 import { PERMISSION_TYPE_OPTIONS, PERMISSION_CATEGORY_OPTIONS, BUSINESS_RULES } from '../../constants/enums';
@@ -46,7 +47,7 @@ const seedGroups = (): Group[] => [];
 
 type TopTab = 'permissions' | 'rules' | 'pricing' | 'application-form' | 'custom-fields';
 
-const PERMISSION_SUBS = [
+const PERMISSION_SUBS_ALL = [
   'Basic Information',
   'General Settings',
   'Zone Mapping',
@@ -58,9 +59,10 @@ const PERMISSION_SUBS = [
   'Renewals and Reminders',
   'Email Templates',
   'Operation Criteria',
+  'Special Event',
   'Visitor Portal Settings',
 ] as const;
-type PermissionSub = typeof PERMISSION_SUBS[number];
+type PermissionSub = typeof PERMISSION_SUBS_ALL[number];
 
 export function BuilderDesignPage() {
   const { id } = useParams();
@@ -107,6 +109,12 @@ export function BuilderDesignPage() {
 
   // Permission limit (Basic Information)
   const [permissionLimit, setPermissionLimit] = useState('');
+
+  // US-143256 — 'Special Event' sub-section is visible only when the GS toggle is enabled.
+  const PERMISSION_SUBS = useMemo<readonly PermissionSub[]>(() =>
+    PERMISSION_SUBS_ALL.filter((s) => s !== 'Special Event' || gs.specialEvent === 'enable'),
+    [gs.specialEvent]
+  );
 
   // US-155975 — validation errors dialog state
   const [publishErrors, setPublishErrors] = useState<ValidationError[] | null>(null);
@@ -225,6 +233,13 @@ export function BuilderDesignPage() {
 
   // US-188673 — lock Type + Prefix after publish
   const isPublished = perm?.status === 'Published';
+
+  // US-143256 — if user is on Special Event sub and toggles it off, snap back to Basic Information.
+  useEffect(() => {
+    if (sub === 'Special Event' && gs.specialEvent !== 'enable') {
+      setSub('Basic Information');
+    }
+  }, [gs.specialEvent, sub]);
 
   // US-139062 — inline duplicate-name validation for Basic Information.
   const nameInlineError = useMemo(() => {
@@ -648,6 +663,7 @@ export function BuilderDesignPage() {
                       </Alert>
                     </>
                   )}
+                  {sub === 'Special Event'           && <SpecialEventSection            permissionId={id || 'default'} />}
                   {sub === 'Visitor Portal Settings' && <VisitorPortalSettingsSection  permissionId={id || 'default'} showErrors={showFieldErrors} />}
                 </>
               )}
