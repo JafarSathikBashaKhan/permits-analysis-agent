@@ -12,7 +12,7 @@ import { useToast } from '../../components/Toast';
 import { permissions, Permission } from '../../data/mock';
 import { tokens } from '../../theme';
 import { ApplicationFormTab } from './tabs/ApplicationFormTab';
-import { PricingTab } from './tabs/PricingTab';
+import { PricingConfigurationTab } from './tabs/PricingConfigurationTab';
 import { RulesTab } from './tabs/RulesTab';
 import { CustomFieldsTab } from './tabs/CustomFieldsTab';
 import {
@@ -871,10 +871,9 @@ export function BuilderDesignPage() {
           validationErrors={liveValidation.errors}
           permitMode={gs.permitMode}
         />}
-        {topTab === 'pricing' && <PricingTab
+        {topTab === 'pricing' && <PricingConfigurationTab
           permissionId={id || 'default'}
-          showErrors={showFieldErrors}
-          error={fieldError('Pricing', 'Pricing Configuration')}
+          permissionStatus={perm?.status || 'Draft'}
         />}
         {topTab === 'application-form' && <ApplicationFormTab
           permissionId={id || 'default'}
