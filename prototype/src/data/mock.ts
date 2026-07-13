@@ -9,6 +9,7 @@ export type Permission = {
   category: 'Scratch card' | 'Visitor' | 'Resident' | 'Disabled Bay' | 'Resident Exemptions';
   status: 'Draft' | 'Published';
   prefix?: string;
+  description?: string;
   price: number;
   version: number;
   lastUpdated: string;
@@ -21,13 +22,13 @@ export type Permission = {
 };
 
 export const permissions: Permission[] = [
-  { id: 'P-1001', name: 'City Centre Resident 2026', type: 'Resident', group: 'City Centre', category: 'Resident', status: 'Published', prefix: 'CCR', price: 120, version: 4, lastUpdated: '2026-06-24', createdBy: 'Jafar Basha', zones: 3, documents: 2 },
-  { id: 'P-1002', name: 'Visitor Book (25 hrs)',      type: 'Visitor',  group: 'Visitor Books', category: 'Visitor',  status: 'Published', prefix: 'VBK', price: 25,  version: 2, lastUpdated: '2026-06-14', createdBy: 'Jo Smith', zones: 5, documents: 0 },
-  { id: 'P-1003', name: 'Business Season 6mo',        type: 'Business', group: 'Business',      category: 'Resident', status: 'Draft',     prefix: 'BSN', price: 480, version: 1, lastUpdated: '2026-06-27', createdBy: 'Priya R.', zones: 2, documents: 1 },
-  { id: 'P-1004', name: 'Blue Badge Disabled Bay',    type: 'Permit',   group: 'Disabled',      category: 'Disabled Bay', status: 'Published', prefix: 'BBD', price: 0, version: 3, lastUpdated: '2026-05-30', createdBy: 'Jafar Basha', zones: 12, documents: 2 },
-  { id: 'P-1005', name: 'Contractor Weekly',          type: 'Business', group: 'Contractor',    category: 'Visitor',  status: 'Draft',     prefix: 'CTW', price: 60,  version: 1, lastUpdated: '2026-06-29', createdBy: 'Priya R.', zones: 1, documents: 0 },
-  { id: 'P-1006', name: 'Market Traders Licence',     type: 'Licence',  group: 'Market',        category: 'Resident Exemptions', status: 'Published', prefix: 'MTL', price: 200, version: 5, lastUpdated: '2026-04-12', createdBy: 'Jo Smith', zones: 1, documents: 3 },
-  { id: 'P-1007', name: 'Visitor Scratchcard Book',   type: 'Visitor',  group: 'Visitor Books', category: 'Scratch card', status: 'Published', prefix: 'VSC', price: 30, version: 2, lastUpdated: '2026-06-21', createdBy: 'Jafar Basha', zones: 8, documents: 0 },
+  { id: 'P-1001', name: 'City Centre Resident 2026', type: 'Resident', group: 'City Centre', category: 'Resident', status: 'Published', prefix: 'CCR', description: 'Annual resident permit for city centre zones.', price: 120, version: 4, lastUpdated: '2026-06-24', createdBy: 'Jafar Basha', zones: 3, documents: 2 },
+  { id: 'P-1002', name: 'Visitor Book (25 hrs)',      type: 'Visitor',  group: 'Visitor Books', category: 'Visitor',  status: 'Published', prefix: 'VBK', description: 'Prepaid visitor book redeemable in 25 hour increments.', price: 25,  version: 2, lastUpdated: '2026-06-14', createdBy: 'Jo Smith', zones: 5, documents: 0 },
+  { id: 'P-1003', name: 'Business Season 6mo',        type: 'Business', group: 'Business',      category: 'Resident', status: 'Draft',     prefix: 'BSN', description: 'Six-month business season permit.', price: 480, version: 1, lastUpdated: '2026-06-27', createdBy: 'Priya R.', zones: 2, documents: 1 },
+  { id: 'P-1004', name: 'Blue Badge Disabled Bay',    type: 'Permit',   group: 'Disabled',      category: 'Disabled Bay', status: 'Published', prefix: 'BBD', description: 'Blue badge holder disabled bay entitlement.', price: 0, version: 3, lastUpdated: '2026-05-30', createdBy: 'Jafar Basha', zones: 12, documents: 2 },
+  { id: 'P-1005', name: 'Contractor Weekly',          type: 'Business', group: 'Contractor',    category: 'Visitor',  status: 'Draft',     prefix: 'CTW', description: 'Weekly contractor permit for site works.', price: 60,  version: 1, lastUpdated: '2026-06-29', createdBy: 'Priya R.', zones: 1, documents: 0 },
+  { id: 'P-1006', name: 'Market Traders Licence',     type: 'Licence',  group: 'Market',        category: 'Resident Exemptions', status: 'Published', prefix: 'MTL', description: 'Licence for market traders operating in designated zones.', price: 200, version: 5, lastUpdated: '2026-04-12', createdBy: 'Jo Smith', zones: 1, documents: 3 },
+  { id: 'P-1007', name: 'Visitor Scratchcard Book',   type: 'Visitor',  group: 'Visitor Books', category: 'Scratch card', status: 'Published', prefix: 'VSC', description: 'Scratchcard style visitor book for occasional visits.', price: 30, version: 2, lastUpdated: '2026-06-21', createdBy: 'Jafar Basha', zones: 8, documents: 0 },
 ];
 
 export const permissionTypes = ['Resident', 'Visitor', 'Business', 'Permit', 'Licence'] as const;

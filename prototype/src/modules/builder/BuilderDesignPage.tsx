@@ -57,6 +57,7 @@ const PERMISSION_SUBS = [
   'Merchant Settings',
   'Renewals and Reminders',
   'Email Templates',
+  'Operation Criteria',
   'Visitor Portal Settings',
 ] as const;
 type PermissionSub = typeof PERMISSION_SUBS[number];
@@ -81,7 +82,7 @@ export function BuilderDesignPage() {
   const [type, setType] = useState<string>(perm?.type ?? '');
   const [group, setGroup] = useState<string>(perm?.group ?? '');
   const [category, setCategory] = useState<string>(perm?.category ?? '');
-  const [description, setDescription] = useState('');
+  const [description, setDescription] = useState(perm?.description ?? '');
 
   // Form state (General Settings)
   const [gs, setGs] = useState({
@@ -228,7 +229,7 @@ export function BuilderDesignPage() {
   // US-164796 — track dirty state to trigger the unsaved-changes guard
   const [baseline, setBaseline] = useState(() => JSON.stringify({
     name: perm?.name ?? '', type: perm?.type ?? '', group: perm?.group ?? '',
-    category: perm?.category ?? '', description: '', permissionLimit: '',
+    category: perm?.category ?? '', description: perm?.description ?? '', permissionLimit: '',
     gs: {
       specialEvent: 'disable', startDatePolicy: '', permitDaysSelection: 'disable',
       retentionDays: '90', prefix: '', termsAndConditions: '',
@@ -243,6 +244,18 @@ export function BuilderDesignPage() {
   // Shared persist function used by both Save Draft and the Unsaved Changes guard.
   const persistEntry = (status: 'Draft' | 'Published'): { ok: boolean; error?: string; errors?: ValidationError[] } => {
     const newId = isNew ? `P-${Date.now()}` : (id ?? `P-${Date.now()}`);
+
+    // US-135718 — Save Draft requires Basic Information mandatory fields to be filled.
+    if (status === 'Draft') {
+      const missing: ValidationError[] = [];
+      if (!name.trim())        missing.push({ section: 'Basic Information', field: 'Permission Name', message: 'This field is required' });
+      if (!type.trim())        missing.push({ section: 'Basic Information', field: 'Type',            message: 'This field is required' });
+      if (!group.trim())       missing.push({ section: 'Basic Information', field: 'Group',           message: 'This field is required' });
+      if (!description.trim()) missing.push({ section: 'Basic Information', field: 'Description',     message: 'This field is required' });
+      if (missing.length) {
+        return { ok: false, error: 'This field is required', errors: missing };
+      }
+    }
 
     // US-155975 — full mandatory-field validation before Publish.
     if (status === 'Published') {
@@ -285,6 +298,7 @@ export function BuilderDesignPage() {
       category: (category || 'Resident') as Permission['category'],
       status,
       prefix: gs.prefix?.trim().toUpperCase() || '',
+      description: description || perm?.description || '',
       price: 0,
       version: (perm?.version ?? 0) + 1,
       lastUpdated: new Date().toISOString().slice(0, 10),
@@ -331,18 +345,29 @@ export function BuilderDesignPage() {
             Cancel
           </Button>
           <Button
+            data-testid="save-draft-button"
             variant="outlined"
             startIcon={<SaveOutlined />}
             onClick={() => {
               const r = persistEntry('Draft');
               if (r.ok) showToast('Draft saved', 'success');
-              else showToast(r.error || 'Save failed', 'error');
+              else {
+                // Surface per-field "This field is required" errors on Basic Information.
+                if (r.errors?.length) {
+                  setShowFieldErrors(true);
+                  // Jump to Basic Information so the errors are visible.
+                  setTopTab('permissions');
+                  setSub('Basic Information');
+                }
+                showToast(r.error || 'Save failed', 'error');
+              }
             }}
             sx={{ fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}
           >
             Save Draft
           </Button>
           <Button
+            data-testid="publish-button"
             variant="contained"
             startIcon={<UploadOutlined />}
             onClick={() => {
@@ -468,7 +493,7 @@ export function BuilderDesignPage() {
         {topTab === 'permissions' && (
           <Stack direction="row" spacing={2.5} alignItems="stretch">
             {/* Left sub-nav */}
-            <Paper sx={{ width: 260, p: 1.25, alignSelf: 'flex-start' }}>
+            <Paper sx={{ width: 260, p: 1.25, alignSelf: 'flex-start' }} data-testid="permissions-subnav">
               <Stack spacing={0.25}>
                 {PERMISSION_SUBS.map((s) => {
                   const active = s === sub;
@@ -476,6 +501,8 @@ export function BuilderDesignPage() {
                   return (
                     <Box
                       key={s}
+                      data-testid={`subnav-${s.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+                      data-active={active ? 'true' : 'false'}
                       onClick={() => setSub(s)}
                       sx={{
                         cursor: 'pointer',
@@ -575,6 +602,26 @@ export function BuilderDesignPage() {
                   {sub === 'Merchant Settings'       && <MerchantSettingsSection       permissionId={id || 'default'} showErrors={showFieldErrors} />}
                   {sub === 'Renewals and Reminders'  && <RenewalsAndRemindersSection   permissionId={id || 'default'} showErrors={showFieldErrors} />}
                   {sub === 'Email Templates'         && <EmailTemplatesSection         permissionId={id || 'default'} showErrors={showFieldErrors} />}
+                  {sub === 'Operation Criteria'      && (
+                    <>
+                      <Typography data-testid="section-heading-operation-criteria" sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1.15rem', color: tokens.INK }}>
+                        Operation Criteria
+                      </Typography>
+                      <Divider sx={{ my: 2 }} />
+                      <Alert
+                        severity="info"
+                        icon={<ErrorOutlineOutlined sx={{ color: tokens.NAVY }} />}
+                        sx={{
+                          bgcolor: '#E3ECF7',
+                          color: tokens.INK,
+                          border: `1px solid #C7D6EA`,
+                          '& .MuiAlert-icon': { color: tokens.NAVY, alignItems: 'center' },
+                        }}
+                      >
+                        Operation criteria for this permission are inherited from the contract-level defaults. Contract admins can override them here when configured.
+                      </Alert>
+                    </>
+                  )}
                   {sub === 'Visitor Portal Settings' && <VisitorPortalSettingsSection  permissionId={id || 'default'} showErrors={showFieldErrors} />}
                 </>
               )}
