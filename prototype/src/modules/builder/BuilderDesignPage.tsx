@@ -4,7 +4,7 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions, List, ListItem, ListItemIcon, ListItemText, Chip,
 } from '@mui/material';
 import {
-  SaveOutlined, UploadOutlined, MoreVertOutlined, ChevronRight, ErrorOutlineOutlined, AddOutlined,
+  SaveOutlined, UploadOutlined, MoreVertOutlined, ChevronRight, ErrorOutlineOutlined, AddOutlined, DeleteOutline,
 } from '@mui/icons-material';
 import { useEffect, useMemo, useState, MouseEvent } from 'react';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
@@ -125,14 +125,55 @@ export function BuilderDesignPage() {
     PERMISSION_SUBS_ALL.filter((s) => {
       if (s === 'Special Event') return gs.specialEvent === 'enable';
       if (s === 'Special Event Properties Mapping') return gs.specialEvent === 'enable';
-      if (s === 'Zone Mapping') return gs.specialEvent !== 'enable';
+      if (s === 'Zone Mapping') return gs.specialEvent !== 'enable' && gs.zoneRelated === 'zonal';
       return true;
     }),
-    [gs.specialEvent]
+    [gs.specialEvent, gs.zoneRelated]
   );
 
   // US-155975 — validation errors dialog state
   const [publishErrors, setPublishErrors] = useState<ValidationError[] | null>(null);
+
+  // US-161880 — Zone Mapping: persistent zone sets per permission.
+  // Each set is { id, zoneIds[] }. Labelled Zone Set 1, Zone Set 2... by position.
+  type ZoneSet = { id: string; zoneIds: string[] };
+  const zoneSetsKey = `prototype:builder:${id ?? 'new'}:zoneSets`;
+  const [zoneSets, setZoneSets] = usePersistentState<ZoneSet[]>(zoneSetsKey, () => []);
+  // Mock "pricing configured" flags per zone set — synced from Pricing Configuration tab.
+  const zoneSetPricingKey = `prototype:builder:${id ?? 'new'}:zoneSetPricing`;
+  const [zoneSetPricing, setZoneSetPricing] = usePersistentState<Record<string, boolean>>(zoneSetPricingKey, () => ({}));
+  // In-edit pending-save error tracking per zone set (US-161880 "at least one zone" rule).
+  const [zoneSetSaveError, setZoneSetSaveError] = useState<Record<string, string>>({});
+  // Zones already consumed by OTHER sets (mutual exclusion helper).
+  const zonesConsumedByOtherSets = (currentSetId: string) => {
+    const used = new Set<string>();
+    for (const zs of zoneSets) {
+      if (zs.id === currentSetId) continue;
+      zs.zoneIds.forEach((z) => used.add(z));
+    }
+    return used;
+  };
+  const allMappedZoneIds = useMemo(() => {
+    const s = new Set<string>();
+    zoneSets.forEach((zs) => zs.zoneIds.forEach((z) => s.add(z)));
+    return s;
+  }, [zoneSets]);
+  const canAddZoneSet = gs.zoneIds.some((z) => !allMappedZoneIds.has(z));
+
+  // US-161880 — when a zone is removed from General Settings, prune it from any zone set.
+  useEffect(() => {
+    const pool = new Set(gs.zoneIds);
+    setZoneSets((prev) => {
+      let changed = false;
+      const next = prev.map((zs) => {
+        const filtered = zs.zoneIds.filter((z) => pool.has(z));
+        if (filtered.length !== zs.zoneIds.length) { changed = true; return { ...zs, zoneIds: filtered }; }
+        return zs;
+      });
+      return changed ? next : prev;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gs.zoneIds.join(',')]);
   // Sticky field-level errors: once the user attempts Publish, keep them visible
   // per-section (they auto-clear when the field is filled).
   const [showFieldErrors, setShowFieldErrors] = useState(false);
@@ -353,6 +394,24 @@ export function BuilderDesignPage() {
           error: 'Please select at least one zone',
           errors: [{ section: 'General Settings', field: 'Zone Related', message: 'Please select at least one zone' }],
         };
+      }
+      // US-161880 — Zone Mapping: zonal permission requires at least one zone set with at least one zone.
+      if (gs.zoneRelated === 'zonal' && gs.specialEvent !== 'enable') {
+        if (zoneSets.length === 0) {
+          return {
+            ok: false,
+            error: 'At least one zone set must be created.',
+            errors: [{ section: 'Zone Mapping', field: 'Zone Sets', message: 'At least one zone set must be created.' }],
+          };
+        }
+        const emptySet = zoneSets.find((zs) => zs.zoneIds.length === 0);
+        if (emptySet) {
+          return {
+            ok: false,
+            error: 'At least one zone must be mapped to the zone set. Changes cannot be saved otherwise.',
+            errors: [{ section: 'Zone Mapping', field: `Zone Set ${zoneSets.indexOf(emptySet) + 1}`, message: 'At least one zone must be mapped to the zone set. Changes cannot be saved otherwise.' }],
+          };
+        }
       }
       const store = readComposedFromStorage();
       const composed = {
@@ -733,16 +792,29 @@ export function BuilderDesignPage() {
                     <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1.15rem', color: tokens.INK }}>
                       Zone Mapping
                     </Typography>
-                    <Button
-                      variant="outlined"
-                      startIcon={<AddOutlined />}
-                      sx={{ fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}
+                    <Tooltip
+                      title={canAddZoneSet ? '' : 'All available zones are already mapped. Add more zones in General Settings to create another zone set.'}
                     >
-                      New Zone Set
-                    </Button>
+                      <span>
+                        <Button
+                          data-testid="new-zone-set-btn"
+                          variant="outlined"
+                          startIcon={<AddOutlined />}
+                          disabled={!canAddZoneSet}
+                          onClick={() => {
+                            const newSet: ZoneSet = { id: `zs-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, zoneIds: [] };
+                            setZoneSets((prev) => [...prev, newSet]);
+                          }}
+                          sx={{ fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}
+                        >
+                          New Zone Set
+                        </Button>
+                      </span>
+                    </Tooltip>
                   </Stack>
                   <Divider sx={{ my: 2 }} />
                   <Alert
+                    data-testid="zone-mapping-info"
                     severity="info"
                     icon={<ErrorOutlineOutlined sx={{ color: tokens.NAVY }} />}
                     sx={{
@@ -752,8 +824,145 @@ export function BuilderDesignPage() {
                       '& .MuiAlert-icon': { color: tokens.NAVY, alignItems: 'center' },
                     }}
                   >
-                    Zone limits for this permission are set to <strong>No Limit</strong> by default. If required, they can be configured by saving the permission as Draft.
+                    Group the zones you selected in <strong>General Settings</strong> into one or more <strong>Zone Sets</strong>. Each set will appear as its own tab in <strong>Pricing Configuration</strong>. At least one zone set (with at least one zone) is required to publish the permission. A zone selected in one set cannot be reused in another set of the same permission.
                   </Alert>
+
+                  {zoneSets.length === 0 && showFieldErrors && (
+                    <Typography data-testid="zone-sets-required-error" sx={{ mt: 2, color: '#B42318', fontSize: '0.85rem' }}>
+                      At least one zone set must be created.
+                    </Typography>
+                  )}
+
+                  <Stack spacing={2} sx={{ mt: 2 }}>
+                    {zoneSets.map((zs, idx) => {
+                      const consumed = zonesConsumedByOtherSets(zs.id);
+                      const availableForThisSet = gs.zoneIds.filter((zid) => !consumed.has(zid));
+                      const pricingConfigured = !!zoneSetPricing[zs.id];
+                      const saveErr = zoneSetSaveError[zs.id];
+                      return (
+                        <Box
+                          key={zs.id}
+                          data-testid={`zone-set-${idx + 1}`}
+                          sx={{ border: '1px solid #D1D5DB', borderRadius: 2, p: 2, bgcolor: '#FAFBFC' }}
+                        >
+                          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
+                            <Stack direction="row" spacing={1.5} alignItems="center">
+                              <Typography data-testid={`zone-set-label-${idx + 1}`} sx={{ fontWeight: 700, color: tokens.INK }}>
+                                Zone Set {idx + 1}
+                              </Typography>
+                              <Chip
+                                data-testid={`zone-set-pricing-status-${idx + 1}`}
+                                size="small"
+                                label={pricingConfigured ? 'Pricing Configured' : 'Pricing not configured'}
+                                sx={{
+                                  bgcolor: pricingConfigured ? '#DCFCE7' : '#FEF3C7',
+                                  color: pricingConfigured ? '#166534' : '#92400E',
+                                  fontWeight: 700,
+                                }}
+                              />
+                            </Stack>
+                            <Tooltip title={pricingConfigured ? 'This zone set has pricing configured. Remove its pricing before deleting.' : ''}>
+                              <span>
+                                <IconButton
+                                  data-testid={`zone-set-delete-${idx + 1}`}
+                                  disabled={pricingConfigured}
+                                  onClick={() => {
+                                    setZoneSets((prev) => prev.filter((s) => s.id !== zs.id));
+                                    setZoneSetSaveError((prev) => { const n = { ...prev }; delete n[zs.id]; return n; });
+                                  }}
+                                  size="small"
+                                  sx={{ color: pricingConfigured ? '#9CA3AF' : '#B42318' }}
+                                >
+                                  <DeleteOutline />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          </Stack>
+                          <Select
+                            multiple
+                            displayEmpty
+                            value={zs.zoneIds}
+                            onChange={(e) => {
+                              const raw = e.target.value;
+                              const next = typeof raw === 'string' ? raw.split(',') : (raw as string[]);
+                              // Enforce unique (Set already handles); enforce mutual exclusion with other sets.
+                              const cleaned = Array.from(new Set(next)).filter((z) => !consumed.has(z));
+                              setZoneSets((prev) => prev.map((s) => s.id === zs.id ? { ...s, zoneIds: cleaned } : s));
+                              // If user still has at least one zone selected, clear the save error.
+                              if (cleaned.length > 0 && saveErr) {
+                                setZoneSetSaveError((prev) => { const n = { ...prev }; delete n[zs.id]; return n; });
+                              }
+                              // If user tries to remove everything, flag it (but keep the empty selection so they can see).
+                              if (cleaned.length === 0) {
+                                setZoneSetSaveError((prev) => ({ ...prev, [zs.id]: 'At least one zone must be mapped to the zone set. Changes cannot be saved otherwise.' }));
+                              }
+                            }}
+                            renderValue={(selected) => (selected as string[]).length === 0
+                              ? <em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select zones</em>
+                              : (selected as string[]).map((zid) => allZones.find((z) => z.id === zid)?.name || zid).join(', ')
+                            }
+                            SelectDisplayProps={{ 'data-testid': `zone-set-select-${idx + 1}` } as any}
+                            fullWidth
+                            error={!!saveErr || (showFieldErrors && zs.zoneIds.length === 0)}
+                          >
+                            {availableForThisSet.length === 0 && zs.zoneIds.length === 0 && (
+                              <MenuItem disabled>No zones available — all are mapped to other sets</MenuItem>
+                            )}
+                            {gs.zoneIds.map((zid) => {
+                              const takenByOther = consumed.has(zid);
+                              return (
+                                <MenuItem
+                                  key={zid}
+                                  value={zid}
+                                  disabled={takenByOther}
+                                  data-testid={`zone-set-opt-${idx + 1}-${zid}`}
+                                >
+                                  <Checkbox checked={zs.zoneIds.includes(zid)} />
+                                  {allZones.find((z) => z.id === zid)?.name || zid}
+                                  {takenByOther && (
+                                    <Typography variant="caption" sx={{ ml: 1, color: tokens.MUTED, fontStyle: 'italic' }}>
+                                      (in another set)
+                                    </Typography>
+                                  )}
+                                </MenuItem>
+                              );
+                            })}
+                          </Select>
+                          {saveErr && (
+                            <Typography data-testid={`zone-set-error-${idx + 1}`} sx={{ mt: 0.5, color: '#B42318', fontSize: '0.8rem' }}>
+                              {saveErr}
+                            </Typography>
+                          )}
+                          {pricingConfigured && (
+                            <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                              <Button
+                                size="small"
+                                variant="text"
+                                data-testid={`zone-set-clear-pricing-${idx + 1}`}
+                                onClick={() => setZoneSetPricing((prev) => { const n = { ...prev }; delete n[zs.id]; return n; })}
+                                sx={{ textTransform: 'none', color: tokens.MUTED }}
+                              >
+                                Clear pricing (demo)
+                              </Button>
+                            </Stack>
+                          )}
+                          {!pricingConfigured && zs.zoneIds.length > 0 && (
+                            <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                              <Button
+                                size="small"
+                                variant="text"
+                                data-testid={`zone-set-mark-pricing-${idx + 1}`}
+                                onClick={() => setZoneSetPricing((prev) => ({ ...prev, [zs.id]: true }))}
+                                sx={{ textTransform: 'none', color: tokens.NAVY }}
+                              >
+                                Mark pricing configured (demo)
+                              </Button>
+                            </Stack>
+                          )}
+                        </Box>
+                      );
+                    })}
+                  </Stack>
                 </>
               )}
 
