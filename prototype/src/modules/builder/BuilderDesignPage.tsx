@@ -88,10 +88,14 @@ export function BuilderDesignPage() {
   const [category, setCategory] = useState<string>(perm?.category ?? '');
   const [description, setDescription] = useState(perm?.description ?? '');
 
-  // Form state (General Settings)
-  const [gs, setGs] = useState({
+  // Form state (General Settings) — persisted per-permission so Start Date Settings
+  // and other Overview fields survive reload (US-132390 persistence).
+  const gsKey = `prototype:builder:${id ?? 'new'}:gs`;
+  const [gs, setGs] = usePersistentState(gsKey, () => ({
     specialEvent: 'disable',
     startDatePolicy: '',
+    includeTime: false,
+    startDateDelay: '0',
     permitDaysSelection: 'disable',
     retentionDays: '90',
     prefix: '',
@@ -106,7 +110,7 @@ export function BuilderDesignPage() {
     businessAddress: false,
     commentBox: false,
     adminFee: '',
-  });
+  }));
   const gsSet = <K extends keyof typeof gs>(k: K, v: (typeof gs)[K]) => setGs((p) => ({ ...p, [k]: v }));
 
   // Permission limit (Basic Information)
@@ -732,14 +736,63 @@ export function BuilderDesignPage() {
                     </RadioGroup>
                   </FormRow>
 
-                  <FormRow label="Start Date Policy" required error={fieldError('General Settings', 'Start Date Settings')}>
+                  <Typography data-testid="start-date-settings-heading" sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1rem', color: tokens.INK, mt: 1 }}>
+                    Start Date Settings
+                  </Typography>
+                  <Divider sx={{ my: 1.5 }} />
+
+                  <FormRow label="Start Date Policy" required info="Start Date Choosing Method — determines when the permission becomes active." error={fieldError('General Settings', 'Start Date Settings')}>
                     <Select displayEmpty value={gs.startDatePolicy} onChange={(e) => gsSet('startDatePolicy', e.target.value)} fullWidth
+                      inputProps={{ 'data-testid': 'start-date-policy-select' }}
                       error={!!fieldError('General Settings', 'Start Date Settings')}>
                       <MenuItem value=""><em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select</em></MenuItem>
-                      <MenuItem value="immediate">Immediate</MenuItem>
-                      <MenuItem value="next-day">Next Day</MenuItem>
-                      <MenuItem value="custom">Custom Date</MenuItem>
+                      <MenuItem value="issue-now" data-testid="start-date-policy-opt-issue-now">Issue Now</MenuItem>
+                      <MenuItem value="backdated-month" data-testid="start-date-policy-opt-backdated-month">Backdated to Start of the Month</MenuItem>
+                      <MenuItem value="backdated-application" data-testid="start-date-policy-opt-backdated-application">Backdated to Start of the Application</MenuItem>
+                      <MenuItem value="forward-set-date" data-testid="start-date-policy-opt-forward-set-date">Forward to Set Date</MenuItem>
                     </Select>
+                  </FormRow>
+
+                  <FormRow label="Include Time" info="When checked, applicants can pick a time alongside the calendar date on the customer portal.">
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          data-testid="include-time-checkbox"
+                          checked={gs.includeTime}
+                          disabled={gs.startDatePolicy !== 'forward-set-date'}
+                          onChange={(e) => gsSet('includeTime', e.target.checked)}
+                        />
+                      }
+                      label={gs.startDatePolicy === 'forward-set-date' ? 'Allow applicants to pick a time' : 'Only available with Forward to Set Date'}
+                    />
+                  </FormRow>
+
+                  <FormRow label="Start Date Delay" required info="Start Date in Buffers — number of days offset from today. Range 0-100. Default 0.">
+                    <Stack spacing={0.5} sx={{ width: 240 }}>
+                      <TextField
+                        type="number"
+                        inputProps={{ min: 0, max: 100, 'data-testid': 'start-date-delay-input' }}
+                        value={gs.startDateDelay}
+                        disabled={gs.startDatePolicy !== 'forward-set-date'}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          if (raw === '') { gsSet('startDateDelay', ''); return; }
+                          const n = parseInt(raw, 10);
+                          if (isNaN(n)) return;
+                          const clamped = Math.max(0, Math.min(100, n));
+                          gsSet('startDateDelay', String(clamped));
+                        }}
+                        error={
+                          gs.startDatePolicy === 'forward-set-date' &&
+                          (gs.startDateDelay === '' || parseInt(gs.startDateDelay, 10) < 0 || parseInt(gs.startDateDelay, 10) > 100)
+                        }
+                        helperText={
+                          gs.startDatePolicy === 'forward-set-date' && gs.startDateDelay === ''
+                            ? 'Required. Must be between 0 and 100.'
+                            : 'Days from today. 0 = today allowed; n = today + n days onwards.'
+                        }
+                      />
+                    </Stack>
                   </FormRow>
 
                   <FormRow label="Permit Days Selection">
