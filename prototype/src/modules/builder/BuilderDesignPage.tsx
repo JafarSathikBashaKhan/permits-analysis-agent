@@ -256,6 +256,18 @@ export function BuilderDesignPage() {
   // US-179406 — Free Permission confirmation prompt state.
   const [freePermissionPrompt, setFreePermissionPrompt] = useState<null | 'enable' | 'disable'>(null);
 
+  // US-165020 — MNPS currency symbol (defaults to £) and contract-level Admin Fee default.
+  const [mnpsCurrency] = usePersistentState<string>('prototype:mnps-contract:currency', '£');
+  const [contractAdminFeeDefault] = usePersistentState<string>('prototype:contract-settings:adminFee', '3.50');
+  const [adminFeeError, setAdminFeeError] = useState<string | null>(null);
+  const validateAdminFee = (raw: string): string | null => {
+    if (raw === '' || raw == null) return null; // blank = fall back to contract default
+    if (!/^\d+(\.\d{1,2})?$/.test(raw)) return 'Amount must be between 0 and 1000.';
+    const n = Number(raw);
+    if (!Number.isFinite(n) || n < 0 || n > 1000) return 'Amount must be between 0 and 1000.';
+    return null;
+  };
+
   // US-161880 — Zone Mapping: persistent zone sets per permission.
   // Each set is { id, zoneIds[] }. Labelled Zone Set 1, Zone Set 2... by position.
   type ZoneSet = { id: string; zoneIds: string[] };
@@ -1295,15 +1307,53 @@ export function BuilderDesignPage() {
                     </Stack>
                   </FormRow>
 
-                  <FormRow label="Admin fee for Permission" optional>
+                  {/* US-165020 — Admin Fee for Permission: MNPS currency, 0–1000, up to 2 decimals, contract-level default. */}
+                  <FormRow
+                    label="Admin Fee for Permission"
+                    optional
+                    info={`Overrides the contract-level default (currently ${mnpsCurrency}${contractAdminFeeDefault}) for this specific permission. Leave blank to use the contract default.`}
+                  >
                     <TextField
-                      placeholder="Enter Admin Fee"
+                      placeholder={`Default: ${mnpsCurrency}${contractAdminFeeDefault}`}
                       type="number"
                       value={gs.adminFee}
-                      onChange={(e) => gsSet('adminFee', e.target.value)}
-                      InputProps={{ startAdornment: <InputAdornment position="start">£</InputAdornment> }}
-                      inputProps={{ min: BUSINESS_RULES.ADMIN_FEE_MIN, max: BUSINESS_RULES.ADMIN_FEE_MAX, step: 0.01 }}
-                      helperText={`£${BUSINESS_RULES.ADMIN_FEE_MIN} – £${BUSINESS_RULES.ADMIN_FEE_MAX.toLocaleString()}`}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        gsSet('adminFee', v);
+                        setAdminFeeError(validateAdminFee(v));
+                      }}
+                      onBlur={(e) => {
+                        const raw = e.target.value;
+                        const err = validateAdminFee(raw);
+                        setAdminFeeError(err);
+                        if (!err && raw !== '' && raw !== gs.adminFee) {
+                          // Trimmed 2-decimal formatting on commit for currency-like inputs.
+                        }
+                        if (!err) {
+                          // US-165020 — Audit event: Admin Fee for Permission Updated
+                          try {
+                            const key = 'prototype:builder:audit:events';
+                            const existing = JSON.parse(localStorage.getItem(key) || '[]');
+                            existing.unshift({
+                              eventType: 'Admin Fee for Permission Updated',
+                              description: `Admin fee configuration updated in '${name || 'New Permission'}'`,
+                              timestamp: new Date().toISOString(),
+                              userRole: 'Super Admin',
+                              userName: 'QA Tester',
+                              category: 'Configuration',
+                              adminFee: raw,
+                              currency: mnpsCurrency,
+                              permissionId: id || 'new',
+                            });
+                            localStorage.setItem(key, JSON.stringify(existing.slice(0, 100)));
+                          } catch { /* localStorage full — ignore */ }
+                        }
+                      }}
+                      error={!!adminFeeError}
+                      helperText={adminFeeError || `${mnpsCurrency}${BUSINESS_RULES.ADMIN_FEE_MIN} – ${mnpsCurrency}${BUSINESS_RULES.ADMIN_FEE_MAX.toLocaleString()} · up to 2 decimals`}
+                      InputProps={{ startAdornment: <InputAdornment position="start" data-testid="admin-fee-currency-symbol">{mnpsCurrency}</InputAdornment> }}
+                      inputProps={{ min: BUSINESS_RULES.ADMIN_FEE_MIN, max: BUSINESS_RULES.ADMIN_FEE_MAX, step: 0.01, 'data-testid': 'admin-fee-input' }}
+                      FormHelperTextProps={{ 'data-testid': adminFeeError ? 'admin-fee-error' : 'admin-fee-helper' } as any}
                     />
                   </FormRow>
                 </>
