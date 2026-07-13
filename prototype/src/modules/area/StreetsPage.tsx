@@ -1,0 +1,714 @@
+import { useMemo, useState } from 'react';
+import {
+  Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle, Drawer,
+  IconButton, MenuItem, Stack, Tab, Tabs, TextField, Tooltip, Typography, Menu,
+  Accordion, AccordionSummary, AccordionDetails, Divider, Alert,
+} from '@mui/material';
+import { DataGrid, GridColDef, GridRowSelectionModel } from '@mui/x-data-grid';
+import AddIcon from '@mui/icons-material/Add';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import DownloadIcon from '@mui/icons-material/Download';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import BlockIcon from '@mui/icons-material/Block';
+import CloseIcon from '@mui/icons-material/Close';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { PageHeader } from '../../shared/PageHeader';
+import { Street, PropertyRow, TOWNS, seedStreets, BLACKLIST_DURATIONS } from './areaFixtures';
+import { usePersistentState } from '../../hooks/usePersistentState';
+import { useToast } from '../../components/Toast';
+import { ImportCsvDialog } from '../../components/dialogs/ImportCsvDialog';
+import { ConfirmDialog } from '../../components/dialogs/ConfirmDialog';
+import { FIELD_LIMITS } from '../../constants/enums';
+
+type BlackStreet = Street & { blacklistedUntil: string; reason?: string };
+type BlackProperty = PropertyRow & {
+  street: string;
+  town: string;
+  blacklistedUntil: string;
+  reason?: string;
+};
+
+const seedBlackStreets = (base: Street[]): BlackStreet[] =>
+  base.slice(0, 3).map((s, i) => ({
+    ...s,
+    id: `bs-${i}`,
+    blacklistedUntil: i === 0 ? 'Indefinite' : `2026-${String(i + 6).padStart(2, '0')}-01`,
+    reason: ['Anti-social behaviour', 'Fraud investigation', 'Ongoing dispute'][i],
+  }));
+const seedBlackProperties = (base: Street[]): BlackProperty[] =>
+  base.slice(0, 3).flatMap((s, i) =>
+    s.properties.slice(0, 1).map((p) => ({
+      ...p,
+      id: `bp-${s.id}-${p.id}`,
+      street: s.name,
+      town: s.town,
+      blacklistedUntil: i === 0 ? 'Indefinite' : `2026-${String(i + 6).padStart(2, '0')}-01`,
+      reason: ['Nuisance complaint', 'Landlord request', 'Duplicate address'][i],
+    }))
+  );
+
+// ─────────────────────────────────────────────────────────────
+// Street Add / Edit slider
+// ─────────────────────────────────────────────────────────────
+function StreetSlider({
+  open, onClose, street, onSave,
+}: {
+  open: boolean; onClose: () => void; street: Street | null; onSave: (s: Street) => void;
+}) {
+  const [form, setForm] = useState<Street>({
+    id: '', name: '', usrn: '', town: '', noOfProperties: 0,
+    status: 'Active', createdOn: '', createdByUser: '', updatedOn: '', updatedByUser: '',
+    properties: [],
+  });
+  const [propInput, setPropInput] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  // Read Contract Settings to determine USRN/UPRN auto-generation (US-129426)
+  const [usrnUPRNAuto] = usePersistentState<boolean>('prototype:contract-settings:usrn-uprn-auto', false);
+  const [blacklistProp, setBlacklistProp] = useState<PropertyRow | null>(null);
+
+  useMemo(() => {
+    if (street) setForm(street);
+    else setForm({
+      id: `st-${Date.now()}`, name: '', usrn: usrnUPRNAuto ? `USRN-${Date.now()}` : '', town: '',
+      noOfProperties: 0, status: 'Active',
+      createdOn: new Date().toISOString().slice(0, 10),
+      createdByUser: 'you',
+      updatedOn: new Date().toISOString().slice(0, 10),
+      updatedByUser: 'you',
+      properties: [],
+    });
+    setError(null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, street?.id]);
+
+  const addProp = () => {
+    if (!propInput.trim()) return;
+    const newUprn = usrnUPRNAuto ? `UPRN-${Date.now()}-${form.properties.length}` : '';
+    setForm({
+      ...form,
+      properties: [
+        ...form.properties,
+        { id: `p-${Date.now()}`, name: propInput.trim(), uprn: newUprn, postcode: '', permissionLimit: 1 },
+      ],
+    });
+    setPropInput('');
+  };
+  const removeProp = (id: string) =>
+    setForm({ ...form, properties: form.properties.filter((p) => p.id !== id) });
+  const updateProp = (id: string, key: keyof PropertyRow, val: any) =>
+    setForm({
+      ...form,
+      properties: form.properties.map((p) => (p.id === id ? { ...p, [key]: val } : p)),
+    });
+
+  const submit = () => {
+    if (!form.name.trim()) return setError('Street Name is required');
+    if (!form.usrn.trim()) return setError('USRN is required');
+    if (!form.town) return setError('Town is required');
+    onSave({ ...form, noOfProperties: form.properties.length });
+    onClose();
+  };
+
+  return (
+    <Drawer anchor="right" open={open} onClose={onClose} PaperProps={{ sx: { width: 780 } }}>
+      <Stack direction="row" alignItems="center" justifyContent="space-between"
+        sx={{ px: 3, py: 2, borderBottom: 1, borderColor: 'divider', position: 'sticky', top: 0, bgcolor: 'background.paper', zIndex: 1 }}>
+        <Box>
+          <Typography variant="overline" color="text.secondary" sx={{ letterSpacing: 1 }}>Street</Typography>
+          <Typography variant="h6" fontWeight={700}>{street ? 'Edit Street' : 'New Street'}</Typography>
+        </Box>
+        <IconButton onClick={onClose} size="small"><CloseIcon fontSize="small" /></IconButton>
+      </Stack>
+
+      <Box sx={{ p: 3, flex: 1, overflowY: 'auto' }}>
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+        <Stack spacing={2}>
+          <Stack direction="row" spacing={2}>
+            <TextField label="Street Name" required fullWidth value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              inputProps={{ maxLength: FIELD_LIMITS.STREET_NAME }} />
+            <TextField label="USRN" required={!usrnUPRNAuto} fullWidth value={form.usrn}
+              onChange={(e) => setForm({ ...form, usrn: e.target.value })}
+              disabled={usrnUPRNAuto}
+              helperText={usrnUPRNAuto ? 'Auto-generated' : ''}
+              inputProps={{ maxLength: FIELD_LIMITS.USRN }} />
+          </Stack>
+          <TextField select label="Town" required fullWidth value={form.town}
+            onChange={(e) => setForm({ ...form, town: e.target.value })}>
+            {TOWNS.map((t) => <MenuItem key={t} value={t}>{t}</MenuItem>)}
+          </TextField>
+
+          <Divider sx={{ my: 1 }} />
+          <Typography variant="subtitle2" fontWeight={700}>Properties ({form.properties.length})</Typography>
+
+          <Stack direction="row" spacing={1}>
+            <TextField size="small" fullWidth placeholder="Enter property name or number"
+              value={propInput}
+              onChange={(e) => setPropInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addProp(); } }} />
+            <Button variant="outlined" onClick={addProp} startIcon={<AddIcon />}>Add Property</Button>
+          </Stack>
+
+          {form.properties.length > 0 && (
+            <Box sx={{ border: 1, borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>
+              <Stack direction="row" sx={{ px: 1.5, py: 1, bgcolor: 'grey.100', borderBottom: 1, borderColor: 'divider' }}>
+                <Typography variant="caption" fontWeight={700} sx={{ flex: 1.4 }}>Property Name</Typography>
+                <Typography variant="caption" fontWeight={700} sx={{ flex: 1.2 }}>UPRN</Typography>
+                <Typography variant="caption" fontWeight={700} sx={{ flex: 1 }}>Postcode</Typography>
+                <Typography variant="caption" fontWeight={700} sx={{ width: 130, textAlign: 'center' }}>Permission Limit</Typography>
+                <Typography variant="caption" fontWeight={700} sx={{ width: 80, textAlign: 'center' }}>Actions</Typography>
+              </Stack>
+              {form.properties.map((p) => (
+                <Stack key={p.id} direction="row" alignItems="center" spacing={1} sx={{ px: 1.5, py: 0.75, borderBottom: 1, borderColor: 'divider' }}>
+                  <TextField size="small" variant="standard" value={p.name} sx={{ flex: 1.4 }}
+                    onChange={(e) => updateProp(p.id, 'name', e.target.value)}
+                    inputProps={{ maxLength: FIELD_LIMITS.PROPERTY_NAME }} />
+                  <TextField size="small" variant="standard" value={p.uprn} sx={{ flex: 1.2 }}
+                    onChange={(e) => updateProp(p.id, 'uprn', e.target.value)}
+                    disabled={usrnUPRNAuto}
+                    inputProps={{ maxLength: FIELD_LIMITS.UPRN }} />
+                  <TextField size="small" variant="standard" value={p.postcode} sx={{ flex: 1 }}
+                    onChange={(e) => updateProp(p.id, 'postcode', e.target.value)}
+                    inputProps={{ maxLength: FIELD_LIMITS.POSTCODE }} />
+                  <TextField size="small" variant="standard" type="number" sx={{ width: 130 }}
+                    inputProps={{ min: 0, max: 99, style: { textAlign: 'center' } }}
+                    value={p.permissionLimit}
+                    onChange={(e) => updateProp(p.id, 'permissionLimit', +e.target.value)} />
+                  <Stack direction="row" sx={{ width: 80, justifyContent: 'center' }}>
+                    <Tooltip title="Blacklist Property">
+                      <IconButton size="small" onClick={() => setBlacklistProp(p)}>
+                        <BlockIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <IconButton size="small" onClick={() => removeProp(p.id)}>
+                      <DeleteOutlineIcon fontSize="small" />
+                    </IconButton>
+                  </Stack>
+                </Stack>
+              ))}
+            </Box>
+          )}
+        </Stack>
+      </Box>
+
+      <Stack direction="row" justifyContent="flex-end" spacing={1}
+        sx={{ px: 3, py: 2, borderTop: 1, borderColor: 'divider', position: 'sticky', bottom: 0, bgcolor: 'background.paper' }}>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button variant="contained" endIcon={<ArrowForwardIcon />} onClick={submit}>
+          {street ? 'Save Changes' : 'Create'}
+        </Button>
+      </Stack>
+
+      {/* US-181541: Blacklist Property Dialog */}
+      {blacklistProp && (
+        <BlacklistDialog
+          open={true}
+          onClose={() => setBlacklistProp(null)}
+          target={blacklistProp.name}
+          onConfirm={(duration, from, to) => {
+            // Placeholder: In real app, move property to blackProps state
+            alert(`Property ${blacklistProp.name} blacklisted for ${duration}`);
+            setBlacklistProp(null);
+          }}
+        />
+      )}
+    </Drawer>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Blacklist duration dialog
+// ─────────────────────────────────────────────────────────────
+function BlacklistDialog({
+  open, onClose, onConfirm, target,
+}: {
+  open: boolean; onClose: () => void; onConfirm: (duration: string, from?: string, to?: string) => void; target?: string;
+}) {
+  const [duration, setDuration] = useState(BLACKLIST_DURATIONS[0]);
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+      <DialogTitle>Blacklist {target || 'Selected'}</DialogTitle>
+      <DialogContent>
+        <Stack spacing={2} sx={{ mt: 1 }}>
+          <TextField select label="Duration" fullWidth value={duration}
+            onChange={(e) => setDuration(e.target.value)}>
+            {BLACKLIST_DURATIONS.map((d) => <MenuItem key={d} value={d}>{d}</MenuItem>)}
+          </TextField>
+          {duration === 'Custom Date Range' && (
+            <Stack direction="row" spacing={2}>
+              <TextField label="From Date" type="date" fullWidth InputLabelProps={{ shrink: true }}
+                value={from} onChange={(e) => setFrom(e.target.value)} />
+              <TextField label="To Date" type="date" fullWidth InputLabelProps={{ shrink: true }}
+                value={to} onChange={(e) => setTo(e.target.value)} />
+            </Stack>
+          )}
+        </Stack>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button variant="contained" endIcon={<ArrowForwardIcon />}
+          onClick={() => { onConfirm(duration, from, to); onClose(); }}>
+          Blacklist
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Streets page (3 tabs)
+// ─────────────────────────────────────────────────────────────
+export function StreetsPage() {
+  const showToast = useToast();
+  const [tab, setTab] = useState(0);
+  const [q, setQ] = useState('');
+  const [rows, setRows] = usePersistentState<Street[]>('prototype:area:streets:rows', seedStreets);
+  const [blackStreets, setBlackStreets] = usePersistentState<BlackStreet[]>('prototype:area:streets:black-streets', () => seedBlackStreets(seedStreets()));
+  const [blackProps, setBlackProps] = usePersistentState<BlackProperty[]>('prototype:area:streets:black-props', () => seedBlackProperties(seedStreets()));
+  const [selection, setSelection] = useState<GridRowSelectionModel>([]);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [selected, setSelected] = useState<Street | null>(null);
+  const [menuAnchor, setMenuAnchor] = useState<{ el: HTMLElement; row: Street } | null>(null);
+  const [blacklistOpen, setBlacklistOpen] = useState<{ target?: string; ids: string[] } | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
+
+  // Auto-restore expired blacklisted streets/properties on mount (US-143508)
+  useMemo(() => {
+    const now = new Date().toISOString().slice(0, 10);
+    const expiredStreets = blackStreets.filter((bs) => {
+      if (bs.blacklistedUntil === 'Indefinite' || bs.blacklistedUntil === 'Mark Indefinite') return false;
+      const untilDate = bs.blacklistedUntil.includes('→')
+        ? bs.blacklistedUntil.split('→')[1].trim()
+        : bs.blacklistedUntil;
+      return untilDate < now;
+    });
+    const expiredProps = blackProps.filter((bp) => {
+      if (bp.blacklistedUntil === 'Indefinite' || bp.blacklistedUntil === 'Mark Indefinite') return false;
+      const untilDate = bp.blacklistedUntil.includes('→')
+        ? bp.blacklistedUntil.split('→')[1].trim()
+        : bp.blacklistedUntil;
+      return untilDate < now;
+    });
+    if (expiredStreets.length > 0) {
+      expiredStreets.forEach((bs) => {
+        const restored: Street = {
+          id: bs.id.replace(/^bs-/, '') || `st-${Date.now()}`,
+          name: bs.name,
+          usrn: bs.usrn,
+          town: bs.town,
+          noOfProperties: bs.noOfProperties,
+          status: 'Active',
+          createdOn: bs.createdOn,
+          createdByUser: bs.createdByUser,
+          updatedOn: new Date().toISOString().slice(0, 10),
+          updatedByUser: 'system',
+          properties: bs.properties || [],
+        };
+        setRows((prev) => (prev.some((r) => r.id === restored.id) ? prev : [restored, ...prev]));
+      });
+      setBlackStreets((prev) => prev.filter((bs) => !expiredStreets.some((e) => e.id === bs.id)));
+    }
+    if (expiredProps.length > 0) {
+      setBlackProps((prev) => prev.filter((bp) => !expiredProps.some((e) => e.id === bp.id)));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const filtered = useMemo(() => {
+    const ql = q.trim().toLowerCase();
+    if (!ql) return rows;
+    return rows.filter((r) => r.name.toLowerCase().includes(ql) || r.usrn.toLowerCase().includes(ql));
+  }, [rows, q]);
+
+  const openAdd = () => { setSelected(null); setPanelOpen(true); };
+  const openEdit = (s: Street) => { setSelected(s); setPanelOpen(true); };
+  const save = (s: Street) => {
+    const isEdit = rows.some((r) => r.id === s.id);
+    setRows((prev) => {
+      const exists = prev.some((r) => r.id === s.id);
+      return exists ? prev.map((r) => (r.id === s.id ? s : r)) : [s, ...prev];
+    });
+    showToast(isEdit ? 'Street updated successfully' : 'Street created successfully', 'success');
+  };
+  const remove = (id: string) => setRows((prev) => prev.filter((r) => r.id !== id));
+  const bulkDelete = () => { setRows((prev) => prev.filter((r) => !selection.includes(r.id))); setSelection([]); };
+
+  // Blacklist edit-expiry & remove-from-blacklist handlers
+  const [editExpiryStreet, setEditExpiryStreet] = useState<BlackStreet | null>(null);
+  const [editExpiryProp, setEditExpiryProp] = useState<BlackProperty | null>(null);
+  const [removeStreetId, setRemoveStreetId] = useState<string | null>(null);
+  const [removePropId, setRemovePropId] = useState<string | null>(null);
+
+  const restoreStreet = (bs: BlackStreet) => {
+    // Add back to white list (strip blacklist fields)
+    const restored: Street = {
+      id: bs.id.replace(/^bs-/, '') || `st-${Date.now()}`,
+      name: bs.name,
+      usrn: bs.usrn,
+      town: bs.town,
+      noOfProperties: bs.noOfProperties,
+      status: 'Active',
+      createdOn: bs.createdOn,
+      createdByUser: bs.createdByUser,
+      updatedOn: new Date().toISOString().slice(0, 10),
+      updatedByUser: 'you',
+      properties: bs.properties || [],
+    };
+    setRows((prev) => (prev.some((r) => r.id === restored.id) ? prev : [restored, ...prev]));
+    setBlackStreets((prev) => prev.filter((r) => r.id !== bs.id));
+  };
+
+  const restoreProperty = (bp: BlackProperty) => {
+    setBlackProps((prev) => prev.filter((r) => r.id !== bp.id));
+  };
+
+  // Bulk actions for the blacklist tabs
+  const bulkWhiteListStreets = () => {
+    const ids = selection.map(String);
+    const toMove = blackStreets.filter((b) => ids.includes(b.id));
+    toMove.forEach(restoreStreet);
+    setSelection([]);
+    showToast(`${toMove.length} street${toMove.length === 1 ? '' : 's'} moved back to White List`, 'success');
+  };
+  const bulkDeleteBlackStreets = () => {
+    const ids = selection.map(String);
+    setBlackStreets((prev) => prev.filter((b) => !ids.includes(b.id)));
+    const n = ids.length;
+    setSelection([]);
+    showToast(`${n} street${n === 1 ? '' : 's'} deleted from blacklist`, 'success');
+  };
+  const bulkRemoveBlackProps = () => {
+    const ids = selection.map(String);
+    setBlackProps((prev) => prev.filter((b) => !ids.includes(b.id)));
+    const n = ids.length;
+    setSelection([]);
+    showToast(`${n} propert${n === 1 ? 'y' : 'ies'} removed from blacklist`, 'success');
+  };
+  const bulkDeleteBlackProps = () => {
+    const ids = selection.map(String);
+    setBlackProps((prev) => prev.filter((b) => !ids.includes(b.id)));
+    const n = ids.length;
+    setSelection([]);
+    showToast(`${n} propert${n === 1 ? 'y' : 'ies'} deleted from blacklist`, 'success');
+  };
+
+  const singleRestoreStreet = (bs: BlackStreet) => {
+    restoreStreet(bs);
+    showToast('Street moved back to White List', 'success');
+  };
+  const singleRestoreProperty = (bp: BlackProperty) => {
+    restoreProperty(bp);
+    showToast('Property removed from blacklist', 'success');
+  };
+
+
+  const saveExpiryStreet = (id: string, newDate: string) => {
+    setBlackStreets((prev) => prev.map((r) => (r.id === id ? { ...r, blacklistedUntil: newDate } : r)));
+    showToast('Blacklist expiry updated', 'success');
+  };
+  const saveExpiryProp = (id: string, newDate: string) => {
+    setBlackProps((prev) => prev.map((r) => (r.id === id ? { ...r, blacklistedUntil: newDate } : r)));
+    showToast('Blacklist expiry updated', 'success');
+  };
+
+  const confirmBlacklist = (duration: string, from?: string, to?: string) => {
+    const label = duration === 'Custom Date Range' ? `${from} → ${to}` : duration;
+    if (!blacklistOpen) return;
+    const toMove = rows.filter((r) => blacklistOpen.ids.includes(r.id));
+    setBlackStreets((prev) => [
+      ...prev,
+      ...toMove.map((s) => ({ ...s, id: `bs-${s.id}`, blacklistedUntil: label, reason: '—' })),
+    ]);
+    setRows((prev) => prev.filter((r) => !blacklistOpen.ids.includes(r.id)));
+    setSelection([]);
+    showToast('Street blacklisted successfully', 'success');
+  };
+
+  const whiteCols: GridColDef<Street>[] = [
+    { field: 'name', headerName: 'Street Name', flex: 1.4, minWidth: 180 },
+    { field: 'noOfProperties', headerName: 'No. Of Properties', width: 150, type: 'number' },
+    { field: 'createdOn', headerName: 'Created On', width: 150 },
+    { field: 'createdByUser', headerName: 'Created By', width: 140 },
+    { field: 'updatedOn', headerName: 'Updated On', width: 150 },
+    { field: 'updatedByUser', headerName: 'Updated By', width: 140 },
+    { field: 'status', headerName: 'Status', width: 110,
+      renderCell: (p) => <Chip size="small" variant="outlined" label={p.value}
+        color={p.value === 'Active' ? 'success' : 'default'} /> },
+    {
+      field: 'actions', headerName: 'Actions', width: 80, sortable: false,
+      renderCell: (p) => (
+        <IconButton size="small" onClick={(e) => setMenuAnchor({ el: e.currentTarget, row: p.row })}>
+          <MoreVertIcon fontSize="small" />
+        </IconButton>
+      ),
+    },
+  ];
+
+  const blackStreetCols: GridColDef<BlackStreet>[] = [
+    { field: 'name', headerName: 'Street Name', flex: 1.4, minWidth: 180 },
+    { field: 'town', headerName: 'Town', width: 140 },
+    { field: 'blacklistedUntil', headerName: 'Blacklisted Until', width: 170 },
+    { field: 'reason', headerName: 'Reason', flex: 1, minWidth: 160 },
+    { field: 'createdOn', headerName: 'Created On', width: 150 },
+    { field: 'createdByUser', headerName: 'Created By', width: 140 },
+    {
+      field: 'actions', headerName: 'Actions', width: 100, sortable: false,
+      renderCell: (p) => (
+        <Stack direction="row" spacing={0.5}>
+          <Tooltip title="Edit expiry"><IconButton size="small" onClick={() => setEditExpiryStreet(p.row)}><EditOutlinedIcon fontSize="small" /></IconButton></Tooltip>
+          <Tooltip title="Move to White List"><IconButton size="small" onClick={() => setRemoveStreetId(p.row.id)}><DeleteOutlineIcon fontSize="small" /></IconButton></Tooltip>
+        </Stack>
+      ),
+    },
+  ];
+
+  const blackPropCols: GridColDef<BlackProperty>[] = [
+    { field: 'name', headerName: 'Property', flex: 1, minWidth: 140 },
+    { field: 'uprn', headerName: 'UPRN', width: 150 },
+    { field: 'street', headerName: 'Street', flex: 1.2, minWidth: 160 },
+    { field: 'town', headerName: 'Town', width: 140 },
+    { field: 'blacklistedUntil', headerName: 'Blacklisted Until', width: 170 },
+    { field: 'reason', headerName: 'Reason', flex: 1, minWidth: 160 },
+    {
+      field: 'actions', headerName: 'Actions', width: 100, sortable: false,
+      renderCell: (p) => (
+        <Stack direction="row" spacing={0.5}>
+          <Tooltip title="Edit expiry"><IconButton size="small" onClick={() => setEditExpiryProp(p.row)}><EditOutlinedIcon fontSize="small" /></IconButton></Tooltip>
+          <Tooltip title="Remove from blacklist"><IconButton size="small" onClick={() => setRemovePropId(p.row.id)}><DeleteOutlineIcon fontSize="small" /></IconButton></Tooltip>
+        </Stack>
+      ),
+    },
+  ];
+
+  return (
+    <>
+      <PageHeader eyebrow="Area" title="Streets"
+        description="White-list streets containing permit-eligible properties; blacklist streets or individual properties for restrictions." />
+
+      <Tabs value={tab} onChange={(_, v) => { setTab(v); setSelection([]); }} sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
+        <Tab label="White List" />
+        <Tab label="Black List Street" />
+        <Tab label="Black List Property" />
+      </Tabs>
+
+      {/* Toolbar row */}
+      <Stack direction="row" spacing={2} mb={2} alignItems="center">
+        <TextField size="small" placeholder={
+          tab === 0 ? 'Search by Street Name' : tab === 1 ? 'Search by Street Name' : 'Search by Property or UPRN'
+        } value={q} onChange={(e) => setQ(e.target.value)} sx={{ flex: 1, maxWidth: 420 }} />
+        {tab === 0 && selection.length > 0 && (
+          <>
+            <Typography variant="body2" sx={{ color: 'text.secondary', mr: 1 }}>{selection.length} Row Selected</Typography>
+            <Button variant="outlined" color="warning" startIcon={<BlockIcon />}
+              onClick={() => setBlacklistOpen({ target: `${selection.length} streets`, ids: selection.map(String) })}>
+              Black List
+            </Button>
+            <Button variant="outlined" color="error" startIcon={<DeleteOutlineIcon />} onClick={bulkDelete}>
+              Delete
+            </Button>
+          </>
+        )}
+        {tab === 1 && selection.length > 0 && (
+          <>
+            <Typography variant="body2" sx={{ color: 'text.secondary', mr: 1 }}>{selection.length} Row Selected</Typography>
+            <Button variant="outlined" color="primary" onClick={bulkWhiteListStreets}>
+              White List
+            </Button>
+            <Button variant="outlined" color="error" startIcon={<DeleteOutlineIcon />} onClick={bulkDeleteBlackStreets}>
+              Delete
+            </Button>
+          </>
+        )}
+        {tab === 2 && selection.length > 0 && (
+          <>
+            <Typography variant="body2" sx={{ color: 'text.secondary', mr: 1 }}>{selection.length} Row Selected</Typography>
+            <Button variant="outlined" color="primary" onClick={bulkRemoveBlackProps}>
+              Remove from Blacklist
+            </Button>
+            <Button variant="outlined" color="error" startIcon={<DeleteOutlineIcon />} onClick={bulkDeleteBlackProps}>
+              Delete
+            </Button>
+          </>
+        )}
+        <Box sx={{ flex: 1 }} />
+        {tab === 0 && (
+          <>
+            <Button variant="outlined" startIcon={<DownloadIcon />} onClick={() => {
+              // Generate CSV sample (US-148740)
+              const csvContent = [
+                'Street Name,Zone Name,Property Name / Number,UPRN,Postcode,USRN,Town,Permission Limits',
+                'Baker Street,Zone A,1A,1000000100,CC1 1AA,USRN-20000,Colchester,1',
+                'Church Lane,Zone B,2B,1000000200,CC2 2BB,USRN-20001,Chelmsford,2',
+              ].join('\n');
+              const blob = new Blob([csvContent], { type: 'text/csv' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'streets-import-sample.csv';
+              a.click();
+              URL.revokeObjectURL(url);
+              showToast('Sample CSV downloaded', 'success');
+            }}>Download Sample</Button>
+            <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => setImportOpen(true)}>Import</Button>
+            <Button variant="contained" startIcon={<AddIcon />} onClick={openAdd}>Add Street</Button>
+          </>
+        )}
+      </Stack>
+
+      <Box sx={{ bgcolor: 'background.paper', border: 1, borderColor: 'divider', borderRadius: 1 }}>
+        {tab === 0 && (
+          <DataGrid<Street>
+            rows={filtered} columns={whiteCols} autoHeight checkboxSelection
+            rowSelectionModel={selection} onRowSelectionModelChange={setSelection}
+            pageSizeOptions={[5, 10, 25]}
+            initialState={{ pagination: { paginationModel: { pageSize: 10, page: 0 } } }} />
+        )}
+        {tab === 1 && (
+          <DataGrid<BlackStreet>
+            rows={blackStreets} columns={blackStreetCols} autoHeight checkboxSelection
+            rowSelectionModel={selection} onRowSelectionModelChange={setSelection}
+            pageSizeOptions={[5, 10, 25]}
+            initialState={{ pagination: { paginationModel: { pageSize: 10, page: 0 } } }} />
+        )}
+        {tab === 2 && (
+          <DataGrid<BlackProperty>
+            rows={blackProps} columns={blackPropCols} autoHeight checkboxSelection
+            rowSelectionModel={selection} onRowSelectionModelChange={setSelection}
+            pageSizeOptions={[5, 10, 25]}
+            initialState={{ pagination: { paginationModel: { pageSize: 10, page: 0 } } }} />
+        )}
+      </Box>
+
+      {/* Row action menu */}
+      <Menu anchorEl={menuAnchor?.el} open={!!menuAnchor} onClose={() => setMenuAnchor(null)}>
+        <MenuItem onClick={() => { if (menuAnchor) { openEdit(menuAnchor.row); setMenuAnchor(null); } }}>
+          <EditOutlinedIcon fontSize="small" sx={{ mr: 1 }} /> Edit
+        </MenuItem>
+        <MenuItem onClick={() => { if (menuAnchor) { setBlacklistOpen({ target: menuAnchor.row.name, ids: [menuAnchor.row.id] }); setMenuAnchor(null); } }}>
+          <BlockIcon fontSize="small" sx={{ mr: 1 }} /> Add to Blacklist
+        </MenuItem>
+        <MenuItem onClick={() => { if (menuAnchor) { setConfirmDeleteId(menuAnchor.row.id); setMenuAnchor(null); } }}>
+          <DeleteOutlineIcon fontSize="small" sx={{ mr: 1 }} /> Delete
+        </MenuItem>
+      </Menu>
+
+      <StreetSlider open={panelOpen} onClose={() => setPanelOpen(false)} street={selected} onSave={save} />
+      <BlacklistDialog open={!!blacklistOpen} onClose={() => setBlacklistOpen(null)}
+        onConfirm={confirmBlacklist} target={blacklistOpen?.target} />
+
+      <ImportCsvDialog
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        entityName="streets"
+        onImport={(rowCount: number) => {
+          // Bulk import placeholder (US-125848) - in real app, parse CSV and create streets
+          showToast(`${rowCount} street(s) imported successfully`, 'success');
+        }}
+      />
+      <ConfirmDialog
+        open={confirmDeleteId !== null}
+        title="Delete Street?"
+        message="This cannot be undone."
+        confirmLabel="Delete"
+        confirmColor="error"
+        onConfirm={() => { remove(confirmDeleteId!); showToast('Street deleted successfully', 'success'); setConfirmDeleteId(null); }}
+        onClose={() => setConfirmDeleteId(null)}
+      />
+
+      <ConfirmDialog
+        open={removeStreetId !== null}
+        title="Move Street Back to White List?"
+        message="This street will be removed from the blacklist and re-listed as Active in the White List."
+        confirmLabel="Move to White List"
+        confirmColor="primary"
+        onConfirm={() => {
+          const bs = blackStreets.find((s) => s.id === removeStreetId);
+          if (bs) singleRestoreStreet(bs);
+          setRemoveStreetId(null);
+        }}
+        onClose={() => setRemoveStreetId(null)}
+      />
+
+      <ConfirmDialog
+        open={removePropId !== null}
+        title="Remove Property from Blacklist?"
+        message="This property will no longer be blacklisted."
+        confirmLabel="Remove"
+        confirmColor="primary"
+        onConfirm={() => {
+          const bp = blackProps.find((p) => p.id === removePropId);
+          if (bp) singleRestoreProperty(bp);
+          setRemovePropId(null);
+        }}
+        onClose={() => setRemovePropId(null)}
+      />
+
+      <EditExpiryDialog
+        open={!!editExpiryStreet}
+        current={editExpiryStreet?.blacklistedUntil || ''}
+        title={editExpiryStreet ? `Edit expiry — ${editExpiryStreet.name}` : 'Edit expiry'}
+        onClose={() => setEditExpiryStreet(null)}
+        onSave={(d) => { if (editExpiryStreet) saveExpiryStreet(editExpiryStreet.id, d); setEditExpiryStreet(null); }}
+      />
+      <EditExpiryDialog
+        open={!!editExpiryProp}
+        current={editExpiryProp?.blacklistedUntil || ''}
+        title={editExpiryProp ? `Edit expiry — ${editExpiryProp.name}` : 'Edit expiry'}
+        onClose={() => setEditExpiryProp(null)}
+        onSave={(d) => { if (editExpiryProp) saveExpiryProp(editExpiryProp.id, d); setEditExpiryProp(null); }}
+      />
+    </>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Edit-expiry dialog (used for both black streets and black properties)
+// ─────────────────────────────────────────────────────────────
+function EditExpiryDialog({
+  open, current, title, onClose, onSave,
+}: {
+  open: boolean; current: string; title: string;
+  onClose: () => void; onSave: (newDate: string) => void;
+}) {
+  const [mode, setMode] = useState<'date' | 'indefinite'>(current === 'Indefinite' ? 'indefinite' : 'date');
+  const [date, setDate] = useState(current && current !== 'Indefinite' ? current : '');
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
+      <DialogTitle>{title}</DialogTitle>
+      <DialogContent>
+        <Stack spacing={2} sx={{ mt: 1 }}>
+          <TextField select label="Type" size="small" value={mode} onChange={(e) => setMode(e.target.value as 'date' | 'indefinite')}>
+            <MenuItem value="date">Specific date</MenuItem>
+            <MenuItem value="indefinite">Indefinite</MenuItem>
+          </TextField>
+          {mode === 'date' && (
+            <TextField
+              label="Blacklisted until"
+              type="date"
+              size="small"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+          )}
+        </Stack>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button
+          variant="contained"
+          disabled={mode === 'date' && !date}
+          onClick={() => onSave(mode === 'indefinite' ? 'Indefinite' : date)}
+        >
+          Save
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+}

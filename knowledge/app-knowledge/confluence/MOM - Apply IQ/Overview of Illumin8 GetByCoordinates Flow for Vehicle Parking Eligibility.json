@@ -1,0 +1,31 @@
+{
+  "id": "2021785713",
+  "title": "Overview of Illumin8 GetByCoordinates Flow for Vehicle Parking Eligibility",
+  "version": 2,
+  "lastUpdated": "2026-06-05T13:19:44.824Z",
+  "author": "Natarajan Arumugam",
+  "labels": [],
+  "ancestors": [
+    {
+      "id": "6062342",
+      "title": "Freedom"
+    },
+    {
+      "id": "8323127",
+      "title": "🏛Architecture"
+    },
+    {
+      "id": "9175041",
+      "title": "Architecture Documentation"
+    },
+    {
+      "id": "1049722900",
+      "title": "Permissions Documentation"
+    },
+    {
+      "id": "1995571213",
+      "title": "MOM - Apply IQ"
+    }
+  ],
+  "url": "https://marston.atlassian.net/wiki/spaces/FF/pages/2021785713/Overview+of+Illumin8+GetByCoordinates+Flow+for+Vehicle+Parking+Eligibility"
+}

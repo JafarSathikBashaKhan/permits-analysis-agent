@@ -1,0 +1,35 @@
+{
+  "id": "1910374408",
+  "title": "Taxi Card: Design and Functional Overview in Permit Apply System",
+  "version": 1,
+  "lastUpdated": "2026-04-24T09:04:04.550Z",
+  "author": "Prathiba K",
+  "labels": [],
+  "ancestors": [
+    {
+      "id": "6062342",
+      "title": "Freedom"
+    },
+    {
+      "id": "8323127",
+      "title": "🏛Architecture"
+    },
+    {
+      "id": "9175041",
+      "title": "Architecture Documentation"
+    },
+    {
+      "id": "1049722900",
+      "title": "Permissions Documentation"
+    },
+    {
+      "id": "1850900496",
+      "title": "Requirements"
+    },
+    {
+      "id": "1910931486",
+      "title": "Taxi Companies"
+    }
+  ],
+  "url": "https://marston.atlassian.net/wiki/spaces/FF/pages/1910374408/Taxi+Card+Design+and+Functional+Overview+in+Permit+Apply+System"
+}

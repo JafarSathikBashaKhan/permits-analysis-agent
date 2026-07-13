@@ -1,0 +1,1572 @@
+import {
+  Box, Button, IconButton, MenuItem, Paper, Select, Stack, Tab, Tabs, TextField, Typography, Divider, Menu, Link as MuiLink,
+  Radio, RadioGroup, FormControlLabel, Checkbox, InputAdornment, Tooltip, Alert,
+  Dialog, DialogTitle, DialogContent, DialogActions, List, ListItem, ListItemIcon, ListItemText, Chip,
+} from '@mui/material';
+import {
+  SaveOutlined, UploadOutlined, MoreVertOutlined, ChevronRight, ErrorOutlineOutlined, AddOutlined, DeleteOutline,
+} from '@mui/icons-material';
+import { useEffect, useMemo, useState, MouseEvent } from 'react';
+import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useToast } from '../../components/Toast';
+import { permissions, zones as allZones, Permission } from '../../data/mock';
+import { tokens } from '../../theme';
+import { ApplicationFormTab } from './tabs/ApplicationFormTab';
+import { PricingConfigurationTab } from './tabs/PricingConfigurationTab';
+import { RulesTab } from './tabs/RulesTab';
+import { CustomFieldsTab } from './tabs/CustomFieldsTab';
+import {
+  PermissionLabelSection, PaymentSettingsSection, DiscountSettingsSection,
+  DocumentTypeSettingsSection, MerchantSettingsSection, RenewalsAndRemindersSection,
+  EmailTemplatesSection, VisitorPortalSettingsSection,
+} from './tabs/PermissionSubSections';
+import { SpecialEventSection } from './tabs/SpecialEventSection';
+import { SpecialEventPropertiesMappingSection } from './tabs/SpecialEventPropertiesMappingSection';
+import { usePersistentState } from '../../hooks/usePersistentState';
+import { BUILDER_ROWS_KEY } from './BuilderListPage';
+import { PERMISSION_TYPE_OPTIONS, PERMISSION_CATEGORY_OPTIONS, BUSINESS_RULES } from '../../constants/enums';
+import { checkPrefixDuplicate, validatePermissionForPublish, getErrorCountBySection, ValidationError } from './publishValidation';
+import { UnsavedChangesGuard } from '../../hooks/UnsavedChangesGuard';
+
+type Group = {
+  id: string;
+  name: string;
+  permissionType: string;
+  groupType: 'Zonal' | 'Non-Zonal';
+  householdLimit: number;
+  maxVouchers: number;
+  backOfficeUse: boolean;
+  status: 'Active' | 'InActive';
+  linkedPermissions: number;
+  createdOn: string;
+  createdByUser: string;
+  updatedOn: string;
+  updatedByUser: string;
+};
+
+const seedGroups = (): Group[] => [];
+
+type TopTab = 'permissions' | 'rules' | 'pricing' | 'application-form' | 'custom-fields';
+
+const PERMISSION_SUBS_ALL = [
+  'Basic Information',
+  'General Settings',
+  'Zone Mapping',
+  'Special Event Properties Mapping',
+  'Permission Label',
+  'Payment Settings',
+  'Discount Settings',
+  'Document Type Settings',
+  'Merchant Settings',
+  'Renewals and Reminders',
+  'Email Templates',
+  'Operation Criteria',
+  'Special Event',
+  'Visitor Portal Settings',
+] as const;
+type PermissionSub = typeof PERMISSION_SUBS_ALL[number];
+
+export function BuilderDesignPage() {
+  const { id } = useParams();
+  const nav = useNavigate();
+  const showToast = useToast();
+  const isNew = id === 'new';
+  const [builderRows, setBuilderRows] = usePersistentState<Permission[]>(BUILDER_ROWS_KEY, () => [...permissions]);
+  const perm = useMemo(() => builderRows.find((p) => p.id === id), [builderRows, id]);
+  const displayName = isNew ? 'New permission' : (perm?.name ?? 'Permission');
+
+  const [topTab, setTopTab] = useState<TopTab>('permissions');
+  const [sub, setSub] = useState<PermissionSub>('Basic Information');
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null);
+  const openMenu = (e: MouseEvent<HTMLElement>) => setAnchor(e.currentTarget);
+  const closeMenu = () => setAnchor(null);
+
+  // Form state (Basic Information)
+  const [name, setName] = useState(perm?.name ?? '');
+  const [type, setType] = useState<string>(perm?.type ?? '');
+  const [group, setGroup] = useState<string>(perm?.group ?? '');
+  const [category, setCategory] = useState<string>(perm?.category ?? '');
+  const [description, setDescription] = useState(perm?.description ?? '');
+
+  // Form state (General Settings) — persisted per-permission so Start Date Settings
+  // and other Overview fields survive reload (US-132390 persistence).
+  const gsKey = `prototype:builder:${id ?? 'new'}:gs`;
+  const [gs, setGs] = usePersistentState(gsKey, () => ({
+    specialEvent: 'disable',
+    startDatePolicy: '',
+    includeTime: false,
+    startDateDelay: '0',
+    permitDaysSelection: 'disable',
+    retentionDays: '7',
+    prefix: '',
+    termsAndConditions: '',
+    displayDescription: 'Purchase your permission with ease',
+    permitMode: 'both',
+    zoneRelated: 'zonal',
+    zoneIds: [] as string[],
+    changeZoneLimit: '', // US-180626 — visible only when group is Zonal.
+    freePermission: 'disable' as 'enable' | 'disable', // US-179406 — Free Permission toggle
+    backOfficeUse: false,
+    vatApplicable: false,
+    hoursOfOperation: false,
+    enableExperianCheck: false,
+    businessName: false,
+    businessAddress: false,
+    commentBox: false,
+    adminFee: '',
+  }));
+  const gsSet = <K extends keyof typeof gs>(k: K, v: (typeof gs)[K]) => setGs((p) => ({ ...p, [k]: v }));
+
+  // Permission limit (Basic Information)
+  const [permissionLimit, setPermissionLimit] = useState('');
+
+  // Sticky field-level errors: once the user attempts Publish, keep them visible
+  // per-section (they auto-clear when the field is filled).
+  const [showFieldErrors, setShowFieldErrors] = useState(false);
+
+  // A tick that bumps whenever the user navigates tabs / sub-sections, forcing
+  // liveValidation to re-read persisted sub-section state from localStorage so
+  // the sub-nav + top-tab badges stay in sync.
+  const validationTick = `${topTab}|${sub}|${showFieldErrors}`;
+
+  // Read persisted sub-section state so the validator sees the true form state
+  // (sub-sections write to per-permission localStorage keys).
+  const readComposedFromStorage = () => {
+    const pid = id || 'default';
+    const readJson = <T,>(key: string): T | null => {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? (JSON.parse(raw) as T) : null;
+      } catch { return null; }
+    };
+    // US-135723 — Payment methods: 7 online + 4 offline, all default UNCHECKED.
+    // Publish requires at least one method to be checked; drafts allow zero.
+    const PAYMENT_METHOD_KEYS = [
+      'useRegisteredCard', 'payNow', 'payAfterApproval', 'payMonthly', 'payQuarterly', 'agentAssist', 'wallet',
+      'postalPayment', 'payOnCollection', 'invoice', 'costCentreBudget',
+    ] as const;
+    const payment = readJson<Record<string, boolean>>(`prototype:paymentSettings:${pid}`);
+    const methods: string[] = [];
+    if (payment) {
+      for (const k of PAYMENT_METHOD_KEYS) if (payment[k]) methods.push(k);
+    }
+    // Draft with zero methods is allowed by design — do NOT seed defaults here.
+
+    const docs = readJson<{ rows: Array<{ name?: string }> }>(`prototype:documentTypes:${pid}`);
+    const documentTypes = (docs?.rows ?? []).filter((r) => (r.name || '').trim().length > 0);
+    const documentTypesDefault = docs === null
+      ? [{ name: 'Proof of Residency' }, { name: 'Vehicle Ownership (V5C)' }, { name: 'Utility Bill' }]
+      : documentTypes;
+
+    const rules = readJson<{
+      refund: { applicable: 'yes' | 'no'; policy: string; cancellationCharge: string };
+      vehicle: { plateChangeLimit: string };
+      template: { activeTab: string; permitMode: string };
+    }>(`prototype:rules:${pid}`);
+    // The rules tab persists `template.permitMode` for the tab widget but the
+    // validator uses General Settings' permitMode; we merge the template
+    // fields the validator expects (defaulting to empty so it flags when
+    // physical mode is chosen and no template configured).
+    const composedRules = {
+      refund:   rules?.refund   ?? { applicable: 'no', policy: '', cancellationCharge: '' },
+      vehicle:  rules?.vehicle  ?? { plateChangeLimit: '3' },
+      template: {
+        physicalPermit:    '', // TemplateEditor uses defaultValue only — never persists
+        whiteMailReminder: '',
+      },
+    };
+
+    const pricing = readJson<Record<string, unknown>>(`prototype:pricing:${pid}`);
+
+    const form = readJson<{ pages?: unknown[]; selectedTemplate?: unknown }>(`prototype:applicationForm:${pid}`);
+    const applicationForms = form && (form.selectedTemplate || (Array.isArray(form.pages) && form.pages.length > 0))
+      ? [{ id: 'form-1' }]
+      : [];
+
+    return { methods, documentTypes: documentTypesDefault, rules: composedRules, pricing, applicationForms };
+  };
+
+  // Live validation preview — recomputed whenever any tracked state changes.
+  // Sub-section persisted state is re-read on every tab/sub navigation via
+  // `validationTick` so the badges stay accurate.
+  const liveValidation = useMemo(() => {
+    const store = readComposedFromStorage();
+    const composed = {
+      name, type, group, category, description,
+      generalSettings: {
+        startDatePolicy: gs.startDatePolicy,
+        prefix: gs.prefix,
+        termsAndConditions: gs.termsAndConditions,
+        displayDescription: gs.displayDescription,
+        permitMode: gs.permitMode,
+        specialEvent: gs.specialEvent,
+      },
+      zones: (perm?.zones ?? 0) > 0 ? new Array(perm?.zones ?? 0).fill(0) : [],
+      paymentSettings: { methods: store.methods },
+      documentTypes: store.documentTypes,
+      pricing: store.pricing ?? (perm as any)?.pricing,
+      applicationForms: store.applicationForms,
+      rules: store.rules,
+      specialEvents: (perm as any)?.specialEvents,
+    };
+    return validatePermissionForPublish(composed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name, type, group, category, description, gs, perm, validationTick]);
+
+  // Section → error count (for sub-nav badges)
+  const sectionErrorCount = useMemo(
+    () => getErrorCountBySection(liveValidation.errors),
+    [liveValidation]
+  );
+
+  // Helper: has this field been flagged and should we render red text?
+  const fieldError = (section: string, field: string): string | null => {
+    if (!showFieldErrors) return null;
+    const e = liveValidation.errors.find((x) => x.section === section && x.field === field);
+    return e ? e.message : null;
+  };
+
+  // US-180626 — Zonal / Non-Zonal is now DERIVED from the selected Group's
+  // groupType (previously a per-permission "Zone Related" field which is removed).
+  // Fallback to 'Zonal' when the group cannot be resolved.
+  const [persistedGroups] = usePersistentState<Group[]>('prototype:builder:groups:rows', seedGroups);
+  const allGroups = useMemo(
+    () => (persistedGroups && persistedGroups.length > 0 ? persistedGroups : []),
+    [persistedGroups]
+  );
+  const availableGroups = type ? allGroups.filter(g => g.permissionType === type && g.status === 'Active').map(g => g.name) : allGroups.filter(g => g.status === 'Active').map(g => g.name);
+  const selectedGroupObj = useMemo(() => allGroups.find((g) => g.name === group), [allGroups, group]);
+  const resolvedZoneRelated: 'zonal' | 'non-zonal' = selectedGroupObj?.groupType === 'Non-Zonal' ? 'non-zonal' : 'zonal';
+
+  // US-143256 — 'Special Event' sub-section is visible only when the GS toggle is enabled.
+  // US-187108 — 'Special Event Properties Mapping' shows only when SE enabled;
+  //   'Zone Mapping' shows only when SE disabled (they are mutually exclusive).
+  const PERMISSION_SUBS = useMemo<readonly PermissionSub[]>(() =>
+    PERMISSION_SUBS_ALL.filter((s) => {
+      if (s === 'Special Event') return gs.specialEvent === 'enable';
+      if (s === 'Special Event Properties Mapping') return gs.specialEvent === 'enable';
+      if (s === 'Zone Mapping') return gs.specialEvent !== 'enable' && resolvedZoneRelated === 'zonal';
+      return true;
+    }),
+    [gs.specialEvent, resolvedZoneRelated]
+  );
+
+  // US-155975 — validation errors dialog state
+  const [publishErrors, setPublishErrors] = useState<ValidationError[] | null>(null);
+  // US-179406 — Free Permission confirmation prompt state.
+  const [freePermissionPrompt, setFreePermissionPrompt] = useState<null | 'enable' | 'disable'>(null);
+
+  // US-165020 — MNPS currency symbol (defaults to £) and contract-level Admin Fee default.
+  const [mnpsCurrency] = usePersistentState<string>('prototype:mnps-contract:currency', '£');
+  const [contractAdminFeeDefault] = usePersistentState<string>('prototype:contract-settings:adminFee', '3.50');
+  const [adminFeeError, setAdminFeeError] = useState<string | null>(null);
+  const validateAdminFee = (raw: string): string | null => {
+    if (raw === '' || raw == null) return null; // blank = fall back to contract default
+    if (!/^\d+(\.\d{1,2})?$/.test(raw)) return 'Amount must be between 0 and 1000.';
+    const n = Number(raw);
+    if (!Number.isFinite(n) || n < 0 || n > 1000) return 'Amount must be between 0 and 1000.';
+    return null;
+  };
+
+  // US-161880 — Zone Mapping: persistent zone sets per permission.
+  // Each set is { id, zoneIds[] }. Labelled Zone Set 1, Zone Set 2... by position.
+  type ZoneSet = { id: string; zoneIds: string[] };
+  const zoneSetsKey = `prototype:builder:${id ?? 'new'}:zoneSets`;
+  const [zoneSets, setZoneSets] = usePersistentState<ZoneSet[]>(zoneSetsKey, () => []);
+  // US-180626 — pricing schemes per zone set. Multiple schemes surface a dropdown
+  // beside the "Edit Pricing" button so the user can pick which scheme to edit.
+  const zoneSetSchemesKey = `prototype:builder:${id ?? 'new'}:zoneSetSchemes`;
+  const [zoneSetSchemes, setZoneSetSchemes] = usePersistentState<Record<string, string[]>>(zoneSetSchemesKey, () => ({}));
+  const [selectedScheme, setSelectedScheme] = useState<Record<string, string>>({});
+  // "Pricing configured" is derived from schemes: at least one scheme means pricing exists.
+  const isPricingConfigured = (zsId: string) => (zoneSetSchemes[zsId] || []).length > 0;
+  // In-edit pending-save error tracking per zone set (US-161880 "at least one zone" rule).
+  const [zoneSetSaveError, setZoneSetSaveError] = useState<Record<string, string>>({});
+  // Zones already consumed by OTHER sets (mutual exclusion helper).
+  const zonesConsumedByOtherSets = (currentSetId: string) => {
+    const used = new Set<string>();
+    for (const zs of zoneSets) {
+      if (zs.id === currentSetId) continue;
+      zs.zoneIds.forEach((z) => used.add(z));
+    }
+    return used;
+  };
+  const allMappedZoneIds = useMemo(() => {
+    const s = new Set<string>();
+    zoneSets.forEach((zs) => zs.zoneIds.forEach((z) => s.add(z)));
+    return s;
+  }, [zoneSets]);
+  // US-180626 — Zone Mapping pool is ALL contract zones (not filtered to gs.zoneIds).
+  const zoneMappingPool = useMemo(() => allZones.map((z) => z.id), []);
+  const canAddZoneSet = zoneMappingPool.some((z) => !allMappedZoneIds.has(z));
+
+  // US-188673 — lock Type + Prefix after publish
+  const isPublished = perm?.status === 'Published';
+
+  // US-143256 — if user is on Special Event sub and toggles it off, snap back to Basic Information.
+  // US-187108 — snap Special Event Properties Mapping <-> Zone Mapping when SE toggle flips.
+  useEffect(() => {
+    if (sub === 'Special Event' && gs.specialEvent !== 'enable') {
+      setSub('Basic Information');
+    }
+    if (sub === 'Special Event Properties Mapping' && gs.specialEvent !== 'enable') {
+      setSub('Zone Mapping');
+    }
+    if (sub === 'Zone Mapping' && gs.specialEvent === 'enable') {
+      setSub('Special Event Properties Mapping');
+    }
+  }, [gs.specialEvent, sub]);
+
+  // US-139062 — inline duplicate-name validation for Basic Information.
+  const nameInlineError = useMemo(() => {
+    const trimmed = name.trim().toLowerCase();
+    if (!trimmed) return '';
+    const dup = builderRows.some((r) => r.id !== id && r.name.trim().toLowerCase() === trimmed);
+    return dup ? 'The permission name already exists.' : '';
+  }, [name, builderRows, id]);
+
+  // US-135721 — live prefix validation.
+  //   * Required: empty prefix -> "This field is required".
+  //   * Cross-type duplicate within same contract -> exact AC message.
+  const prefixInlineError = useMemo(() => {
+    const raw = (gs.prefix || '').trim().toUpperCase();
+    if (!raw) return 'This field is required';
+    const dupCross = builderRows.some((r) =>
+      r.id !== id &&
+      String(r.prefix || '').trim().toUpperCase() === raw &&
+      String(r.type || '').trim().toLowerCase() !== String(type || '').trim().toLowerCase()
+    );
+    if (dupCross) return 'This prefix is already in use for another permission type';
+    return '';
+  }, [gs.prefix, builderRows, id, type]);
+
+  // US-135717 — Terms & Conditions dropdown reads live from the templates store,
+  // filtered by the currently-selected Permission Type, and displayed alphabetically.
+  // Empty list yields no options (empty-state handled below).
+  type TnCTemplate = { id: string; templateName: string; permissionType: string; published?: boolean };
+  const [tncTemplates] = usePersistentState<TnCTemplate[]>('prototype:templates:tnc:rows', () => []);
+  const tncOptions = useMemo(() => {
+    const t = (type || '').trim().toLowerCase();
+    if (!t) return [];
+    return tncTemplates
+      .filter((tpl) => String(tpl.permissionType || '').trim().toLowerCase().startsWith(t))
+      .slice()
+      .sort((a, b) => a.templateName.localeCompare(b.templateName, undefined, { sensitivity: 'base' }));
+  }, [tncTemplates, type]);
+
+  // US-139062 — Auto-save on tab / sub-section change.
+  // Only persists silently when all Basic Information mandatory fields are filled
+  // (so we don't overwrite an unsaved draft with invalid state).
+  const [prevNav, setPrevNav] = useState({ topTab, sub });
+  useEffect(() => {
+    if (prevNav.topTab === topTab && prevNav.sub === sub) return;
+    setPrevNav({ topTab, sub });
+    if (isNew) return; // don't auto-persist a brand-new entry
+    if (currentSnapshot === baseline) return; // nothing dirty
+    const canAutoSave = !!name.trim() && !!type.trim() && !!group.trim() && !!description.trim();
+    if (!canAutoSave) return;
+    persistEntry('Draft');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [topTab, sub]);
+  const [baseline, setBaseline] = useState(() => JSON.stringify({
+    name: perm?.name ?? '', type: perm?.type ?? '', group: perm?.group ?? '',
+    category: perm?.category ?? '', description: perm?.description ?? '', permissionLimit: '',
+    gs: {
+      specialEvent: 'disable', startDatePolicy: '', permitDaysSelection: 'disable',
+      retentionDays: '90', prefix: '', termsAndConditions: '',
+      displayDescription: '', permitMode: 'both', backOfficeUse: false,
+      vatApplicable: false, hoursOfOperation: false, enableExperianCheck: false,
+      businessName: false, businessAddress: false, commentBox: false, adminFee: '',
+    },
+  }));
+  const currentSnapshot = JSON.stringify({ name, type, group, category, description, permissionLimit, gs });
+  const dirty = currentSnapshot !== baseline;
+
+  // Shared persist function used by both Save Draft and the Unsaved Changes guard.
+  const persistEntry = (status: 'Draft' | 'Published'): { ok: boolean; error?: string; errors?: ValidationError[] } => {
+    const newId = isNew ? `P-${Date.now()}` : (id ?? `P-${Date.now()}`);
+
+    // US-135718 — Save Draft requires Basic Information mandatory fields to be filled.
+    if (status === 'Draft') {
+      const missing: ValidationError[] = [];
+      if (!name.trim())        missing.push({ section: 'Basic Information', field: 'Permission Name', message: 'This field is required' });
+      if (!type.trim())        missing.push({ section: 'Basic Information', field: 'Type',            message: 'This field is required' });
+      if (!group.trim())       missing.push({ section: 'Basic Information', field: 'Group',           message: 'This field is required' });
+      if (!description.trim()) missing.push({ section: 'Basic Information', field: 'Description',     message: 'This field is required' });
+      if (missing.length) {
+        return { ok: false, error: 'This field is required', errors: missing };
+      }
+    }
+
+    // US-155975 — full mandatory-field validation before Publish.
+    if (status === 'Published') {
+      // US-180626 — 'Zone Related' field removed; zonality is derived from group.
+      // US-161880 — Zone Mapping: zonal permission requires at least one zone set with at least one zone.
+      if (resolvedZoneRelated === 'zonal' && gs.specialEvent !== 'enable') {
+        if (zoneSets.length === 0) {
+          return {
+            ok: false,
+            error: 'At least one zone set must be created.',
+            errors: [{ section: 'Zone Mapping', field: 'Zone Sets', message: 'At least one zone set must be created.' }],
+          };
+        }
+        const emptySet = zoneSets.find((zs) => zs.zoneIds.length === 0);
+        if (emptySet) {
+          return {
+            ok: false,
+            error: 'At least one zone must be mapped to the zone set. Changes cannot be saved otherwise.',
+            errors: [{ section: 'Zone Mapping', field: `Zone Set ${zoneSets.indexOf(emptySet) + 1}`, message: 'At least one zone must be mapped to the zone set. Changes cannot be saved otherwise.' }],
+          };
+        }
+      }
+      const store = readComposedFromStorage();
+      const composed = {
+        name, type, group, category, description,
+        generalSettings: {
+          startDatePolicy: gs.startDatePolicy,
+          prefix: gs.prefix,
+          termsAndConditions: gs.termsAndConditions,
+          displayDescription: gs.displayDescription,
+          permitMode: gs.permitMode,
+          specialEvent: gs.specialEvent,
+        },
+        zones: (perm?.zones ?? 0) > 0 ? new Array(perm?.zones ?? 0).fill(0) : [],
+        paymentSettings: { methods: store.methods },
+        documentTypes: store.documentTypes,
+        pricing: store.pricing ?? (perm as any)?.pricing,
+        applicationForms: store.applicationForms,
+        rules: store.rules,
+        specialEvents: (perm as any)?.specialEvents,
+      };
+      const result = validatePermissionForPublish(composed);
+      if (!result.valid) {
+        return { ok: false, error: 'Please fix the mandatory fields before publishing.', errors: result.errors };
+      }
+    }
+
+    // US-188673 — prefix duplicate validation across permission types (per contract).
+    if (gs.prefix?.trim()) {
+      const dupMsg = checkPrefixDuplicate(gs.prefix, type || 'Permit', newId, builderRows);
+      if (dupMsg) return { ok: false, error: dupMsg };
+    }
+
+    const entry: Permission = {
+      id: newId,
+      name: name || 'Untitled',
+      type: (type || 'Permit') as Permission['type'],
+      group: group || 'General',
+      category: (category || 'Resident') as Permission['category'],
+      status,
+      prefix: gs.prefix?.trim().toUpperCase() || '',
+      description: description || perm?.description || '',
+      price: 0,
+      version: (perm?.version ?? 0) + 1,
+      lastUpdated: new Date().toISOString().slice(0, 10),
+      createdBy: perm?.createdBy ?? 'You',
+      zones: perm?.zones ?? 0,
+      documents: perm?.documents ?? 0,
+    };
+    setBuilderRows((prev) => {
+      const exists = prev.some((r) => r.id === newId);
+      return exists
+        ? prev.map((r) => r.id === newId ? { ...r, ...entry } : r)
+        : [entry, ...prev];
+    });
+    // Reset baseline so guard clears
+    setBaseline(currentSnapshot);
+    if (isNew) nav(`/builder/${newId}`, { replace: true });
+    return { ok: true };
+  };
+
+  return (
+    <Box sx={{ mx: -3, my: -3 }}>
+      {/* Top action bar */}
+      <Box sx={{
+        px: 3, py: 1.75,
+        bgcolor: tokens.PAPER, borderBottom: `1px solid ${tokens.LINE}`,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        <Stack direction="row" alignItems="center" spacing={0.5}>
+          <MuiLink data-testid="crumb-builder" component={RouterLink} to="/builder" underline="hover" sx={{ color: tokens.INK, fontWeight: 500, fontFamily: tokens.HEADING, fontSize: '1rem' }}>
+            Builder
+          </MuiLink>
+          <ChevronRight sx={{ color: tokens.MUTED, fontSize: 18 }} />
+          {!isNew && (
+            <Typography data-testid="crumb-name" sx={{ color: tokens.INK, fontWeight: 500, fontFamily: tokens.HEADING, fontSize: '1rem' }}>
+              {displayName}
+            </Typography>
+          )}
+        </Stack>
+        <Stack direction="row" alignItems="center" spacing={1.5}>
+          <Button
+            onClick={() => nav('/builder')}
+            sx={{ color: tokens.NAVY, fontWeight: 600, textTransform: 'none' }}
+          >
+            Cancel
+          </Button>
+          <Button
+            data-testid="save-draft-button"
+            variant="outlined"
+            startIcon={<SaveOutlined />}
+            onClick={() => {
+              const r = persistEntry('Draft');
+              if (r.ok) showToast('Draft saved', 'success');
+              else {
+                // Surface per-field "This field is required" errors on Basic Information.
+                if (r.errors?.length) {
+                  setShowFieldErrors(true);
+                  // Jump to Basic Information so the errors are visible.
+                  setTopTab('permissions');
+                  setSub('Basic Information');
+                }
+                showToast(r.error || 'Save failed', 'error');
+              }
+            }}
+            sx={{ fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}
+          >
+            Save Draft
+          </Button>
+          <Button
+            data-testid="publish-button"
+            variant="contained"
+            startIcon={<UploadOutlined />}
+            onClick={() => {
+              const r = persistEntry('Published');
+              if (r.ok) {
+                showToast('Permission published', 'success');
+                setShowFieldErrors(false);
+              } else if (r.errors && r.errors.length > 0) {
+                setShowFieldErrors(true);
+                setPublishErrors(r.errors);
+                // Jump to first failing Permissions sub-section
+                const firstPermSub = r.errors.find((e) =>
+                  (PERMISSION_SUBS as readonly string[]).includes(e.section)
+                );
+                if (firstPermSub) {
+                  setTopTab('permissions');
+                  setSub(firstPermSub.section as PermissionSub);
+                } else if (r.errors[0].section.startsWith('Rules')) {
+                  setTopTab('rules');
+                } else if (r.errors[0].section === 'Pricing') {
+                  setTopTab('pricing');
+                } else if (r.errors[0].section === 'Application Form') {
+                  setTopTab('application-form');
+                }
+              } else {
+                showToast(r.error || 'Publish blocked', 'error');
+              }
+            }}
+            sx={{ fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}
+          >
+            Publish
+          </Button>
+          <IconButton onClick={openMenu}><MoreVertOutlined /></IconButton>
+          <Menu anchorEl={anchor} open={!!anchor} onClose={closeMenu}>
+            <MenuItem onClick={() => {
+              const newId = `P-${Date.now()}`;
+              const entry: Permission = {
+                id: newId,
+                name: `${name || 'Untitled'} (Copy)`,
+                type: (type || 'Resident') as Permission['type'],
+                group: group || 'General',
+                category: (category || 'Resident') as Permission['category'],
+                status: 'Draft',
+                prefix: '',
+                price: 0,
+                version: 1,
+                lastUpdated: new Date().toISOString().slice(0, 10),
+                createdBy: 'You',
+                zones: 0,
+                documents: 0,
+              };
+              setBuilderRows((prev) => [entry, ...prev]);
+              showToast('Permission cloned', 'success');
+              nav(`/builder/${newId}`);
+              closeMenu();
+            }}>Clone permission</MenuItem>
+            <MenuItem onClick={() => { showToast('View history — coming soon', 'info'); closeMenu(); }}>View history</MenuItem>
+            <MenuItem onClick={() => {
+              if (id && id !== 'new') {
+                setBuilderRows((prev) => prev.filter((r) => r.id !== id));
+                showToast('Permission deleted', 'success');
+                nav('/builder');
+              }
+              closeMenu();
+            }} sx={{ color: '#C62828' }}>Delete</MenuItem>
+          </Menu>
+        </Stack>
+      </Box>
+
+      {/* Top-level tabs */}
+      <Box sx={{ px: 3, pt: 2, bgcolor: tokens.PAPER, borderBottom: `1px solid ${tokens.LINE}` }}>
+        <Tabs value={topTab} onChange={(_, v) => setTopTab(v)} data-testid="builder-top-tabs">
+          <Tab
+            data-testid="tab-permissions"
+            label={<TabLabelWithBadge label="Permissions" count={showFieldErrors ? (
+              Object.entries(sectionErrorCount).filter(([s]) => (PERMISSION_SUBS as readonly string[]).includes(s)).reduce((n, [, c]) => n + c, 0)
+            ) : 0} />}
+            value="permissions"
+            sx={topTabSx}
+          />
+          <Tab
+            data-testid="tab-rules"
+            label={<TabLabelWithBadge label="Rules" count={showFieldErrors ? (
+              Object.entries(sectionErrorCount).filter(([s]) => s.startsWith('Rules')).reduce((n, [, c]) => n + c, 0)
+            ) : 0} />}
+            value="rules"
+            sx={topTabSx}
+          />
+          <Tab
+            data-testid="tab-pricing"
+            label={<TabLabelWithBadge label="Pricing" count={showFieldErrors ? (sectionErrorCount['Pricing'] ?? 0) : 0} />}
+            value="pricing"
+            sx={topTabSx}
+          />
+          <Tab
+            data-testid="tab-application-form"
+            label={<TabLabelWithBadge label="Application Form" count={showFieldErrors ? (sectionErrorCount['Application Form'] ?? 0) : 0} />}
+            value="application-form"
+            sx={topTabSx}
+          />
+          <Tab data-testid="tab-custom-fields" label="Custom Fields" value="custom-fields" sx={topTabSx} />
+        </Tabs>
+      </Box>
+
+      {/* Global publish-error banner */}
+      {showFieldErrors && liveValidation.errors.length > 0 && (
+        <Alert
+          severity="error"
+          icon={<ErrorOutlineOutlined />}
+          action={
+            <Button color="inherit" size="small" onClick={() => setPublishErrors(liveValidation.errors)}>
+              View all ({liveValidation.errors.length})
+            </Button>
+          }
+          sx={{ mx: 3, mt: 2 }}
+        >
+          {liveValidation.errors.length} field(s) still need to be filled before you can publish.
+        </Alert>
+      )}
+
+      {/* Body */}
+      <Box sx={{ px: 3, py: 3, minHeight: 'calc(100vh - 210px)' }}>
+        {topTab === 'permissions' && (
+          <Stack direction="row" spacing={2.5} alignItems="stretch">
+            {/* Left sub-nav */}
+            <Paper sx={{ width: 260, p: 1.25, alignSelf: 'flex-start' }} data-testid="permissions-subnav">
+              <Stack spacing={0.25}>
+                {PERMISSION_SUBS.map((s) => {
+                  const active = s === sub;
+                  const errCount = showFieldErrors ? (sectionErrorCount[s] ?? 0) : 0;
+                  return (
+                    <Box
+                      key={s}
+                      data-testid={`subnav-${s.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+                      data-active={active ? 'true' : 'false'}
+                      onClick={() => setSub(s)}
+                      sx={{
+                        cursor: 'pointer',
+                        px: 2, py: 1.25, borderRadius: 1,
+                        bgcolor: active ? '#E3ECF7' : 'transparent',
+                        color: active ? tokens.NAVY : tokens.INK,
+                        fontWeight: active ? 700 : 500,
+                        fontSize: '0.9rem',
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        '&:hover': { bgcolor: active ? '#E3ECF7' : '#F4F6F9' },
+                      }}
+                    >
+                      <span>{s}</span>
+                      {errCount > 0 && (
+                        <Chip
+                          label={errCount}
+                          size="small"
+                          color="error"
+                          sx={{ height: 20, minWidth: 20, '& .MuiChip-label': { px: 0.75, fontSize: '0.7rem', fontWeight: 700 } }}
+                        />
+                      )}
+                    </Box>
+                  );
+                })}
+              </Stack>
+            </Paper>
+
+            {/* Right content */}
+            <Paper sx={{ flex: 1, p: 3 }}>
+              {sub === 'Basic Information' && (
+                <>
+                  <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1.15rem', color: tokens.INK }}>
+                    Basic Information
+                  </Typography>
+                  <Divider sx={{ my: 2 }} />
+
+                  <FormRow label="Permission Name" required error={fieldError('Basic Information', 'Permission Name') || nameInlineError}>
+                    <TextField placeholder="Enter Permission Name" value={name}
+                      onChange={(e) => setName(e.target.value.slice(0, 100))}
+                      inputProps={{ maxLength: 100, 'data-testid': 'basic-name-input' }}
+                      helperText={`${name.length}/100`}
+                      error={!!(fieldError('Basic Information', 'Permission Name') || nameInlineError)} fullWidth />
+                  </FormRow>
+                  <FormRow label="Type" required error={fieldError('Basic Information', 'Type')}>
+                    <Select displayEmpty value={type} onChange={(e) => { setType(e.target.value); setGroup(''); }} fullWidth
+                      error={!!fieldError('Basic Information', 'Type')}
+                      disabled={isPublished}>
+                      <MenuItem value=""><em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select</em></MenuItem>
+                      {PERMISSION_TYPE_OPTIONS.map((o) => <MenuItem key={o.id} value={o.label}>{o.label}</MenuItem>)}
+                    </Select>
+                    {isPublished && (
+                      <Typography variant="caption" sx={{ color: tokens.MUTED, mt: 0.5, display: 'block' }}>
+                        Type cannot be changed after the permission is published (US-188673).
+                      </Typography>
+                    )}
+                  </FormRow>
+                  <FormRow label="Group" required error={fieldError('Basic Information', 'Group')}>
+                    <Select displayEmpty value={group} onChange={(e) => setGroup(e.target.value)} fullWidth
+                      error={!!fieldError('Basic Information', 'Group')}>
+                      <MenuItem value=""><em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select</em></MenuItem>
+                      {availableGroups.map((g) => <MenuItem key={g} value={g}>{g}</MenuItem>)}
+                    </Select>
+                  </FormRow>
+                  <FormRow label="Category">
+                    <Select displayEmpty value={category} onChange={(e) => setCategory(e.target.value)} fullWidth>
+                      <MenuItem value=""><em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select</em></MenuItem>
+                      {PERMISSION_CATEGORY_OPTIONS.map((o) => <MenuItem key={o.id} value={o.label}>{o.label}</MenuItem>)}
+                    </Select>
+                  </FormRow>
+                  <FormRow label="Permission Limit" optional>
+                    <TextField
+                      placeholder={`${BUSINESS_RULES.PERMISSION_LIMIT_MIN}–${BUSINESS_RULES.PERMISSION_LIMIT_MAX}`}
+                      type="number"
+                      value={permissionLimit}
+                      onChange={(e) => setPermissionLimit(e.target.value)}
+                      inputProps={{ min: BUSINESS_RULES.PERMISSION_LIMIT_MIN, max: BUSINESS_RULES.PERMISSION_LIMIT_MAX }}
+                      helperText={`${BUSINESS_RULES.PERMISSION_LIMIT_MIN}–${BUSINESS_RULES.PERMISSION_LIMIT_MAX} permits per property`}
+                      sx={{ maxWidth: 200 }}
+                    />
+                  </FormRow>
+                  <FormRow label="Description" required error={fieldError('Basic Information', 'Description')}>
+                    <TextField
+                      placeholder="Enter Description"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value.slice(0, 500))}
+                      inputProps={{ maxLength: 500, 'data-testid': 'basic-description-input' }}
+                      helperText={`${description.length}/500`}
+                      multiline minRows={4}
+                      fullWidth
+                      error={!!fieldError('Basic Information', 'Description')}
+                    />
+                  </FormRow>
+                </>
+              )}
+
+              {sub !== 'Basic Information' && sub !== 'General Settings' && sub !== 'Zone Mapping' && sub !== 'Special Event Properties Mapping' && (
+                <>
+                  {sub === 'Permission Label'        && <PermissionLabelSection        permissionId={id || 'default'} showErrors={showFieldErrors} />}
+                  {sub === 'Payment Settings'        && <PaymentSettingsSection        permissionId={id || 'default'} showErrors={showFieldErrors} error={fieldError('Payment Settings', 'Payment Methods')} />}
+                  {sub === 'Discount Settings'       && <DiscountSettingsSection       permissionId={id || 'default'} showErrors={showFieldErrors} />}
+                  {sub === 'Document Type Settings'  && <DocumentTypeSettingsSection   permissionId={id || 'default'} showErrors={showFieldErrors} error={fieldError('Document Type Settings', 'Documents')} />}
+                  {sub === 'Merchant Settings'       && <MerchantSettingsSection       permissionId={id || 'default'} showErrors={showFieldErrors} />}
+                  {sub === 'Renewals and Reminders'  && <RenewalsAndRemindersSection   permissionId={id || 'default'} showErrors={showFieldErrors} />}
+                  {sub === 'Email Templates'         && <EmailTemplatesSection         permissionId={id || 'default'} showErrors={showFieldErrors} />}
+                  {sub === 'Operation Criteria'      && (
+                    <>
+                      <Typography data-testid="section-heading-operation-criteria" sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1.15rem', color: tokens.INK }}>
+                        Operation Criteria
+                      </Typography>
+                      <Divider sx={{ my: 2 }} />
+                      <Alert
+                        severity="info"
+                        icon={<ErrorOutlineOutlined sx={{ color: tokens.NAVY }} />}
+                        sx={{
+                          bgcolor: '#E3ECF7',
+                          color: tokens.INK,
+                          border: `1px solid #C7D6EA`,
+                          '& .MuiAlert-icon': { color: tokens.NAVY, alignItems: 'center' },
+                        }}
+                      >
+                        Operation criteria for this permission are inherited from the contract-level defaults. Contract admins can override them here when configured.
+                      </Alert>
+                    </>
+                  )}
+                  {sub === 'Special Event'           && <SpecialEventSection            permissionId={id || 'default'} />}
+                  {sub === 'Visitor Portal Settings' && <VisitorPortalSettingsSection  permissionId={id || 'default'} showErrors={showFieldErrors} />}
+                </>
+              )}
+
+              {sub === 'Zone Mapping' && (
+                <>
+                  <Stack direction="row" alignItems="center" justifyContent="space-between">
+                    <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1.15rem', color: tokens.INK }}>
+                      Zone Mapping
+                    </Typography>
+                    <Tooltip
+                      title={canAddZoneSet ? '' : 'All available zones are already mapped. Add more zones in General Settings to create another zone set.'}
+                    >
+                      <span>
+                        <Button
+                          data-testid="new-zone-set-btn"
+                          variant="outlined"
+                          startIcon={<AddOutlined />}
+                          disabled={!canAddZoneSet}
+                          onClick={() => {
+                            const newSet: ZoneSet = { id: `zs-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`, zoneIds: [] };
+                            setZoneSets((prev) => [...prev, newSet]);
+                          }}
+                          sx={{ fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}
+                        >
+                          New Zone Set
+                        </Button>
+                      </span>
+                    </Tooltip>
+                  </Stack>
+                  <Divider sx={{ my: 2 }} />
+                  <Alert
+                    data-testid="zone-mapping-info"
+                    severity="info"
+                    icon={<ErrorOutlineOutlined sx={{ color: tokens.NAVY }} />}
+                    sx={{
+                      bgcolor: '#E3ECF7',
+                      color: tokens.INK,
+                      border: `1px solid #C7D6EA`,
+                      '& .MuiAlert-icon': { color: tokens.NAVY, alignItems: 'center' },
+                    }}
+                  >
+                    Group the zones you selected in <strong>General Settings</strong> into one or more <strong>Zone Sets</strong>. Each set will appear as its own tab in <strong>Pricing Configuration</strong>. At least one zone set (with at least one zone) is required to publish the permission. A zone selected in one set cannot be reused in another set of the same permission.
+                  </Alert>
+
+                  {zoneSets.length === 0 && showFieldErrors && (
+                    <Typography data-testid="zone-sets-required-error" sx={{ mt: 2, color: '#B42318', fontSize: '0.85rem' }}>
+                      At least one zone set must be created.
+                    </Typography>
+                  )}
+
+                  <Stack spacing={2} sx={{ mt: 2 }}>
+                    {zoneSets.map((zs, idx) => {
+                      const consumed = zonesConsumedByOtherSets(zs.id);
+                      const availableForThisSet = zoneMappingPool.filter((zid) => !consumed.has(zid));
+                      const schemes = zoneSetSchemes[zs.id] || [];
+                      const pricingConfigured = schemes.length > 0;
+                      const saveErr = zoneSetSaveError[zs.id];
+                      const currentScheme = selectedScheme[zs.id] || schemes[0] || '';
+                      return (
+                        <Box
+                          key={zs.id}
+                          data-testid={`zone-set-${idx + 1}`}
+                          sx={{ border: '1px solid #D1D5DB', borderRadius: 2, p: 2, bgcolor: '#FAFBFC' }}
+                        >
+                          <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 1 }}>
+                            <Stack direction="row" spacing={1.5} alignItems="center">
+                              <Typography data-testid={`zone-set-label-${idx + 1}`} sx={{ fontWeight: 700, color: tokens.INK }}>
+                                Zone Set {idx + 1}
+                              </Typography>
+                              <Chip
+                                data-testid={`zone-set-pricing-status-${idx + 1}`}
+                                size="small"
+                                label={pricingConfigured ? 'Pricing Configured' : 'Pricing not configured'}
+                                sx={{
+                                  bgcolor: pricingConfigured ? '#DCFCE7' : '#FEF3C7',
+                                  color: pricingConfigured ? '#166534' : '#92400E',
+                                  fontWeight: 700,
+                                }}
+                              />
+                            </Stack>
+                            <Tooltip title={pricingConfigured ? 'This zone set has pricing configured. Remove its pricing before deleting.' : ''}>
+                              <span>
+                                <IconButton
+                                  data-testid={`zone-set-delete-${idx + 1}`}
+                                  disabled={pricingConfigured}
+                                  onClick={() => {
+                                    setZoneSets((prev) => prev.filter((s) => s.id !== zs.id));
+                                    setZoneSetSaveError((prev) => { const n = { ...prev }; delete n[zs.id]; return n; });
+                                  }}
+                                  size="small"
+                                  sx={{ color: pricingConfigured ? '#9CA3AF' : '#B42318' }}
+                                >
+                                  <DeleteOutline />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                          </Stack>
+                          <Select
+                            multiple
+                            displayEmpty
+                            value={zs.zoneIds}
+                            onChange={(e) => {
+                              const raw = e.target.value;
+                              const next = typeof raw === 'string' ? raw.split(',') : (raw as string[]);
+                              const cleaned = Array.from(new Set(next)).filter((z) => !consumed.has(z));
+                              setZoneSets((prev) => prev.map((s) => s.id === zs.id ? { ...s, zoneIds: cleaned } : s));
+                              if (cleaned.length > 0 && saveErr) {
+                                setZoneSetSaveError((prev) => { const n = { ...prev }; delete n[zs.id]; return n; });
+                              }
+                              if (cleaned.length === 0) {
+                                setZoneSetSaveError((prev) => ({ ...prev, [zs.id]: 'At least one zone must be mapped to the zone set. Changes cannot be saved otherwise.' }));
+                              }
+                            }}
+                            renderValue={(selected) => (selected as string[]).length === 0
+                              ? <em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select zones</em>
+                              : (selected as string[]).map((zid) => allZones.find((z) => z.id === zid)?.name || zid).join(', ')
+                            }
+                            SelectDisplayProps={{ 'data-testid': `zone-set-select-${idx + 1}` } as any}
+                            fullWidth
+                            error={!!saveErr || (showFieldErrors && zs.zoneIds.length === 0)}
+                          >
+                            {availableForThisSet.length === 0 && zs.zoneIds.length === 0 && (
+                              <MenuItem disabled>No zones available — all are mapped to other sets</MenuItem>
+                            )}
+                            {zoneMappingPool.map((zid) => {
+                              const takenByOther = consumed.has(zid);
+                              return (
+                                <MenuItem
+                                  key={zid}
+                                  value={zid}
+                                  disabled={takenByOther}
+                                  data-testid={`zone-set-opt-${idx + 1}-${zid}`}
+                                >
+                                  <Checkbox checked={zs.zoneIds.includes(zid)} />
+                                  {allZones.find((z) => z.id === zid)?.name || zid}
+                                  {takenByOther && (
+                                    <Typography variant="caption" sx={{ ml: 1, color: tokens.MUTED, fontStyle: 'italic' }}>
+                                      (in another set)
+                                    </Typography>
+                                  )}
+                                </MenuItem>
+                              );
+                            })}
+                          </Select>
+                          {saveErr && (
+                            <Typography data-testid={`zone-set-error-${idx + 1}`} sx={{ mt: 0.5, color: '#B42318', fontSize: '0.8rem' }}>
+                              {saveErr}
+                            </Typography>
+                          )}
+                          {/* US-180626 — Edit Pricing with optional scheme dropdown when >1 pricing scheme exists. */}
+                          {zs.zoneIds.length > 0 && (
+                            <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1.5 }} flexWrap="wrap">
+                              {schemes.length > 1 && (
+                                <Select
+                                  size="small"
+                                  value={currentScheme}
+                                  onChange={(e) => setSelectedScheme((prev) => ({ ...prev, [zs.id]: e.target.value as string }))}
+                                  SelectDisplayProps={{ 'data-testid': `zone-set-scheme-select-${idx + 1}` } as any}
+                                  sx={{ minWidth: 180 }}
+                                >
+                                  {schemes.map((sc) => (
+                                    <MenuItem key={sc} value={sc} data-testid={`zone-set-scheme-opt-${idx + 1}-${sc.replace(/\W+/g, '-')}`}>{sc}</MenuItem>
+                                  ))}
+                                </Select>
+                              )}
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                data-testid={`zone-set-edit-pricing-${idx + 1}`}
+                                disabled={!pricingConfigured}
+                                onClick={() => {
+                                  showToast(`Opening pricing for ${currentScheme || schemes[0]} on Zone Set ${idx + 1}`, 'info');
+                                }}
+                                sx={{ textTransform: 'none' }}
+                              >
+                                Edit Pricing{schemes.length > 1 ? ` (${currentScheme})` : ''}
+                              </Button>
+                              {!pricingConfigured && (
+                                <Button
+                                  size="small"
+                                  variant="text"
+                                  data-testid={`zone-set-add-scheme-${idx + 1}`}
+                                  onClick={() => setZoneSetSchemes((prev) => ({ ...prev, [zs.id]: [...(prev[zs.id] || []), 'Standard'] }))}
+                                  sx={{ textTransform: 'none', color: tokens.NAVY }}
+                                >
+                                  Configure pricing (demo)
+                                </Button>
+                              )}
+                              {pricingConfigured && (
+                                <Button
+                                  size="small"
+                                  variant="text"
+                                  data-testid={`zone-set-add-scheme-${idx + 1}`}
+                                  onClick={() => setZoneSetSchemes((prev) => {
+                                    const existing = prev[zs.id] || [];
+                                    const nextName = `Scheme ${existing.length + 1}`;
+                                    return { ...prev, [zs.id]: [...existing, nextName] };
+                                  })}
+                                  sx={{ textTransform: 'none', color: tokens.NAVY }}
+                                >
+                                  + Add scheme (demo)
+                                </Button>
+                              )}
+                              {pricingConfigured && (
+                                <Button
+                                  size="small"
+                                  variant="text"
+                                  data-testid={`zone-set-clear-pricing-${idx + 1}`}
+                                  onClick={() => setZoneSetSchemes((prev) => { const n = { ...prev }; delete n[zs.id]; return n; })}
+                                  sx={{ textTransform: 'none', color: tokens.MUTED }}
+                                >
+                                  Clear pricing (demo)
+                                </Button>
+                              )}
+                            </Stack>
+                          )}
+                        </Box>
+                      );
+                    })}
+                  </Stack>
+                </>
+              )}
+
+              {sub === 'Special Event Properties Mapping' && (
+                <SpecialEventPropertiesMappingSection permissionId={id || 'default'} showErrors={showFieldErrors} />
+              )}
+
+              {sub === 'General Settings' && (
+                <>
+                  <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1.15rem', color: tokens.INK }}>
+                    General Settings
+                  </Typography>
+                  <Divider sx={{ my: 2 }} />
+
+                  <FormRow label="Special Event">
+                    <RadioGroup row value={gs.specialEvent} onChange={(e) => gsSet('specialEvent', e.target.value)}>
+                      <FormControlLabel value="enable" control={<Radio />} label="Enable" sx={{ mr: 5 }} />
+                      <FormControlLabel value="disable" control={<Radio />} label="Disable" />
+                    </RadioGroup>
+                  </FormRow>
+
+                  <Typography data-testid="start-date-settings-heading" sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1rem', color: tokens.INK, mt: 1 }}>
+                    Start Date Settings
+                  </Typography>
+                  <Divider sx={{ my: 1.5 }} />
+
+                  <FormRow label="Start Date Policy" required info="Start Date Choosing Method — determines when the permission becomes active." error={fieldError('General Settings', 'Start Date Settings')}>
+                    <Select displayEmpty value={gs.startDatePolicy} onChange={(e) => gsSet('startDatePolicy', e.target.value)} fullWidth
+                      inputProps={{ 'data-testid': 'start-date-policy-select' }}
+                      error={!!fieldError('General Settings', 'Start Date Settings')}>
+                      <MenuItem value=""><em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select</em></MenuItem>
+                      <MenuItem value="issue-now" data-testid="start-date-policy-opt-issue-now">Issue Now</MenuItem>
+                      <MenuItem value="backdated-month" data-testid="start-date-policy-opt-backdated-month">Backdated to Start of the Month</MenuItem>
+                      <MenuItem value="backdated-application" data-testid="start-date-policy-opt-backdated-application">Backdated to Start of the Application</MenuItem>
+                      <MenuItem value="forward-set-date" data-testid="start-date-policy-opt-forward-set-date">Forward to Set Date</MenuItem>
+                    </Select>
+                  </FormRow>
+
+                  <FormRow label="Include Time" info="When checked, applicants can pick a time alongside the calendar date on the customer portal.">
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          data-testid="include-time-checkbox"
+                          checked={gs.includeTime}
+                          disabled={gs.startDatePolicy !== 'forward-set-date'}
+                          onChange={(e) => gsSet('includeTime', e.target.checked)}
+                        />
+                      }
+                      label={gs.startDatePolicy === 'forward-set-date' ? 'Allow applicants to pick a time' : 'Only available with Forward to Set Date'}
+                    />
+                  </FormRow>
+
+                  <FormRow label="Start Date Delay" required info="Start Date in Buffers — number of days offset from today. Range 0-100. Default 0.">
+                    <Stack spacing={0.5} sx={{ width: 240 }}>
+                      <TextField
+                        type="number"
+                        inputProps={{ min: 0, max: 100, 'data-testid': 'start-date-delay-input' }}
+                        value={gs.startDateDelay}
+                        disabled={gs.startDatePolicy !== 'forward-set-date'}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          if (raw === '') { gsSet('startDateDelay', ''); return; }
+                          const n = parseInt(raw, 10);
+                          if (isNaN(n)) return;
+                          const clamped = Math.max(0, Math.min(100, n));
+                          gsSet('startDateDelay', String(clamped));
+                        }}
+                        error={
+                          gs.startDatePolicy === 'forward-set-date' &&
+                          (gs.startDateDelay === '' || parseInt(gs.startDateDelay, 10) < 0 || parseInt(gs.startDateDelay, 10) > 100)
+                        }
+                        helperText={
+                          gs.startDatePolicy === 'forward-set-date' && gs.startDateDelay === ''
+                            ? 'Required. Must be between 0 and 100.'
+                            : 'Days from today. 0 = today allowed; n = today + n days onwards.'
+                        }
+                      />
+                    </Stack>
+                  </FormRow>
+
+                  <FormRow label="Permit Days Selection">
+                    <RadioGroup row value={gs.permitDaysSelection} onChange={(e) => gsSet('permitDaysSelection', e.target.value)}>
+                      <FormControlLabel value="enable" control={<Radio />} label="Enable" sx={{ mr: 5 }} />
+                      <FormControlLabel value="disable" control={<Radio />} label="Disable" />
+                    </RadioGroup>
+                  </FormRow>
+
+                  <FormRow label="Retention Period for Expired Permits (Days)" required info='Enter the number of days expired permits should remain visible after their expiry date. For example, if set to 7, expired permits will be displayed for 7 days before being hidden from the system view. Enter 0 to hide them immediately upon expiry.'>
+                    <Stack spacing={0.5} sx={{ width: 260 }}>
+                      <Stack direction="row" alignItems="center" spacing={2}>
+                        <TextField
+                          type="number"
+                          inputProps={{ min: 0, step: 1, 'data-testid': 'retention-days-input' }}
+                          value={gs.retentionDays}
+                          onChange={(e) => {
+                            const raw = e.target.value;
+                            if (raw === '') { gsSet('retentionDays', ''); return; }
+                            // Only positive whole numbers (including 0). Strip decimals & sign.
+                            const cleaned = raw.replace(/[^0-9]/g, '');
+                            if (cleaned === '') { gsSet('retentionDays', ''); return; }
+                            gsSet('retentionDays', String(parseInt(cleaned, 10)));
+                          }}
+                          error={gs.retentionDays === '' || parseInt(gs.retentionDays, 10) < 0}
+                          sx={{ width: 200 }}
+                        />
+                        <Typography sx={{ color: tokens.INK }}>Days</Typography>
+                      </Stack>
+                      {gs.retentionDays === '' && (
+                        <Typography data-testid="retention-required-error" sx={{ color: '#B42318', fontSize: '0.75rem' }}>
+                          This field is required. Enter 0 or more.
+                        </Typography>
+                      )}
+                    </Stack>
+                  </FormRow>
+
+                  <FormRow label="Prefix" required info="Enter a unique alphanumeric prefix up to 10 characters. This prefix will appear at the start of the application number (e.g., 'RP' in RP-8XF93Z2K)." error={prefixInlineError || fieldError('General Settings', 'Prefix')}>
+                    <Stack spacing={0.5} sx={{ width: '100%' }}>
+                      <TextField
+                        placeholder="Enter Prefix"
+                        value={gs.prefix}
+                        onChange={(e) => gsSet('prefix', e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10))}
+                        disabled={isPublished}
+                        error={!!prefixInlineError || !!fieldError('General Settings', 'Prefix')}
+                        inputProps={{ maxLength: 10, 'data-testid': 'prefix-input', style: { textTransform: 'uppercase', fontFamily: 'monospace' } }}
+                        helperText={gs.prefix ? `Applications will be numbered like "${gs.prefix}-XXXXXXXX"` : ''}
+                      />
+                      {isPublished && (
+                        <Typography variant="caption" sx={{ color: tokens.MUTED }}>
+                          Prefix cannot be changed after the permission is published (US-188673).
+                        </Typography>
+                      )}
+                    </Stack>
+                  </FormRow>
+
+                  <FormRow label="Terms and Conditions" required error={fieldError('General Settings', 'Terms & Conditions')}>
+                    <Stack spacing={0.5} sx={{ width: '100%' }}>
+                      <Select displayEmpty value={gs.termsAndConditions} onChange={(e) => gsSet('termsAndConditions', e.target.value)} fullWidth
+                        inputProps={{ 'data-testid': 'tnc-select' }}
+                        error={!!fieldError('General Settings', 'Terms & Conditions')}>
+                        <MenuItem value=""><em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select</em></MenuItem>
+                        {tncOptions.map((tpl) => (
+                          <MenuItem key={tpl.id} value={tpl.id} data-testid={`tnc-opt-${tpl.id}`}>{tpl.templateName}</MenuItem>
+                        ))}
+                      </Select>
+                      {(!type || tncOptions.length === 0) && (
+                        <Typography data-testid="tnc-empty" variant="caption" sx={{ color: tokens.MUTED }}>
+                          {!type
+                            ? 'Select a Permission Type in Basic Information to see available templates.'
+                            : 'No Terms & Conditions templates configured for this permission type.'}
+                        </Typography>
+                      )}
+                    </Stack>
+                  </FormRow>
+
+                  <FormRow label="Display Description" required error={fieldError('General Settings', 'Display Description')}>
+                    <Stack spacing={0.5} sx={{ width: '100%' }}>
+                      <TextField
+                        placeholder="Enter Display Description"
+                        value={gs.displayDescription}
+                        onChange={(e) => gsSet('displayDescription', e.target.value.slice(0, 1000))}
+                        multiline minRows={3}
+                        fullWidth
+                        inputProps={{ maxLength: 1000, 'data-testid': 'display-description-input' }}
+                        error={!!fieldError('General Settings', 'Display Description')}
+                      />
+                      <Stack direction="row" justifyContent="flex-end">
+                        <Typography data-testid="display-description-counter" variant="caption" sx={{ color: (gs.displayDescription || '').length >= 1000 ? '#B42318' : tokens.MUTED }}>
+                          {(gs.displayDescription || '').length}/1000
+                        </Typography>
+                      </Stack>
+                    </Stack>
+                  </FormRow>
+
+                  <FormRow label="Permit Mode" required info="Select at least one delivery mode: Physical Permit and/or Virtual Permit. Both cannot be un-checked." error={fieldError('General Settings', 'Permit Mode')}>
+                    <Stack spacing={0.5}>
+                      <Stack direction="row" spacing={4}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              data-testid="permit-mode-physical"
+                              checked={gs.permitMode === 'physical' || gs.permitMode === 'both'}
+                              onChange={(e) => {
+                                const physicalOn = e.target.checked;
+                                const virtualOn = gs.permitMode === 'virtual' || gs.permitMode === 'both';
+                                // Enforce min-1: if unchecking last, ignore the change.
+                                if (!physicalOn && !virtualOn) return;
+                                const next = physicalOn && virtualOn ? 'both' : (physicalOn ? 'physical' : 'virtual');
+                                gsSet('permitMode', next);
+                              }}
+                            />
+                          }
+                          label="Physical Permit"
+                        />
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              data-testid="permit-mode-virtual"
+                              checked={gs.permitMode === 'virtual' || gs.permitMode === 'both'}
+                              onChange={(e) => {
+                                const virtualOn = e.target.checked;
+                                const physicalOn = gs.permitMode === 'physical' || gs.permitMode === 'both';
+                                if (!virtualOn && !physicalOn) return;
+                                const next = virtualOn && physicalOn ? 'both' : (virtualOn ? 'virtual' : 'physical');
+                                gsSet('permitMode', next);
+                              }}
+                            />
+                          }
+                          label="Virtual Permit"
+                        />
+                      </Stack>
+                      <Typography data-testid="permit-mode-hint" variant="caption" sx={{ color: tokens.MUTED }}>
+                        At least one mode must remain selected.
+                      </Typography>
+                    </Stack>
+                  </FormRow>
+
+                  {/* US-180626 — "Zone Related" (aka Permit related to) field removed. Zonal/Non-Zonal is derived from the selected Group. */}
+                  {resolvedZoneRelated === 'zonal' && (
+                    <FormRow label="Change Zone Limit" optional info="Maximum number of zones an applicant can select when applying for this permission. Leave blank for no limit. Only shown for Zonal groups.">
+                      <TextField
+                        type="number"
+                        placeholder="e.g. 3"
+                        value={gs.changeZoneLimit}
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/[^0-9]/g, '');
+                          gsSet('changeZoneLimit', digits);
+                        }}
+                        inputProps={{ min: 1, max: 99, 'data-testid': 'change-zone-limit-input' }}
+                        sx={{ width: 200 }}
+                      />
+                    </FormRow>
+                  )}
+
+                  {/* US-179406 — Free Permission toggle. Enable/Disable via confirmation prompt. */}
+                  <FormRow label="Free Permission" optional info="When enabled, this permission is issued at zero cost even if pricing is configured. Configured pricing is preserved and reapplied if this option is later disabled.">
+                    <Stack spacing={0.5}>
+                      <RadioGroup
+                        row
+                        value={gs.freePermission}
+                        onChange={(e) => {
+                          const next = e.target.value as 'enable' | 'disable';
+                          // Only open the confirmation prompt if the value is actually changing.
+                          if (next !== gs.freePermission) setFreePermissionPrompt(next);
+                        }}
+                        data-testid="free-permission-radio-group"
+                      >
+                        <FormControlLabel
+                          value="enable"
+                          control={<Radio inputProps={{ 'data-testid': 'free-permission-enable' } as any} />}
+                          label="Enable"
+                        />
+                        <FormControlLabel
+                          value="disable"
+                          control={<Radio inputProps={{ 'data-testid': 'free-permission-disable' } as any} />}
+                          label="Disable"
+                        />
+                      </RadioGroup>
+                      {gs.freePermission === 'enable' && (
+                        <Typography data-testid="free-permission-status" variant="caption" sx={{ color: tokens.NAVY, fontWeight: 600 }}>
+                          Free Permission is enabled — this permission will be issued at zero cost. Configured pricing remains saved but is not applied.
+                        </Typography>
+                      )}
+                    </Stack>
+                  </FormRow>
+
+
+                  <Typography data-testid="other-settings-heading" sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1rem', color: tokens.INK, mt: 2 }}>
+                    Other Settings
+                  </Typography>
+                  <Divider sx={{ my: 1.5 }} />
+
+                  <FormRow label="Other Settings" optional>
+                    <Stack spacing={1}>
+                      <Stack direction="row" spacing={4} flexWrap="wrap">
+                        <FormControlLabel
+                          control={<Checkbox data-testid="os-back-office" checked={gs.backOfficeUse} onChange={(e) => gsSet('backOfficeUse', e.target.checked)} />}
+                          label="Back-office Use"
+                        />
+                        <FormControlLabel
+                          control={<Checkbox data-testid="os-vat" checked={gs.vatApplicable} onChange={(e) => gsSet('vatApplicable', e.target.checked)} />}
+                          label="VAT Applicable"
+                        />
+                        <FormControlLabel
+                          control={<Checkbox data-testid="os-hours" checked={gs.hoursOfOperation} onChange={(e) => gsSet('hoursOfOperation', e.target.checked)} />}
+                          label="Hours of Operation"
+                        />
+                        <FormControlLabel
+                          control={<Checkbox data-testid="os-business-name" checked={gs.businessName} onChange={(e) => gsSet('businessName', e.target.checked)} />}
+                          label="Business Name"
+                        />
+                        <FormControlLabel
+                          control={<Checkbox data-testid="os-experian" checked={gs.enableExperianCheck} onChange={(e) => gsSet('enableExperianCheck', e.target.checked)} />}
+                          label="Enable Experian Check"
+                        />
+                      </Stack>
+                    </Stack>
+                  </FormRow>
+
+                  {/* US-165020 — Admin Fee for Permission: MNPS currency, 0–1000, up to 2 decimals, contract-level default. */}
+                  <FormRow
+                    label="Admin Fee for Permission"
+                    optional
+                    info={`Overrides the contract-level default (currently ${mnpsCurrency}${contractAdminFeeDefault}) for this specific permission. Leave blank to use the contract default.`}
+                  >
+                    <TextField
+                      placeholder={`Default: ${mnpsCurrency}${contractAdminFeeDefault}`}
+                      type="number"
+                      value={gs.adminFee}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        gsSet('adminFee', v);
+                        setAdminFeeError(validateAdminFee(v));
+                      }}
+                      onBlur={(e) => {
+                        const raw = e.target.value;
+                        const err = validateAdminFee(raw);
+                        setAdminFeeError(err);
+                        if (!err && raw !== '' && raw !== gs.adminFee) {
+                          // Trimmed 2-decimal formatting on commit for currency-like inputs.
+                        }
+                        if (!err) {
+                          // US-165020 — Audit event: Admin Fee for Permission Updated
+                          try {
+                            const key = 'prototype:builder:audit:events';
+                            const existing = JSON.parse(localStorage.getItem(key) || '[]');
+                            existing.unshift({
+                              eventType: 'Admin Fee for Permission Updated',
+                              description: `Admin fee configuration updated in '${name || 'New Permission'}'`,
+                              timestamp: new Date().toISOString(),
+                              userRole: 'Super Admin',
+                              userName: 'QA Tester',
+                              category: 'Configuration',
+                              adminFee: raw,
+                              currency: mnpsCurrency,
+                              permissionId: id || 'new',
+                            });
+                            localStorage.setItem(key, JSON.stringify(existing.slice(0, 100)));
+                          } catch { /* localStorage full — ignore */ }
+                        }
+                      }}
+                      error={!!adminFeeError}
+                      helperText={adminFeeError || `${mnpsCurrency}${BUSINESS_RULES.ADMIN_FEE_MIN} – ${mnpsCurrency}${BUSINESS_RULES.ADMIN_FEE_MAX.toLocaleString()} · up to 2 decimals`}
+                      InputProps={{ startAdornment: <InputAdornment position="start" data-testid="admin-fee-currency-symbol">{mnpsCurrency}</InputAdornment> }}
+                      inputProps={{ min: BUSINESS_RULES.ADMIN_FEE_MIN, max: BUSINESS_RULES.ADMIN_FEE_MAX, step: 0.01, 'data-testid': 'admin-fee-input' }}
+                      FormHelperTextProps={{ 'data-testid': adminFeeError ? 'admin-fee-error' : 'admin-fee-helper' } as any}
+                    />
+                  </FormRow>
+                </>
+              )}
+            </Paper>
+          </Stack>
+        )}
+
+        {topTab === 'rules' && <RulesTab
+          permissionId={id || 'default'}
+          showErrors={showFieldErrors}
+          validationErrors={liveValidation.errors}
+          permitMode={gs.permitMode}
+        />}
+        {topTab === 'pricing' && <PricingConfigurationTab
+          permissionId={id || 'default'}
+          permissionStatus={perm?.status || 'Draft'}
+        />}
+        {topTab === 'application-form' && <ApplicationFormTab
+          permissionId={id || 'default'}
+          showErrors={showFieldErrors}
+          error={fieldError('Application Form', 'Forms')}
+        />}
+        {topTab === 'custom-fields' && <CustomFieldsTab permissionId={id || 'default'} />}
+      </Box>
+
+      {/* US-164796 — unsaved-changes guard */}
+      <UnsavedChangesGuard
+        dirty={dirty}
+        onSave={() => {
+          const r = persistEntry('Draft');
+          if (!r.ok) {
+            showToast(r.error || 'Save failed', 'error');
+            throw new Error(r.error || 'Save failed');
+          }
+        }}
+      />
+
+      {/* US-155975 — Publish validation errors dialog */}
+      <Dialog open={!!publishErrors} onClose={() => setPublishErrors(null)} maxWidth="md" fullWidth>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <ErrorOutlineOutlined color="error" />
+          Please fix the following before publishing ({publishErrors?.length ?? 0})
+        </DialogTitle>
+        <DialogContent dividers sx={{ maxHeight: '60vh' }}>
+          {publishErrors && Object.entries(getErrorCountBySection(publishErrors)).map(([section, count]) => {
+            const jumpTo = () => {
+              setPublishErrors(null);
+              if ((PERMISSION_SUBS as readonly string[]).includes(section)) {
+                setTopTab('permissions');
+                setSub(section as PermissionSub);
+              } else if (section.startsWith('Rules')) {
+                setTopTab('rules');
+              } else if (section === 'Pricing') {
+                setTopTab('pricing');
+              } else if (section === 'Application Form') {
+                setTopTab('application-form');
+              }
+            };
+            return (
+              <Box key={section} sx={{ mb: 2, p: 1.5, borderRadius: 1, border: '1px solid #F5C6C6', bgcolor: '#FFF5F5', cursor: 'pointer', '&:hover': { bgcolor: '#FFEEEE' } }} onClick={jumpTo}>
+                <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 0.5 }}>
+                  <Stack direction="row" alignItems="center" spacing={1}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#C62828' }}>{section}</Typography>
+                    <Chip label={count} size="small" color="error" />
+                  </Stack>
+                  <Typography variant="caption" sx={{ color: tokens.NAVY, fontWeight: 600 }}>Go to section →</Typography>
+                </Stack>
+                <List dense disablePadding>
+                  {publishErrors.filter(e => e.section === section).map((e, i) => (
+                    <ListItem key={i} sx={{ py: 0.25 }}>
+                      <ListItemIcon sx={{ minWidth: 28 }}>
+                        <ErrorOutlineOutlined fontSize="small" color="error" />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={e.field}
+                        secondary={e.message}
+                        primaryTypographyProps={{ fontSize: '0.875rem', fontWeight: 500 }}
+                        secondaryTypographyProps={{ fontSize: '0.8rem' }}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </Box>
+            );
+          })}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setPublishErrors(null)} variant="contained">OK</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* US-179406 — Free Permission enable/disable confirmation prompt */}
+      <Dialog
+        open={!!freePermissionPrompt}
+        onClose={() => setFreePermissionPrompt(null)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{ 'data-testid': 'free-permission-dialog' } as any}
+      >
+        <DialogTitle sx={{ fontFamily: tokens.HEADING, fontWeight: 700 }}>
+          {freePermissionPrompt === 'enable' ? 'Enable Free Permission?' : 'Disable Free Permission?'}
+        </DialogTitle>
+        <DialogContent dividers>
+          <Typography data-testid="free-permission-dialog-message" sx={{ fontSize: '0.9rem', color: tokens.INK }}>
+            {freePermissionPrompt === 'enable'
+              ? 'Enabling this option will make this permission free, even if a pricing is configured. No charges will be applied.'
+              : 'Disabling this option will remove the free status from this permission. Configured pricing will now be applied.'}
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            data-testid="free-permission-dialog-cancel"
+            onClick={() => setFreePermissionPrompt(null)}
+            sx={{ textTransform: 'none' }}
+          >
+            Cancel
+          </Button>
+          <Button
+            data-testid="free-permission-dialog-confirm"
+            variant="contained"
+            color={freePermissionPrompt === 'enable' ? 'primary' : 'error'}
+            onClick={() => {
+              if (freePermissionPrompt) {
+                gsSet('freePermission', freePermissionPrompt);
+                showToast(
+                  freePermissionPrompt === 'enable'
+                    ? 'Free Permission enabled. No charges will be applied.'
+                    : 'Free Permission disabled. Configured pricing will now be applied.',
+                  'success',
+                );
+              }
+              setFreePermissionPrompt(null);
+            }}
+            sx={{ textTransform: 'none' }}
+          >
+            {freePermissionPrompt === 'enable' ? 'Enable' : 'Disable'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+}
+
+const topTabSx = {
+  textTransform: 'uppercase' as const,
+  fontWeight: 700,
+  letterSpacing: '0.06em',
+  fontSize: '0.8rem',
+  minHeight: 48,
+};
+
+function TabLabelWithBadge({ label, count }: { label: string; count: number }) {
+  return (
+    <Stack direction="row" alignItems="center" spacing={1}>
+      <span>{label}</span>
+      {count > 0 && (
+        <Chip label={count} size="small" color="error" sx={{ height: 18, minWidth: 18, '& .MuiChip-label': { px: 0.6, fontSize: '0.68rem', fontWeight: 700 } }} />
+      )}
+    </Stack>
+  );
+}
+
+function FormRow({ label, children, optional, info, required, error }: { label: string; children: React.ReactNode; optional?: boolean; info?: string; required?: boolean; error?: string | null }) {
+  return (
+    <Stack data-field={label} direction={{ xs: 'column', md: 'row' }} spacing={2} alignItems={{ md: 'flex-start' }} sx={{ mb: 2.5 }}>
+      <Box sx={{ width: { md: 220 }, pt: { md: 1 } }}>
+        <Stack direction="row" alignItems="center" spacing={0.75}>
+          <Typography sx={{ fontSize: '0.95rem', color: tokens.INK, fontWeight: 500 }}>
+            {label}
+            {required && <Typography component="span" sx={{ color: '#C62828', ml: 0.4 }}>*</Typography>}
+            {optional && <Typography component="span" sx={{ color: tokens.MUTED, fontSize: '0.8rem', ml: 0.75 }}>(optional)</Typography>}
+          </Typography>
+          {info && (
+            <Tooltip title={info} arrow>
+              <ErrorOutlineOutlined sx={{ fontSize: 16, color: '#E9A400' }} />
+            </Tooltip>
+          )}
+        </Stack>
+      </Box>
+      <Box sx={{ flex: 1 }}>
+        {children}
+        {error && (
+          <Typography sx={{ color: '#C62828', fontSize: '0.75rem', mt: 0.5, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <ErrorOutlineOutlined sx={{ fontSize: 14 }} />
+            {error}
+          </Typography>
+        )}
+      </Box>
+    </Stack>
+  );
+}
+
+function PlaceholderSection({ title }: { title: string }) {
+  return (
+    <>
+      <Typography sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1.15rem', color: tokens.INK }}>
+        {title}
+      </Typography>
+      <Divider sx={{ my: 2 }} />
+      <Box sx={{ minHeight: 320, display: 'grid', placeItems: 'center' }}>
+        <Typography sx={{ color: tokens.MUTED }}>{title} section — coming soon.</Typography>
+      </Box>
+    </>
+  );
+}
+
+function TopLevelPlaceholder({ title }: { title: string }) {
+  return (
+    <Paper sx={{ p: 6 }}>
+      <Box sx={{ minHeight: 320, display: 'grid', placeItems: 'center' }}>
+        <Typography sx={{ color: tokens.MUTED }}>{title} — coming soon.</Typography>
+      </Box>
+    </Paper>
+  );
+}

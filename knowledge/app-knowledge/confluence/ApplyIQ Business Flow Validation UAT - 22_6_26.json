@@ -1,0 +1,27 @@
+{
+  "id": "2065858682",
+  "title": "ApplyIQ Business Flow Validation UAT - 22/6/26",
+  "version": 5,
+  "lastUpdated": "2026-06-22T14:06:24.708Z",
+  "author": "Prathiba K",
+  "labels": [],
+  "ancestors": [
+    {
+      "id": "6062342",
+      "title": "Freedom"
+    },
+    {
+      "id": "8323127",
+      "title": "🏛Architecture"
+    },
+    {
+      "id": "9175041",
+      "title": "Architecture Documentation"
+    },
+    {
+      "id": "1049722900",
+      "title": "Permissions Documentation"
+    }
+  ],
+  "url": "https://marston.atlassian.net/wiki/spaces/FF/pages/2065858682/ApplyIQ+Business+Flow+Validation+UAT+-+22+6+26"
+}

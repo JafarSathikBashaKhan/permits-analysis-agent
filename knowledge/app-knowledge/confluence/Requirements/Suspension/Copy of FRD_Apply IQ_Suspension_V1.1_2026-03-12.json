@@ -1,0 +1,35 @@
+{
+  "id": "1921220609",
+  "title": "Copy of FRD_Apply IQ_Suspension_V1.1_2026-03-12",
+  "version": 1,
+  "lastUpdated": "2026-04-28T06:39:03.850Z",
+  "author": "Prathiba K",
+  "labels": [],
+  "ancestors": [
+    {
+      "id": "6062342",
+      "title": "Freedom"
+    },
+    {
+      "id": "8323127",
+      "title": "🏛Architecture"
+    },
+    {
+      "id": "9175041",
+      "title": "Architecture Documentation"
+    },
+    {
+      "id": "1049722900",
+      "title": "Permissions Documentation"
+    },
+    {
+      "id": "1850900496",
+      "title": "Requirements"
+    },
+    {
+      "id": "1850441825",
+      "title": "Suspension"
+    }
+  ],
+  "url": "https://marston.atlassian.net/wiki/spaces/FF/pages/1921220609/Copy+of+FRD_Apply+IQ_Suspension_V1.1_2026-03-12"
+}

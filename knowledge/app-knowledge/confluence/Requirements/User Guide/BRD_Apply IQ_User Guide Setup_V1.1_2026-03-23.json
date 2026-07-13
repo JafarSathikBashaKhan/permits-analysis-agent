@@ -1,0 +1,35 @@
+{
+  "id": "1805746200",
+  "title": "BRD_Apply IQ_User Guide Setup_V1.1_2026-03-23",
+  "version": 7,
+  "lastUpdated": "2026-04-02T05:49:58.202Z",
+  "author": "Prathiba K",
+  "labels": [],
+  "ancestors": [
+    {
+      "id": "6062342",
+      "title": "Freedom"
+    },
+    {
+      "id": "8323127",
+      "title": "🏛Architecture"
+    },
+    {
+      "id": "9175041",
+      "title": "Architecture Documentation"
+    },
+    {
+      "id": "1049722900",
+      "title": "Permissions Documentation"
+    },
+    {
+      "id": "1850900496",
+      "title": "Requirements"
+    },
+    {
+      "id": "1850441901",
+      "title": "User Guide"
+    }
+  ],
+  "url": "https://marston.atlassian.net/wiki/spaces/FF/pages/1805746200/BRD_Apply+IQ_User+Guide+Setup_V1.1_2026-03-23"
+}
