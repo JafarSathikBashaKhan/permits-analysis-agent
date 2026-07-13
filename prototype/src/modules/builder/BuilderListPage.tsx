@@ -14,6 +14,7 @@ import { permissions, Permission } from '../../data/mock';
 import { tokens } from '../../theme';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { useToast } from '../../components/Toast';
+import { CreatePermissionSlider } from './CreatePermissionSlider';
 
 export const BUILDER_ROWS_KEY = 'prototype:builder:list:rows';
 
@@ -68,6 +69,13 @@ export function BuilderListPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const [allRows, setAllRows] = usePersistentState<Permission[]>(BUILDER_ROWS_KEY, () => [...permissions]);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [groups] = usePersistentState<any[]>('prototype:builder:groups:rows', () => {
+    const names = ['City Centre', 'North Zone', 'South Zone', 'Riverside', 'Business District', 'Suburbs'];
+    const types = ['Residents Permit', 'Business Permit', 'Visitor Permit', 'Contractor Permit',
+      'Suspension', 'Dispensation', 'Taxi Card'];
+    return names.map((n, i) => ({ id: `g-${i + 1}`, name: n, permissionType: types[i % types.length] }));
+  });
 
   // Column visibility
   const [visibleCols, setVisibleCols] = useState<Set<ColKey>>(
@@ -177,8 +185,7 @@ export function BuilderListPage() {
           data-testid="new-permission"
           variant="contained"
           startIcon={<Add />}
-          component={RouterLink}
-          to="/builder/new"
+          onClick={() => setCreateOpen(true)}
           sx={{ px: 2.5, py: 1, fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase' }}
         >
           New Permission
@@ -378,6 +385,14 @@ export function BuilderListPage() {
           labelRowsPerPage="Rows per page:"
         />
       </Paper>
+
+      <CreatePermissionSlider
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        existingPermissions={allRows}
+        groups={groups as any}
+        onCreate={(row) => setAllRows((prev) => [row, ...prev])}
+      />
     </>
   );
 }

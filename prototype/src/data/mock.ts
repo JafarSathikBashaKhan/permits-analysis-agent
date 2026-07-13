@@ -4,7 +4,7 @@
 export type Permission = {
   id: string;
   name: string;
-  type: 'Resident' | 'Visitor' | 'Business' | 'Permit' | 'Licence';
+  type: string;
   group: string;
   category: 'Scratch card' | 'Visitor' | 'Resident' | 'Disabled Bay' | 'Resident Exemptions';
   status: 'Draft' | 'Published';
@@ -31,6 +31,12 @@ export const permissions: Permission[] = [
 ];
 
 export const permissionTypes = ['Resident', 'Visitor', 'Business', 'Permit', 'Licence'] as const;
+
+/** Full type catalogue used by Builder Create and Groups modules (US-132611). */
+export const PERMISSION_TYPE_CATALOGUE = [
+  'Residents Permit', 'Business Permit', 'Visitor Permit', 'Contractor Permit',
+  'Suspension', 'Dispensation', 'Taxi Card',
+];
 export const groupsByType: Record<string, string[]> = {
   Resident: ['City Centre', 'North', 'South'],
   Visitor:  ['Visitor Books'],
