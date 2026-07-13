@@ -2,6 +2,7 @@ import {
   Box, Button, Chip, IconButton, InputAdornment, Menu, MenuItem, Paper,
   Stack, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow,
   TextField, Typography, Checkbox, Tooltip, Link, FormControlLabel, Divider,
+  Dialog, DialogTitle, DialogContent, DialogActions,
 } from '@mui/material';
 import {
   Add, Search, FilterListOutlined, ViewColumnOutlined, MoreVertOutlined,
@@ -168,9 +169,24 @@ export function BuilderListPage() {
   };
   const bulkDelete = () => {
     setAllRows((prev) => prev.filter((r) => !selected.has(r.id)));
-    showToast(`${selected.size} permission(s) deleted`, 'success');
+    showToast('Permissions Deleted successfully', 'success');
     setSelected(new Set());
   };
+
+  // ─── Delete confirmation state (US-136288) ─────────────────────────────
+  const [deleteTarget, setDeleteTarget] = useState<Permission | null>(null);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const askSingleDelete = (row: Permission) => setDeleteTarget(row);
+  const confirmSingleDelete = () => {
+    if (!deleteTarget) return;
+    const name = deleteTarget.name;
+    setAllRows((prev) => prev.filter((r) => r.id !== deleteTarget.id));
+    setSelected((prev) => { const s = new Set(prev); s.delete(deleteTarget.id); return s; });
+    setDeleteTarget(null);
+    showToast(`"${name}" Deleted Successfully`, 'success');
+  };
+  const askBulkDelete = () => { if (selected.size >= 2) setBulkDeleteOpen(true); };
+  const confirmBulkDelete = () => { bulkDelete(); setBulkDeleteOpen(false); };
 
   const shownColumns = COLUMNS.filter((c) => visibleCols.has(c.key));
 
@@ -210,13 +226,21 @@ export function BuilderListPage() {
           <Box sx={{ flex: 1 }} />
           {selected.size > 0 && (
             <>
-              <Typography variant="body2" color="text.secondary" sx={{ mr: 2 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ mr: 2 }} data-testid="selection-count">
                 {selected.size} Selected
               </Typography>
               <Button size="small" variant="outlined" sx={{ mr: 1 }} onClick={bulkPublish}>Publish</Button>
               <Button size="small" variant="outlined" sx={{ mr: 1 }} onClick={bulkUnpublish}>Unpublish</Button>
               <Button size="small" variant="outlined" sx={{ mr: 1 }} onClick={bulkClone}>Clone</Button>
-              <Button size="small" variant="outlined" color="error" onClick={bulkDelete}>Delete</Button>
+              {selected.size >= 2 && (
+                <Button
+                  size="small" variant="outlined" color="error"
+                  onClick={askBulkDelete}
+                  data-testid="bulk-delete-button"
+                >
+                  Delete
+                </Button>
+              )}
             </>
           )}
           <Tooltip title="Columns">
@@ -351,7 +375,7 @@ export function BuilderListPage() {
                   cols={shownColumns}
                   checked={selected.has(p.id)}
                   onToggle={() => toggleOne(p.id)}
-                  onDelete={() => setAllRows((prev) => prev.filter((r) => r.id !== p.id))}
+                  onDelete={() => askSingleDelete(p)}
                   onTogglePublish={() => setAllRows((prev) => prev.map((r) => r.id === p.id ? { ...r, status: r.status === 'Draft' ? 'Published' : 'Draft' } : r))}
                   onClone={() => {
                     const src = allRows.find((r) => r.id === p.id);
@@ -393,6 +417,60 @@ export function BuilderListPage() {
         groups={groups as any}
         onCreate={(row) => setAllRows((prev) => [row, ...prev])}
       />
+
+      {/* Single-row delete confirmation — US-136288 */}
+      <Dialog
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        data-testid="single-delete-dialog"
+      >
+        <DialogTitle>Delete permission</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete "<strong>{deleteTarget?.name}</strong>"?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteTarget(null)} data-testid="single-delete-cancel">
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={confirmSingleDelete}
+            data-testid="single-delete-confirm"
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Bulk delete confirmation — US-136288 */}
+      <Dialog
+        open={bulkDeleteOpen}
+        onClose={() => setBulkDeleteOpen(false)}
+        data-testid="bulk-delete-dialog"
+      >
+        <DialogTitle>Delete All Permission?</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure want to delete all the selected Permissions ({selected.size})?
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setBulkDeleteOpen(false)} data-testid="bulk-delete-cancel">
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={confirmBulkDelete}
+            data-testid="bulk-delete-confirm"
+          >
+            Delete All
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 }
