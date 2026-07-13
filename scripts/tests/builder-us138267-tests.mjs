@@ -2,29 +2,10 @@
  * US-138267 — Permission Setup | Builder — General Settings
  *              Set of check boxes (Other Settings + Zone Related + Permit Mode)
  *
- * ACs covered:
- *   Other Settings section
- *     - Section titled "Other Settings" is present.
- *     - Contains exactly 5 checkboxes: Back-office Use, VAT Applicable,
- *       Hours of Operation, Business Name, Enable Experian Check.
- *     - "Business Address" and "Comment Box" are NOT rendered in Other Settings.
- *     - All 5 checkboxes are unchecked by default and each toggles independently.
- *   Permit Mode
- *     - Rendered as TWO CHECKBOXES: Physical Permit + Virtual Permit
- *       (not a radio group).
- *     - Both checked by default.
- *     - Min-1 rule: attempting to un-check the last remaining mode is prevented.
- *   Zone Related
- *     - Two radio options: Zonal (default) and Non-Zonal.
- *     - When Zonal, a multi-select of zones is visible.
- *     - When Non-Zonal, the zone multi-select is hidden.
- *     - Zonal + empty zones → clicking Publish is blocked with message
- *       "Please select at least one zone".
- *     - Zonal + empty zones → Save Draft is allowed.
- *     - Selecting one or more zones clears the required error.
- *   Persistence
- *     - Zone Related, Zone selection, Permit Mode checkboxes and Other Settings
- *       checkboxes persist across page reload.
+ * NOTE (US-180626): The "Zone Related" (aka "Permit related to") field has been
+ * REMOVED from General Settings — zonality is now derived from the selected
+ * Group's groupType. Zone-related tests below verify that the legacy control
+ * is absent; the Permit Mode and Other Settings sections remain in place.
  *
  * Run: node scripts/tests/builder-us138267-tests.mjs
  */
@@ -194,100 +175,28 @@ async function testPermitModeMinOneEnforced(page) {
     `afterUncheckPhysical: virtual=${virtualStillChecked} physical=${physicalUnchecked}; afterUncheckVirtualToo: virtual=${virtualAfter}`, shot);
 }
 
-// ---------- Zone Related ----------
+// ---------- Zone Related (removed per US-180626) ----------
 
-async function testZoneRelatedRadiosPresent(page) {
+async function testZoneRelatedRadiosRemoved(page) {
   await openDraftPermission(page);
   await openGeneralSettings(page);
-  const zonal = await page.getByTestId('zone-related-zonal').isVisible();
-  const nonZonal = await page.getByTestId('zone-related-non-zonal').isVisible();
-  record('US-138267.zoneRelated.radiosPresent',
-    'Zone Related exposes Zonal and Non-Zonal radios',
-    zonal && nonZonal, `zonal=${zonal} nonZonal=${nonZonal}`);
+  const zonal = await page.getByTestId('zone-related-zonal').isVisible().catch(() => false);
+  const nonZonal = await page.getByTestId('zone-related-non-zonal').isVisible().catch(() => false);
+  const multi = await page.getByTestId('zone-multi-select').isVisible().catch(() => false);
+  record('US-138267.zoneRelated.removedPerUs180626',
+    'Zone Related radios and multi-select are removed from General Settings (US-180626)',
+    !zonal && !nonZonal && !multi,
+    `zonalRadio=${zonal} nonZonalRadio=${nonZonal} multiSelect=${multi}`);
 }
 
-async function testZoneRelatedDefaultZonalWithMultiSelect(page) {
+async function testZoneRelatedLabelAbsent(page) {
   await openDraftPermission(page);
   await openGeneralSettings(page);
-  const zonalChecked = await page.getByTestId('zone-related-zonal').isChecked();
-  const dropdown = await page.getByTestId('zone-multi-select').isVisible().catch(() => false);
-  const shot = await snap(page, 'US-138267.zoneRelated.defaultZonal');
-  record('US-138267.zoneRelated.defaultZonal',
-    'Default is Zonal and the multi-select is visible',
-    zonalChecked && dropdown, `zonal=${zonalChecked} dropdown=${dropdown}`, shot);
-}
-
-async function testZoneRelatedNonZonalHidesDropdown(page) {
-  await openDraftPermission(page);
-  await openGeneralSettings(page);
-  await page.getByTestId('zone-related-non-zonal').check();
-  await wait(200);
-  const dropdown = await page.getByTestId('zone-multi-select').isVisible().catch(() => false);
-  const shot = await snap(page, 'US-138267.zoneRelated.nonZonalHidden');
-  record('US-138267.zoneRelated.nonZonalHidesDropdown',
-    'Selecting Non-Zonal hides the zone multi-select',
-    dropdown === false, `dropdownVisible=${dropdown}`, shot);
-}
-
-async function testZonalEmptyBlocksPublish(page) {
-  await openDraftPermission(page);
-  await openGeneralSettings(page);
-  // Ensure zonal + empty
-  await page.getByTestId('zone-related-zonal').check();
-  await wait(120);
-  const publish = page.getByTestId('publish-button');
-  await publish.click();
-  await wait(600);
-  const body = (await page.locator('body').textContent()).toLowerCase();
-  const blocked = /please select at least one zone/.test(body);
-  const shot = await snap(page, 'US-138267.zonal.publishBlocked');
-  record('US-138267.zonal.publishBlockedWithMessage',
-    'Publish is blocked with "Please select at least one zone" when zonal + no zones',
-    blocked, `bodyMentionsMessage=${blocked}`, shot);
-}
-
-async function testZonalEmptyAllowsDraft(page) {
-  await openDraftPermission(page);
-  await openGeneralSettings(page);
-  await page.getByTestId('zone-related-zonal').check();
-  await wait(120);
-  const draft = page.getByTestId('save-draft-button');
-  await draft.click();
-  await wait(500);
-  const body = (await page.locator('body').textContent()).toLowerCase();
-  const savedOk = /draft saved/.test(body);
-  record('US-138267.zonal.draftAllowedWithNoZones',
-    'Save Draft is allowed when zonal + no zones selected',
-    savedOk, `draftToast=${savedOk}`);
-}
-
-async function testZoneSelectionClearsError(page) {
-  await openDraftPermission(page);
-  await openGeneralSettings(page);
-  await page.getByTestId('zone-related-zonal').check();
-  await wait(120);
-  // Trigger the error by attempting publish first.
-  await page.getByTestId('publish-button').click();
-  await wait(400);
-  const errBefore = await page.getByTestId('zone-required-error').isVisible().catch(() => false);
-  // Close the "Please fix..." publish-errors dialog before interacting with the form.
-  const okBtn = page.getByRole('button', { name: /^OK$/ });
-  if (await okBtn.isVisible().catch(() => false)) {
-    await okBtn.click();
-    await wait(300);
-  }
-  // Open the multi-select and pick the first zone option.
-  await page.getByTestId('zone-multi-select').click();
-  await wait(300);
-  const firstOpt = page.locator('[data-testid^="zone-opt-"]').first();
-  await firstOpt.click();
-  await page.keyboard.press('Escape');
-  await wait(300);
-  const errAfter = await page.getByTestId('zone-required-error').isVisible().catch(() => false);
-  const shot = await snap(page, 'US-138267.zonal.selectionClears');
-  record('US-138267.zonal.selectionClearsError',
-    'Selecting one or more zones clears the required error',
-    errBefore && !errAfter, `errorBefore=${errBefore} errorAfter=${errAfter}`, shot);
+  const body = await page.locator('body').textContent();
+  const hasLabel = /Permit related to|Zone Related/.test(body);
+  record('US-138267.zoneRelated.labelAbsent',
+    'General Settings does not render the "Permit related to" / "Zone Related" label',
+    !hasLabel, `labelFound=${hasLabel}`);
 }
 
 // ---------- Persistence ----------
@@ -300,8 +209,6 @@ async function testPersistenceAcrossReload(page) {
   await page.getByTestId('os-experian').check();
   // Permit Mode: uncheck physical (virtual only)
   await page.getByTestId('permit-mode-physical').uncheck();
-  // Zone Related: Non-Zonal
-  await page.getByTestId('zone-related-non-zonal').check();
   await wait(300);
   await page.reload();
   await page.waitForLoadState('networkidle');
@@ -312,12 +219,11 @@ async function testPersistenceAcrossReload(page) {
   const experian = await page.getByTestId('os-experian').isChecked();
   const physical = await page.getByTestId('permit-mode-physical').isChecked();
   const virtual = await page.getByTestId('permit-mode-virtual').isChecked();
-  const nonZonal = await page.getByTestId('zone-related-non-zonal').isChecked();
   const shot = await snap(page, 'US-138267.persistence');
-  const ok = backOffice && !vat && experian && !physical && virtual && nonZonal;
+  const ok = backOffice && !vat && experian && !physical && virtual;
   record('US-138267.persistence.acrossReload',
-    'All fields (Other Settings, Permit Mode, Zone Related) persist across reload',
-    ok, `backOffice=${backOffice} vat=${vat} experian=${experian} physical=${physical} virtual=${virtual} nonZonal=${nonZonal}`, shot);
+    'Other Settings + Permit Mode checkboxes persist across reload',
+    ok, `backOffice=${backOffice} vat=${vat} experian=${experian} physical=${physical} virtual=${virtual}`, shot);
 }
 
 // ---------- Runner ----------
@@ -336,12 +242,8 @@ async function testPersistenceAcrossReload(page) {
     ['permit mode two checkboxes', testPermitModeIsTwoCheckboxes],
     ['permit mode default both',   testPermitModeDefaultBothChecked],
     ['permit mode min-1 rule',     testPermitModeMinOneEnforced],
-    ['zone related radios',        testZoneRelatedRadiosPresent],
-    ['zone related default zonal', testZoneRelatedDefaultZonalWithMultiSelect],
-    ['zone related non-zonal',     testZoneRelatedNonZonalHidesDropdown],
-    ['zonal empty blocks publish', testZonalEmptyBlocksPublish],
-    ['zonal empty allows draft',   testZonalEmptyAllowsDraft],
-    ['zone selection clears err',  testZoneSelectionClearsError],
+    ['zone related removed',       testZoneRelatedRadiosRemoved],
+    ['zone related label absent',  testZoneRelatedLabelAbsent],
     ['persistence across reload',  testPersistenceAcrossReload],
   ];
 

@@ -48,53 +48,68 @@ function record(id, name, passed, detail = '', shot = '') {
   console.log(`${passed ? '✅' : '❌'} ${id} — ${name}${detail ? `\n   ${detail}` : ''}${shot ? `\n   📸 ${shot}` : ''}`);
 }
 
+async function seedGroupsInStorage(page) {
+  await page.goto(BASE);
+  await page.waitForLoadState('networkidle');
+  await page.evaluate(() => {
+    const mk = (name, groupType) => ({
+      id: `g-${name.replace(/\W+/g, '-').toLowerCase()}`, name, permissionType: 'Resident', groupType,
+      householdLimit: 2, maxVouchers: 10, backOfficeUse: false, status: 'Active',
+      linkedPermissions: 0, createdOn: '2025-01-01', createdByUser: 'test',
+      updatedOn: '2025-01-01', updatedByUser: 'test',
+    });
+    // Match every mock-permission's group name; make "Business" Non-Zonal to test hiding.
+    const groups = [
+      mk('City Centre', 'Zonal'),
+      mk('Visitor Books', 'Zonal'),
+      mk('Business', 'Non-Zonal'),
+      mk('Disabled', 'Zonal'),
+      mk('Contractor', 'Zonal'),
+      mk('Market', 'Zonal'),
+    ];
+    localStorage.setItem('prototype:builder:groups:rows', JSON.stringify(groups));
+  });
+}
+
 async function resetStorage(page) {
   await page.goto(BASE);
   await page.waitForLoadState('networkidle');
   await page.evaluate(() => {
     for (const k of Object.keys(localStorage)) {
-      if (k.startsWith('prototype:builder:')) localStorage.removeItem(k);
+      if (k.startsWith('prototype:builder:') && !k.endsWith(':groups:rows')) localStorage.removeItem(k);
     }
   });
+  await seedGroupsInStorage(page);
 }
 
-async function openDraftPermission(page) {
+async function openDraftPermission(page, opts = {}) {
+  const { preferGroup } = opts; // e.g. 'Business' for Non-Zonal
   await page.goto(`${BASE}/builder`);
   await page.waitForLoadState('networkidle');
   await wait(400);
-  const rows = await page.locator('[data-testid^="row-P-"]').all();
-  for (const r of rows) {
-    const id = (await r.getAttribute('data-testid')).replace('row-', '');
-    const status = (await page.getByTestId(`row-status-${id}`).textContent()).trim();
-    if (/draft/i.test(status)) {
-      await page.getByTestId(`row-name-${id}`).click();
-      await wait(500);
-      return id;
-    }
+  // Pull the full row data from localStorage so we know each row's group.
+  const rows = await page.evaluate(() => {
+    const raw = localStorage.getItem('prototype:builder:list:rows');
+    return raw ? JSON.parse(raw) : [];
+  });
+  const drafts = rows.filter((r) => (r.status || '').toLowerCase() === 'draft');
+  if (drafts.length === 0) throw new Error('no draft row');
+  let pick = drafts[0];
+  if (preferGroup) {
+    const match = drafts.find((r) => r.group === preferGroup);
+    if (match) pick = match;
+  } else {
+    const nonBusiness = drafts.find((r) => r.group !== 'Business');
+    if (nonBusiness) pick = nonBusiness;
   }
-  throw new Error('no draft row');
+  await page.getByTestId(`row-name-${pick.id}`).click();
+  await wait(500);
+  return pick.id;
 }
 
 async function openSubnav(page, key) {
   await page.getByTestId(`subnav-${key}`).click();
   await wait(400);
-}
-
-// Seed General Settings zones so Zone Mapping has a zone pool to work with.
-async function seedZonesInGeneralSettings(page, count = 3) {
-  await openSubnav(page, 'general-settings');
-  // Ensure Zonal is selected (default).
-  await page.getByTestId('zone-related-zonal').check();
-  await wait(150);
-  await page.getByTestId('zone-multi-select').click();
-  await wait(300);
-  const opts = await page.locator('[data-testid^="zone-opt-"]').all();
-  for (let i = 0; i < Math.min(count, opts.length); i++) {
-    await opts[i].click();
-    await wait(80);
-  }
-  await page.keyboard.press('Escape');
-  await wait(300);
 }
 
 async function pickZonesInSet(page, setIndex, howMany) {
@@ -118,30 +133,25 @@ async function pickZonesInSet(page, setIndex, howMany) {
 // ---------- Tests ----------
 
 async function testHiddenWhenNonZonal(page) {
-  await openDraftPermission(page);
-  await openSubnav(page, 'general-settings');
-  await page.getByTestId('zone-related-non-zonal').check();
+  const id = await openDraftPermission(page, { preferGroup: 'Business' });
   await wait(300);
   const visible = await page.getByTestId('subnav-zone-mapping').isVisible().catch(() => false);
   record('US-161880.visibility.hiddenWhenNonZonal',
-    'Zone Mapping sub-nav is hidden when Zone Related = Non-Zonal',
-    !visible, `subnavVisible=${visible}`);
+    'Zone Mapping sub-nav is hidden when the selected group is Non-Zonal',
+    !visible, `permission=${id} subnavVisible=${visible}`);
 }
 
 async function testVisibleWhenZonal(page) {
   await openDraftPermission(page);
-  await openSubnav(page, 'general-settings');
-  await page.getByTestId('zone-related-zonal').check();
-  await wait(200);
+  await wait(300);
   const visible = await page.getByTestId('subnav-zone-mapping').isVisible().catch(() => false);
   record('US-161880.visibility.visibleWhenZonal',
-    'Zone Mapping sub-nav is visible when Zone Related = Zonal',
+    'Zone Mapping sub-nav is visible when the selected group is Zonal',
     visible, `subnavVisible=${visible}`);
 }
 
 async function testInfoAlertPresent(page) {
   await openDraftPermission(page);
-  await seedZonesInGeneralSettings(page, 3);
   await openSubnav(page, 'zone-mapping');
   const alert = page.getByTestId('zone-mapping-info');
   const visible = await alert.isVisible();
@@ -155,7 +165,6 @@ async function testInfoAlertPresent(page) {
 
 async function testCreateNewZoneSetLabels(page) {
   await openDraftPermission(page);
-  await seedZonesInGeneralSettings(page, 3);
   await openSubnav(page, 'zone-mapping');
   await page.getByTestId('new-zone-set-btn').click();
   await wait(200);
@@ -170,9 +179,8 @@ async function testCreateNewZoneSetLabels(page) {
     `label1="${label1}" label2="${label2}"`, shot);
 }
 
-async function testDropdownOnlyGSSelectedZones(page) {
+async function testDropdownAllContractZones(page) {
   await openDraftPermission(page);
-  await seedZonesInGeneralSettings(page, 2);
   await openSubnav(page, 'zone-mapping');
   await page.getByTestId('new-zone-set-btn').click();
   await wait(200);
@@ -181,21 +189,19 @@ async function testDropdownOnlyGSSelectedZones(page) {
   const opts = await page.locator('[data-testid^="zone-set-opt-1-"]').all();
   const shot = await snap(page, 'US-161880.dropdownScope');
   await page.keyboard.press('Escape');
-  record('US-161880.create.dropdownScopedToGS',
-    'Zone Set dropdown lists only the zones selected in General Settings',
-    opts.length === 2, `dropdownOptions=${opts.length}`, shot);
+  // US-180626: dropdown must list every zone created against the contract.
+  record('US-161880.create.dropdownAllContractZones',
+    'Zone Set dropdown lists ALL zones created against the contract (US-180626)',
+    opts.length >= 5, `dropdownOptions=${opts.length} (expected >= 5 = full contract zone list)`, shot);
 }
 
 async function testCrossSetMutualExclusion(page) {
   await openDraftPermission(page);
-  await seedZonesInGeneralSettings(page, 3);
   await openSubnav(page, 'zone-mapping');
   await page.getByTestId('new-zone-set-btn').click();
   await page.getByTestId('new-zone-set-btn').click();
   await wait(200);
-  // Pick first zone into Zone Set 1
   const picked1 = await pickZonesInSet(page, 1, 1);
-  // Open Zone Set 2's dropdown and check that one option is disabled
   await page.getByTestId('zone-set-select-2').click();
   await wait(300);
   const opts2 = await page.locator('[data-testid^="zone-set-opt-2-"]').all();
@@ -214,14 +220,12 @@ async function testCrossSetMutualExclusion(page) {
 
 async function testDeleteZoneSet(page) {
   await openDraftPermission(page);
-  await seedZonesInGeneralSettings(page, 3);
   await openSubnav(page, 'zone-mapping');
   await page.getByTestId('new-zone-set-btn').click();
   await page.getByTestId('new-zone-set-btn').click();
   await wait(200);
   await page.getByTestId('zone-set-delete-1').click();
   await wait(200);
-  // After deleting set 1, only 1 set should remain — now re-labelled Zone Set 1
   const remaining = await page.locator('[data-testid^="zone-set-label-"]').count();
   const label = (await page.getByTestId('zone-set-label-1').textContent()).trim();
   record('US-161880.delete.hardDeleteAndRelabel',
@@ -232,12 +236,11 @@ async function testDeleteZoneSet(page) {
 
 async function testPricingIndicators(page) {
   await openDraftPermission(page);
-  await seedZonesInGeneralSettings(page, 2);
   await openSubnav(page, 'zone-mapping');
   await page.getByTestId('new-zone-set-btn').click();
   await pickZonesInSet(page, 1, 1);
   const before = (await page.getByTestId('zone-set-pricing-status-1').textContent()).trim();
-  await page.getByTestId('zone-set-mark-pricing-1').click();
+  await page.getByTestId('zone-set-add-scheme-1').click();
   await wait(200);
   const after = (await page.getByTestId('zone-set-pricing-status-1').textContent()).trim();
   const shot = await snap(page, 'US-161880.pricingIndicator');
@@ -249,11 +252,10 @@ async function testPricingIndicators(page) {
 
 async function testDeleteDisabledWhenPricingConfigured(page) {
   await openDraftPermission(page);
-  await seedZonesInGeneralSettings(page, 2);
   await openSubnav(page, 'zone-mapping');
   await page.getByTestId('new-zone-set-btn').click();
   await pickZonesInSet(page, 1, 1);
-  await page.getByTestId('zone-set-mark-pricing-1').click();
+  await page.getByTestId('zone-set-add-scheme-1').click();
   await wait(200);
   const disabled = await page.getByTestId('zone-set-delete-1').isDisabled();
   const shot = await snap(page, 'US-161880.deleteDisabled');
@@ -264,31 +266,37 @@ async function testDeleteDisabledWhenPricingConfigured(page) {
 
 async function testCreateButtonDisabledWhenAllZonesMapped(page) {
   await openDraftPermission(page);
-  await seedZonesInGeneralSettings(page, 2);
   await openSubnav(page, 'zone-mapping');
-  // Create two sets and pick all zones between them
+  // Read the contract's total zone count so we know how many sets to fully saturate the pool.
+  const totalZoneOptsCount = await page.evaluate(() => {
+    // The Select isn't open yet; instead compute from the persisted zones dataset by opening one dropdown.
+    return null;
+  });
+  // Just open the first set and count options — that's the pool size.
   await page.getByTestId('new-zone-set-btn').click();
-  await page.getByTestId('new-zone-set-btn').click();
-  await pickZonesInSet(page, 1, 1);
-  await pickZonesInSet(page, 2, 1);
+  await wait(150);
+  await page.getByTestId('zone-set-select-1').click();
+  await wait(300);
+  const total = await page.locator('[data-testid^="zone-set-opt-1-"]').count();
+  await page.keyboard.press('Escape');
+  await wait(200);
+  // Pick every zone in Zone Set 1.
+  await pickZonesInSet(page, 1, total);
   const disabled = await page.getByTestId('new-zone-set-btn').isDisabled();
   const shot = await snap(page, 'US-161880.createDisabled');
   record('US-161880.create.disabledWhenAllZonesMapped',
-    'New Zone Set button is disabled when every GS zone is already mapped',
-    disabled, `newBtnDisabled=${disabled}`, shot);
+    'New Zone Set button is disabled when every contract zone is already mapped',
+    disabled, `newBtnDisabled=${disabled} totalZones=${total}`, shot);
 }
 
 async function testAtLeastOneZoneErrorWhenEmpty(page) {
   await openDraftPermission(page);
-  await seedZonesInGeneralSettings(page, 2);
   await openSubnav(page, 'zone-mapping');
   await page.getByTestId('new-zone-set-btn').click();
   await pickZonesInSet(page, 1, 1);
-  // Now un-check the picked zone to leave the set empty
   await page.getByTestId('zone-set-select-1').click();
   await wait(300);
   const opts = await page.locator('[data-testid^="zone-set-opt-1-"]').all();
-  // Click the checked one to uncheck it
   for (const o of opts) {
     const box = await o.locator('input[type="checkbox"]');
     if (await box.isChecked()) { await o.click(); await wait(80); break; }
@@ -306,7 +314,6 @@ async function testAtLeastOneZoneErrorWhenEmpty(page) {
 
 async function testDraftAllowedWithEmptyState(page) {
   await openDraftPermission(page);
-  await seedZonesInGeneralSettings(page, 2);
   await openSubnav(page, 'zone-mapping');
   await page.getByTestId('save-draft-button').click();
   await wait(500);
@@ -318,7 +325,6 @@ async function testDraftAllowedWithEmptyState(page) {
 
 async function testPublishBlockedNoZoneSets(page) {
   await openDraftPermission(page);
-  await seedZonesInGeneralSettings(page, 2);
   await openSubnav(page, 'zone-mapping');
   await page.getByTestId('publish-button').click();
   await wait(500);
@@ -332,10 +338,8 @@ async function testPublishBlockedNoZoneSets(page) {
 
 async function testPublishBlockedEmptyZoneSet(page) {
   await openDraftPermission(page);
-  await seedZonesInGeneralSettings(page, 2);
   await openSubnav(page, 'zone-mapping');
   await page.getByTestId('new-zone-set-btn').click();
-  // Leave the set empty; try publish.
   await page.getByTestId('publish-button').click();
   await wait(500);
   const body = (await page.locator('body').textContent()).toLowerCase();
@@ -348,13 +352,12 @@ async function testPublishBlockedEmptyZoneSet(page) {
 
 async function testPersistenceAcrossReload(page) {
   await openDraftPermission(page);
-  await seedZonesInGeneralSettings(page, 3);
   await openSubnav(page, 'zone-mapping');
   await page.getByTestId('new-zone-set-btn').click();
   await page.getByTestId('new-zone-set-btn').click();
   await pickZonesInSet(page, 1, 1);
   await pickZonesInSet(page, 2, 1);
-  await page.getByTestId('zone-set-mark-pricing-1').click();
+  await page.getByTestId('zone-set-add-scheme-1').click();
   await wait(300);
   await page.reload();
   await page.waitForLoadState('networkidle');
@@ -381,7 +384,7 @@ async function testPersistenceAcrossReload(page) {
     ['visible when zonal',          testVisibleWhenZonal],
     ['info alert present',          testInfoAlertPresent],
     ['create incremental labels',   testCreateNewZoneSetLabels],
-    ['dropdown scoped to GS',       testDropdownOnlyGSSelectedZones],
+    ['dropdown all contract zones', testDropdownAllContractZones],
     ['cross-set mutex',             testCrossSetMutualExclusion],
     ['delete zone set',             testDeleteZoneSet],
     ['pricing indicators',          testPricingIndicators],

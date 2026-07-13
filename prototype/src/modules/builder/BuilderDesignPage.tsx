@@ -104,6 +104,7 @@ export function BuilderDesignPage() {
     permitMode: 'both',
     zoneRelated: 'zonal',
     zoneIds: [] as string[],
+    changeZoneLimit: '', // US-180626 — visible only when group is Zonal.
     backOfficeUse: false,
     vatApplicable: false,
     hoursOfOperation: false,
@@ -118,62 +119,6 @@ export function BuilderDesignPage() {
   // Permission limit (Basic Information)
   const [permissionLimit, setPermissionLimit] = useState('');
 
-  // US-143256 — 'Special Event' sub-section is visible only when the GS toggle is enabled.
-  // US-187108 — 'Special Event Properties Mapping' shows only when SE enabled;
-  //   'Zone Mapping' shows only when SE disabled (they are mutually exclusive).
-  const PERMISSION_SUBS = useMemo<readonly PermissionSub[]>(() =>
-    PERMISSION_SUBS_ALL.filter((s) => {
-      if (s === 'Special Event') return gs.specialEvent === 'enable';
-      if (s === 'Special Event Properties Mapping') return gs.specialEvent === 'enable';
-      if (s === 'Zone Mapping') return gs.specialEvent !== 'enable' && gs.zoneRelated === 'zonal';
-      return true;
-    }),
-    [gs.specialEvent, gs.zoneRelated]
-  );
-
-  // US-155975 — validation errors dialog state
-  const [publishErrors, setPublishErrors] = useState<ValidationError[] | null>(null);
-
-  // US-161880 — Zone Mapping: persistent zone sets per permission.
-  // Each set is { id, zoneIds[] }. Labelled Zone Set 1, Zone Set 2... by position.
-  type ZoneSet = { id: string; zoneIds: string[] };
-  const zoneSetsKey = `prototype:builder:${id ?? 'new'}:zoneSets`;
-  const [zoneSets, setZoneSets] = usePersistentState<ZoneSet[]>(zoneSetsKey, () => []);
-  // Mock "pricing configured" flags per zone set — synced from Pricing Configuration tab.
-  const zoneSetPricingKey = `prototype:builder:${id ?? 'new'}:zoneSetPricing`;
-  const [zoneSetPricing, setZoneSetPricing] = usePersistentState<Record<string, boolean>>(zoneSetPricingKey, () => ({}));
-  // In-edit pending-save error tracking per zone set (US-161880 "at least one zone" rule).
-  const [zoneSetSaveError, setZoneSetSaveError] = useState<Record<string, string>>({});
-  // Zones already consumed by OTHER sets (mutual exclusion helper).
-  const zonesConsumedByOtherSets = (currentSetId: string) => {
-    const used = new Set<string>();
-    for (const zs of zoneSets) {
-      if (zs.id === currentSetId) continue;
-      zs.zoneIds.forEach((z) => used.add(z));
-    }
-    return used;
-  };
-  const allMappedZoneIds = useMemo(() => {
-    const s = new Set<string>();
-    zoneSets.forEach((zs) => zs.zoneIds.forEach((z) => s.add(z)));
-    return s;
-  }, [zoneSets]);
-  const canAddZoneSet = gs.zoneIds.some((z) => !allMappedZoneIds.has(z));
-
-  // US-161880 — when a zone is removed from General Settings, prune it from any zone set.
-  useEffect(() => {
-    const pool = new Set(gs.zoneIds);
-    setZoneSets((prev) => {
-      let changed = false;
-      const next = prev.map((zs) => {
-        const filtered = zs.zoneIds.filter((z) => pool.has(z));
-        if (filtered.length !== zs.zoneIds.length) { changed = true; return { ...zs, zoneIds: filtered }; }
-        return zs;
-      });
-      return changed ? next : prev;
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gs.zoneIds.join(',')]);
   // Sticky field-level errors: once the user attempts Publish, keep them visible
   // per-section (they auto-clear when the field is filled).
   const [showFieldErrors, setShowFieldErrors] = useState(false);
@@ -280,12 +225,65 @@ export function BuilderDesignPage() {
     return e ? e.message : null;
   };
 
+  // US-180626 — Zonal / Non-Zonal is now DERIVED from the selected Group's
+  // groupType (previously a per-permission "Zone Related" field which is removed).
+  // Fallback to 'Zonal' when the group cannot be resolved.
   const [persistedGroups] = usePersistentState<Group[]>('prototype:builder:groups:rows', seedGroups);
   const allGroups = useMemo(
     () => (persistedGroups && persistedGroups.length > 0 ? persistedGroups : []),
     [persistedGroups]
   );
   const availableGroups = type ? allGroups.filter(g => g.permissionType === type && g.status === 'Active').map(g => g.name) : allGroups.filter(g => g.status === 'Active').map(g => g.name);
+  const selectedGroupObj = useMemo(() => allGroups.find((g) => g.name === group), [allGroups, group]);
+  const resolvedZoneRelated: 'zonal' | 'non-zonal' = selectedGroupObj?.groupType === 'Non-Zonal' ? 'non-zonal' : 'zonal';
+
+  // US-143256 — 'Special Event' sub-section is visible only when the GS toggle is enabled.
+  // US-187108 — 'Special Event Properties Mapping' shows only when SE enabled;
+  //   'Zone Mapping' shows only when SE disabled (they are mutually exclusive).
+  const PERMISSION_SUBS = useMemo<readonly PermissionSub[]>(() =>
+    PERMISSION_SUBS_ALL.filter((s) => {
+      if (s === 'Special Event') return gs.specialEvent === 'enable';
+      if (s === 'Special Event Properties Mapping') return gs.specialEvent === 'enable';
+      if (s === 'Zone Mapping') return gs.specialEvent !== 'enable' && resolvedZoneRelated === 'zonal';
+      return true;
+    }),
+    [gs.specialEvent, resolvedZoneRelated]
+  );
+
+  // US-155975 — validation errors dialog state
+  const [publishErrors, setPublishErrors] = useState<ValidationError[] | null>(null);
+
+  // US-161880 — Zone Mapping: persistent zone sets per permission.
+  // Each set is { id, zoneIds[] }. Labelled Zone Set 1, Zone Set 2... by position.
+  type ZoneSet = { id: string; zoneIds: string[] };
+  const zoneSetsKey = `prototype:builder:${id ?? 'new'}:zoneSets`;
+  const [zoneSets, setZoneSets] = usePersistentState<ZoneSet[]>(zoneSetsKey, () => []);
+  // US-180626 — pricing schemes per zone set. Multiple schemes surface a dropdown
+  // beside the "Edit Pricing" button so the user can pick which scheme to edit.
+  const zoneSetSchemesKey = `prototype:builder:${id ?? 'new'}:zoneSetSchemes`;
+  const [zoneSetSchemes, setZoneSetSchemes] = usePersistentState<Record<string, string[]>>(zoneSetSchemesKey, () => ({}));
+  const [selectedScheme, setSelectedScheme] = useState<Record<string, string>>({});
+  // "Pricing configured" is derived from schemes: at least one scheme means pricing exists.
+  const isPricingConfigured = (zsId: string) => (zoneSetSchemes[zsId] || []).length > 0;
+  // In-edit pending-save error tracking per zone set (US-161880 "at least one zone" rule).
+  const [zoneSetSaveError, setZoneSetSaveError] = useState<Record<string, string>>({});
+  // Zones already consumed by OTHER sets (mutual exclusion helper).
+  const zonesConsumedByOtherSets = (currentSetId: string) => {
+    const used = new Set<string>();
+    for (const zs of zoneSets) {
+      if (zs.id === currentSetId) continue;
+      zs.zoneIds.forEach((z) => used.add(z));
+    }
+    return used;
+  };
+  const allMappedZoneIds = useMemo(() => {
+    const s = new Set<string>();
+    zoneSets.forEach((zs) => zs.zoneIds.forEach((z) => s.add(z)));
+    return s;
+  }, [zoneSets]);
+  // US-180626 — Zone Mapping pool is ALL contract zones (not filtered to gs.zoneIds).
+  const zoneMappingPool = useMemo(() => allZones.map((z) => z.id), []);
+  const canAddZoneSet = zoneMappingPool.some((z) => !allMappedZoneIds.has(z));
 
   // US-188673 — lock Type + Prefix after publish
   const isPublished = perm?.status === 'Published';
@@ -387,16 +385,9 @@ export function BuilderDesignPage() {
 
     // US-155975 — full mandatory-field validation before Publish.
     if (status === 'Published') {
-      // US-138267 — Zone Related: zonal + zero zones blocks Publish.
-      if (gs.zoneRelated === 'zonal' && (gs.zoneIds || []).length === 0) {
-        return {
-          ok: false,
-          error: 'Please select at least one zone',
-          errors: [{ section: 'General Settings', field: 'Zone Related', message: 'Please select at least one zone' }],
-        };
-      }
+      // US-180626 — 'Zone Related' field removed; zonality is derived from group.
       // US-161880 — Zone Mapping: zonal permission requires at least one zone set with at least one zone.
-      if (gs.zoneRelated === 'zonal' && gs.specialEvent !== 'enable') {
+      if (resolvedZoneRelated === 'zonal' && gs.specialEvent !== 'enable') {
         if (zoneSets.length === 0) {
           return {
             ok: false,
@@ -836,9 +827,11 @@ export function BuilderDesignPage() {
                   <Stack spacing={2} sx={{ mt: 2 }}>
                     {zoneSets.map((zs, idx) => {
                       const consumed = zonesConsumedByOtherSets(zs.id);
-                      const availableForThisSet = gs.zoneIds.filter((zid) => !consumed.has(zid));
-                      const pricingConfigured = !!zoneSetPricing[zs.id];
+                      const availableForThisSet = zoneMappingPool.filter((zid) => !consumed.has(zid));
+                      const schemes = zoneSetSchemes[zs.id] || [];
+                      const pricingConfigured = schemes.length > 0;
                       const saveErr = zoneSetSaveError[zs.id];
+                      const currentScheme = selectedScheme[zs.id] || schemes[0] || '';
                       return (
                         <Box
                           key={zs.id}
@@ -885,14 +878,11 @@ export function BuilderDesignPage() {
                             onChange={(e) => {
                               const raw = e.target.value;
                               const next = typeof raw === 'string' ? raw.split(',') : (raw as string[]);
-                              // Enforce unique (Set already handles); enforce mutual exclusion with other sets.
                               const cleaned = Array.from(new Set(next)).filter((z) => !consumed.has(z));
                               setZoneSets((prev) => prev.map((s) => s.id === zs.id ? { ...s, zoneIds: cleaned } : s));
-                              // If user still has at least one zone selected, clear the save error.
                               if (cleaned.length > 0 && saveErr) {
                                 setZoneSetSaveError((prev) => { const n = { ...prev }; delete n[zs.id]; return n; });
                               }
-                              // If user tries to remove everything, flag it (but keep the empty selection so they can see).
                               if (cleaned.length === 0) {
                                 setZoneSetSaveError((prev) => ({ ...prev, [zs.id]: 'At least one zone must be mapped to the zone set. Changes cannot be saved otherwise.' }));
                               }
@@ -908,7 +898,7 @@ export function BuilderDesignPage() {
                             {availableForThisSet.length === 0 && zs.zoneIds.length === 0 && (
                               <MenuItem disabled>No zones available — all are mapped to other sets</MenuItem>
                             )}
-                            {gs.zoneIds.map((zid) => {
+                            {zoneMappingPool.map((zid) => {
                               const takenByOther = consumed.has(zid);
                               return (
                                 <MenuItem
@@ -933,30 +923,71 @@ export function BuilderDesignPage() {
                               {saveErr}
                             </Typography>
                           )}
-                          {pricingConfigured && (
-                            <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                          {/* US-180626 — Edit Pricing with optional scheme dropdown when >1 pricing scheme exists. */}
+                          {zs.zoneIds.length > 0 && (
+                            <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1.5 }} flexWrap="wrap">
+                              {schemes.length > 1 && (
+                                <Select
+                                  size="small"
+                                  value={currentScheme}
+                                  onChange={(e) => setSelectedScheme((prev) => ({ ...prev, [zs.id]: e.target.value as string }))}
+                                  SelectDisplayProps={{ 'data-testid': `zone-set-scheme-select-${idx + 1}` } as any}
+                                  sx={{ minWidth: 180 }}
+                                >
+                                  {schemes.map((sc) => (
+                                    <MenuItem key={sc} value={sc} data-testid={`zone-set-scheme-opt-${idx + 1}-${sc.replace(/\W+/g, '-')}`}>{sc}</MenuItem>
+                                  ))}
+                                </Select>
+                              )}
                               <Button
                                 size="small"
-                                variant="text"
-                                data-testid={`zone-set-clear-pricing-${idx + 1}`}
-                                onClick={() => setZoneSetPricing((prev) => { const n = { ...prev }; delete n[zs.id]; return n; })}
-                                sx={{ textTransform: 'none', color: tokens.MUTED }}
+                                variant="outlined"
+                                data-testid={`zone-set-edit-pricing-${idx + 1}`}
+                                disabled={!pricingConfigured}
+                                onClick={() => {
+                                  showToast(`Opening pricing for ${currentScheme || schemes[0]} on Zone Set ${idx + 1}`, 'info');
+                                }}
+                                sx={{ textTransform: 'none' }}
                               >
-                                Clear pricing (demo)
+                                Edit Pricing{schemes.length > 1 ? ` (${currentScheme})` : ''}
                               </Button>
-                            </Stack>
-                          )}
-                          {!pricingConfigured && zs.zoneIds.length > 0 && (
-                            <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                              <Button
-                                size="small"
-                                variant="text"
-                                data-testid={`zone-set-mark-pricing-${idx + 1}`}
-                                onClick={() => setZoneSetPricing((prev) => ({ ...prev, [zs.id]: true }))}
-                                sx={{ textTransform: 'none', color: tokens.NAVY }}
-                              >
-                                Mark pricing configured (demo)
-                              </Button>
+                              {!pricingConfigured && (
+                                <Button
+                                  size="small"
+                                  variant="text"
+                                  data-testid={`zone-set-add-scheme-${idx + 1}`}
+                                  onClick={() => setZoneSetSchemes((prev) => ({ ...prev, [zs.id]: [...(prev[zs.id] || []), 'Standard'] }))}
+                                  sx={{ textTransform: 'none', color: tokens.NAVY }}
+                                >
+                                  Configure pricing (demo)
+                                </Button>
+                              )}
+                              {pricingConfigured && (
+                                <Button
+                                  size="small"
+                                  variant="text"
+                                  data-testid={`zone-set-add-scheme-${idx + 1}`}
+                                  onClick={() => setZoneSetSchemes((prev) => {
+                                    const existing = prev[zs.id] || [];
+                                    const nextName = `Scheme ${existing.length + 1}`;
+                                    return { ...prev, [zs.id]: [...existing, nextName] };
+                                  })}
+                                  sx={{ textTransform: 'none', color: tokens.NAVY }}
+                                >
+                                  + Add scheme (demo)
+                                </Button>
+                              )}
+                              {pricingConfigured && (
+                                <Button
+                                  size="small"
+                                  variant="text"
+                                  data-testid={`zone-set-clear-pricing-${idx + 1}`}
+                                  onClick={() => setZoneSetSchemes((prev) => { const n = { ...prev }; delete n[zs.id]; return n; })}
+                                  sx={{ textTransform: 'none', color: tokens.MUTED }}
+                                >
+                                  Clear pricing (demo)
+                                </Button>
+                              )}
                             </Stack>
                           )}
                         </Box>
@@ -1179,43 +1210,23 @@ export function BuilderDesignPage() {
                     </Stack>
                   </FormRow>
 
-                  <FormRow label="Zone Related" required info="Choose whether this permission is tied to specific parking zones. When Zonal, pick one or more from the multi-select." error={gs.zoneRelated === 'zonal' && gs.zoneIds.length === 0 && showFieldErrors ? 'Please select at least one zone' : ''}>
-                    <Stack spacing={1}>
-                      <RadioGroup row value={gs.zoneRelated} onChange={(e) => gsSet('zoneRelated', e.target.value as 'zonal' | 'non-zonal')}>
-                        <FormControlLabel value="zonal" control={<Radio data-testid="zone-related-zonal" />} label="Zonal" sx={{ mr: 4 }} />
-                        <FormControlLabel value="non-zonal" control={<Radio data-testid="zone-related-non-zonal" />} label="Non-Zonal" />
-                      </RadioGroup>
-                      {gs.zoneRelated === 'zonal' && (
-                        <Stack spacing={0.5}>
-                          <Select
-                            multiple
-                            displayEmpty
-                            value={gs.zoneIds}
-                            onChange={(e) => gsSet('zoneIds', typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value as string[])}
-                            renderValue={(selected) => (selected as string[]).length === 0
-                              ? <em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select zones</em>
-                              : (selected as string[]).map((zid) => allZones.find((z) => z.id === zid)?.name || zid).join(', ')
-                            }
-                            SelectDisplayProps={{ 'data-testid': 'zone-multi-select' } as any}
-                            fullWidth
-                            error={gs.zoneIds.length === 0}
-                          >
-                            {allZones.map((z) => (
-                              <MenuItem key={z.id} value={z.id} data-testid={`zone-opt-${z.id}`}>
-                                <Checkbox checked={gs.zoneIds.includes(z.id)} />
-                                {z.name}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                          {gs.zoneIds.length === 0 && (
-                            <Typography data-testid="zone-required-error" variant="caption" sx={{ color: '#B42318' }}>
-                              Please select at least one zone
-                            </Typography>
-                          )}
-                        </Stack>
-                      )}
-                    </Stack>
-                  </FormRow>
+                  {/* US-180626 — "Zone Related" (aka Permit related to) field removed. Zonal/Non-Zonal is derived from the selected Group. */}
+                  {resolvedZoneRelated === 'zonal' && (
+                    <FormRow label="Change Zone Limit" optional info="Maximum number of zones an applicant can select when applying for this permission. Leave blank for no limit. Only shown for Zonal groups.">
+                      <TextField
+                        type="number"
+                        placeholder="e.g. 3"
+                        value={gs.changeZoneLimit}
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/[^0-9]/g, '');
+                          gsSet('changeZoneLimit', digits);
+                        }}
+                        inputProps={{ min: 1, max: 99, 'data-testid': 'change-zone-limit-input' }}
+                        sx={{ width: 200 }}
+                      />
+                    </FormRow>
+                  )}
+
 
                   <Typography data-testid="other-settings-heading" sx={{ fontFamily: tokens.HEADING, fontWeight: 700, fontSize: '1rem', color: tokens.INK, mt: 2 }}>
                     Other Settings
