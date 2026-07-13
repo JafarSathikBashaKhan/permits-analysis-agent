@@ -284,6 +284,20 @@ export function BuilderDesignPage() {
     return '';
   }, [gs.prefix, builderRows, id, type]);
 
+  // US-135717 — Terms & Conditions dropdown reads live from the templates store,
+  // filtered by the currently-selected Permission Type, and displayed alphabetically.
+  // Empty list yields no options (empty-state handled below).
+  type TnCTemplate = { id: string; templateName: string; permissionType: string; published?: boolean };
+  const [tncTemplates] = usePersistentState<TnCTemplate[]>('prototype:templates:tnc:rows', () => []);
+  const tncOptions = useMemo(() => {
+    const t = (type || '').trim().toLowerCase();
+    if (!t) return [];
+    return tncTemplates
+      .filter((tpl) => String(tpl.permissionType || '').trim().toLowerCase().startsWith(t))
+      .slice()
+      .sort((a, b) => a.templateName.localeCompare(b.templateName, undefined, { sensitivity: 'base' }));
+  }, [tncTemplates, type]);
+
   // US-139062 — Auto-save on tab / sub-section change.
   // Only persists silently when all Basic Information mandatory fields are filled
   // (so we don't overwrite an unsaved draft with invalid state).
@@ -865,13 +879,23 @@ export function BuilderDesignPage() {
                   </FormRow>
 
                   <FormRow label="Terms and Conditions" required error={fieldError('General Settings', 'Terms & Conditions')}>
-                    <Select displayEmpty value={gs.termsAndConditions} onChange={(e) => gsSet('termsAndConditions', e.target.value)} fullWidth
-                      error={!!fieldError('General Settings', 'Terms & Conditions')}>
-                      <MenuItem value=""><em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select</em></MenuItem>
-                      <MenuItem value="standard">Standard T&C v1</MenuItem>
-                      <MenuItem value="visitor">Visitor T&C v2</MenuItem>
-                      <MenuItem value="business">Business T&C v1</MenuItem>
-                    </Select>
+                    <Stack spacing={0.5} sx={{ width: '100%' }}>
+                      <Select displayEmpty value={gs.termsAndConditions} onChange={(e) => gsSet('termsAndConditions', e.target.value)} fullWidth
+                        inputProps={{ 'data-testid': 'tnc-select' }}
+                        error={!!fieldError('General Settings', 'Terms & Conditions')}>
+                        <MenuItem value=""><em style={{ color: tokens.MUTED, fontStyle: 'normal' }}>Select</em></MenuItem>
+                        {tncOptions.map((tpl) => (
+                          <MenuItem key={tpl.id} value={tpl.id} data-testid={`tnc-opt-${tpl.id}`}>{tpl.templateName}</MenuItem>
+                        ))}
+                      </Select>
+                      {(!type || tncOptions.length === 0) && (
+                        <Typography data-testid="tnc-empty" variant="caption" sx={{ color: tokens.MUTED }}>
+                          {!type
+                            ? 'Select a Permission Type in Basic Information to see available templates.'
+                            : 'No Terms & Conditions templates configured for this permission type.'}
+                        </Typography>
+                      )}
+                    </Stack>
                   </FormRow>
 
                   <FormRow label="Display Description" required error={fieldError('General Settings', 'Display Description')}>
