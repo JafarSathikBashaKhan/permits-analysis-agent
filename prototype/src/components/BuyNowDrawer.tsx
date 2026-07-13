@@ -212,6 +212,26 @@ export function BuyNowDrawer({
           <span style={{ display: 'none' }} data-testid="buynow-hidden-tier">{pricing.tierPrice.toFixed(2)}</span>
           <span style={{ display: 'none' }} data-testid="buynow-hidden-diesel">{pricing.dieselSurcharge.toFixed(2)}</span>
           <span style={{ display: 'none' }} data-testid="buynow-hidden-total">{pricing.total.toFixed(2)}</span>
+          {/* US-181519 — permission label rich text rendered on the application form */}
+          {(() => {
+            let labelHtml = '';
+            try {
+              const raw = localStorage.getItem(`prototype:permissionLabel:${selectedPerm.id}`);
+              if (raw) labelHtml = (JSON.parse(raw) as { labelText?: string }).labelText || '';
+            } catch { /* ignore */ }
+            return (
+              <>
+                <span style={{ display: 'none' }} data-testid="buynow-hidden-label-html">{labelHtml}</span>
+                {labelHtml ? (
+                  <Box
+                    data-testid="buynow-permission-label"
+                    sx={{ px: 3, pt: 2, '& a': { color: 'primary.main', textDecoration: 'underline' }, '& ul, & ol': { pl: 3 } }}
+                    dangerouslySetInnerHTML={{ __html: labelHtml }}
+                  />
+                ) : null}
+              </>
+            );
+          })()}
         </>
       )}
       <Stack

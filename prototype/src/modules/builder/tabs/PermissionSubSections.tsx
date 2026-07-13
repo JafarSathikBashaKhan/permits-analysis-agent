@@ -15,15 +15,26 @@
  * Each section persists to localStorage per permission id and matches
  * the real Marston layouts (title + Divider + field rows / repeaters).
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Alert, Box, Button, Checkbox, Chip, Divider, FormControlLabel, IconButton,
-  InputAdornment, MenuItem, Paper, Radio, RadioGroup, Stack, Switch, Table,
-  TableBody, TableCell, TableHead, TableRow, TextField, Typography,
+  InputAdornment, MenuItem, Paper, Radio, RadioGroup, Select, Stack, Switch, Table,
+  TableBody, TableCell, TableHead, TableRow, TextField, Tooltip, Typography,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import FormatBoldIcon from '@mui/icons-material/FormatBold';
+import FormatItalicIcon from '@mui/icons-material/FormatItalic';
+import FormatUnderlinedIcon from '@mui/icons-material/FormatUnderlined';
+import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
+import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
+import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import FormatListNumberedIcon from '@mui/icons-material/FormatListNumbered';
+import InsertLinkIcon from '@mui/icons-material/InsertLink';
+import UndoIcon from '@mui/icons-material/Undo';
+import RedoIcon from '@mui/icons-material/Redo';
 import { tokens } from '../../../theme';
 
 // ─── Shared helpers ──────────────────────────────────────────────────────
@@ -95,8 +106,102 @@ export type SubSectionProps = { permissionId: string; showErrors?: boolean; erro
 // ═════════════════════════════════════════════════════════════════════════
 //   PERMISSION LABEL
 // ═════════════════════════════════════════════════════════════════════════
+
+/**
+ * US-181519 — Rich text editor for the Permission Label body text.
+ * Uses contentEditable + document.execCommand which supports Bold/Italic/
+ * Underline, Font size, Font style, Alignment, Ordered/unordered lists,
+ * Hyperlinks, and native Cut/Copy/Paste/Undo/Redo.
+ */
+function RichTextEditor({
+  value, onChange, ariaTestIdPrefix = 'permission-label',
+}: { value: string; onChange: (html: string) => void; ariaTestIdPrefix?: string }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const lastEmittedRef = useRef<string>(''); // track the HTML we last emitted so we don't overwrite our own edits
+  const [fontSize, setFontSize] = useState('3'); // execCommand fontSize scale 1–7
+  const [fontFamily, setFontFamily] = useState('Arial');
+
+  // Sync value → DOM ONLY when the incoming value came from outside this editor
+  // (i.e. it does not match the HTML we last emitted via onChange). This preserves
+  // the browser's native undo/redo history for contentEditable.
+  useEffect(() => {
+    if (!ref.current) return;
+    if (value === lastEmittedRef.current) return;
+    if (ref.current.innerHTML !== value) ref.current.innerHTML = value || '';
+    lastEmittedRef.current = value || '';
+  }, [value]);
+
+  const emit = () => {
+    if (!ref.current) return;
+    const html = ref.current.innerHTML;
+    lastEmittedRef.current = html;
+    onChange(html);
+  };
+  const exec = (cmd: string, arg?: string) => {
+    ref.current?.focus();
+    document.execCommand(cmd, false, arg);
+    emit();
+  };
+  const onInput = () => emit();
+  const promptLink = () => {
+    const url = window.prompt('Enter URL', 'https://');
+    if (url) exec('createLink', url);
+  };
+
+  return (
+    <Box data-testid={`${ariaTestIdPrefix}-editor-wrapper`}
+      sx={{ border: '1px solid #C7D2DA', borderRadius: 1, overflow: 'hidden', bgcolor: '#fff' }}>
+      <Stack direction="row" spacing={0.5} alignItems="center"
+        sx={{ px: 1, py: 0.5, borderBottom: '1px solid #E4E9EF', bgcolor: '#F7F9FB', flexWrap: 'wrap' }}
+        data-testid={`${ariaTestIdPrefix}-toolbar`}>
+        <Tooltip title="Bold"><IconButton size="small" data-testid={`${ariaTestIdPrefix}-btn-bold`} onMouseDown={(e) => e.preventDefault()} onClick={() => exec('bold')}><FormatBoldIcon fontSize="small" /></IconButton></Tooltip>
+        <Tooltip title="Italic"><IconButton size="small" data-testid={`${ariaTestIdPrefix}-btn-italic`} onMouseDown={(e) => e.preventDefault()} onClick={() => exec('italic')}><FormatItalicIcon fontSize="small" /></IconButton></Tooltip>
+        <Tooltip title="Underline"><IconButton size="small" data-testid={`${ariaTestIdPrefix}-btn-underline`} onMouseDown={(e) => e.preventDefault()} onClick={() => exec('underline')}><FormatUnderlinedIcon fontSize="small" /></IconButton></Tooltip>
+        <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+        <Select size="small" value={fontSize}
+          onChange={(e) => { const v = String(e.target.value); setFontSize(v); exec('fontSize', v); }}
+          SelectDisplayProps={{ 'data-testid': `${ariaTestIdPrefix}-font-size` } as any} sx={{ minWidth: 80 }}>
+          {[
+            ['1', '8pt'], ['2', '10pt'], ['3', '12pt'], ['4', '14pt'], ['5', '18pt'], ['6', '24pt'], ['7', '36pt'],
+          ].map(([v, l]) => <MenuItem key={v} value={v} data-testid={`${ariaTestIdPrefix}-font-size-opt-${v}`}>{l}</MenuItem>)}
+        </Select>
+        <Select size="small" value={fontFamily}
+          onChange={(e) => { const v = String(e.target.value); setFontFamily(v); exec('fontName', v); }}
+          SelectDisplayProps={{ 'data-testid': `${ariaTestIdPrefix}-font-family` } as any} sx={{ minWidth: 130 }}>
+          {['Arial', 'Georgia', 'Times New Roman', 'Courier New', 'Verdana'].map((f) =>
+            <MenuItem key={f} value={f} data-testid={`${ariaTestIdPrefix}-font-family-opt-${f.replace(/\s+/g, '-')}`} style={{ fontFamily: f }}>{f}</MenuItem>)}
+        </Select>
+        <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+        <Tooltip title="Align Left"><IconButton size="small" data-testid={`${ariaTestIdPrefix}-btn-align-left`} onMouseDown={(e) => e.preventDefault()} onClick={() => exec('justifyLeft')}><FormatAlignLeftIcon fontSize="small" /></IconButton></Tooltip>
+        <Tooltip title="Align Center"><IconButton size="small" data-testid={`${ariaTestIdPrefix}-btn-align-center`} onMouseDown={(e) => e.preventDefault()} onClick={() => exec('justifyCenter')}><FormatAlignCenterIcon fontSize="small" /></IconButton></Tooltip>
+        <Tooltip title="Align Right"><IconButton size="small" data-testid={`${ariaTestIdPrefix}-btn-align-right`} onMouseDown={(e) => e.preventDefault()} onClick={() => exec('justifyRight')}><FormatAlignRightIcon fontSize="small" /></IconButton></Tooltip>
+        <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+        <Tooltip title="Unordered List"><IconButton size="small" data-testid={`${ariaTestIdPrefix}-btn-ul`} onMouseDown={(e) => e.preventDefault()} onClick={() => exec('insertUnorderedList')}><FormatListBulletedIcon fontSize="small" /></IconButton></Tooltip>
+        <Tooltip title="Ordered List"><IconButton size="small" data-testid={`${ariaTestIdPrefix}-btn-ol`} onMouseDown={(e) => e.preventDefault()} onClick={() => exec('insertOrderedList')}><FormatListNumberedIcon fontSize="small" /></IconButton></Tooltip>
+        <Tooltip title="Insert Hyperlink"><IconButton size="small" data-testid={`${ariaTestIdPrefix}-btn-link`} onMouseDown={(e) => e.preventDefault()} onClick={promptLink}><InsertLinkIcon fontSize="small" /></IconButton></Tooltip>
+        <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />
+        <Tooltip title="Undo"><IconButton size="small" data-testid={`${ariaTestIdPrefix}-btn-undo`} onMouseDown={(e) => e.preventDefault()} onClick={() => exec('undo')}><UndoIcon fontSize="small" /></IconButton></Tooltip>
+        <Tooltip title="Redo"><IconButton size="small" data-testid={`${ariaTestIdPrefix}-btn-redo`} onMouseDown={(e) => e.preventDefault()} onClick={() => exec('redo')}><RedoIcon fontSize="small" /></IconButton></Tooltip>
+      </Stack>
+      <Box
+        ref={ref}
+        data-testid={`${ariaTestIdPrefix}-editor`}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={onInput}
+        sx={{
+          minHeight: 160, p: 1.5, outline: 'none', fontSize: '0.95rem', color: tokens.INK,
+          '& a': { color: tokens.NAVY, textDecoration: 'underline' },
+          '& ul, & ol': { pl: 3, my: 0.5 },
+        }}
+      />
+    </Box>
+  );
+}
+
 export function PermissionLabelSection({ permissionId }: SubSectionProps) {
   type State = {
+    labelText: string; // rich HTML — US-181519
     displayLabel: string;
     shortCode: string;
     colour: string;
@@ -106,6 +211,7 @@ export function PermissionLabelSection({ permissionId }: SubSectionProps) {
     showOnDashboard: boolean;
   };
   const [s, set] = usePersistentState<State>(`prototype:permissionLabel:${permissionId}`, {
+    labelText: '',
     displayLabel: '', shortCode: '', colour: '#1976D2', icon: 'directions_car',
     showOnPermit: true, showOnBadge: true, showOnDashboard: true,
   });
@@ -114,6 +220,15 @@ export function PermissionLabelSection({ permissionId }: SubSectionProps) {
   return (
     <>
       <SectionHeader title="Permission Label" />
+      {/* US-181519 — Rich text editor for the Permission Label body shown on the application form. */}
+      <FieldRow label="Label Text">
+        <Stack sx={{ width: '100%' }} spacing={1}>
+          <Typography variant="caption" sx={{ color: tokens.MUTED }}>
+            Configure the label text shown in the application form for this permission. Supports bold, italic, underline, font size &amp; style, alignment, lists, hyperlinks and cut / copy / paste / undo / redo.
+          </Typography>
+          <RichTextEditor value={s.labelText} onChange={(html) => patch({ labelText: html })} />
+        </Stack>
+      </FieldRow>
       <FieldRow label="Display Label" required>
         <TextField size="small" fullWidth placeholder="e.g. Resident Permit" value={s.displayLabel}
           onChange={(e) => patch({ displayLabel: e.target.value })} />
