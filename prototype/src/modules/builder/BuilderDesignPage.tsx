@@ -97,7 +97,7 @@ export function BuilderDesignPage() {
     includeTime: false,
     startDateDelay: '0',
     permitDaysSelection: 'disable',
-    retentionDays: '90',
+    retentionDays: '7',
     prefix: '',
     termsAndConditions: '',
     displayDescription: '',
@@ -802,15 +802,31 @@ export function BuilderDesignPage() {
                     </RadioGroup>
                   </FormRow>
 
-                  <FormRow label="Retention Period Expired Permits" info="Number of days expired permits are retained before archival.">
-                    <Stack direction="row" alignItems="center" spacing={2}>
-                      <TextField
-                        type="number"
-                        value={gs.retentionDays}
-                        onChange={(e) => gsSet('retentionDays', e.target.value)}
-                        sx={{ width: 200 }}
-                      />
-                      <Typography sx={{ color: tokens.INK }}>Days</Typography>
+                  <FormRow label="Retention Period for Expired Permits (Days)" required info='Enter the number of days expired permits should remain visible after their expiry date. For example, if set to 7, expired permits will be displayed for 7 days before being hidden from the system view. Enter 0 to hide them immediately upon expiry.'>
+                    <Stack spacing={0.5} sx={{ width: 260 }}>
+                      <Stack direction="row" alignItems="center" spacing={2}>
+                        <TextField
+                          type="number"
+                          inputProps={{ min: 0, step: 1, 'data-testid': 'retention-days-input' }}
+                          value={gs.retentionDays}
+                          onChange={(e) => {
+                            const raw = e.target.value;
+                            if (raw === '') { gsSet('retentionDays', ''); return; }
+                            // Only positive whole numbers (including 0). Strip decimals & sign.
+                            const cleaned = raw.replace(/[^0-9]/g, '');
+                            if (cleaned === '') { gsSet('retentionDays', ''); return; }
+                            gsSet('retentionDays', String(parseInt(cleaned, 10)));
+                          }}
+                          error={gs.retentionDays === '' || parseInt(gs.retentionDays, 10) < 0}
+                          sx={{ width: 200 }}
+                        />
+                        <Typography sx={{ color: tokens.INK }}>Days</Typography>
+                      </Stack>
+                      {gs.retentionDays === '' && (
+                        <Typography data-testid="retention-required-error" sx={{ color: '#B42318', fontSize: '0.75rem' }}>
+                          This field is required. Enter 0 or more.
+                        </Typography>
+                      )}
                     </Stack>
                   </FormRow>
 
