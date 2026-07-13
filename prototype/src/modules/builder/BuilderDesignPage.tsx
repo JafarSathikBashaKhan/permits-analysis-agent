@@ -21,6 +21,7 @@ import {
   EmailTemplatesSection, VisitorPortalSettingsSection,
 } from './tabs/PermissionSubSections';
 import { SpecialEventSection } from './tabs/SpecialEventSection';
+import { SpecialEventPropertiesMappingSection } from './tabs/SpecialEventPropertiesMappingSection';
 import { usePersistentState } from '../../hooks/usePersistentState';
 import { BUILDER_ROWS_KEY } from './BuilderListPage';
 import { PERMISSION_TYPE_OPTIONS, PERMISSION_CATEGORY_OPTIONS, BUSINESS_RULES } from '../../constants/enums';
@@ -51,6 +52,7 @@ const PERMISSION_SUBS_ALL = [
   'Basic Information',
   'General Settings',
   'Zone Mapping',
+  'Special Event Properties Mapping',
   'Permission Label',
   'Payment Settings',
   'Discount Settings',
@@ -111,8 +113,15 @@ export function BuilderDesignPage() {
   const [permissionLimit, setPermissionLimit] = useState('');
 
   // US-143256 — 'Special Event' sub-section is visible only when the GS toggle is enabled.
+  // US-187108 — 'Special Event Properties Mapping' shows only when SE enabled;
+  //   'Zone Mapping' shows only when SE disabled (they are mutually exclusive).
   const PERMISSION_SUBS = useMemo<readonly PermissionSub[]>(() =>
-    PERMISSION_SUBS_ALL.filter((s) => s !== 'Special Event' || gs.specialEvent === 'enable'),
+    PERMISSION_SUBS_ALL.filter((s) => {
+      if (s === 'Special Event') return gs.specialEvent === 'enable';
+      if (s === 'Special Event Properties Mapping') return gs.specialEvent === 'enable';
+      if (s === 'Zone Mapping') return gs.specialEvent !== 'enable';
+      return true;
+    }),
     [gs.specialEvent]
   );
 
@@ -235,9 +244,16 @@ export function BuilderDesignPage() {
   const isPublished = perm?.status === 'Published';
 
   // US-143256 — if user is on Special Event sub and toggles it off, snap back to Basic Information.
+  // US-187108 — snap Special Event Properties Mapping <-> Zone Mapping when SE toggle flips.
   useEffect(() => {
     if (sub === 'Special Event' && gs.specialEvent !== 'enable') {
       setSub('Basic Information');
+    }
+    if (sub === 'Special Event Properties Mapping' && gs.specialEvent !== 'enable') {
+      setSub('Zone Mapping');
+    }
+    if (sub === 'Zone Mapping' && gs.specialEvent === 'enable') {
+      setSub('Special Event Properties Mapping');
     }
   }, [gs.specialEvent, sub]);
 
@@ -634,7 +650,7 @@ export function BuilderDesignPage() {
                 </>
               )}
 
-              {sub !== 'Basic Information' && sub !== 'General Settings' && sub !== 'Zone Mapping' && (
+              {sub !== 'Basic Information' && sub !== 'General Settings' && sub !== 'Zone Mapping' && sub !== 'Special Event Properties Mapping' && (
                 <>
                   {sub === 'Permission Label'        && <PermissionLabelSection        permissionId={id || 'default'} showErrors={showFieldErrors} />}
                   {sub === 'Payment Settings'        && <PaymentSettingsSection        permissionId={id || 'default'} showErrors={showFieldErrors} error={fieldError('Payment Settings', 'Payment Methods')} />}
@@ -696,6 +712,10 @@ export function BuilderDesignPage() {
                     Zone limits for this permission are set to <strong>No Limit</strong> by default. If required, they can be configured by saving the permission as Draft.
                   </Alert>
                 </>
+              )}
+
+              {sub === 'Special Event Properties Mapping' && (
+                <SpecialEventPropertiesMappingSection permissionId={id || 'default'} showErrors={showFieldErrors} />
               )}
 
               {sub === 'General Settings' && (

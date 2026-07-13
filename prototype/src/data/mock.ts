@@ -126,6 +126,27 @@ export const zones: Zone[] = ZONES.map((z, i) => ({
   streets: 4 + i * 2, published: i < 4, permissions: 2 + i,
 }));
 
+// -------- Properties (for Special Event Properties Mapping — US-187108) --------
+export type Property = { id: string; uprn: string; name: string; streetId: string; permissionLimit: number; };
+export const properties: Property[] = (() => {
+  const out: Property[] = [];
+  streets.forEach((s, si) => {
+    // Give most streets 3-5 properties; leave every 6th street empty to exercise the empty-state.
+    if (si % 6 === 5) return;
+    const count = 3 + (si % 3);
+    for (let p = 0; p < count; p++) {
+      out.push({
+        id: `P-${s.id}-${p + 1}`,
+        uprn: `UPRN-${100000 + si * 10 + p}`,
+        name: `${p + 1} ${s.name}`,
+        streetId: s.id,
+        permissionLimit: (p % 4) + 1,
+      });
+    }
+  });
+  return out;
+})();
+
 export type LocationRow = { id: string; name: string; zone: string; properties: number; status: 'Published' | 'Draft'; };
 export const locations: LocationRow[] = [
   { id: 'L-1', name: 'Central Car Park A',   zone: 'Z01', properties: 42, status: 'Published' },
