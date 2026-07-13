@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react';
 import {
   Box, Button, Card, CardContent, Chip, Drawer, Grid, IconButton, MenuItem,
-  Stack, Step, Stepper, StepLabel, Tab, Tabs, TextField, Typography,
-  FormControlLabel, Checkbox, Divider, Alert,
+  Stack, Step, Stepper, StepLabel, Tab, Tabs, TextField, Tooltip, Typography,
+  FormControlLabel, Checkbox, Divider, Alert, InputAdornment,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
@@ -215,13 +216,21 @@ export function BuyNowDrawer({
           {/* US-181519 — permission label rich text rendered on the application form */}
           {(() => {
             let labelHtml = '';
+            let paymentHelp = '';
             try {
               const raw = localStorage.getItem(`prototype:permissionLabel:${selectedPerm.id}`);
               if (raw) labelHtml = (JSON.parse(raw) as { labelText?: string }).labelText || '';
             } catch { /* ignore */ }
+            try {
+              const raw = localStorage.getItem(`prototype:paymentSettings:${selectedPerm.id}`);
+              if (raw) paymentHelp = (JSON.parse(raw) || {}).helpDescription || '';
+            } catch { /* ignore */ }
             return (
               <>
                 <span style={{ display: 'none' }} data-testid="buynow-hidden-label-html">{labelHtml}</span>
+                {/* US-148756 — top-level mirror so the configured help text is
+                    verifiable even before the applicant reaches the payment step. */}
+                <span style={{ display: 'none' }} data-testid="buynow-hidden-payment-help">{paymentHelp}</span>
                 {labelHtml ? (
                   <Box
                     data-testid="buynow-permission-label"
@@ -488,6 +497,40 @@ export function BuyNowDrawer({
                   fullWidth
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(Number(e.target.value))}
+                  InputProps={{
+                    // US-148756 — help icon + tooltip driven by the Permission Builder
+                    // "Payment Method Help Description" field.
+                    endAdornment: (() => {
+                      let help = '';
+                      try {
+                        const raw = localStorage.getItem(`prototype:paymentSettings:${selectedPerm.id}`);
+                        if (raw) help = (JSON.parse(raw) || {}).helpDescription || '';
+                      } catch { /* ignore */ }
+                      if (!help) return null;
+                      return (
+                        <InputAdornment position="end">
+                          <Tooltip
+                            title={<span data-testid="payment-method-help-tooltip-content">{help}</span>}
+                            arrow
+                            placement="top"
+                            enterTouchDelay={0}
+                          >
+                            <IconButton
+                              size="small"
+                              edge="end"
+                              data-testid="payment-method-help-icon"
+                              aria-label="Payment method help"
+                              onClick={(e) => e.preventDefault()}
+                            >
+                              <InfoOutlinedIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          {/* Hidden mirror for automated tests — Tooltip content only mounts on hover. */}
+                          <span style={{ display: 'none' }} data-testid="payment-method-help-hidden">{help}</span>
+                        </InputAdornment>
+                      );
+                    })(),
+                  }}
                 >
                   {PAYMENT_METHOD_OPTIONS.map((opt) => (
                     <MenuItem key={opt.id} value={opt.id}>

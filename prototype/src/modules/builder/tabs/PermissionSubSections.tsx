@@ -297,10 +297,11 @@ export function PaymentSettingsSection({ permissionId, showErrors, error }: SubS
     paymentMode: 'immediate' | 'invoice' | 'onApproval';
     invoiceDays: string;
     partialPaymentAllowed: boolean;
+    helpDescription: string; // US-148756
   };
   const defaultState = ALL_PAYMENT_METHODS.reduce<Partial<State>>(
     (acc, m) => { (acc as any)[m.key] = false; return acc; },
-    { paymentMode: 'immediate', invoiceDays: '14', partialPaymentAllowed: false },
+    { paymentMode: 'immediate', invoiceDays: '14', partialPaymentAllowed: false, helpDescription: '' },
   ) as State;
   const [s, set] = usePersistentState<State>(`prototype:paymentSettings:${permissionId}`, defaultState);
   const patch = (p: Partial<State>) => set((prev) => ({ ...prev, ...p }));
@@ -308,6 +309,10 @@ export function PaymentSettingsSection({ permissionId, showErrors, error }: SubS
   const methodsError = showErrors && !hasMethods
     ? (error || 'At least one payment method is required to publish this permission')
     : null;
+  // US-148756 — hard cap the help description at 500 characters.
+  const HELP_MAX = 500;
+  const helpValue = (s.helpDescription || '').slice(0, HELP_MAX);
+  const helpRemaining = HELP_MAX - helpValue.length;
 
   const renderGroup = (
     title: string,
@@ -361,6 +366,31 @@ export function PaymentSettingsSection({ permissionId, showErrors, error }: SubS
         <Stack sx={{ width: '100%' }}>
           {renderGroup('Online Payments', 'online', ONLINE_PAYMENT_METHODS)}
           {renderGroup('Offline Payments', 'offline', OFFLINE_PAYMENT_METHODS)}
+        </Stack>
+      </FieldRow>
+
+      {/* US-148756 — Payment Method Help Description (max 500 chars).
+          Rendered as a tooltip on the application-form Payment Methods field. */}
+      <FieldRow label="Payment Method Help Description">
+        <Stack sx={{ width: '100%' }} spacing={0.5}>
+          <TextField
+            size="small"
+            fullWidth
+            multiline
+            minRows={3}
+            maxRows={6}
+            placeholder="Explain the available payment methods to the applicant — this appears as a tooltip on the application form."
+            value={helpValue}
+            onChange={(e) => patch({ helpDescription: e.target.value.slice(0, HELP_MAX) })}
+            inputProps={{ maxLength: HELP_MAX, 'data-testid': 'payment-help-description' }}
+          />
+          <Typography
+            variant="caption"
+            data-testid="payment-help-description-counter"
+            sx={{ alignSelf: 'flex-end', color: helpRemaining === 0 ? '#B91C1C' : tokens.MUTED }}
+          >
+            {helpValue.length}/{HELP_MAX} characters
+          </Typography>
         </Stack>
       </FieldRow>
 
