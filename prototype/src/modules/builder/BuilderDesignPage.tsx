@@ -231,7 +231,7 @@ export function BuilderDesignPage() {
     category: perm?.category ?? '', description: '', permissionLimit: '',
     gs: {
       specialEvent: 'disable', startDatePolicy: '', permitDaysSelection: 'disable',
-      retentionDays: '90', prefix: perm?.prefix ?? '', termsAndConditions: '',
+      retentionDays: '90', prefix: '', termsAndConditions: '',
       displayDescription: '', permitMode: 'both', backOfficeUse: false,
       vatApplicable: false, hoursOfOperation: false, enableExperianCheck: false,
       businessName: false, businessAddress: false, commentBox: false, adminFee: '',
@@ -313,12 +313,12 @@ export function BuilderDesignPage() {
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
         <Stack direction="row" alignItems="center" spacing={0.5}>
-          <MuiLink component={RouterLink} to="/builder" underline="hover" sx={{ color: tokens.INK, fontWeight: 500, fontFamily: tokens.HEADING, fontSize: '1rem' }}>
+          <MuiLink data-testid="crumb-builder" component={RouterLink} to="/builder" underline="hover" sx={{ color: tokens.INK, fontWeight: 500, fontFamily: tokens.HEADING, fontSize: '1rem' }}>
             Builder
           </MuiLink>
           <ChevronRight sx={{ color: tokens.MUTED, fontSize: 18 }} />
           {!isNew && (
-            <Typography sx={{ color: tokens.INK, fontWeight: 500, fontFamily: tokens.HEADING, fontSize: '1rem' }}>
+            <Typography data-testid="crumb-name" sx={{ color: tokens.INK, fontWeight: 500, fontFamily: tokens.HEADING, fontSize: '1rem' }}>
               {displayName}
             </Typography>
           )}
@@ -414,8 +414,9 @@ export function BuilderDesignPage() {
 
       {/* Top-level tabs */}
       <Box sx={{ px: 3, pt: 2, bgcolor: tokens.PAPER, borderBottom: `1px solid ${tokens.LINE}` }}>
-        <Tabs value={topTab} onChange={(_, v) => setTopTab(v)}>
+        <Tabs value={topTab} onChange={(_, v) => setTopTab(v)} data-testid="builder-top-tabs">
           <Tab
+            data-testid="tab-permissions"
             label={<TabLabelWithBadge label="Permissions" count={showFieldErrors ? (
               Object.entries(sectionErrorCount).filter(([s]) => (PERMISSION_SUBS as readonly string[]).includes(s)).reduce((n, [, c]) => n + c, 0)
             ) : 0} />}
@@ -423,6 +424,7 @@ export function BuilderDesignPage() {
             sx={topTabSx}
           />
           <Tab
+            data-testid="tab-rules"
             label={<TabLabelWithBadge label="Rules" count={showFieldErrors ? (
               Object.entries(sectionErrorCount).filter(([s]) => s.startsWith('Rules')).reduce((n, [, c]) => n + c, 0)
             ) : 0} />}
@@ -430,16 +432,18 @@ export function BuilderDesignPage() {
             sx={topTabSx}
           />
           <Tab
+            data-testid="tab-pricing"
             label={<TabLabelWithBadge label="Pricing" count={showFieldErrors ? (sectionErrorCount['Pricing'] ?? 0) : 0} />}
             value="pricing"
             sx={topTabSx}
           />
           <Tab
+            data-testid="tab-application-form"
             label={<TabLabelWithBadge label="Application Form" count={showFieldErrors ? (sectionErrorCount['Application Form'] ?? 0) : 0} />}
             value="application-form"
             sx={topTabSx}
           />
-          <Tab label="Custom Fields" value="custom-fields" sx={topTabSx} />
+          <Tab data-testid="tab-custom-fields" label="Custom Fields" value="custom-fields" sx={topTabSx} />
         </Tabs>
       </Box>
 
