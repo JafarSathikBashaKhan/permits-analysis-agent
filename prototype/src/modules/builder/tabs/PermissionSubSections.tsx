@@ -461,14 +461,23 @@ function validateDiscountValue(value: string, kind: DiscountKind): string | null
 }
 
 export function DiscountSettingsSection({ permissionId }: SubSectionProps) {
-  type State = { blueBadge: DiscountFieldState; pension: DiscountFieldState };
+  type State = {
+    blueBadge: DiscountFieldState;
+    pension: DiscountFieldState;
+    // US-148820 — Discount Help Description shown as a tooltip on the
+    // application form discounts field. Capped at 500 characters.
+    helpDescription: string;
+  };
   const [s, set] = usePersistentState<State>(`prototype:discountSettings:${permissionId}`, {
     blueBadge: { value: '', kind: 'percentage' },
     pension:   { value: '', kind: 'percentage' },
+    helpDescription: '',
   });
   const [mnpsCurrency] = usePersistentState<string>('prototype:mnps-contract:currency', '£');
   const patchField = (which: 'blueBadge' | 'pension', patch: Partial<DiscountFieldState>) =>
     set((prev) => ({ ...prev, [which]: { ...prev[which], ...patch } }));
+  const patchHelp = (v: string) =>
+    set((prev) => ({ ...prev, helpDescription: v.slice(0, 500) }));
 
   const blueBadgeError = validateDiscountValue(s.blueBadge.value, s.blueBadge.kind);
   const pensionError   = validateDiscountValue(s.pension.value,   s.pension.kind);
@@ -532,6 +541,30 @@ export function DiscountSettingsSection({ permissionId }: SubSectionProps) {
       </Alert>
       {renderField('Blue Badge Discount', 'blueBadge', s.blueBadge, blueBadgeError)}
       {renderField('Pension Discount',    'pension',   s.pension,   pensionError)}
+      {/* US-148820 — Discount Help Description (max 500 chars). Surfaces as
+          the tooltip next to the discounts field on the application form. */}
+      <FieldRow label="Discount Help Description">
+        <Stack sx={{ width: '100%' }} spacing={0.5}>
+          <TextField
+            size="small"
+            fullWidth
+            multiline
+            minRows={2}
+            maxRows={6}
+            value={s.helpDescription}
+            onChange={(e) => patchHelp(e.target.value)}
+            placeholder="e.g. Blue Badge holders receive an automatic discount at checkout."
+            inputProps={{ maxLength: 500, 'data-testid': 'discount-help-description' } as any}
+          />
+          <Typography
+            variant="caption"
+            data-testid="discount-help-description-counter"
+            sx={{ color: s.helpDescription.length >= 500 ? '#B71C1C' : tokens.MUTED, alignSelf: 'flex-end' }}
+          >
+            {s.helpDescription.length}/500 characters
+          </Typography>
+        </Stack>
+      </FieldRow>
     </>
   );
 }

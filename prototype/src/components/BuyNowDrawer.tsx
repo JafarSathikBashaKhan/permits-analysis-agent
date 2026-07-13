@@ -217,6 +217,7 @@ export function BuyNowDrawer({
           {(() => {
             let labelHtml = '';
             let paymentHelp = '';
+            let discountHelp = '';
             try {
               const raw = localStorage.getItem(`prototype:permissionLabel:${selectedPerm.id}`);
               if (raw) labelHtml = (JSON.parse(raw) as { labelText?: string }).labelText || '';
@@ -225,12 +226,18 @@ export function BuyNowDrawer({
               const raw = localStorage.getItem(`prototype:paymentSettings:${selectedPerm.id}`);
               if (raw) paymentHelp = (JSON.parse(raw) || {}).helpDescription || '';
             } catch { /* ignore */ }
+            try {
+              const raw = localStorage.getItem(`prototype:discountSettings:${selectedPerm.id}`);
+              if (raw) discountHelp = (JSON.parse(raw) || {}).helpDescription || '';
+            } catch { /* ignore */ }
             return (
               <>
                 <span style={{ display: 'none' }} data-testid="buynow-hidden-label-html">{labelHtml}</span>
                 {/* US-148756 — top-level mirror so the configured help text is
                     verifiable even before the applicant reaches the payment step. */}
                 <span style={{ display: 'none' }} data-testid="buynow-hidden-payment-help">{paymentHelp}</span>
+                {/* US-148820 — top-level mirror for the Discount Help Description. */}
+                <span style={{ display: 'none' }} data-testid="buynow-hidden-discount-help">{discountHelp}</span>
                 {labelHtml ? (
                   <Box
                     data-testid="buynow-permission-label"
@@ -491,6 +498,66 @@ export function BuyNowDrawer({
                     </Stack>
                   </CardContent>
                 </Card>
+                <TextField
+                  label="Discounts Applied"
+                  fullWidth
+                  value={(() => {
+                    try {
+                      const raw = localStorage.getItem(`prototype:discountSettings:${selectedPerm.id}`);
+                      if (!raw) return 'No discounts configured';
+                      const d = JSON.parse(raw) || {};
+                      const parts: string[] = [];
+                      const fmt = (label: string, f: any) => {
+                        if (!f || !f.value) return;
+                        const sym = (() => {
+                          try {
+                            const c = localStorage.getItem('prototype:mnps-contract:currency');
+                            return c ? JSON.parse(c) : '£';
+                          } catch { return '£'; }
+                        })();
+                        parts.push(`${label}: ${f.kind === 'currency' ? sym + f.value : f.value + '%'}`);
+                      };
+                      fmt('Blue Badge', d.blueBadge);
+                      fmt('Pension', d.pension);
+                      return parts.length ? parts.join('  ·  ') : 'No discounts configured';
+                    } catch { return 'No discounts configured'; }
+                  })()}
+                  InputProps={{
+                    readOnly: true,
+                    inputProps: { 'data-testid': 'buynow-discounts-field' } as any,
+                    // US-148820 — help icon + tooltip driven by the Permission
+                    // Builder "Discount Help Description" field.
+                    endAdornment: (() => {
+                      let help = '';
+                      try {
+                        const raw = localStorage.getItem(`prototype:discountSettings:${selectedPerm.id}`);
+                        if (raw) help = (JSON.parse(raw) || {}).helpDescription || '';
+                      } catch { /* ignore */ }
+                      if (!help) return null;
+                      return (
+                        <InputAdornment position="end">
+                          <Tooltip
+                            title={<span data-testid="discount-help-tooltip-content">{help}</span>}
+                            arrow
+                            placement="top"
+                            enterTouchDelay={0}
+                          >
+                            <IconButton
+                              size="small"
+                              edge="end"
+                              data-testid="discount-help-icon"
+                              aria-label="Discount help"
+                              onClick={(e) => e.preventDefault()}
+                            >
+                              <InfoOutlinedIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          <span style={{ display: 'none' }} data-testid="discount-help-hidden">{help}</span>
+                        </InputAdornment>
+                      );
+                    })(),
+                  }}
+                />
                 <TextField
                   label="Payment Method"
                   select
